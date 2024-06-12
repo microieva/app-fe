@@ -7,7 +7,10 @@ import { GraphQLModule } from './graphql.module';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { TestAppComponent } from './graphql/test-app/test-app.component';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-//import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material'
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @NgModule({ declarations: [
         AppComponent,
@@ -15,7 +18,10 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
     ],
     bootstrap: [AppComponent], 
     imports: [
-        //MatLabelModule,
+        MatCheckboxModule,
+        MatButtonModule,
+        MatFormFieldModule,
+        MatInputModule,
         FormsModule,
         ReactiveFormsModule,
         BrowserModule,
@@ -24,7 +30,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
     ], 
     providers: [
         provideHttpClient(withInterceptorsFromDi()), 
-        provideAnimationsAsync()
+        provideAnimationsAsync(),
         //{provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: {appearance: 'outline'}}
     ] 
 })

@@ -32,7 +32,8 @@ export class AppGraphQLService {
         return this.apollo
             .mutate({
                 mutation: gql`${mutation}`,
-                variables
+                variables,
+                fetchPolicy: 'network-only'
             })
     }
 }
