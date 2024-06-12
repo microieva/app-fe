@@ -2,7 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import { AppGraphQLService } from "../../services/app-graphql.service";
 import { TestApp } from "./test-app";
 import { take } from "rxjs";
-import { UntypedFormBuilder, FormControl, FormGroup } from "@angular/forms";
+import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { TestAppInput } from "./test-app.input";
 
 @Component({
@@ -12,16 +12,16 @@ import { TestAppInput } from "./test-app.input";
 })
 export class TestAppComponent implements OnInit {
     testApps: TestApp[] = [];
-    //form: TestForm;
+    form: FormGroup | undefined;
     
     constructor(
         private graphQLService: AppGraphQLService,
-        private formBuilder: UntypedFormBuilder
+        private formBuilder: FormBuilder
     ){}
 
     async ngOnInit() {
         await this.loadTestApps()
-        //this.buildForm();
+        this.buildForm();
     }
 
     async loadTestApps() {
@@ -41,15 +41,16 @@ export class TestAppComponent implements OnInit {
             });
     }
 
-    // buildForm() {
-    //     return this.form = this.formBuilder.group({
-    //         testAppName: this.formBuilder.control<string>(''),
-    //         isAppConnected: this.formBuilder.control<boolean>(false)
-    //     })
-    // }
+    buildForm() {
+        this.form = this.formBuilder.group({
+            testAppName: this.formBuilder.control<string>(''),
+            isAppConnected: this.formBuilder.control<boolean>(false)
+        }) as FormGroup
+    }
 }
 
-// type TestForm = FormGroup<TestAppInput>({
-//     testAppName: FormControl<string>,
-//     isAppConnected: FormControl<boolean>
-// })
+
+type TestForm = FormGroup<({
+    testAppName: FormControl<string>
+    isAppConnected: FormControl<boolean>
+})>
