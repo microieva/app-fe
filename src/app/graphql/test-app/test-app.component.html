@@ -1,15 +1,12 @@
 <h2>HELLO TEST APP</h2>
 
-<ul *ngFor="let testApp of testApps" style="display: flex;">
-        <li *ngIf="testApp">{{testApp.testAppName}}</li>
-        <button mat-button-raised type="button" (click)="deleteTestApp(testApp.id)"><span class="material-icons">delete</span></button>
-</ul>
 <form *ngIf="form" [formGroup]="form">
-        <mat-form-field>
-                <mat-label>{{ 'Test App Name' }}</mat-label>
-                <input name="testAppName" color="white" matInput [formControl]="form.controls.testAppName">
-        </mat-form-field>
-        <mat-label>{{ 'Is connected '}}</mat-label>
-        <mat-checkbox [color]="black" [formControl]="form.controls.isAppConnected"></mat-checkbox>
-        <button type="submit" color="primary" mat-raised-button (click)="save()">Save</button>
+    <mat-form-field appearance="outline">
+        <mat-label>{{ 'Test App Name' }}</mat-label>
+        <input name="testAppName" matInput [formControl]="form.controls.testAppName">
+    </mat-form-field>
+    <mat-label>{{ 'Is connected '}}</mat-label>
+    <mat-checkbox [color]="black" [formControl]="form.controls.isAppConnected"></mat-checkbox>
+    <button type="submit" color="primary" mat-raised-button (click)="save()">Save</button>
+    <button type="button" color="secondary" mat-raised-button (click)="cancel()">Cancel</button>
 </form>

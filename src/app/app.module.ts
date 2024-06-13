@@ -3,7 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { GraphQLModule } from './graphql.module';
+import { GraphQLModule } from './modules/graphql.module';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { TestAppComponent } from './graphql/test-app/test-app.component';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -11,9 +11,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { TestAppsComponent } from './graphql/test-apps/test-apps.component';
+import { HomeComponent } from './graphql/home/home.component';
 
-@NgModule({ declarations: [
+@NgModule({ 
+    declarations: [
         AppComponent,
+        HomeComponent,
+        TestAppsComponent,
         TestAppComponent
     ],
     bootstrap: [AppComponent], 

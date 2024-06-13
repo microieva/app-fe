@@ -1,5 +1,5 @@
 export interface TestApp {
-    id: number,
+    id?: number,
     testAppName: string,
     isAppConnected: boolean
 }

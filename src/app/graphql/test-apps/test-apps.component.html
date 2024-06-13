@@ -1,0 +1,6 @@
+<button type="button" color="primary" mat-raised-button (click)="addTestApp()"><span class="material-icons">add</span> Add</button>
+
+<ul *ngFor="let testApp of testApps" style="display: flex;">
+    <li *ngIf="testApp"><a [routerLink]="['/test-apps', testApp.id]">{{testApp.testAppName}}</a></li>
+    <button mat-button-raised type="button" (click)="deleteTestApp(testApp.id)"><span class="material-icons">delete</span></button>
+</ul>

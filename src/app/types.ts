@@ -7,4 +7,10 @@ export interface QueryResponse {
 
 interface QueryDataType {
     testApps: TestApp[]
+    testApp: TestApp
+}
+
+export interface MutationResponse {
+    success: boolean,
+    message?: string
 }
