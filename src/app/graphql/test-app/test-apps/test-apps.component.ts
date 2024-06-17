@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
-import { TestApp } from "../test-app/test-app";
-import { AppGraphQLService } from "../../services/app-graphql.service";
+import { TestApp } from "../test-app";
+import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
 import { take } from "rxjs";
 import { Router } from "@angular/router";
 

@@ -3,23 +3,27 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { GraphQLModule } from './modules/graphql.module';
+import { GraphQLModule } from './shared/modules/graphql.module';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { TestAppComponent } from './graphql/test-app/test-app.component';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import { MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { TestAppsComponent } from './graphql/test-apps/test-apps.component';
-import { HomeComponent } from './graphql/home/home.component';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTreeModule } from '@angular/material/tree';
+import { TestAppsComponent } from './graphql/test-app/test-apps/test-apps.component';
+import { HomeComponent } from './shared/components/home/home.component';
+import { AppTreeComponent } from './shared/components/app-tree/app-tree.component';
 
 @NgModule({ 
     declarations: [
         AppComponent,
         HomeComponent,
         TestAppsComponent,
-        TestAppComponent
+        TestAppComponent,
+        AppTreeComponent
     ],
     bootstrap: [AppComponent], 
     imports: [
@@ -27,6 +31,8 @@ import { HomeComponent } from './graphql/home/home.component';
         MatButtonModule,
         MatFormFieldModule,
         MatInputModule,
+        MatToolbarModule,
+        MatTreeModule,
         FormsModule,
         ReactiveFormsModule,
         BrowserModule,
@@ -36,7 +42,7 @@ import { HomeComponent } from './graphql/home/home.component';
     providers: [
         provideHttpClient(withInterceptorsFromDi()), 
         provideAnimationsAsync(),
-        //{provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: {appearance: 'outline'}}
+        {provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' }}
     ] 
 })
 

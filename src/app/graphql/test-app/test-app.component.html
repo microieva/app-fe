@@ -1,12 +1,16 @@
-<h2>HELLO TEST APP</h2>
+<div class="page">
+    <h3 *ngIf="!testApp">Add New Test App</h3>
+    <h3 *ngIf="testApp">Edit {{ testApp.testAppName }} Test App</h3>
+    
+    <form *ngIf="form" [formGroup]="form">
+        <mat-form-field>
+            <mat-label>{{ 'Test App Name' }}</mat-label>
+            <input name="testAppName" matInput [formControl]="form.controls.testAppName">
+        </mat-form-field>
+        <mat-label>{{ 'Is connected '}}</mat-label>
+        <mat-checkbox [color]="black" [formControl]="form.controls.isAppConnected"></mat-checkbox>
+        <button type="submit" color="primary" mat-raised-button (click)="save()">Save</button>
+        <button type="button" color="secondary" mat-raised-button (click)="cancel()">Cancel</button>
+    </form>
 
-<form *ngIf="form" [formGroup]="form">
-    <mat-form-field appearance="outline">
-        <mat-label>{{ 'Test App Name' }}</mat-label>
-        <input name="testAppName" matInput [formControl]="form.controls.testAppName">
-    </mat-form-field>
-    <mat-label>{{ 'Is connected '}}</mat-label>
-    <mat-checkbox [color]="black" [formControl]="form.controls.isAppConnected"></mat-checkbox>
-    <button type="submit" color="primary" mat-raised-button (click)="save()">Save</button>
-    <button type="button" color="secondary" mat-raised-button (click)="cancel()">Cancel</button>
-</form>
+</div>

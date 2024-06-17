@@ -40,3 +40,28 @@ $custom-theme-theme: mat.define-light-theme((
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 li {list-style: none;}
+a {text-decoration: none; color: inherit;}
+.content {
+  height: 100%;
+  width: 100%;
+}
+app-tree {
+  height: calc(100vh - 4rem);
+  background-color: aliceblue;
+  * {
+    border-radius: none;
+  }
+}
+.page { 
+  padding: 2rem;
+  padding-top: 0;
+  h3 {
+
+  }
+  button {
+
+  }
+  form {
+
+  }
+}

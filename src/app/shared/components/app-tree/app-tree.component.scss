@@ -1,0 +1,18 @@
+
+mat-tree-node {
+    background-color: aliceblue;
+    width: 20rem;
+    border-right: 1px solid lightgray;
+}
+button {
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+    padding-left: 2rem;
+    margin: 0;
+    height: 3rem;
+    border-radius: none;
+}
+.activeLink {
+    background-color: rgb(230,238,245);
+}

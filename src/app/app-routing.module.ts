@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { TestAppComponent } from './graphql/test-app/test-app.component';
-import { TestAppsComponent } from './graphql/test-apps/test-apps.component';
-import { HomeComponent } from './graphql/home/home.component';
+import { TestAppsComponent } from './graphql/test-app/test-apps/test-apps.component';
+import { HomeComponent } from './shared/components/home/home.component';
 
 const routes: Routes = [
   {path:'', redirectTo: '', pathMatch: 'full'},

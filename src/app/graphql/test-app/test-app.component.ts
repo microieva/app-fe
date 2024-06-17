@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { AppGraphQLService } from "../../services/app-graphql.service";
+import { AppGraphQLService } from "../../shared/services/app-graphql.service";
 import { TestApp } from "./test-app";
 import { take } from "rxjs";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
