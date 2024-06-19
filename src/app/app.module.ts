@@ -16,6 +16,9 @@ import { MatTreeModule } from '@angular/material/tree';
 import { TestAppsComponent } from './graphql/test-app/test-apps/test-apps.component';
 import { HomeComponent } from './shared/components/home/home.component';
 import { AppTreeComponent } from './shared/components/app-tree/app-tree.component';
+import { MatDialogContent, MatDialogModule } from '@angular/material/dialog';
+import { AppDialogService } from './shared/services/app-dialog.service';
+import { DialogModule } from './shared/modules/dialog.module';
 
 @NgModule({ 
     declarations: [
@@ -33,17 +36,21 @@ import { AppTreeComponent } from './shared/components/app-tree/app-tree.componen
         MatInputModule,
         MatToolbarModule,
         MatTreeModule,
+        MatDialogModule,
+        MatDialogContent,
         FormsModule,
         ReactiveFormsModule,
         BrowserModule,
         AppRoutingModule,
-        GraphQLModule
+        GraphQLModule,
+        DialogModule
     ], 
     providers: [
+        AppDialogService,
         provideHttpClient(withInterceptorsFromDi()), 
         provideAnimationsAsync(),
         {provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' }}
-    ] 
+    ],
 })
 
 export class AppModule { }

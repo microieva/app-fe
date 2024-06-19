@@ -24,4 +24,9 @@ export interface ExpandableAppTreeNode {
     expandable: boolean;
     name: string;
     level: number;
-  }
+}
+
+export interface AppDialogData {
+    loading?: boolean
+    isDeleting: boolean
+}

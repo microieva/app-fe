@@ -1,8 +1,9 @@
 import { Component, OnInit } from "@angular/core";
-import { TestApp } from "../test-app";
-import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
 import { take } from "rxjs";
 import { Router } from "@angular/router";
+import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
+import { AppDialogService } from "../../../shared/services/app-dialog.service";
+import { TestApp } from "../test-app";
 
 @Component({
     selector: 'test-apps',
@@ -11,8 +12,10 @@ import { Router } from "@angular/router";
 })
 export class TestAppsComponent implements OnInit {
     testApps: TestApp[] = [];
+
     constructor(
         private graphQLService: AppGraphQLService,
+        private dialog: AppDialogService,
         private router: Router
     ){}
 
@@ -29,18 +32,32 @@ export class TestAppsComponent implements OnInit {
                 }
             }
         `
-        //await this.dialog(LoadingComponent) implement OkCancelComponent OkCompoennt <-for errors
         this.graphQLService
             .send(query)
             .pipe(take(1))
             .subscribe(res => {
+                if (res.loading) {
+                    this.dialog.open({ data: {lodaing: true}});
+                }
                 this.testApps = res.data.testApps;
             });
     }
+
     addTestApp(){
         this.router.navigate(['test-apps', 'new'])
     }
+
     deleteTestApp(id: number) {
+        const dialogRef = this.dialog.open({ data: { isDeleting: true }})
+        
+        dialogRef.componentInstance.ok.subscribe((value)=> {
+            if (value) {
+                this.sendMutation(id);
+            }
+        })  
+    }
+
+    sendMutation(id: number) {
         const mutation = `mutation ($testAppId: Int!) {
             deleteTestApp(testAppId: $testAppId) {
                 success
@@ -49,11 +66,11 @@ export class TestAppsComponent implements OnInit {
         }`
         const response = this.graphQLService.mutate(mutation, { testAppId: id})
         response
-            .pipe(take(1))
-            .subscribe(res => {
-                if (res.data.deleteTestApp.success) {
-                    this.ngOnInit();
-                }
-            })   
+        .pipe(take(1))
+        .subscribe(res => {
+            if (res.data.deleteTestApp.success) {
+                this.ngOnInit();
+            }
+        }) 
     }
 }

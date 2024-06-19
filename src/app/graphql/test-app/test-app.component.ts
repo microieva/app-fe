@@ -29,7 +29,7 @@ export class TestAppComponent implements OnInit {
     async ngOnInit() {
         this.activatedRoute.paramMap.subscribe(async (params )=> {
             const id = params.get('id'); 
-            console.log('id from url: ', id)
+            
             if (id) {
                 await this.loadTestApp(Number(id));   
             }
