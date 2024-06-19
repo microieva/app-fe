@@ -9,3 +9,20 @@
 <mat-dialog-content *ngIf="isLoggingIn">
     <app-login></app-login>
 </mat-dialog-content>
+
+<mat-dialog-content *ngIf="showDirectLoginForm">
+    <form *ngIf="form" [formGroup]="form">
+        <mat-form-field>
+            <mat-label>{{'Email'}}</mat-label>
+            <input name="email" matInput [formControl]="form.controls.email">
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>{{'Password'}}</mat-label>
+            <input name="password" matInput [formControl]="form.controls.password">
+        </mat-form-field>
+        <mat-dialog-actions align="center">
+            <button color="primary" mat-stroked-button (click)="cancelDirectLogin()">Cancel</button>
+            <button type="submit" color="primary" mat-stroked-button [mat-dialog-close]="true" cdkFocusInitial (click)="submit()">Submit</button>
+        </mat-dialog-actions>
+    </form>
+</mat-dialog-content>
