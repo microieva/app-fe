@@ -5,3 +5,7 @@
 <mat-dialog-content *ngIf="isDeleting">
     <app-confirm (ok)="onOk($event)"></app-confirm>
 </mat-dialog-content>
+
+<mat-dialog-content *ngIf="isLoggingIn">
+    <app-login></app-login>
+</mat-dialog-content>

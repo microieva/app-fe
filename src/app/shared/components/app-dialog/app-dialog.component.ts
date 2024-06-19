@@ -12,6 +12,7 @@ import { AppDialogData } from "../../types";
 export class AppDialogComponent {
     loading: boolean | undefined;
     isDeleting: boolean | undefined;
+    isLoggingIn: boolean;
 
     @Output() ok = new EventEmitter<boolean>(false);
 
@@ -21,6 +22,7 @@ export class AppDialogComponent {
     ) {
         this.loading = data.loading;
         this.isDeleting = data.isDeleting;
+        this.isLoggingIn = data.isLoggingIn;
     }
 
     onOk(ok: boolean){

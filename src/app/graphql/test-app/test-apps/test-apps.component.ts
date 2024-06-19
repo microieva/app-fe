@@ -37,7 +37,7 @@ export class TestAppsComponent implements OnInit {
             .pipe(take(1))
             .subscribe(res => {
                 if (res.loading) {
-                    this.dialog.open({ data: {lodaing: true}});
+                    this.dialog.open({ data: {loading: true}});
                 }
                 this.testApps = res.data.testApps;
             });

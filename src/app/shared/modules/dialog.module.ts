@@ -6,12 +6,14 @@ import { ConfirmComponent } from "../components/confirm/confirm.component";
 import { LoadingComponent } from "../components/loading/loading.component";
 import { MatButtonModule } from "@angular/material/button";
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import { LoginComponent } from "../components/login/login.componnet";
 
 @NgModule({
     declarations: [
         AppDialogComponent,
         ConfirmComponent,
-        LoadingComponent
+        LoadingComponent,
+        LoginComponent
     ],
     imports: [
         CommonModule,

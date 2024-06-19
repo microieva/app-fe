@@ -11,7 +11,7 @@ interface QueryDataType {
 }
 
 export interface MutationResponse {
-    success: boolean,
+    success: boolean
     message?: string
 }
 
@@ -22,11 +22,12 @@ export interface AppTreeNode {
 
 export interface ExpandableAppTreeNode {
     expandable: boolean;
-    name: string;
-    level: number;
+    name: string
+    level: number
 }
 
 export interface AppDialogData {
     loading?: boolean
     isDeleting: boolean
+    isLoggingIn: boolean
 }
