@@ -8,6 +8,8 @@ import { MatButtonModule } from "@angular/material/button";
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { LoginComponent } from "../components/app-dialog/login/login.componnet";
 import { MatInputModule } from "@angular/material/input";
+import { MatDividerModule } from "@angular/material/divider";
+import { ReactiveFormsModule } from "@angular/forms";
 
 @NgModule({
     declarations: [
@@ -17,11 +19,13 @@ import { MatInputModule } from "@angular/material/input";
         LoginComponent
     ],
     imports: [
+        ReactiveFormsModule,
         CommonModule,
         MatDialogModule,
         MatButtonModule,
         MatProgressSpinnerModule,
-        MatInputModule
+        MatInputModule,
+        MatDividerModule
     ]
 })
 export class DialogModule {};

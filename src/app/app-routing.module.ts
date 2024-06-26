@@ -9,7 +9,7 @@ const routes: Routes = [
   { path: 'home', component: HomeComponent, },
   { path: 'test-apps', component: TestAppsComponent},
   { path: 'test-apps/new', component: TestAppComponent},
-  { path: 'test-apps/:id', component: TestAppComponent},
+  { path: 'test-apps/:id', component: TestAppComponent}
   //{ path: '**', component: NotFoundComponent }
 ];
 

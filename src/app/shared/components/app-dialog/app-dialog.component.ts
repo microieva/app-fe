@@ -1,10 +1,8 @@
-
-
 import { Component, EventEmitter, Inject, OnInit, Output } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { AppDialogData } from "../../types";
+import { AppDialogData, DirectLoginInput } from "../../types";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
-import { AppDialogService } from "../../services/app-dialog.service";
+import { AppAuthService } from "../../services/app-auth.service";
 
 @Component({
     selector: 'app-dialog',
@@ -12,25 +10,27 @@ import { AppDialogService } from "../../services/app-dialog.service";
     styleUrls: ['./app-dialog.component.scss']
 })
 export class AppDialogComponent implements OnInit {
-    loading: boolean | undefined;
-    isDeleting: boolean | undefined;
-    showDirectLoginForm: boolean | undefined;
+    loading: boolean;
+    isDeleting: boolean;
+    showDirectLoginForm: boolean;
     isLoggingIn: boolean;
-
-    form: LoginForm | undefined;
+    error: string | undefined;
+    form: LoginForm;
 
     @Output() ok = new EventEmitter<boolean>(false);
+    @Output() loginSuccess = new EventEmitter<boolean>(false);
 
     constructor(
         @Inject(MAT_DIALOG_DATA) data: AppDialogData,
         private dialogRef: MatDialogRef<AppDialogComponent>,
         private formBuilder: FormBuilder,
-        private dialog: AppDialogService
+        private authService: AppAuthService
     ) {
         this.loading = data.loading;
         this.isDeleting = data.isDeleting;
         this.isLoggingIn = data.isLoggingIn;
         this.showDirectLoginForm = data.showDirectLoginForm;
+        this.form = this.buildLoginForm()
     }
 
     ngOnInit() {
@@ -40,10 +40,10 @@ export class AppDialogComponent implements OnInit {
     }
 
     buildLoginForm(){
-        this.form = this.formBuilder.group({
+        return this.form = this.formBuilder.group({
             email: this.formBuilder.control<string>('', [Validators.required]),
             password: this.formBuilder.control<string>('', [Validators.required])
-        })
+        }) as LoginForm
     }
 
     onOk(ok: boolean){
@@ -54,9 +54,25 @@ export class AppDialogComponent implements OnInit {
         this.isLoggingIn = true;
         this.showDirectLoginForm = false;
     }
+
+    submit() {
+        const input = this.form.value;
+        this.authService.logIn(input as DirectLoginInput).subscribe({
+            next: (token) => {
+                if (token) {
+                    this.dialogRef.close();
+                    window.location.reload();
+                }
+            },
+            error: (err) => {
+                this.error = "Invalid password or email"
+                console.error(err);
+            }
+        })
+    }
 }
 
 type LoginForm = FormGroup<({
-    email: FormControl<string | null>
-    password: FormControl<string | null>
+    email: FormControl<string>
+    password: FormControl<string>
 })>
