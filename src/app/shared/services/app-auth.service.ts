@@ -1,20 +1,21 @@
 import { Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
 import { Observable } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import gql from 'graphql-tag';
 import { AppGraphQLService } from './app-graphql.service';
 import { DirectLoginInput } from '../types';
+
+declare const gapi: any;
 
 @Injectable({
   providedIn: 'root'
 })
 export class AppAuthService {
-
   constructor(
     private apollo: Apollo,
     private graphQLService: AppGraphQLService
-  ) { }
+  ) {}
 
   logIn(input: DirectLoginInput) {
     const query = `query ($directLoginInput: LoginInput!) {

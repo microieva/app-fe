@@ -8,7 +8,7 @@ import { AppAuthService } from "../../services/app-auth.service";
     templateUrl: './home.component.html',
     styleUrls: ['home.component.scss']
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent {
     me: any;
 
     constructor (
@@ -21,10 +21,6 @@ export class HomeComponent implements OnInit {
         });
     }
 
-    ngOnInit() {
-    
-    }
-
     logIn() {
         this.dialog.open({data: {isLoggingIn: true}})
     }
@@ -32,6 +28,6 @@ export class HomeComponent implements OnInit {
     logOut() {
         this.authService.logOut(); 
         window.location.reload();
-        this.router.navigate(['/']); // doesnt work
+        this.router.navigate(['/']); // doesnt work ??
     }
 }

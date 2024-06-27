@@ -19,6 +19,7 @@ import { AppTreeComponent } from './shared/components/app-tree/app-tree.componen
 import { MatDialogContent, MatDialogModule } from '@angular/material/dialog';
 import { AppDialogService } from './shared/services/app-dialog.service';
 import { DialogModule } from './shared/modules/dialog.module';
+import { AuthGuardService } from './shared/services/app-auth-guard.service';
 
 @NgModule({ 
     declarations: [
@@ -49,7 +50,8 @@ import { DialogModule } from './shared/modules/dialog.module';
         AppDialogService,
         provideHttpClient(withInterceptorsFromDi()), 
         provideAnimationsAsync(),
-        {provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' }}
+        {provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' }},
+        //AuthGuardService
     ],
 })
 
