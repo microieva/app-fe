@@ -7,8 +7,6 @@ import { AppGraphQLService } from './app-graphql.service';
 import { AppDialogService } from './app-dialog.service';
 import { DirectLoginInput } from '../types';
 
-declare const gapi: any;
-
 @Injectable({
   providedIn: 'root'
 })
