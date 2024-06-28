@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 import gql from 'graphql-tag';
 import { AppGraphQLService } from './app-graphql.service';
+import { AppDialogService } from './app-dialog.service';
 import { DirectLoginInput } from '../types';
 
 declare const gapi: any;
@@ -14,7 +15,8 @@ declare const gapi: any;
 export class AppAuthService {
   constructor(
     private apollo: Apollo,
-    private graphQLService: AppGraphQLService
+    private graphQLService: AppGraphQLService,
+    private dialog: AppDialogService
   ) {}
 
   logIn(input: DirectLoginInput) {
@@ -31,6 +33,25 @@ export class AppAuthService {
         } 
       }))
   }
+
+  loginWithGoogle(credential: string){
+    const mutation = `mutation ($googleCredential: String!){
+        loginWithGoogle(googleCredential: $googleCredential) 
+    }`
+    const response = this.graphQLService.mutate(mutation, { googleCredential: credential })
+    response
+        .pipe(take(1))
+        .subscribe(res => {
+            if (res.data.loginWithGoogle) {
+                const token = res.data.loginWithGoogle;
+                localStorage.setItem('authToken', token);
+                this.dialog.close();
+                window.location.reload();
+            } else {
+                console.error('Unexpected error from loginWithGoogle: ', res.data.loginWithGoogle.message)
+            }
+        });
+}
 
   getMe(): Observable<any> {
     const ME_QUERY = gql`

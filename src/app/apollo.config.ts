@@ -7,7 +7,7 @@ const httpLink = new HttpLink({
 
 const authLink = setContext((_, { headers }) => {
   const token = localStorage.getItem('authToken');
-  return {
+    return {
     headers: {
       ...headers,
       authorization: token ? `Bearer ${token}` : "",

@@ -1,12 +1,17 @@
 .actions {
     display: flex;
     flex-direction: column;
+    font-size: smaller;
     .btn {
-        margin: 0.5rem;
+        margin: 1rem;
         height: auto;
-        padding: 0 4rem;
+        padding: 0 10px;
         mat-divider {
-            width: 15rem;
+            width: 180px;
         }
+    }
+    #google-button {
+        border: none;
+        background: none;
     }
 }

@@ -1,8 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { AppDialogService } from "../../../services/app-dialog.service";
 import { Router } from "@angular/router";
-import { AppGraphQLService } from "../../../services/app-graphql.service";
-import { take } from "rxjs";
+import { AppAuthService } from "../../../services/app-auth.service";
 
 @Component({
     selector: 'app-login',
@@ -15,7 +14,7 @@ export class LoginComponent implements OnInit{
 
     constructor (
         private dialog: AppDialogService,
-        private graphQLService: AppGraphQLService,
+        private authService: AppAuthService,
         private router: Router
     ) {}
 
@@ -31,9 +30,13 @@ export class LoginComponent implements OnInit{
         // @ts-ignore
         google.accounts.id.renderButton(
         // @ts-ignore
-        document.getElementById("google-button"),
-            { theme: "outline", size: "large", width: "100%" }
+            document.getElementById("google-button"),
+            { theme: "outline", size: "large", width: "" }
         );
+        const googleButton = document.querySelector('#google-button div');
+        if (googleButton) {
+            googleButton.classList.add('google-btn');
+        }
         // @ts-ignore
         google.accounts.id.prompt((notification: PromptMomentNotification) => {});
       }
@@ -48,19 +51,9 @@ export class LoginComponent implements OnInit{
     }
 
     loginWithGoogle(){
-        const mutation = `mutation ($googleCredential: String!){
-            loginWithGoogle(googleCredential: $googleCredential) 
-        }`
-        const response = this.graphQLService.mutate(mutation, { googleCredential: this.googleCredential })
-        response
-            .pipe(take(1))
-            .subscribe(res => {
-                if (res.data.loginWithGoogle) {
-                    console.log('loginWithGoogle mutation response: ', res.data.loginWithGoogle)
-                    this.router.navigate(['test-apps']);
-                } else {
-                    console.error('Unexpected error from loginWithGoogle: ', res.data.loginWithGoogle.message)
-                }
-            })
+        if (this.googleCredential) {
+            this.authService.loginWithGoogle(this.googleCredential);
+            this.router.navigate(['/']);
+        }
     }
 }
