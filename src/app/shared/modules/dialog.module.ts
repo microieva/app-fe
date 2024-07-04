@@ -10,12 +10,14 @@ import { LoginComponent } from "../components/app-dialog/login/login.componnet";
 import { MatInputModule } from "@angular/material/input";
 import { MatDividerModule } from "@angular/material/divider";
 import { ReactiveFormsModule } from "@angular/forms";
+import { AlertComponent } from "../components/app-dialog/alert/alert.component";
 
 @NgModule({
     declarations: [
         AppDialogComponent,
         ConfirmComponent,
         LoadingComponent,
+        AlertComponent,
         LoginComponent
     ],
     imports: [

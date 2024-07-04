@@ -38,30 +38,31 @@ $custom-theme-theme: mat.define-light-theme((
 /* You can add global styles to this file, and also import other style files */
 
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; color: rgb(31, 30, 30); }
 li {list-style: none;}
 a {text-decoration: none; color: inherit;}
 .content {
-  height: 100%;
   width: 100%;
+  background-color:rgba(163, 177, 192, 0.454)
 }
-app-tree {
+app-sidenav {
   height: calc(100vh - 4rem);
-  background-color: aliceblue;
-  * {
-    border-radius: none;
-  }
+  width: 18rem;
+  background-color:rgb(111, 143, 175, 40%);
 }
 .page { 
   padding: 2rem;
   padding-top: 0;
-  h3 {
-
-  }
+  min-width: 60%;
+  max-width: fit-content;
+  margin: auto;
+}
+.actions {
+  margin: 1rem 0;
   button {
-
+    margin-left: 1rem;
   }
-  form {
-
-  }
+}
+mat-form-field {
+  margin: 0 0.5rem;
 }

@@ -8,6 +8,8 @@
     </mat-toolbar>
 </ng-container>
 <div style="display: flex">
-    <app-tree></app-tree>
-    <router-outlet></router-outlet>
+    <app-sidenav [isUserUpdated]="updatedAt" [isAuth]="isAuth"></app-sidenav>
+    <div class="content">
+        <router-outlet></router-outlet>
+    </div>
 <div>

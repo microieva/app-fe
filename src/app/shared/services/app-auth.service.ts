@@ -1,20 +1,23 @@
 import { Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
-import { Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
-import gql from 'graphql-tag';
 import { AppGraphQLService } from './app-graphql.service';
 import { AppDialogService } from './app-dialog.service';
 import { DirectLoginInput } from '../types';
+import gql from 'graphql-tag';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AppAuthService {
+  private isAuthenticated = false;
+
   constructor(
     private apollo: Apollo,
     private graphQLService: AppGraphQLService,
-    private dialog: AppDialogService
+    private dialog: AppDialogService,
+    private router: Router
   ) {}
 
   logIn(input: DirectLoginInput) {
@@ -26,9 +29,10 @@ export class AppAuthService {
       .pipe(map(result => {
         if (result.data.login) {
           const token = result.data.login;
+          this.isAuthenticated = true;
           localStorage.setItem('authToken', token);
           return token;
-        } 
+        }
       }))
   }
 
@@ -43,33 +47,41 @@ export class AppAuthService {
             if (res.data.loginWithGoogle) {
                 const token = res.data.loginWithGoogle;
                 localStorage.setItem('authToken', token);
+                this.isAuthenticated = true;
                 this.dialog.close();
                 window.location.reload();
             } else {
                 console.error('Unexpected error from loginWithGoogle: ', res.data.loginWithGoogle.message)
             }
         });
-}
-
-  getMe(): Observable<any> {
-    const ME_QUERY = gql`
-      query Me {
-        me {
-          firstName
-          userRole
-        }
-      }
-    `;
-
-    return this.apollo.query({
-      query: ME_QUERY
-    }).pipe(
-      map((result: any) => result.data.me)
-    );
   }
+  // getMe() {
+  //   const ME_QUERY = gql`
+  //     query Me {
+  //       me {
+  //         firstName
+  //         userRole
+  //       }
+  //     }
+  //   `;
+
+  //   return this.apollo.query({
+  //     query: ME_QUERY
+  //   }).pipe(
+  //     map((result: any) => {console.log('getMe: ', result.data.me); result.data.me})
+  //   )
+  // }
 
   logOut() {
-    localStorage.removeItem('authToken'); 
     this.apollo.client.clearStore(); 
+    localStorage.removeItem('authToken'); 
+    this.isAuthenticated = false;
+    this.router.navigate(['/']);
+    //window.location.reload();
+  }
+
+  getAuthStatus(): boolean {
+    // this.getMe for userRole
+    return this.isAuthenticated;
   }
 }

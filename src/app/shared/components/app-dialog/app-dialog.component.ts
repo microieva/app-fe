@@ -11,6 +11,7 @@ import { AppAuthService } from "../../services/app-auth.service";
 })
 export class AppDialogComponent implements OnInit {
     loading: boolean;
+    message: string | undefined;
     isDeleting: boolean;
     showDirectLoginForm: boolean;
     isLoggingIn: boolean;
@@ -27,6 +28,7 @@ export class AppDialogComponent implements OnInit {
         private authService: AppAuthService
     ) {
         this.loading = data.loading;
+        this.message = data.message;
         this.isDeleting = data.isDeleting;
         this.isLoggingIn = data.isLoggingIn;
         this.showDirectLoginForm = data.showDirectLoginForm;

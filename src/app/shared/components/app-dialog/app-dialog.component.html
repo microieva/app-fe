@@ -6,6 +6,10 @@
     <app-confirm (ok)="onOk($event)"></app-confirm>
 </mat-dialog-content>
 
+<mat-dialog-content *ngIf="message">
+    <app-alert [message]="message"></app-alert>
+</mat-dialog-content>
+
 <mat-dialog-content *ngIf="isLoggingIn">
     <app-login></app-login>
 </mat-dialog-content>

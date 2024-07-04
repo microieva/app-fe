@@ -13,13 +13,18 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTreeModule } from '@angular/material/tree';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatListModule } from '@angular/material/list';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MAT_DATE_FORMATS, MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
 import { TestAppsComponent } from './graphql/test-app/test-apps/test-apps.component';
 import { HomeComponent } from './shared/components/home/home.component';
-import { AppTreeComponent } from './shared/components/app-tree/app-tree.component';
+import { AppSidenavComponent } from './shared/components/app-sidenav/app-sidenav.component';
 import { MatDialogContent, MatDialogModule } from '@angular/material/dialog';
 import { AppDialogService } from './shared/services/app-dialog.service';
 import { DialogModule } from './shared/modules/dialog.module';
-import { AuthGuardService } from './shared/services/app-auth-guard.service';
+import { UserComponent } from './graphql/user/user.component';
+import { LUXON_DATE_FORMATS } from './shared/constants';
 
 @NgModule({ 
     declarations: [
@@ -27,7 +32,8 @@ import { AuthGuardService } from './shared/services/app-auth-guard.service';
         HomeComponent,
         TestAppsComponent,
         TestAppComponent,
-        AppTreeComponent
+        AppSidenavComponent,
+        UserComponent
     ],
     bootstrap: [AppComponent], 
     imports: [
@@ -37,8 +43,11 @@ import { AuthGuardService } from './shared/services/app-auth-guard.service';
         MatInputModule,
         MatToolbarModule,
         MatTreeModule,
+        MatSidenavModule,
+        MatListModule,
         MatDialogModule,
         MatDialogContent,
+        MatDatepickerModule,
         FormsModule,
         ReactiveFormsModule,
         BrowserModule,
@@ -48,9 +57,12 @@ import { AuthGuardService } from './shared/services/app-auth-guard.service';
     ], 
     providers: [
         AppDialogService,
+        provideNativeDateAdapter(),
         provideHttpClient(withInterceptorsFromDi()), 
         provideAnimationsAsync(),
-        {provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' }},
+        { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' }},
+        { provide: MAT_DATE_FORMATS, useValue: LUXON_DATE_FORMATS },
+        { provide: MAT_DATE_LOCALE, useValue: 'fi-FI' } 
         //AuthGuardService
     ],
 })

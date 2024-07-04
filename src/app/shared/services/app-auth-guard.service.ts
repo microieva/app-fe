@@ -1,25 +1,16 @@
-import { Injectable } from "@angular/core";
-import { CanActivate, Router, ActivatedRouteSnapshot, RouterStateSnapshot } from "@angular/router";
-import { Observable, map, tap } from "rxjs";
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { AppAuthService } from './app-auth.service';
 
-@Injectable({
-    providedIn: 'root'
-  })
-  export class AuthGuardService {
-  
-    constructor(
-      private router: Router
-    ) {}
-  
-    // canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
-    //   return this.socialAuthService.authState.pipe(
-    //     map((socialUser: SocialUser) => !!socialUser),
-    //     tap((isLoggedIn: boolean) => {
-    //       if (!isLoggedIn) {
-    //         this.router.navigate(['/']);
-    //       }
-    //     })
-    //   );
-    // }
+
+export const authGuard: CanActivateFn = () => {
+  const authService = inject(AppAuthService);
+  const router = inject(Router);
+
+  const isAuth = authService.getAuthStatus();
+  console.log('IS AUTH FROM GUARD: ', isAuth)
+  if (!isAuth) {
+    router.navigate(['/']);
   }
-  //[() => inject(myGuard).canActivate()]
+  return isAuth;
+};

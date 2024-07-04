@@ -1,7 +1,0 @@
-<mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
-    <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
-       <button mat-button routerLinkActive="activeLink" [routerLinkActiveOptions]="{exact: true}">
-           <a [routerLink]="getRouterLink(node.name)">{{ node.name }}</a>
-        </button> 
-    </mat-tree-node>
-</mat-tree>

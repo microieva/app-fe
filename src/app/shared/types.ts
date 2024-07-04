@@ -18,8 +18,9 @@ export interface MutationResponse {
 }
 
 export interface AppTreeNode {
-    name: string;
-    children?: AppTreeNode[];
+    name: string
+    children?: AppTreeNode[]
+    isAuth: boolean
 }
 
 export interface ExpandableAppTreeNode {
@@ -30,6 +31,7 @@ export interface ExpandableAppTreeNode {
 
 export interface AppDialogData {
     loading: boolean
+    message: string
     isDeleting: boolean
     isLoggingIn: boolean
     showDirectLoginForm: boolean
