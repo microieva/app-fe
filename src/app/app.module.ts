@@ -26,6 +26,7 @@ import { DialogModule } from './shared/modules/dialog.module';
 import { UserComponent } from './graphql/user/user.component';
 import { LUXON_DATE_FORMATS } from './shared/constants';
 import { AppTimerService } from './shared/services/app-timer.service';
+import { AppointmentsComponent } from './graphql/appointment/appointments/appointments.component';
 
 @NgModule({ 
     declarations: [
@@ -34,7 +35,8 @@ import { AppTimerService } from './shared/services/app-timer.service';
         TestAppsComponent,
         TestAppComponent,
         AppSidenavComponent,
-        UserComponent
+        UserComponent,
+        AppointmentsComponent
     ],
     bootstrap: [AppComponent], 
     imports: [
