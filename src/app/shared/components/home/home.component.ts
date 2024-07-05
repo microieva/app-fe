@@ -1,9 +1,9 @@
 import { Component, OnInit } from "@angular/core";
 import { AppDialogService } from "../../services/app-dialog.service";
-import { Router } from "@angular/router";
 import { AppAuthService } from "../../services/app-auth.service";
 import { AppGraphQLService } from "../../services/app-graphql.service";
-import { take } from "rxjs";
+import { Subscription, take } from "rxjs";
+import { AppTimerService } from "../../services/app-timer.service";
 
 @Component({
     selector: 'app-home',
@@ -14,22 +14,39 @@ export class HomeComponent implements OnInit{
     me: any;
     updatedAt: string | null = null;
     isAuth: boolean = false;
+    remainder!: Subscription;
+    time!: string | null;
 
     constructor (
         private dialog: AppDialogService,
-        private router: Router,
         private authService: AppAuthService,
-        private graphQLService: AppGraphQLService
+        private graphQLService: AppGraphQLService,
+        private timerService: AppTimerService,
     ) {}
 
     async ngOnInit() {
         if (localStorage.getItem('authToken')) {
             await this.loadMe();
+            const tokenExpire = localStorage.getItem('tokenExpire');
+            if (tokenExpire) {
+                this.remainder = this.timerService.startTimer(tokenExpire);
+                this.timerService.time.subscribe(value=> {
+                    this.time = value;
+                })
+                this.timerService.logout.subscribe(value => {
+                    if (value) {
+                        this.logOut();
+                        this.time = null;
+                        this.remainder.unsubscribe();
+                    }
+                });
+            }
         } else {
             this.me = null;
             this.updatedAt = null;
             this.isAuth = false;
         }
+        
     }
 
     async loadMe() {
@@ -50,10 +67,12 @@ export class HomeComponent implements OnInit{
     }
 
     logIn() {
-        this.dialog.open({data: {isLoggingIn: true}})
+        this.dialog.open({data: {isLoggingIn: true}});
     }
 
     async logOut() {
+        this.time = null;
+        this.timerService.cancelTimer();
         this.authService.logOut(); 
         await this.ngOnInit();
     }

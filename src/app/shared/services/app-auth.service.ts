@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
-import { map, take } from 'rxjs/operators';
+import { map, take, takeWhile } from 'rxjs/operators';
 import { AppGraphQLService } from './app-graphql.service';
 import { AppDialogService } from './app-dialog.service';
 import { DirectLoginInput } from '../types';
 import gql from 'graphql-tag';
 import { Router } from '@angular/router';
+import { DateTime } from "luxon";
 
 @Injectable({
   providedIn: 'root'
@@ -30,11 +31,15 @@ export class AppAuthService {
         if (result.data.login) {
           const token = result.data.login;
           this.isAuthenticated = true;
+          const tokenStart = DateTime.local();
+          const tokenExpire = tokenStart.plus({ hours: 1 }).toISO();
           localStorage.setItem('authToken', token);
+          localStorage.setItem('tokenExpire', tokenExpire);
           return token;
         }
-      }))
-  }
+      }));
+
+    }
 
   loginWithGoogle(credential: string){
     const mutation = `mutation ($googleCredential: String!){
@@ -46,8 +51,11 @@ export class AppAuthService {
         .subscribe(res => {
             if (res.data.loginWithGoogle) {
                 const token = res.data.loginWithGoogle;
-                localStorage.setItem('authToken', token);
                 this.isAuthenticated = true;
+                const tokenStart = DateTime.local();
+                const tokenExpire = tokenStart.plus({ hours: 1 }).toISO();
+                localStorage.setItem('authToken', token);
+                localStorage.setItem('tokenExpire', tokenExpire);
                 this.dialog.close();
                 window.location.reload();
             } else {
@@ -74,10 +82,9 @@ export class AppAuthService {
 
   logOut() {
     this.apollo.client.clearStore(); 
-    localStorage.removeItem('authToken'); 
+    localStorage.clear(); 
     this.isAuthenticated = false;
     this.router.navigate(['/']);
-    //window.location.reload();
   }
 
   getAuthStatus(): boolean {

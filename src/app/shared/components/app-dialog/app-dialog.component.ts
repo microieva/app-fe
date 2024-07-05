@@ -1,8 +1,11 @@
-import { Component, EventEmitter, Inject, OnInit, Output } from "@angular/core";
+import { Component, EventEmitter, Inject, NgZone, OnInit, Output } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { AppDialogData, DirectLoginInput } from "../../types";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { AppAuthService } from "../../services/app-auth.service";
+import { AppTimerService } from "../../services/app-timer.service";
+import { Subject, finalize, interval, take, takeUntil, timer } from "rxjs";
+import { Router } from "@angular/router";
 
 @Component({
     selector: 'app-dialog',
@@ -18,6 +21,14 @@ export class AppDialogComponent implements OnInit {
     error: string | undefined;
     form: LoginForm;
 
+    destroy = new Subject();
+    showDialog = false;
+    timer: number = 0;
+    dialog = 'stay logged in?';
+    notice = 'session expired';
+    showNotice = false;
+    rxjsTimer = timer(1000, 1000);
+
     @Output() ok = new EventEmitter<boolean>(false);
     @Output() loginSuccess = new EventEmitter<boolean>(false);
 
@@ -25,7 +36,9 @@ export class AppDialogComponent implements OnInit {
         @Inject(MAT_DIALOG_DATA) data: AppDialogData,
         private dialogRef: MatDialogRef<AppDialogComponent>,
         private formBuilder: FormBuilder,
-        private authService: AppAuthService
+        private authService: AppAuthService,
+        private timerService: AppTimerService,
+        private router: Router
     ) {
         this.loading = data.loading;
         this.message = data.message;
@@ -62,8 +75,10 @@ export class AppDialogComponent implements OnInit {
         this.authService.logIn(input as DirectLoginInput).subscribe({
             next: (token) => {
                 if (token) {
+                    //this.startTimer();
                     this.dialogRef.close();
-                    window.location.reload();
+                    window.location.reload(); // -> timer doesnt work because of reload
+                    //this.timerService.startTimer();
                 }
             },
             error: (err) => {

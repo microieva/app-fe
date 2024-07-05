@@ -13,3 +13,14 @@ mat-toolbar {
     font-size: small;
     color: gray;
 }
+.time {
+    border: 1px solid darkgray;
+    border-radius: 3px;
+    color: darkgray;
+    padding: 0 1rem;
+    margin-right: 1rem;
+
+    p {
+        margin: 0;
+    }
+}

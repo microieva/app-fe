@@ -25,6 +25,7 @@ import { AppDialogService } from './shared/services/app-dialog.service';
 import { DialogModule } from './shared/modules/dialog.module';
 import { UserComponent } from './graphql/user/user.component';
 import { LUXON_DATE_FORMATS } from './shared/constants';
+import { AppTimerService } from './shared/services/app-timer.service';
 
 @NgModule({ 
     declarations: [
@@ -57,6 +58,7 @@ import { LUXON_DATE_FORMATS } from './shared/constants';
     ], 
     providers: [
         AppDialogService,
+        AppTimerService,
         provideNativeDateAdapter(),
         provideHttpClient(withInterceptorsFromDi()), 
         provideAnimationsAsync(),
