@@ -7,6 +7,8 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { FormGroup, FormControl, FormBuilder, Validators } from "@angular/forms";
 import { AppDialogService } from "../../shared/services/app-dialog.service";
 import { UserInput } from "./user.input";
+import { AppAuthService } from "../../shared/services/app-auth.service";
+import { AppTimerService } from "../../shared/services/app-timer.service";
 
 @Component({
     selector: 'app-user',
@@ -24,7 +26,9 @@ export class UserComponent implements OnInit {
         private router: Router,
         private activatedRoute: ActivatedRoute,
         private formBuilder: FormBuilder,
-        private dialog: AppDialogService
+        private dialog: AppDialogService,
+        private authService: AppAuthService,
+        private timerService: AppTimerService
     ){
         this.form = undefined;    
     }
@@ -39,10 +43,7 @@ export class UserComponent implements OnInit {
             if (this.id) {
                 await this.loadMe(); 
             }
-          });
-        // if(!this.me) {
-        //     this.router.navigate(['/'])
-        // }
+        });
     }
 
     async loadMe() {
@@ -69,7 +70,7 @@ export class UserComponent implements OnInit {
                     this.buildForm();
                     this.missingInfo = this.checkUserInfo(); 
                 }catch {
-                    this.router.navigate(['/test-apps']) // doesnt work
+                    this.router.navigate(['/']) // doesnt work
                 }
         });
     }
@@ -80,6 +81,32 @@ export class UserComponent implements OnInit {
 
     updateUser(){
         this.router.navigate(['user', this.me?.id])
+    }
+    deleteUser(){
+        const dialogRef = this.dialog.open({ data: { isDeleting: true }})
+        
+        dialogRef.componentInstance.ok.subscribe((value)=> {
+            if (value && this.me?.id) {
+                
+                const mutation = `mutation ($userId: Int!) {
+                    deleteUser(userId: $userId) {
+                        success
+                        message
+                    }
+                }`
+                const response = this.graphQLService.mutate(mutation, { userId: this.me.id});
+                response
+                    .pipe(take(1))
+                    .subscribe(res => {
+                        if (res.data.deleteUser.success) {
+                            this.timerService.cancelTimer();
+                            this.authService.logOut(); 
+                        } else {
+                            this.dialog.open({ data: { message: res.data.deleteUser.message}})
+                        }
+                    }) 
+            }
+        }) 
     }
 
     buildForm() {
@@ -107,7 +134,7 @@ export class UserComponent implements OnInit {
             city: this.form?.value.city,
             postCode: this.form?.value.postCode
         }
-        console.log('form input: ', input)
+
         const mutation = `mutation ($userInput: UserInput!){
             saveUser(userInput: $userInput) {
                 success
