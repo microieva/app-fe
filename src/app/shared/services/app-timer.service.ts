@@ -9,6 +9,7 @@ import { AppDialogService } from "./app-dialog.service";
   export class AppTimerService {   
     @Output() logout = new EventEmitter<boolean>(false);
     @Output() time = new EventEmitter<string>();
+    @Output() ok = new EventEmitter<boolean>(false);
 
     subscription!: Subscription;
 
@@ -26,15 +27,20 @@ import { AppDialogService } from "./app-dialog.service";
         const example = source.pipe(
             take(duration + 1), 
             finalize(() => {
-                this.logout.emit(true);   
+                this.logout.emit(true);  
+                this.cancelTimer();
             }) 
         );
         this.subscription = example.subscribe((val) => {
             const remainingSeconds = duration - val; // remaining time in seconds
             const printing = Duration.fromObject({ seconds: remainingSeconds });
             const formattedTime = printing.toFormat('mm:ss'); 
-            if (formattedTime === '00:03') {
+            if (formattedTime === '01:00') {
                 this.dialog.open({data: { message: "Session expired, please login to renew"}});
+                //this.cancelTimer();
+                // dialogRef.componentInstance.ok.subscribe(value => {
+                //     if (value === true) this.ok.emit(value);
+                // })
             }
             this.time.emit(formattedTime);
         });

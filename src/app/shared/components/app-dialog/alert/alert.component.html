@@ -3,5 +3,5 @@
     <p>{{message}}</p>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-    <button mat-button mat-dialog-close>Ok</button>
+    <button mat-button [mat-dialog-close]="true" cdkFocusInitial (click)="onOkClick()">Ok</button>
 </mat-dialog-actions>

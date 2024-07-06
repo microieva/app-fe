@@ -12,7 +12,7 @@ import { DateTime } from "luxon";
   providedIn: 'root'
 })
 export class AppAuthService {
-  private isAuthenticated = false;
+  isAuthenticated: boolean = false;
 
   constructor(
     private apollo: Apollo,

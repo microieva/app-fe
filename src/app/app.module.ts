@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { FullCalendarModule } from '@fullcalendar/angular';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
@@ -28,6 +29,8 @@ import { UserComponent } from './graphql/user/user.component';
 import { LUXON_DATE_FORMATS } from './shared/constants';
 import { AppTimerService } from './shared/services/app-timer.service';
 import { AppointmentsComponent } from './graphql/appointment/appointments/appointments.component';
+import { AppointmentComponent } from './graphql/appointment/appointment.component';
+import { AppCalendarComponent } from './shared/components/app-calendar/app-calendar.component';
 
 @NgModule({ 
     declarations: [
@@ -36,8 +39,10 @@ import { AppointmentsComponent } from './graphql/appointment/appointments/appoin
         TestAppsComponent,
         TestAppComponent,
         AppSidenavComponent,
+        AppCalendarComponent,
         UserComponent,
-        AppointmentsComponent
+        AppointmentsComponent,
+        AppointmentComponent
     ],
     bootstrap: [AppComponent], 
     imports: [
@@ -58,7 +63,8 @@ import { AppointmentsComponent } from './graphql/appointment/appointments/appoin
         BrowserModule,
         AppRoutingModule,
         GraphQLModule,
-        DialogModule
+        DialogModule,
+        FullCalendarModule
     ], 
     providers: [
         AppDialogService,

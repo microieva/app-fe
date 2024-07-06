@@ -4,6 +4,7 @@ import { AppAuthService } from "../../services/app-auth.service";
 import { AppGraphQLService } from "../../services/app-graphql.service";
 import { Subscription, take } from "rxjs";
 import { AppTimerService } from "../../services/app-timer.service";
+import { Router } from "@angular/router";
 
 @Component({
     selector: 'app-home',
@@ -22,6 +23,7 @@ export class HomeComponent implements OnInit{
         private authService: AppAuthService,
         private graphQLService: AppGraphQLService,
         private timerService: AppTimerService,
+        private router: Router
     ) {}
 
     async ngOnInit() {
@@ -36,10 +38,13 @@ export class HomeComponent implements OnInit{
                 this.timerService.logout.subscribe(value => {
                     if (value) {
                         this.logOut();
-                        this.time = null;
+                        //this.time = null;
                         this.remainder.unsubscribe();
                     }
                 });
+                this.timerService.ok.subscribe(value => {
+                    if (value) this.router.navigate(['/'])
+                })
             }
         } else {
             this.me = null;
@@ -74,6 +79,7 @@ export class HomeComponent implements OnInit{
         this.time = null;
         this.timerService.cancelTimer();
         this.authService.logOut(); 
-        await this.ngOnInit();
+        this.router.navigate(['/']);
+        await this.ngOnInit(); 
     }
 }

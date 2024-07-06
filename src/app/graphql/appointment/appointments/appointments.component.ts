@@ -3,6 +3,7 @@ import { AppGraphQLService } from "../../../shared/services/app-graphql.service"
 import { take } from "rxjs";
 import { Paged } from "../../../shared/types";
 import { Appointment } from "../appointment";
+import { Router } from "@angular/router";
 
 @Component({
     selector: 'test-apps',
@@ -19,7 +20,8 @@ export class AppointmentsComponent implements OnInit {
     count: number = 0;
 
     constructor(
-        private graphQLService: AppGraphQLService
+        private graphQLService: AppGraphQLService,
+        private router: Router
     ){}
 
     ngOnInit(): void {
@@ -49,6 +51,6 @@ export class AppointmentsComponent implements OnInit {
     }
 
     createAppointment() {
-
+        this.router.navigate(['appointments', 'new'])
     }
 }

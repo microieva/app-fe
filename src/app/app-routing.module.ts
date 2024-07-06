@@ -6,6 +6,7 @@ import { HomeComponent } from './shared/components/home/home.component';
 import { UserComponent } from './graphql/user/user.component';
 import { authGuard } from './shared/services/app-auth-guard.service';
 import { AppointmentsComponent } from './graphql/appointment/appointments/appointments.component';
+import { AppointmentComponent } from './graphql/appointment/appointment.component';
 
 const routes: Routes = [
   { path:'', redirectTo: '', pathMatch: 'full' },
@@ -14,7 +15,8 @@ const routes: Routes = [
   { path: 'test-apps/:id', component: TestAppComponent},
   { path: 'user', component: UserComponent },
   { path: 'user/:id', component: UserComponent },
-  { path: 'appointments', component: AppointmentsComponent }
+  { path: 'appointments', component: AppointmentsComponent },
+  { path: 'appointments/new', component: AppointmentComponent }
   //{ path: '**', component: NotFoundComponent }
 ];
 
