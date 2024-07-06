@@ -16,6 +16,7 @@ import { MatTreeModule } from '@angular/material/tree';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import {MatTabsModule} from '@angular/material/tabs';
 import { MAT_DATE_FORMATS, MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
 import { TestAppsComponent } from './graphql/test-app/test-apps/test-apps.component';
 import { HomeComponent } from './shared/components/home/home.component';
@@ -51,6 +52,7 @@ import { AppointmentsComponent } from './graphql/appointment/appointments/appoin
         MatDialogModule,
         MatDialogContent,
         MatDatepickerModule,
+        MatTabsModule,
         FormsModule,
         ReactiveFormsModule,
         BrowserModule,

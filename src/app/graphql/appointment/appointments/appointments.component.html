@@ -1,2 +1,43 @@
-<h1>Appointments</h1>
-<p>This will have 3 tabs</p>
+<mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+    <mat-tab>
+        <ng-template mat-tab-label (click)="newTab()">
+            <span class="tab-label">New</span>
+        </ng-template>
+        <div class="content">
+            <div class="page">
+                <div class="btn-block" *ngIf="count === 0">
+                    <div>
+                        <h3>You are in safe hands!</h3>
+                        <p class="title">Make an appointment for a consultation</p>
+                        <em>Appointment confirmation will be sent by email. Make sure you have provided your correctl email address. You can always find your account details on My Account page.</em>
+                    </div>
+                    <button mat-stroked-button (click)="createAppointment()">{{ 'Make an Appointment' }}</button>
+                </div>
+            </div>
+        </div>
+    </mat-tab>
+    <mat-tab *ngIf="count > 0">
+        <ng-template mat-tab-label>
+            <span class="tab-label">Upcoming</span>
+        </ng-template>
+        <div class="content">
+            <div class="page">
+                <div class="btn-block">
+                    <p>No upcoming appointments at the moment</p>
+                </div>
+            </div>
+        </div>
+    </mat-tab>
+    <mat-tab *ngIf="count > 0">
+        <ng-template mat-tab-label>
+            <span class="tab-label">Past</span>
+        </ng-template>
+        <div class="content">
+            <div class="page">
+                <div class="btn-block">
+                    <p>No upcoming appointments at the moment</p>
+                </div>
+            </div>
+        </div>
+    </mat-tab>
+</mat-tab-group>

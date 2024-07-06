@@ -1,0 +1,25 @@
+.content {
+    border-top: 1px solid rgb(111, 143, 175, 40%);
+    height: calc(100vh - 6rem);
+}
+.btn-block {
+    max-width: 50%;
+    color: rgb(68, 65, 65);
+    border: 1px solid rgb(111, 143, 175, 40%);
+    margin: auto;
+    margin-top: 6rem;
+    border-radius: 5px;
+    padding: 6rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    div {
+        width: 55%;
+    }
+    em {
+        color: rgb(114, 114, 114);
+        letter-spacing: 1px;
+        font-size: smaller;
+    }
+}

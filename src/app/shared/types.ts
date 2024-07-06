@@ -41,3 +41,8 @@ export interface DirectLoginInput {
     email: string
     password: string
 }
+
+export interface Paged<T> {
+    length: number
+    slice: T[]
+}

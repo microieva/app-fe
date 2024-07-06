@@ -65,11 +65,12 @@ export class UserComponent implements OnInit {
             .send(query)
             .pipe(take(1))
             .subscribe(async (res) => {
-                try {
-                    this.me = await res.data.me;
+                if (res.data.me) {
+                    this.me = res.data.me;
                     this.buildForm();
                     this.missingInfo = this.checkUserInfo(); 
-                }catch {
+                } else {
+                    this.dialog.open({data: {message: "No user"}})
                     this.router.navigate(['/']) // doesnt work
                 }
         });

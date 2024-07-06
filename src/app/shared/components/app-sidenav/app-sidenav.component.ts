@@ -1,6 +1,4 @@
-import { Component, Input, OnInit } from "@angular/core";
-import { Router } from "@angular/router";
-import { AppAuthService } from "../../services/app-auth.service";
+import { Component, Input } from "@angular/core";
 
 @Component({
     selector: 'app-sidenav',
@@ -9,11 +7,8 @@ import { AppAuthService } from "../../services/app-auth.service";
 })
 export class AppSidenavComponent {
 
-    @Input() isUserUpdated: string | null = null;
+    @Input() isUserUpdated!: string | null;
     @Input() isAuth: boolean = false;
 
-    constructor(
-        public router: Router,
-        private authService: AppAuthService
-    ){}
+    constructor(){}
 }

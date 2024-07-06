@@ -38,7 +38,7 @@ $custom-theme-theme: mat.define-light-theme((
 /* You can add global styles to this file, and also import other style files */
 
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; color: rgb(31, 30, 30); }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; color: rgb(68, 65, 65); }
 li {list-style: none;}
 a {text-decoration: none; color: inherit;}
 .content {
@@ -66,3 +66,19 @@ app-sidenav {
 mat-form-field {
   margin: 0 0.5rem;
 }
+.mat-mdc-tab.mdc-tab {
+  min-width: 16rem;
+  &--active {background-color: rgb(139,149,161);}
+}
+.tab-label{
+  color:rgb(68, 65, 65);
+}
+.mat-mdc-tab-group, .mat-mdc-tab-nav-bar {
+  --mdc-tab-indicator-active-indicator-color:rgb(68, 65, 65);
+  --mat-tab-header-active-focus-indicator-color:rgb(68, 65, 65);
+  --mat-tab-header-active-ripple-color: rgb(68, 65, 65);
+  --mat-tab-header-inactive-ripple-color: rgb(68, 65, 65);
+  --mat-tab-header-active-hover-indicator-color:rgb(68, 65, 65);
+}
+
+
