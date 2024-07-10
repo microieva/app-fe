@@ -1,10 +1,10 @@
 import { Component, OnInit } from "@angular/core";
 import { AppGraphQLService } from "../../shared/services/app-graphql.service";
 import { TestApp } from "./test-app";
-import { take } from "rxjs";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { TestAppInput } from "./test-app.input";
 import { ActivatedRoute, Router } from "@angular/router";
+import { AppDialogService } from "../../shared/services/app-dialog.service";
 
 @Component({
     selector: 'test-app',
@@ -19,8 +19,8 @@ export class TestAppComponent implements OnInit {
         private graphQLService: AppGraphQLService,
         private formBuilder: FormBuilder,
         private activatedRoute: ActivatedRoute,
-        private router: Router
-        //private dialog: dialog service
+        private router: Router,
+        private dialog: AppDialogService
     ){
         this.form = undefined;
         this.testApp = undefined;
@@ -45,13 +45,24 @@ export class TestAppComponent implements OnInit {
                 isAppConnected
             }
         }`
-        this.graphQLService
-            .send(query, {testAppId: id})
-            .pipe(take(1))
-            .subscribe(res => {
-                this.testApp = res.data.testApp;
+
+        try {
+            const response = await this.graphQLService.send(query, {testAppId: id});
+            if (response.data) {
+                this.testApp = response.data.testApp;
                 this.buildForm();
-            });
+            }
+        } catch (error) {
+            this.dialog.open({data: {message: error}})
+        }
+        // this.graphQLService
+        //     .send(query, {testAppId: id})
+        //     .pipe(take(1))
+        //     .subscribe(res => {
+        //         this.testApp = res.data.testApp;
+        //         this.buildForm();
+        //     });
+        
     }
 
     buildForm() {
@@ -60,25 +71,23 @@ export class TestAppComponent implements OnInit {
             isAppConnected: this.formBuilder.control<boolean>(this.testApp?.isAppConnected || false)
         }) as TestForm
     }
-    save() {
+    async save() {
         let input: TestAppInput = this.form?.value;
         input.id = this.testApp?.id
+
         const mutation = `mutation ($testAppInput: TestAppInput){
             saveTestApp(testAppInput: $testAppInput) {
                 success
                 message
             }
         }`
-        const response = this.graphQLService.mutate(mutation, { testAppInput: input })
-        response
-            .pipe(take(1))
-            .subscribe(res => {
-                if (res.data.saveTestApp.success) {
-                    this.router.navigate(['test-apps']);
-                } else {
-                    console.error('Unexpected error while saving: ', res.data.saveTestApp.message)
-                }
-            })
+        try {
+            await this.graphQLService.mutate(mutation, { testAppInput: input })
+            this.router.navigate(['test-apps'])
+        } catch (error) {
+            this.dialog.open({data: { message: error}})
+        }
+        
     }
     cancel() {
         this.router.navigate(['test-apps'])

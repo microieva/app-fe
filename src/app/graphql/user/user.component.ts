@@ -61,19 +61,31 @@ export class UserComponent implements OnInit {
                 postCode
             }
         }`
-        this.graphQLService
-            .send(query)
-            .pipe(take(1))
-            .subscribe(async (res) => {
-                if (res.data.me) {
-                    this.me = res.data.me;
-                    this.buildForm();
-                    this.missingInfo = this.checkUserInfo(); 
-                } else {
-                    this.dialog.open({data: {message: "No user"}})
-                    this.router.navigate(['/']) // doesnt work
-                }
-        });
+
+        try {
+            const response = await this.graphQLService.send(query);
+            if (response.data.me) {
+                this.me = response.data.me;
+                this.buildForm();
+                this.missingInfo = this.checkUserInfo();
+            }
+        } catch (error){
+            this.router.navigate(['/']);
+            this.dialog.open({data: {message: error}});
+        }
+        // this.graphQLService
+        //     .send(query)
+        //     .pipe(take(1))
+        //     .subscribe(async (res) => {
+        //         if (res.data.me) {
+        //             this.me = res.data.me;
+        //             this.buildForm();
+        //             this.missingInfo = this.checkUserInfo(); 
+        //         } else {
+        //             this.dialog.open({data: {message: "No user"}})
+        //             this.router.navigate(['/']) // doesnt work
+        //         }
+        // });
     }
 
     checkUserInfo(){
@@ -83,10 +95,10 @@ export class UserComponent implements OnInit {
     updateUser(){
         this.router.navigate(['user', this.me?.id])
     }
-    deleteUser(){
+    async deleteUser(){
         const dialogRef = this.dialog.open({ data: { isDeleting: true }})
         
-        dialogRef.componentInstance.ok.subscribe((value)=> {
+        dialogRef.componentInstance.ok.subscribe(async (value)=> {
             if (value && this.me?.id) {
                 
                 const mutation = `mutation ($userId: Int!) {
@@ -95,17 +107,26 @@ export class UserComponent implements OnInit {
                         message
                     }
                 }`
-                const response = this.graphQLService.mutate(mutation, { userId: this.me.id});
-                response
-                    .pipe(take(1))
-                    .subscribe(res => {
-                        if (res.data.deleteUser.success) {
-                            this.timerService.cancelTimer();
-                            this.authService.logOut(); 
-                        } else {
-                            this.dialog.open({ data: { message: res.data.deleteUser.message}})
-                        }
-                    }) 
+
+                try {
+                    const response = await this.graphQLService.mutate(mutation, { userId: this.me.id});
+                    if (response.success) {
+                        this.timerService.cancelTimer();
+                        this.authService.logOut(); 
+                    }
+                } catch (error) {
+                    this.dialog.open({ data: { message: error}})
+                }
+                // response
+                //     .pipe(take(1))
+                //     .subscribe(res => {
+                //         if (res.data.deleteUser.success) {
+                //             this.timerService.cancelTimer();
+                //             this.authService.logOut(); 
+                //         } else {
+                //             this.dialog.open({ data: { message: res.data.deleteUser.message}})
+                //         }
+                //     }) 
             }
         }) 
     }
@@ -123,7 +144,7 @@ export class UserComponent implements OnInit {
         });
     }
 
-    save() {
+    async save() {
         const input: UserInput = {
             id: this.id,
             firstName: this.form?.value.firstName,
@@ -142,16 +163,24 @@ export class UserComponent implements OnInit {
                 message
             }
         }`
-        const response = this.graphQLService.mutate(mutation, { userInput: input })
-        response
-            .pipe(take(1))
-            .subscribe(res => {
-                if (res.data.saveUser.success) {
-                    this.router.navigate(['user']);
-                } else {
-                    this.dialog.open({ data: { message: res.data.saveUser.message }})
-                }
-            })
+
+        try {
+            const response = await this.graphQLService.mutate(mutation, { userInput: input });
+            if (response.success) {
+                this.router.navigate(['user']);
+            }
+        } catch (error) {
+            this.dialog.open({ data: { message: error}})
+        }
+        // response
+        //     .pipe(take(1))
+        //     .subscribe(res => {
+        //         if (res.data.saveUser.success) {
+        //             this.router.navigate(['user']);
+        //         } else {
+        //             this.dialog.open({ data: { message: res.data.saveUser.message }})
+        //         }
+        //     })
     }
 
     cancel() {

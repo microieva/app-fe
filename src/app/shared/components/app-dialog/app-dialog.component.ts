@@ -1,11 +1,8 @@
-import { Component, EventEmitter, Inject, NgZone, OnInit, Output } from "@angular/core";
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { AppDialogData, DirectLoginInput } from "../../types";
+import { Component, EventEmitter, Inject, OnInit, Output } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
+import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { AppAuthService } from "../../services/app-auth.service";
-import { AppTimerService } from "../../services/app-timer.service";
-import { Subject, finalize, interval, take, takeUntil, timer } from "rxjs";
-import { Router } from "@angular/router";
+import { AppDialogData, DirectLoginInput } from "../../types";
 
 @Component({
     selector: 'app-dialog',
@@ -18,33 +15,26 @@ export class AppDialogComponent implements OnInit {
     isDeleting: boolean;
     showDirectLoginForm: boolean;
     isLoggingIn: boolean;
+    input: boolean;
     error: string | undefined;
     form: LoginForm;
 
-    destroy = new Subject();
-    showDialog = false;
-    timer: number = 0;
-    dialog = 'stay logged in?';
-    notice = 'session expired';
-    showNotice = false;
-    rxjsTimer = timer(1000, 1000);
-
     @Output() ok = new EventEmitter<boolean>(false);
     @Output() loginSuccess = new EventEmitter<boolean>(false);
+    @Output() event = new EventEmitter<string>();
 
     constructor(
         @Inject(MAT_DIALOG_DATA) data: AppDialogData,
         private dialogRef: MatDialogRef<AppDialogComponent>,
         private formBuilder: FormBuilder,
-        private authService: AppAuthService,
-        private timerService: AppTimerService,
-        private router: Router
+        private authService: AppAuthService
     ) {
         this.loading = data.loading;
         this.message = data.message;
         this.isDeleting = data.isDeleting;
         this.isLoggingIn = data.isLoggingIn;
         this.showDirectLoginForm = data.showDirectLoginForm;
+        this.input = data.input;
         this.form = this.buildLoginForm()
     }
 
@@ -62,7 +52,8 @@ export class AppDialogComponent implements OnInit {
     }
 
     onOk(ok: boolean){
-        this.ok.emit(ok)
+        console.log('is this emitting ? dialog component ok: ', ok)
+        this.ok.emit(ok);
     }
 
     cancelDirectLogin(){
@@ -70,22 +61,20 @@ export class AppDialogComponent implements OnInit {
         this.showDirectLoginForm = false;
     }
 
-    submit() {
+    onEventSubmit(event: any){
+        this.event.emit(event.input)
+    }
+
+    async submit() {
         const input = this.form.value;
-        this.authService.logIn(input as DirectLoginInput).subscribe({
-            next: (token) => {
-                if (token) {
-                    //this.startTimer();
-                    this.dialogRef.close();
-                    window.location.reload(); // -> timer doesnt work because of reload
-                    //this.timerService.startTimer();
-                }
-            },
-            error: (err) => {
-                this.error = "Invalid password or email"
-                console.error(err);
-            }
-        })
+
+        const token = await this.authService.logIn(input as DirectLoginInput);
+        if (token) {
+            this.dialogRef.close();
+            window.location.reload(); 
+        } else {
+            this.error = "Invalid email or password"
+        }
     }
 }
 

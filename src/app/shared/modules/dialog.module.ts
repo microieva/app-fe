@@ -11,6 +11,7 @@ import { MatInputModule } from "@angular/material/input";
 import { MatDividerModule } from "@angular/material/divider";
 import { ReactiveFormsModule } from "@angular/forms";
 import { AlertComponent } from "../components/app-dialog/alert/alert.component";
+import { EventComponent } from "../components/app-dialog/event/event.component";
 
 @NgModule({
     declarations: [
@@ -18,7 +19,8 @@ import { AlertComponent } from "../components/app-dialog/alert/alert.component";
         ConfirmComponent,
         LoadingComponent,
         AlertComponent,
-        LoginComponent
+        LoginComponent,
+        EventComponent
     ],
     imports: [
         ReactiveFormsModule,

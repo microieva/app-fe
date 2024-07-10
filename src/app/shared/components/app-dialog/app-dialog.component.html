@@ -32,3 +32,7 @@
         </mat-dialog-actions>
     </form>
 </mat-dialog-content>
+
+<mat-dialog-content *ngIf="input">
+   <app-event (submit)="onEventSubmit($event)"></app-event>
+</mat-dialog-content>

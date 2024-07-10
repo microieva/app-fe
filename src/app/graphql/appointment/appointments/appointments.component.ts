@@ -1,9 +1,9 @@
 import { Component, OnInit } from "@angular/core";
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
-import { take } from "rxjs";
 import { Paged } from "../../../shared/types";
 import { Appointment } from "../appointment";
 import { Router } from "@angular/router";
+import { AppDialogService } from "../../../shared/services/app-dialog.service";
 
 @Component({
     selector: 'test-apps',
@@ -21,7 +21,8 @@ export class AppointmentsComponent implements OnInit {
 
     constructor(
         private graphQLService: AppGraphQLService,
-        private router: Router
+        private router: Router,
+        private dialog: AppDialogService
     ){}
 
     ngOnInit(): void {
@@ -33,17 +34,19 @@ export class AppointmentsComponent implements OnInit {
         const query = `query {
             me {
                 id
-                userRole
                 countAppointments
             }
         }`
-        this.graphQLService
-            .send(query)
-            .pipe(take(1))
-            .subscribe(async (res) => {
-                this.id = await res.data.me.id;
-                this.count = await res.data.countAppointments;
-        });
+
+        try {
+            // const response = await this.graphQLService.send(query);
+            // if (response.data) {
+            //     this.id = response.data.me.id;
+            //     this.count = response.data.countAppointments
+            // }
+        } catch (error){
+            this.dialog.open({data: {message: error}})
+        }
     }
     newTab(){
         console.log('NEW TAB CLICK')

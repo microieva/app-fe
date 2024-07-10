@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { Apollo, gql } from 'apollo-angular';
-import { Observable } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
 })
 export class AppGraphQLService {
     
-    constructor(
+    /*constructor(
         private apollo: Apollo
     ) {}
 
@@ -29,5 +29,27 @@ export class AppGraphQLService {
                 variables,
                 fetchPolicy: 'network-only'
             })
+    }*/
+    constructor(private apollo: Apollo) {}
+
+    async send(query: string, variables?: Object): Promise<any> {
+        const result = this.apollo.watchQuery({
+        query: gql`${query}`,
+        variables,
+        fetchPolicy: 'network-only',
+        pollInterval: 3000,
+        }).valueChanges;
+
+        return firstValueFrom(result);
+    }
+
+    async mutate(mutation: string, variables: Object): Promise<any> {
+        const result = this.apollo.mutate({
+        mutation: gql`${mutation}`,
+        variables,
+        fetchPolicy: 'network-only',
+        });
+
+        return firstValueFrom(result);
     }
 }

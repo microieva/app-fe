@@ -1,5 +1,4 @@
 import { Component, OnInit } from "@angular/core";
-import { take } from "rxjs";
 import { Router } from "@angular/router";
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
 import { AppDialogService } from "../../../shared/services/app-dialog.service";
@@ -32,15 +31,23 @@ export class TestAppsComponent implements OnInit {
                 }
             }
         `
-        this.graphQLService
-            .send(query)
-            .pipe(take(1))
-            .subscribe(res => {
-                if (res.loading) {
-                    this.dialog.open({ data: {loading: true}});
-                }
-                this.testApps = res.data.testApps;
-            });
+        try {
+            const response = await this.graphQLService.send(query);
+            if (response.data) {
+                this.testApps = response.data.testApps;
+            }
+        } catch (error) {
+            this.dialog.open({data: {message: error}});
+        }
+        // this.graphQLService
+        //     .send(query)
+        //     .pipe(take(1))
+        //     .subscribe(res => {
+        //         if (res.loading) {
+        //             this.dialog.open({ data: {loading: true}});
+        //         }
+        //         this.testApps = res.data.testApps;
+        //     });
     }
 
     addTestApp(){
@@ -57,20 +64,26 @@ export class TestAppsComponent implements OnInit {
         })  
     }
 
-    sendMutation(id: number) {
+    async sendMutation(id: number) {
         const mutation = `mutation ($testAppId: Int!) {
             deleteTestApp(testAppId: $testAppId) {
                 success
                 message
             }
         }`
-        const response = this.graphQLService.mutate(mutation, { testAppId: id})
-        response
-        .pipe(take(1))
-        .subscribe(res => {
-            if (res.data.deleteTestApp.success) {
-                this.ngOnInit();
-            }
-        }) 
+
+        try {
+            await this.graphQLService.mutate(mutation, { testAppId: id});
+            this.ngOnInit();
+        } catch (error){
+            this.dialog.open({data: {message: error}});
+        }
+        // response
+        // .pipe(take(1))
+        // .subscribe(res => {
+        //     if (res.data.deleteTestApp.success) {
+        //         this.ngOnInit();
+        //     }
+        // }) 
     }
 }

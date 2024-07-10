@@ -15,5 +15,6 @@ export class AlertComponent {
 
     onOkClick(){
         this.ok.emit(true);
+        console.log("alert component click OK")
     }
 }

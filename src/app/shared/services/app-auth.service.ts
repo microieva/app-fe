@@ -1,12 +1,10 @@
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { Apollo } from 'apollo-angular';
-import { map, take, takeWhile } from 'rxjs/operators';
+import { DateTime } from "luxon";
 import { AppGraphQLService } from './app-graphql.service';
 import { AppDialogService } from './app-dialog.service';
 import { DirectLoginInput } from '../types';
-import gql from 'graphql-tag';
-import { Router } from '@angular/router';
-import { DateTime } from "luxon";
 
 @Injectable({
   providedIn: 'root'
@@ -21,15 +19,15 @@ export class AppAuthService {
     private router: Router
   ) {}
 
-  logIn(input: DirectLoginInput) {
+  async logIn(input: DirectLoginInput) {
     const query = `query ($directLoginInput: LoginInput!) {
       login(directLoginInput: $directLoginInput)
     }`
-    return this.graphQLService
-      .send(query, {directLoginInput: input})
-      .pipe(map(result => {
-        if (result.data.login) {
-          const token = result.data.login;
+
+      try {
+        const response = await this.graphQLService.send(query, {directLoginInput: input});
+        if (response.data) {
+          const token = response.data.login;
           this.isAuthenticated = true;
           const tokenStart = DateTime.local();
           const tokenExpire = tokenStart.plus({ hours: 1 }).toISO();
@@ -37,50 +35,36 @@ export class AppAuthService {
           localStorage.setItem('tokenExpire', tokenExpire);
           return token;
         }
-      }));
-
+      } catch (error) {
+        this.dialog.open({data: {message: error}});
+      }
     }
 
-  loginWithGoogle(credential: string){
+  async loginWithGoogle(credential: string){
     const mutation = `mutation ($googleCredential: String!){
         loginWithGoogle(googleCredential: $googleCredential) 
     }`
-    const response = this.graphQLService.mutate(mutation, { googleCredential: credential })
-    response
-        .pipe(take(1))
-        .subscribe(res => {
-            if (res.data.loginWithGoogle) {
-                const token = res.data.loginWithGoogle;
-                this.isAuthenticated = true;
-                const tokenStart = DateTime.local();
-                const tokenExpire = tokenStart.plus({ hours: 1 }).toISO();
-                localStorage.setItem('authToken', token);
-                localStorage.setItem('tokenExpire', tokenExpire);
-                this.dialog.close();
-                window.location.reload();
-            } else {
-                console.error('Unexpected error from loginWithGoogle: ', res.data.loginWithGoogle.message)
-            }
-        });
-  }
-  // getMe() {
-  //   const ME_QUERY = gql`
-  //     query Me {
-  //       me {
-  //         firstName
-  //         userRole
-  //       }
-  //     }
-  //   `;
 
-  //   return this.apollo.query({
-  //     query: ME_QUERY
-  //   }).pipe(
-  //     map((result: any) => {console.log('getMe: ', result.data.me); result.data.me})
-  //   )
-  // }
+    try {
+      const response = await this.graphQLService.mutate(mutation, { googleCredential: credential });
+
+      if (response.data) {
+        const token = response.data.loginWithGoogle;
+        this.isAuthenticated = true;
+        const tokenStart = DateTime.local();
+        const tokenExpire = tokenStart.plus({ hours: 1 }).toISO();
+        localStorage.setItem('authToken', token);
+        localStorage.setItem('tokenExpire', tokenExpire);
+        this.dialog.close();
+        window.location.reload();
+      }
+    } catch (error) {
+      this.dialog.open({data: { message: error}});
+    }
+  }
 
   logOut() {
+    console.log('calling logout in auth service')
     this.apollo.client.clearStore(); 
     localStorage.clear(); 
     this.isAuthenticated = false;
@@ -88,7 +72,6 @@ export class AppAuthService {
   }
 
   getAuthStatus(): boolean {
-    // this.getMe for userRole
     return this.isAuthenticated;
   }
 }

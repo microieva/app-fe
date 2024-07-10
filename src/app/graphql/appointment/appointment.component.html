@@ -4,5 +4,5 @@
     <button mat-stroked-button (click)="cancel()">{{ 'Cancel' }}</button>
 </div>
 <div class="page">
-    <app-calendar></app-calendar>
+    <app-calendar (appointment)="saveAppointment($event)"></app-calendar>
 </div>
