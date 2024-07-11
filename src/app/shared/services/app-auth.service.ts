@@ -26,6 +26,7 @@ export class AppAuthService {
 
       try {
         const response = await this.graphQLService.send(query, {directLoginInput: input});
+
         if (response.data) {
           const token = response.data.login;
           this.isAuthenticated = true;

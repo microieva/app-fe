@@ -38,7 +38,10 @@ $custom-theme-theme: mat.define-light-theme((
 @include mat.all-component-themes($custom-theme-theme);
 
 /* You can add global styles to this file, and also import other style files */
-
+:root {
+  --mat-table-background-color: rgb(158,176,197);
+  --mat-expansion-container-background-color: rgb(158,176,197);
+}
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; color: rgb(68, 65, 65); }
 li {list-style: none;}
@@ -182,6 +185,22 @@ mat-form-field {
       border-radius: 50%;
       padding: 3px;
   }
+}
+
+.title {
+  margin-bottom: 2rem;
+  font-weight: bold;
+  color: rgb(139,149,161);
+}
+p {
+  font-size: smaller;
+  margin: 0;
+}
+h3 {
+  margin:0;
+}
+em {
+  color: inherit;
 }
 
 

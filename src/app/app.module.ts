@@ -18,6 +18,8 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import {MatTabsModule} from '@angular/material/tabs';
+import {MatTableModule} from '@angular/material/table';
+import {MatAccordion, MatExpansionModule} from '@angular/material/expansion';
 import { MAT_DATE_FORMATS, MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
 import { TestAppsComponent } from './graphql/test-app/test-apps/test-apps.component';
 import { HomeComponent } from './shared/components/home/home.component';
@@ -31,6 +33,7 @@ import { AppTimerService } from './shared/services/app-timer.service';
 import { AppointmentsComponent } from './graphql/appointment/appointments/appointments.component';
 import { AppointmentComponent } from './graphql/appointment/appointment.component';
 import { AppCalendarComponent } from './shared/components/app-calendar/app-calendar.component';
+import { AppTableComponent } from './shared/components/app-table/app-table.component';
 
 @NgModule({ 
     declarations: [
@@ -40,6 +43,7 @@ import { AppCalendarComponent } from './shared/components/app-calendar/app-calen
         TestAppComponent,
         AppSidenavComponent,
         AppCalendarComponent,
+        AppTableComponent,
         UserComponent,
         AppointmentsComponent,
         AppointmentComponent
@@ -58,13 +62,16 @@ import { AppCalendarComponent } from './shared/components/app-calendar/app-calen
         MatDialogContent,
         MatDatepickerModule,
         MatTabsModule,
+        MatTableModule,
         FormsModule,
         ReactiveFormsModule,
         BrowserModule,
         AppRoutingModule,
         GraphQLModule,
         DialogModule,
-        FullCalendarModule
+        FullCalendarModule,
+        MatExpansionModule,
+        MatAccordion
     ], 
     providers: [
         AppDialogService,

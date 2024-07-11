@@ -78,12 +78,5 @@ export class TestAppsComponent implements OnInit {
         } catch (error){
             this.dialog.open({data: {message: error}});
         }
-        // response
-        // .pipe(take(1))
-        // .subscribe(res => {
-        //     if (res.data.deleteTestApp.success) {
-        //         this.ngOnInit();
-        //     }
-        // }) 
     }
 }

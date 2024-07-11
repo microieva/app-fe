@@ -2,8 +2,24 @@
     border-top: 1px solid rgb(111, 143, 175, 40%);
     height: calc(100vh - 6rem);
 }
+.page {
+    max-width: 75%;
+    padding-top: 4rem;
+}
+.flex-row {
+    align-items: center;
+}
+mat-panel-description {
+    justify-content: flex-end;
+    em {
+        text-indent: 1rem;
+    }
+}
+.info {
+    height: 2.5rem;
+    margin-top: 1px;
+}
 .btn-block {
-    max-width: 50%;
     color: rgb(68, 65, 65);
     border: 1px solid rgb(111, 143, 175, 40%);
     margin: auto;
@@ -14,6 +30,9 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+    button {
+        background-color: rgb(175 111 174 / 40%);
+    }
     div {
         width: 55%;
     }

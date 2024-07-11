@@ -16,7 +16,7 @@ const routes: Routes = [
   { path: 'user', component: UserComponent },
   { path: 'user/:id', component: UserComponent },
   { path: 'appointments', component: AppointmentsComponent },
-  { path: 'appointments/new', component: AppointmentComponent }
+  { path: 'appointments/calendar', component: AppointmentComponent }
   //{ path: '**', component: NotFoundComponent }
 ];
 

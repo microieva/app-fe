@@ -17,9 +17,7 @@ export class AppointmentComponent implements OnInit{
         private dialog: AppDialogService
     ){}
 
-    ngOnInit(): void {
-        
-    }
+    ngOnInit(): void {}
 
     async saveAppointment(appointment: AppointmentInput){
         const input = _.omit(appointment, 'title', 'id');
@@ -34,6 +32,7 @@ export class AppointmentComponent implements OnInit{
         `  
 
         const variables = { appointmentInput: input };
+        console.log('INPUT: ', input)
         try {
             const response = await this.graphQLService.mutate(mutation, variables);
             if (response.data.saveAppointment.success) {

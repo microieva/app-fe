@@ -4,14 +4,55 @@
             <span class="tab-label">New</span>
         </ng-template>
         <div class="content">
+            <div class="flex-row wrapper info">
+                <span class="icon material-symbols-outlined">info</span>
+                <h3>Here you can view and cancel pending appointments</h3>
+                <button mat-stroked-button (click)="openCalendar()">{{ 'Open Calendar' }}</button>
+            </div>
             <div class="page">
+                <div class="appointments" *ngIf="dataSource.length !== 0">
+                    <mat-accordion>
+                        <mat-expansion-panel hideToggle (opened)="panelOpenState.set(true)" (closed)="panelOpenState.set(false)" *ngFor="let appointment of dataSource">
+                          <mat-expansion-panel-header>
+                            <mat-panel-title> {{appointment.title}}</mat-panel-title>
+                            <mat-panel-description>
+                              Appointment created: <em>{{appointment.howLongAgoStr}}</em>
+                            </mat-panel-description>
+                          </mat-expansion-panel-header>
+                          <div class="flex-column wrapper">
+                                <p class="title">{{ 'Appointment Details' }}</p>
+                                <div class="flex-row">
+                                    <div class="flex-column">
+                                        <p>{{ 'Date' }}</p>
+                                        <h3>{{appointment.date}}</h3>
+                                    </div>
+                                    <div class="flex-column">
+                                        <p>{{ 'Start Time' }}</p>
+                                        <h3>{{appointment.start}}</h3>
+                                    </div>
+                                    <div class="flex-column">
+                                        <p>{{ 'End Time' }}</p>
+                                        <h3>{{appointment.end}}</h3>
+                                    </div>
+                                    <button 
+                                        style="margin-right:1rem;background-color:rgb(177,158,191)" 
+                                        mat-stroked-button 
+                                        (click)="deleteAppointment(appointment.id)">{{ appointment.button }}
+                                    </button>
+
+                                </div>
+                          </div>
+                        </mat-expansion-panel>
+                      </mat-accordion>
+                      
+                </div>
                 <div class="btn-block" *ngIf="count === 0">
                     <div>
                         <h3>You are in safe hands!</h3>
                         <p class="title">Make an appointment for a consultation</p>
                         <em>Appointment confirmation will be sent by email. Make sure you have provided your correctl email address. You can always find your account details on My Account page.</em>
                     </div>
-                    <button mat-stroked-button (click)="createAppointment()">{{ 'Make an Appointment' }}</button>
+                    <button mat-stroked-button (click)="openCalendar()">{{ 'Make an Appointment' }}</button>
                 </div>
             </div>
         </div>

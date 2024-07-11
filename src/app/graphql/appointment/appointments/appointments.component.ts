@@ -1,9 +1,9 @@
-import { Component, OnInit } from "@angular/core";
-import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
-import { Paged } from "../../../shared/types";
-import { Appointment } from "../appointment";
+import { Component, OnInit, signal } from "@angular/core";
 import { Router } from "@angular/router";
+import { DateTime } from "luxon";
+import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
 import { AppDialogService } from "../../../shared/services/app-dialog.service";
+import { Appointment } from "../appointment";
 
 @Component({
     selector: 'test-apps',
@@ -12,12 +12,10 @@ import { AppDialogService } from "../../../shared/services/app-dialog.service";
 })
 export class AppointmentsComponent implements OnInit {
     id!: number;
-    appointments: {
-        pending: Paged<Appointment>
-        upcoming: Paged<Appointment>
-        past: Paged<Appointment>
-    } | undefined = undefined;
     count: number = 0;
+    dataSource: any[] = [];
+    pendingAppointments: Appointment[] = [];
+    readonly panelOpenState = signal(false);
 
     constructor(
         private graphQLService: AppGraphQLService,
@@ -25,35 +23,116 @@ export class AppointmentsComponent implements OnInit {
         private dialog: AppDialogService
     ){}
 
-    ngOnInit(): void {
-        this.loadStatic()
+    async ngOnInit() {
+        await this.loadPendingAppointments()
     }
 
     
-    async loadStatic() {
+    async loadPendingAppointments() {
         const query = `query {
-            me {
+            pendingAppointments {
                 id
-                countAppointments
+                start
+                end
+                patientId
+                doctorId
+                createdAt
             }
         }`
 
         try {
-            // const response = await this.graphQLService.send(query);
-            // if (response.data) {
-            //     this.id = response.data.me.id;
-            //     this.count = response.data.countAppointments
-            // }
+            const response = await this.graphQLService.send(query);
+            if (response.data.pendingAppointments) {
+                this.pendingAppointments = response.data.pendingAppointments;
+                this.formatAppointments();
+            }
         } catch (error){
             this.dialog.open({data: {message: error}})
         }
+    }
+
+    formatAppointments() {
+        this.dataSource = this.pendingAppointments.map(row => {
+            const created = DateTime.fromJSDate(new Date(row.createdAt)).toISO();
+            const howLongAgoStr = this.getHowLongAgo(created);
+
+            return {
+                id: row.id,
+                createdAt: DateTime.fromJSDate(new Date(row.createdAt)).toFormat('yyyy-MM-dd'),
+                howLongAgoStr: howLongAgoStr,
+                title: "Pending doctor confirmation",
+                button: "Cancel Appointment",
+                date: DateTime.fromJSDate(new Date(row.start)).toFormat('yyyy-MM-dd'),
+                start: DateTime.fromJSDate(new Date(row.start)).toFormat('hh:mm'),
+                end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm')
+            };
+        })
+    }
+
+    getHowLongAgo(datetime: any) {
+        const inputDate = DateTime.fromISO(datetime);
+
+        const now = DateTime.now();
+
+        const diff = now.diff(inputDate, ['years', 'months', 'days', 'hours', 'minutes', 'seconds']);
+
+        let result = '';
+        if (diff.years > 0) {
+            result += `${diff.years} year${diff.years === 1 ? '' : 's'} `;
+        }
+        if (diff.months > 0) {
+            result += `${diff.months} month${diff.months === 1 ? '' : 's'} `;
+        }
+        if (diff.days > 0) {
+            result += `${diff.days} day${diff.days === 1 ? '' : 's'} `;
+        }
+        if (diff.hours > 0) {
+            result += `${diff.hours} hour${diff.hours === 1 ? '' : 's'} `;
+        }
+        if (diff.minutes > 0) {
+            result += `${diff.minutes} minute${diff.minutes === 1 ? '' : 's'} `;
+        }
+
+        result = result.trim();
+        if (result) {
+            result += ' ago';
+        } else {
+            result = 'just now';
+        }
+
+        return result;
     }
     newTab(){
         console.log('NEW TAB CLICK')
         console.log('countAppointments: ', this.count)
     }
 
-    createAppointment() {
-        this.router.navigate(['appointments', 'new'])
+    openCalendar() {
+        this.router.navigate(['appointments', 'calendar'])
+    }
+
+    deleteAppointment(id: number) {
+        const dialogRef = this.dialog.open({ data: { isDeleting: true }})
+        
+        dialogRef.componentInstance.ok.subscribe((value)=> {
+            if (value) {
+                this.sendMutation(id);
+            }
+        })  
+    }
+    async sendMutation(id: number) {
+        const mutation = `mutation ($appointmentId: Int!) {
+            deleteAppointment(appointmentId: $appointmentId) {
+                success
+                message
+            }
+        }`
+
+        try {
+            await this.graphQLService.mutate(mutation, { appointmentId: id});
+            this.ngOnInit();
+        } catch (error){
+            this.dialog.open({data: {message: error}});
+        }
     }
 }
