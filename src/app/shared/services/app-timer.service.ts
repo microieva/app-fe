@@ -28,21 +28,20 @@ import { AppDialogService } from "./app-dialog.service";
             take(duration + 1), 
             finalize(() => {
                 this.logout.emit(true);  
-                this.cancelTimer();
             }) 
         );
         this.subscription = example.subscribe((val) => {
-            const remainingSeconds = duration - val; // remaining time in seconds
+            const remainingSeconds = duration - val; 
             const printing = Duration.fromObject({ seconds: remainingSeconds });
             const formattedTime = printing.toFormat('mm:ss'); 
             if (formattedTime === '00:05') {
-                this.dialog.open({data: { message: "Session expired, please login to renew"}});
+                const dialogRef = this.dialog.open({data: { message: "Session expired, please login to renew"}});
 
-                // dialogRef.componentInstance.ok.subscribe((value)=> {
-                //     if (value) {
-                //         this.logout.emit(true); 
-                //     }
-                // })
+                dialogRef.componentInstance.ok.subscribe((value)=> {
+                    if (value) {
+                        this.logout.emit(true); 
+                    }
+                })
             }
             if (formattedTime === '00:00') {
                 this.logout.emit(true); 

@@ -47,7 +47,7 @@ export class AppDialogComponent implements OnInit {
     buildLoginForm(){
         return this.form = this.formBuilder.group({
             email: this.formBuilder.control<string>('', [Validators.required]),
-            password: this.formBuilder.control<string>('', [Validators.required])
+            password: this.formBuilder.control<string>('', [Validators.required, Validators.email])
         }) as LoginForm
     }
 

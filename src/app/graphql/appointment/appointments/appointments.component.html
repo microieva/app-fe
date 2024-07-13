@@ -6,8 +6,10 @@
         <div class="content">
             <div class="flex-row wrapper info">
                 <span class="icon material-symbols-outlined">info</span>
-                <h3 *ngIf="userRole === 'patient'">Here you can view and cancel pending appointments</h3>
-                <h3 *ngIf="userRole === 'doctor'">Appointments waiting for confirmation <em>(oldest to newest)</em></h3>
+                <h3 *ngIf="userRole === 'patient' && pendingAppointments.length === 0">Welcome! Here you will see your pending appointments <em>(requests approved within 24 hours)</em></h3> 
+                <h3 *ngIf="userRole === 'patient' && pendingAppointments.length !== 0">Here you can view and cancel pending appointments</h3>
+                <h3 *ngIf="userRole === 'doctor' && pendingAppointments.length !== 0">Appointments waiting for confirmation <em>(oldest to newest)</em></h3>
+                <h3 *ngIf="userRole === 'doctor' && pendingAppointments.length === 0">No appointment requests at the moment</h3>
                 <button mat-stroked-button (click)="openCalendar()">{{ 'Open Calendar' }}</button>
             </div>
             <div class="page">
@@ -18,7 +20,7 @@
                             <mat-panel-title *ngIf="userRole === 'patient'"> {{ 'Pending doctor confirmation' }}</mat-panel-title>
                             <mat-panel-title *ngIf="userRole === 'doctor'"> {{ 'View details' }}</mat-panel-title>
                             <mat-panel-description>
-                              Appointment created: <em>{{appointment.howLongAgoStr}}</em>
+                                <p>Appointment created: <em>{{appointment.howLongAgoStr}}</em></p>
                             </mat-panel-description>
                           </mat-expansion-panel-header>
                           <div class="flex-column wrapper">
@@ -65,7 +67,7 @@
                 <div class="btn-block" *ngIf="userRole === 'patient'">
                     <div>
                         <h3>You are in safe hands!</h3>
-                        <p class="title">Make an appointment for a consultation</p>
+                        <p class="title bg">Make an appointment for a consultation</p>
                         <em>Appointment confirmation will be sent by email. Make sure you have provided your correctl email address. You can always find your account details on My Account page.</em>
                     </div>
                     <button mat-stroked-button (click)="openCalendar()">{{ 'Make an Appointment' }}</button>
@@ -73,32 +75,32 @@
             </div>
         </div>
     </mat-tab>
-    <mat-tab>
+    <mat-tab *ngIf="pendingAppointments.length !== 0 || upcomingAppointments.length !== 0">
         <ng-template mat-tab-label>
             <span class="tab-label">Upcoming</span>
         </ng-template>
         <div class="content">
-            <div class="page">
-                <div class="btn-block">
-                    <p>No upcoming appointments at the moment</p>
-                </div>
+            <div class="flex-row wrapper info">
+                <span class="icon material-symbols-outlined">info</span>
+                <h3 *ngIf="upcomingAppointments.length !== 0">Your appointments</h3>
+                <h3 *ngIf="userRole === 'doctor' && upcomingAppointments.length === 0">You have no future appointments at the moment</h3>
+                
+                <h3 *ngIf="userRole === 'patient' && upcomingAppointments.length === 0">Here will be displayed your upcoming appointments after doctor's confirmation</h3>
+                <button mat-stroked-button (click)="openCalendar()">{{ 'Open Calendar' }}</button>
             </div>
-        </div>
-    </mat-tab>
-    <mat-tab *ngIf="count > 0">
-        <ng-template mat-tab-label>
-            <span class="tab-label">Past</span>
-        </ng-template>
-        <div class="content">
             <div class="page">
+                <div class="btn-block column" *ngIf="upcomingAppointments.length === 0">
+                    <div><em>No upcoming appointments at the moment</em></div>
+                    <div><em>Appointment requests confirmed within 24 hours!</em></div>   
+                </div>
                 <div class="appointments" *ngIf="upcomingAppointments.length !== 0">
                     <mat-accordion>
                         <mat-expansion-panel hideToggle (opened)="panelOpenState.set(true)" (closed)="panelOpenState.set(false)" *ngFor="let appointment of upcomingDataSource">
                           <mat-expansion-panel-header>
-                            <mat-panel-title *ngIf="userRole === 'patient'"> {{ 'Pending doctor confirmation' }}</mat-panel-title>
+                            <mat-panel-title *ngIf="userRole === 'patient'"> {{ 'Upcoming appointment' }}</mat-panel-title>
                             <mat-panel-title *ngIf="userRole === 'doctor'"> {{ 'View details' }}</mat-panel-title>
                             <mat-panel-description>
-                              Appointment created: <em>{{appointment.howLongAgoStr}}</em>
+                                <p>Appointment date: <em>{{appointment.howSoonStr}}</em></p>  
                             </mat-panel-description>
                           </mat-expansion-panel-header>
                           <div class="flex-column wrapper">
@@ -119,15 +121,9 @@
                                     <div class="actions column">   
                                         <button 
                                             *ngIf="userRole === 'doctor'"
-                                            style="margin-right:1rem;background-color:rgb(151,170,192)" 
+                                            style="margin-right:1rem;background-color:rgb(171 183 198);" 
                                             mat-stroked-button 
                                             (click)="acceptAppointment(appointment.id)">{{ 'View In Calendar' }}
-                                        </button>
-                                        <button 
-                                            *ngIf="userRole === 'doctor'"
-                                            style="margin-right:1rem;background-color:rgb(151,170,192)" 
-                                            mat-stroked-button 
-                                            (click)="acceptAppointment(appointment.id)">{{ 'Accept Appointment' }}
                                         </button>
                                         <button 
                                             style="margin-right:1rem;background-color:rgb(177,158,191)" 
@@ -139,9 +135,17 @@
                                 </div>
                           </div>
                         </mat-expansion-panel>
-                      </mat-accordion>
-                      
+                    </mat-accordion>      
                  </div>
+            </div>
+        </div>
+    </mat-tab>
+    <mat-tab *ngIf="count > 0">
+        <ng-template mat-tab-label>
+            <span class="tab-label">Past</span>
+        </ng-template>
+        <div class="content">
+            <div class="page">
                 <div class="btn-block" *ngIf="upcomingAppointments.length === 0">
                     <p>No upcoming appointments at the moment</p>
                 </div>

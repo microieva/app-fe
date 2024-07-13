@@ -78,7 +78,6 @@ export class HomeComponent implements OnInit{
     }
 
     async logOut() {
-        console.log('calling logout in home component')
         this.timerService.cancelTimer();
         this.authService.logOut(); 
         this.router.navigate(['/']);

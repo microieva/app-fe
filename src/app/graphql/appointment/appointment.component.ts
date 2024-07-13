@@ -32,7 +32,6 @@ export class AppointmentComponent implements OnInit{
         `  
 
         const variables = { appointmentInput: input };
-        console.log('INPUT: ', input)
         try {
             const response = await this.graphQLService.mutate(mutation, variables);
             if (response.data.saveAppointment.success) {

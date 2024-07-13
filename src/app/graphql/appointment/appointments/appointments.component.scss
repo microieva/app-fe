@@ -49,8 +49,12 @@ mat-panel-description {
         width: 55%;
     }
     em {
-        color: rgb(114, 114, 114);
-        letter-spacing: 1px;
+        color: rgb(111 121 133);
+        //letter-spacing: 1px;
         font-size: smaller;
     }
+}
+.column {
+    flex-direction: column;
+    align-items: start;
 }

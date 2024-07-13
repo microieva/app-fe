@@ -20,7 +20,7 @@ export class AppointmentsComponent implements OnInit {
     upcomingAppointments: Appointment[] = [];
     readonly panelOpenState = signal(false);
 
-    userRole: string = '';
+    userRole!: string;
 
     constructor(
         private graphQLService: AppGraphQLService,
@@ -37,12 +37,12 @@ export class AppointmentsComponent implements OnInit {
         try {
             const response = await this.graphQLService.send(query);
             if (response.data.me.userRole) {
-                this.userRole =response.data.me.userRole && response.data.me.userRole !== "admin"
+                this.userRole =response.data.me.userRole;
                 await this.loadPendingAppointments();
                 await this.loadUpcomingAppointments();
             }
         } catch (error) {
-            this.dialog.open({data: {message: error}})
+            this.dialog.open({data: {message: "Unexpected error fetching user role: "+error}})
         }
     }
 
@@ -66,7 +66,7 @@ export class AppointmentsComponent implements OnInit {
                 this.formatAppointments("pending");
             }
         } catch (error){
-            this.dialog.open({data: {message: error}})
+            this.dialog.open({data: {message: "Unexpected error while getting upcoming appointments: "+error}})
         }
     }
     async loadUpcomingAppointments() {
@@ -90,7 +90,7 @@ export class AppointmentsComponent implements OnInit {
                 console.log('coming: ', this.upcomingAppointments)
             }
         } catch (error){
-            this.dialog.open({data: {message: error}})
+            this.dialog.open({data: {message: "Unexpected error while getting upcoming appointments: "+error}})
         }
     }
 
@@ -103,28 +103,28 @@ export class AppointmentsComponent implements OnInit {
         
                     return {
                         id: row.id,
-                        createdAt: DateTime.fromJSDate(new Date(row.createdAt)).toFormat('yyyy-MM-dd'),
+                        //createdAt: DateTime.fromJSDate(new Date(row.createdAt)).toFormat('yyyy-MM-dd'),
                         howLongAgoStr: howLongAgoStr,
                         title: "Pending doctor confirmation",
                         button: "Cancel Appointment",
-                        date: DateTime.fromJSDate(new Date(row.start)).toFormat('yyyy-MM-dd'),
+                        date: DateTime.fromJSDate(new Date(row.start)).toFormat('MMM dd, yyyy'),
                         start: DateTime.fromJSDate(new Date(row.start)).toFormat('hh:mm'),
                         end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm')
                     };
                 })
                 
             case "upcoming":
-                return this.upcomingDataSource = this.pendingAppointments.map(row => {
-                    const created = DateTime.fromJSDate(new Date(row.createdAt)).toISO();
-                    const howLongAgoStr = this.getHowLongAgo(created);
-        
+                return this.upcomingDataSource = this.upcomingAppointments.map(row => {
+                    const startT = DateTime.fromJSDate(new Date(row.start)).toISO();
+                    const howSoonStr = this.getHowSoonUpcoming(startT);
+
                     return {
                         id: row.id,
-                        createdAt: DateTime.fromJSDate(new Date(row.createdAt)).toFormat('yyyy-MM-dd'),
-                        howLongAgoStr: howLongAgoStr,
+                        //createdAt: DateTime.fromJSDate(new Date(row.createdAt)).toFormat('yyyy-MM-dd'),
+                        howSoonStr: howSoonStr,
                         title: "Upcoming appointment",
                         button: "Cancel Appointment",
-                        date: DateTime.fromJSDate(new Date(row.start)).toFormat('yyyy-MM-dd'),
+                        date: DateTime.fromJSDate(new Date(row.start)).toFormat('MMM dd, yyyy'),
                         start: DateTime.fromJSDate(new Date(row.start)).toFormat('hh:mm'),
                         end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm')
                     };
@@ -134,38 +134,67 @@ export class AppointmentsComponent implements OnInit {
         }
     }
 
-    getHowLongAgo(datetime: any) {
+    getHowSoonUpcoming(datetime: any){
         const inputDate = DateTime.fromISO(datetime);
-
         const now = DateTime.now();
-
-        const diff = now.diff(inputDate, ['years', 'months', 'days', 'hours', 'minutes', 'seconds']);
-
-        let result = '';
+        const diff = inputDate.diff(now, ['years', 'months', 'days', 'hours', 'minutes', 'seconds']);
+        let howSoonStr = 'in ';
+    
         if (diff.years > 0) {
-            result += `${diff.years} year${diff.years === 1 ? '' : 's'} `;
+            howSoonStr += `${diff.years} year${diff.years === 1 ? '' : 's'} `;
         }
         if (diff.months > 0) {
-            result += `${diff.months} month${diff.months === 1 ? '' : 's'} `;
+            howSoonStr += `${diff.months} month${diff.months === 1 ? '' : 's'} `;
         }
         if (diff.days > 0) {
-            result += `${diff.days} day${diff.days === 1 ? '' : 's'} `;
+            howSoonStr += `${diff.days} day${diff.days === 1 ? '' : 's'} `;
+        }
+        if (diff.days < 1 && diff.hours > 0) {
+            howSoonStr += `${diff.hours} hour${diff.hours === 1 ? '' : 's'} `;
+        }
+        if (diff.days < 0 && diff.minutes > 0) {
+            howSoonStr += `${diff.minutes} minute${diff.minutes === 1 ? '' : 's'} `;
+        }
+    
+        howSoonStr = howSoonStr.trim();
+    
+        if (!howSoonStr) {
+            howSoonStr = 'now';
+        }
+    
+        return howSoonStr;
+    }
+
+    getHowLongAgo(datetime: any) {
+        const inputDate = DateTime.fromISO(datetime);
+        const now = DateTime.now();
+        const diff = now.diff(inputDate, ['years', 'months', 'days', 'hours', 'minutes', 'seconds']);
+        let howLongAgoStr = '';
+
+        if (diff.years > 0) {
+            howLongAgoStr += `${diff.years} year${diff.years === 1 ? '' : 's'} `;
+        }
+        if (diff.months > 0) {
+            howLongAgoStr += `${diff.months} month${diff.months === 1 ? '' : 's'} `;
+        }
+        if (diff.days > 0) {
+            howLongAgoStr += `${diff.days} day${diff.days === 1 ? '' : 's'} `;
         }
         if (diff.hours > 0) {
-            result += `${diff.hours} hour${diff.hours === 1 ? '' : 's'} `;
+            howLongAgoStr += `${diff.hours} hour${diff.hours === 1 ? '' : 's'} `;
         }
         if (diff.minutes > 0) {
-            result += `${diff.minutes} minute${diff.minutes === 1 ? '' : 's'} `;
+            howLongAgoStr += `${diff.minutes} minute${diff.minutes === 1 ? '' : 's'} `;
         }
 
-        result = result.trim();
-        if (result) {
-            result += ' ago';
+        howLongAgoStr = howLongAgoStr.trim();
+
+        if (howLongAgoStr) {
+            howLongAgoStr += ' ago';
         } else {
-            result = 'just now';
+            howLongAgoStr = 'just now';
         }
-
-        return result;
+        return howLongAgoStr;
     }
     newTab(){
         console.log('NEW TAB CLICK')
@@ -189,7 +218,10 @@ export class AppointmentsComponent implements OnInit {
                             message
                         }
                     }`
-                    await this.graphQLService.mutate(mutation, {appointmentId: id});
+                    const response = await this.graphQLService.mutate(mutation, {appointmentId: id});
+                    if (response.data.deleteAppointment.success) {
+                        this.ngOnInit();
+                    }
                 } catch (error) {
                     //snackbar
                 }

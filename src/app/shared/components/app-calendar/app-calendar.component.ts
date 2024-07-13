@@ -108,8 +108,6 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
         try {
             const response = await this.graphQLService.send(query);
             if (response.data.appointments) {
-                //this.appointments = response.data.appointments;
-                console.log('my appointments: ', this.appointments)
                 this.appointments = response.data.appointments;
                 this.calendarOptions.events = this.appointments.map((appointment: Appointment) => ({
                     title: "Appointment",
@@ -145,10 +143,8 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
     }
 
     handleAddEvent(arg: any){
-        console.log('args when tryign to update: ', arg)
         if (arg.view.type === 'timeGridWeek' || arg.view.type === 'timeGridDay') {
             const calendarApi = arg.view.calendar;
-            //calendarApi.unselect(); 
             const dialogRef = this.dialog.open({data: {input: true}});
             dialogRef.componentInstance.event.subscribe(value => {
                 const event: any = {
@@ -158,9 +154,9 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
                     allDay: arg.allDay
                 }
                 this.appointment.emit(event);
+                calendarApi.changeView('dayGridMonth', arg.start);
                 if (value) {
                     event.title = "Appointment";
-                    console.log('event to api: ', event)
                     calendarApi.addEvent(event);
                 }
             })

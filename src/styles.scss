@@ -187,10 +187,14 @@ mat-form-field {
   }
 }
 
-.title {
+.title, em{
   margin-bottom: 2rem;
   font-weight: bold;
   color: rgb(139,149,161);
+  
+}
+.bg {
+  font-size: 2rem;
 }
 p {
   font-size: smaller;
