@@ -37,8 +37,8 @@ export class HomeComponent implements OnInit{
                 })
                 this.timerService.logout.subscribe(value => {
                     if (value) {
+                        this.time = null;
                         this.logOut();
-                        //this.time = null;
                         this.remainder.unsubscribe();
                     }
                 });
@@ -61,14 +61,6 @@ export class HomeComponent implements OnInit{
                 updatedAt
             }
         }`
-        /*this.graphQLService
-            .send(query)
-            .pipe(take(1))
-            .subscribe(async (res) => {
-                this.me = await res.data.me;
-                this.updatedAt = this.me.updatedAt;
-                this.isAuth = true;
-        });*/
         try {
             const response = await this.graphQLService.send(query);
             if (response.data.me) {
@@ -77,7 +69,7 @@ export class HomeComponent implements OnInit{
                 this.isAuth = true;
             }
         } catch (error) {
-            this.dialog.open({data: {message: error}})
+            console.log(error)
         }
     }
 
@@ -87,7 +79,6 @@ export class HomeComponent implements OnInit{
 
     async logOut() {
         console.log('calling logout in home component')
-        this.time = null;
         this.timerService.cancelTimer();
         this.authService.logOut(); 
         this.router.navigate(['/']);

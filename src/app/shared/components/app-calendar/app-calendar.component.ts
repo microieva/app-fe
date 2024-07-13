@@ -75,6 +75,7 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
                 eventClick: (arg) =>this.handleEventClick(arg),
                 eventsSet: (arg) => this.handleEvents(arg),
                 dayCellDidMount: (arg)=> this.handleDayCell(arg),
+                eventChange: (arg) => this.handleAddEvent(arg),
                 businessHours: {
                     daysOfWeek: [ 1, 2, 3, 4, 5 ],
                     startTime: '08:00', 
@@ -82,11 +83,14 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
                   }
                 /* events for queries:
                 eventAdd:
-                eventChange:
                 eventRemove:
                 */
         }
     }
+
+    // async handleAppointmentUpdate() {
+
+    // }
 
     async loadAppointments() {
         const query = `
@@ -141,9 +145,10 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
     }
 
     handleAddEvent(arg: any){
+        console.log('args when tryign to update: ', arg)
         if (arg.view.type === 'timeGridWeek' || arg.view.type === 'timeGridDay') {
             const calendarApi = arg.view.calendar;
-            calendarApi.unselect(); 
+            //calendarApi.unselect(); 
             const dialogRef = this.dialog.open({data: {input: true}});
             dialogRef.componentInstance.event.subscribe(value => {
                 const event: any = {

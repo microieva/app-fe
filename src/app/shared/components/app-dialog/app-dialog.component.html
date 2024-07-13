@@ -7,7 +7,7 @@
 </mat-dialog-content>
 
 <mat-dialog-content *ngIf="message">
-    <app-alert [message]="message"></app-alert>
+    <app-alert (ok)="onOk($event)" [message]="message"></app-alert>
 </mat-dialog-content>
 
 <mat-dialog-content *ngIf="isLoggingIn">

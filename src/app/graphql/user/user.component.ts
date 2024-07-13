@@ -73,19 +73,6 @@ export class UserComponent implements OnInit {
             this.router.navigate(['/']);
             this.dialog.open({data: {message: error}});
         }
-        // this.graphQLService
-        //     .send(query)
-        //     .pipe(take(1))
-        //     .subscribe(async (res) => {
-        //         if (res.data.me) {
-        //             this.me = res.data.me;
-        //             this.buildForm();
-        //             this.missingInfo = this.checkUserInfo(); 
-        //         } else {
-        //             this.dialog.open({data: {message: "No user"}})
-        //             this.router.navigate(['/']) // doesnt work
-        //         }
-        // });
     }
 
     checkUserInfo(){
@@ -110,23 +97,13 @@ export class UserComponent implements OnInit {
 
                 try {
                     const response = await this.graphQLService.mutate(mutation, { userId: this.me.id});
-                    if (response.success) {
+                    if (response.data.deleteUser.success) {
                         this.timerService.cancelTimer();
                         this.authService.logOut(); 
                     }
                 } catch (error) {
-                    this.dialog.open({ data: { message: error}})
+                    this.dialog.open({ data: { message: "Error deleting user: "+ error}})
                 }
-                // response
-                //     .pipe(take(1))
-                //     .subscribe(res => {
-                //         if (res.data.deleteUser.success) {
-                //             this.timerService.cancelTimer();
-                //             this.authService.logOut(); 
-                //         } else {
-                //             this.dialog.open({ data: { message: res.data.deleteUser.message}})
-                //         }
-                //     }) 
             }
         }) 
     }
@@ -166,21 +143,12 @@ export class UserComponent implements OnInit {
 
         try {
             const response = await this.graphQLService.mutate(mutation, { userInput: input });
-            if (response.success) {
+            if (response.data.saveUser.success) {
                 this.router.navigate(['user']);
             }
         } catch (error) {
-            this.dialog.open({ data: { message: error}})
+            this.dialog.open({ data: { message: "Error saving user details: "+ error}})
         }
-        // response
-        //     .pipe(take(1))
-        //     .subscribe(res => {
-        //         if (res.data.saveUser.success) {
-        //             this.router.navigate(['user']);
-        //         } else {
-        //             this.dialog.open({ data: { message: res.data.saveUser.message }})
-        //         }
-        //     })
     }
 
     cancel() {

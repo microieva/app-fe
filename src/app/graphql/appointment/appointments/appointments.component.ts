@@ -4,6 +4,7 @@ import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
 import { AppDialogService } from "../../../shared/services/app-dialog.service";
 import { Appointment } from "../appointment";
+import { AppointmentInput } from "../appointment.input";
 
 @Component({
     selector: 'test-apps',
@@ -13,9 +14,13 @@ import { Appointment } from "../appointment";
 export class AppointmentsComponent implements OnInit {
     id!: number;
     count: number = 0;
-    dataSource: any[] = [];
+    pendingDataSource: any[] = [];
+    upcomingDataSource: any[] = [];
     pendingAppointments: Appointment[] = [];
+    upcomingAppointments: Appointment[] = [];
     readonly panelOpenState = signal(false);
+
+    userRole: string = '';
 
     constructor(
         private graphQLService: AppGraphQLService,
@@ -24,7 +29,21 @@ export class AppointmentsComponent implements OnInit {
     ){}
 
     async ngOnInit() {
-        await this.loadPendingAppointments()
+        await this.loadUserRole();
+    }
+
+    async loadUserRole() {
+        const query = `query { me { userRole }}`
+        try {
+            const response = await this.graphQLService.send(query);
+            if (response.data.me.userRole) {
+                this.userRole =response.data.me.userRole && response.data.me.userRole !== "admin"
+                await this.loadPendingAppointments();
+                await this.loadUpcomingAppointments();
+            }
+        } catch (error) {
+            this.dialog.open({data: {message: error}})
+        }
     }
 
     
@@ -44,29 +63,75 @@ export class AppointmentsComponent implements OnInit {
             const response = await this.graphQLService.send(query);
             if (response.data.pendingAppointments) {
                 this.pendingAppointments = response.data.pendingAppointments;
-                this.formatAppointments();
+                this.formatAppointments("pending");
+            }
+        } catch (error){
+            this.dialog.open({data: {message: error}})
+        }
+    }
+    async loadUpcomingAppointments() {
+        const query = `query {
+            upcomingAppointments {
+                id
+                start
+                end
+                patientId
+                doctorId
+                createdAt
+                allDay
+            }
+        }`
+
+        try {
+            const response = await this.graphQLService.send(query);
+            if (response.data.upcomingAppointments) {
+                this.upcomingAppointments = response.data.upcomingAppointments;
+                this.formatAppointments("upcoming");
+                console.log('coming: ', this.upcomingAppointments)
             }
         } catch (error){
             this.dialog.open({data: {message: error}})
         }
     }
 
-    formatAppointments() {
-        this.dataSource = this.pendingAppointments.map(row => {
-            const created = DateTime.fromJSDate(new Date(row.createdAt)).toISO();
-            const howLongAgoStr = this.getHowLongAgo(created);
-
-            return {
-                id: row.id,
-                createdAt: DateTime.fromJSDate(new Date(row.createdAt)).toFormat('yyyy-MM-dd'),
-                howLongAgoStr: howLongAgoStr,
-                title: "Pending doctor confirmation",
-                button: "Cancel Appointment",
-                date: DateTime.fromJSDate(new Date(row.start)).toFormat('yyyy-MM-dd'),
-                start: DateTime.fromJSDate(new Date(row.start)).toFormat('hh:mm'),
-                end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm')
-            };
-        })
+    formatAppointments(appointments: string) {
+        switch (appointments) {
+            case "pending":
+                return this.pendingDataSource = this.pendingAppointments.map(row => {
+                    const created = DateTime.fromJSDate(new Date(row.createdAt)).toISO();
+                    const howLongAgoStr = this.getHowLongAgo(created);
+        
+                    return {
+                        id: row.id,
+                        createdAt: DateTime.fromJSDate(new Date(row.createdAt)).toFormat('yyyy-MM-dd'),
+                        howLongAgoStr: howLongAgoStr,
+                        title: "Pending doctor confirmation",
+                        button: "Cancel Appointment",
+                        date: DateTime.fromJSDate(new Date(row.start)).toFormat('yyyy-MM-dd'),
+                        start: DateTime.fromJSDate(new Date(row.start)).toFormat('hh:mm'),
+                        end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm')
+                    };
+                })
+                
+            case "upcoming":
+                return this.upcomingDataSource = this.pendingAppointments.map(row => {
+                    const created = DateTime.fromJSDate(new Date(row.createdAt)).toISO();
+                    const howLongAgoStr = this.getHowLongAgo(created);
+        
+                    return {
+                        id: row.id,
+                        createdAt: DateTime.fromJSDate(new Date(row.createdAt)).toFormat('yyyy-MM-dd'),
+                        howLongAgoStr: howLongAgoStr,
+                        title: "Upcoming appointment",
+                        button: "Cancel Appointment",
+                        date: DateTime.fromJSDate(new Date(row.start)).toFormat('yyyy-MM-dd'),
+                        start: DateTime.fromJSDate(new Date(row.start)).toFormat('hh:mm'),
+                        end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm')
+                    };
+                })
+            default:
+                return;
+        }
     }
 
     getHowLongAgo(datetime: any) {
@@ -112,27 +177,52 @@ export class AppointmentsComponent implements OnInit {
     }
 
     deleteAppointment(id: number) {
+        // doctor's cancelled appointments could be archived
         const dialogRef = this.dialog.open({ data: { isDeleting: true }})
         
-        dialogRef.componentInstance.ok.subscribe((value)=> {
+        dialogRef.componentInstance.ok.subscribe(async (value)=> {
             if (value) {
-                this.sendMutation(id);
+                try {
+                    const mutation = `mutation ($appointmentId: Int!) {
+                        deleteAppointment (appointmentId: $appointmentId) {
+                            success
+                            message
+                        }
+                    }`
+                    await this.graphQLService.mutate(mutation, {appointmentId: id});
+                } catch (error) {
+                    //snackbar
+                }
             }
         })  
     }
-    async sendMutation(id: number) {
-        const mutation = `mutation ($appointmentId: Int!) {
-            deleteAppointment(appointmentId: $appointmentId) {
-                success
-                message
-            }
-        }`
 
-        try {
-            await this.graphQLService.mutate(mutation, { appointmentId: id});
-            this.ngOnInit();
-        } catch (error){
-            this.dialog.open({data: {message: error}});
+    async acceptAppointment(id: number) {
+        const appointment: Appointment | undefined = this.pendingAppointments.find(app => app.id);
+        
+        if (appointment) {
+            const input: AppointmentInput = {
+                id: id,
+                start: appointment.start,
+                end: appointment.end,
+                allDay: false
+            }
+            const mutation = `mutation ($appointmentInput: AppointmentInput!) {
+                saveAppointment(appointmentInput: $appointmentInput) {
+                    success
+                    message
+                }
+            }`
+            try {   
+                const response = await this.graphQLService.mutate(mutation, {appointmentInput: input});
+                if (response.data.saveAppointment.success) {
+                    this.dialog.open({data: {message: "Appointment added to your calendar"}});
+                    this.loadUpcomingAppointments();
+                    this.ngOnInit();
+                }
+            } catch (error) {
+                this.dialog.open({data: {message: `Unexpected error: ${error}`}})
+            }
         }
-    }
+    } 
 }

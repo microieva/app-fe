@@ -28,17 +28,9 @@ import { AppDialogComponent } from "../components/app-dialog/app-dialog.componen
         ...this.dialogConfig,
         ...dialogConfig,
       });
-    //   this.dialogRef.afterClosed().subscribe((response: unknown) => {
-    //     // Do something in the service level. ( All components )
-    //     this.reset(); // Reset the dialogDataState
-    //   });
   
       return this.dialogRef;
     }
-  
-    // reset(): void {
-    //   this.dialogState = undefined;
-    // }
 
     close() {
         this.dialog.closeAll();

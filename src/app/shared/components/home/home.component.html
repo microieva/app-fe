@@ -3,7 +3,7 @@
         <h2><a [routerLink]="['/']">Health Center</a></h2>
         <p *ngIf="me" class="me"><em>logged in as: {{me.userRole}}</em></p>
         <span class="spacer"></span>
-        <div *ngIf="time" class="time">
+        <div *ngIf="time && time !== '00:00'" class="time">
             <p>{{time}}</p>
         </div>
         <button *ngIf="!me" mat-stroked-button type="button" color="secondary" (click)="logIn()">{{ 'Log In' }}</button>

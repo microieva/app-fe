@@ -35,12 +35,17 @@ import { AppDialogService } from "./app-dialog.service";
             const remainingSeconds = duration - val; // remaining time in seconds
             const printing = Duration.fromObject({ seconds: remainingSeconds });
             const formattedTime = printing.toFormat('mm:ss'); 
-            if (formattedTime === '01:00') {
+            if (formattedTime === '00:05') {
                 this.dialog.open({data: { message: "Session expired, please login to renew"}});
-                //this.cancelTimer();
-                // dialogRef.componentInstance.ok.subscribe(value => {
-                //     if (value === true) this.ok.emit(value);
+
+                // dialogRef.componentInstance.ok.subscribe((value)=> {
+                //     if (value) {
+                //         this.logout.emit(true); 
+                //     }
                 // })
+            }
+            if (formattedTime === '00:00') {
+                this.logout.emit(true); 
             }
             this.time.emit(formattedTime);
         });

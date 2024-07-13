@@ -37,7 +37,7 @@ export class AppAuthService {
           return token;
         }
       } catch (error) {
-        this.dialog.open({data: {message: error}});
+        this.dialog.open({data: {message: "Unexpected AuthService error: "+error}});
       }
     }
 
@@ -53,19 +53,18 @@ export class AppAuthService {
         const token = response.data.loginWithGoogle;
         this.isAuthenticated = true;
         const tokenStart = DateTime.local();
-        const tokenExpire = tokenStart.plus({ hours: 1 }).toISO();
+        const tokenExpire = tokenStart.plus({ hours: 1}).toISO();
         localStorage.setItem('authToken', token);
         localStorage.setItem('tokenExpire', tokenExpire);
         this.dialog.close();
         window.location.reload();
       }
     } catch (error) {
-      this.dialog.open({data: { message: error}});
+      this.dialog.open({data: { message:  "Unexpected AuthService error: "+error}});
     }
   }
 
   logOut() {
-    console.log('calling logout in auth service')
     this.apollo.client.clearStore(); 
     localStorage.clear(); 
     this.isAuthenticated = false;

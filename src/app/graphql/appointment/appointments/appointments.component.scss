@@ -19,6 +19,18 @@ mat-panel-description {
     height: 2.5rem;
     margin-top: 1px;
 }
+.column {
+    display: flex;
+    flex-direction: column;
+}
+.actions {
+    button {
+        height: 1.8rem;
+        padding: 5px 10px;
+        margin-bottom: 5px;
+    }
+}
+
 .btn-block {
     color: rgb(68, 65, 65);
     border: 1px solid rgb(111, 143, 175, 40%);

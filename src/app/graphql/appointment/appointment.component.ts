@@ -36,6 +36,7 @@ export class AppointmentComponent implements OnInit{
         try {
             const response = await this.graphQLService.mutate(mutation, variables);
             if (response.data.saveAppointment.success) {
+                this.ngOnInit()
                 // implement snackbar - this.snackbarService.open({message: response.data.saveAppointment.message})
             } else {
                 this.dialog.open({data: {message: response.data.saveAppointment.message}});
