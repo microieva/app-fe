@@ -5,6 +5,7 @@ import { AppGraphQLService } from "../../../shared/services/app-graphql.service"
 import { AppDialogService } from "../../../shared/services/app-dialog.service";
 import { Appointment } from "../appointment";
 import { AppointmentInput } from "../appointment.input";
+import { AppAccordionDataSource } from "../../../shared/types";
 
 @Component({
     selector: 'test-apps',
@@ -14,10 +15,12 @@ import { AppointmentInput } from "../appointment.input";
 export class AppointmentsComponent implements OnInit {
     id!: number;
     count: number = 0;
-    pendingDataSource: any[] = [];
-    upcomingDataSource: any[] = [];
+    pendingDataSource: AppAccordionDataSource[] | undefined;
+    upcomingDataSource: AppAccordionDataSource[] | undefined;
+    pastDataSource: AppAccordionDataSource[] | undefined;
     pendingAppointments: Appointment[] = [];
     upcomingAppointments: Appointment[] = [];
+    pastAppointments: Appointment[] = [];
     readonly panelOpenState = signal(false);
 
     userRole!: string;
@@ -38,14 +41,37 @@ export class AppointmentsComponent implements OnInit {
             const response = await this.graphQLService.send(query);
             if (response.data.me.userRole) {
                 this.userRole =response.data.me.userRole;
+                // if not checking length they could be loaded in static loader together
                 await this.loadPendingAppointments();
                 await this.loadUpcomingAppointments();
+                await this.loadPastAppointments();
             }
         } catch (error) {
             this.dialog.open({data: {message: "Unexpected error fetching user role: "+error}})
         }
     }
+    async loadPastAppointments() {
+        const query = `query {
+            pastAppointments {
+                id
+                start
+                end
+                patientId
+                doctorId
+                createdAt
+            }
+        }`
 
+        try {
+            const response = await this.graphQLService.send(query);
+            if (response.data.pastAppointments) {
+                this.pastAppointments = response.data.pastAppointments;
+                this.formatAppointments("past");
+            }
+        } catch (error){
+            this.dialog.open({data: {message: "Unexpected error while getting past appointments: "+error}})
+        }
+    }
     
     async loadPendingAppointments() {
         const query = `query {
@@ -94,7 +120,8 @@ export class AppointmentsComponent implements OnInit {
         }
     }
 
-    formatAppointments(appointments: string) {
+    formatAppointments(appointments: string): AppAccordionDataSource[] {
+        const doctorActions = ['Cancel Appointment', 'Accept Appointment', 'View In Calendar']
         switch (appointments) {
             case "pending":
                 return this.pendingDataSource = this.pendingAppointments.map(row => {
@@ -103,14 +130,13 @@ export class AppointmentsComponent implements OnInit {
         
                     return {
                         id: row.id,
-                        //createdAt: DateTime.fromJSDate(new Date(row.createdAt)).toFormat('yyyy-MM-dd'),
                         howLongAgoStr: howLongAgoStr,
-                        title: "Pending doctor confirmation",
-                        button: "Cancel Appointment",
+                        title: this.userRole === 'patient' ? "Pending doctor confirmation" : "View details",
+                        buttons: this.userRole === 'doctor' ? doctorActions : ["Cancel Appointment"],
                         date: DateTime.fromJSDate(new Date(row.start)).toFormat('MMM dd, yyyy'),
                         start: DateTime.fromJSDate(new Date(row.start)).toFormat('hh:mm'),
                         end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm')
-                    };
+                    } 
                 })
                 
             case "upcoming":
@@ -120,17 +146,32 @@ export class AppointmentsComponent implements OnInit {
 
                     return {
                         id: row.id,
-                        //createdAt: DateTime.fromJSDate(new Date(row.createdAt)).toFormat('yyyy-MM-dd'),
                         howSoonStr: howSoonStr,
-                        title: "Upcoming appointment",
-                        button: "Cancel Appointment",
+                        title: this.userRole === 'patient' ? "Confirmed appointment" : "Upcoming appointment",
+                        buttons: ["Cancel Appointment"],
+                        date: DateTime.fromJSDate(new Date(row.start)).toFormat('MMM dd, yyyy'),
+                        start: DateTime.fromJSDate(new Date(row.start)).toFormat('hh:mm'),
+                        end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm')
+                    };
+                })
+
+            case "past":
+                return this.pastDataSource = this.pastAppointments.map(row => {
+                    const startT = DateTime.fromJSDate(new Date(row.start)).toISO();
+                    const howLongAgoStr = this.getHowLongAgo(startT);
+
+                    return {
+                        id: row.id,
+                        pastDate: howLongAgoStr,
+                        title: "View details",
+                        buttons: ["Delete Appointment"],
                         date: DateTime.fromJSDate(new Date(row.start)).toFormat('MMM dd, yyyy'),
                         start: DateTime.fromJSDate(new Date(row.start)).toFormat('hh:mm'),
                         end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm')
                     };
                 })
             default:
-                return;
+                return [];
         }
     }
 
@@ -152,7 +193,7 @@ export class AppointmentsComponent implements OnInit {
         if (diff.days < 1 && diff.hours > 0) {
             howSoonStr += `${diff.hours} hour${diff.hours === 1 ? '' : 's'} `;
         }
-        if (diff.days < 0 && diff.minutes > 0) {
+        if (diff.days < 1 && diff.minutes > 0) {
             howSoonStr += `${diff.minutes} minute${diff.minutes === 1 ? '' : 's'} `;
         }
     
@@ -180,10 +221,10 @@ export class AppointmentsComponent implements OnInit {
         if (diff.days > 0) {
             howLongAgoStr += `${diff.days} day${diff.days === 1 ? '' : 's'} `;
         }
-        if (diff.hours > 0) {
+        if (diff.days < 1 && diff.hours > 0) {
             howLongAgoStr += `${diff.hours} hour${diff.hours === 1 ? '' : 's'} `;
         }
-        if (diff.minutes > 0) {
+        if (diff.days < 1 && diff.minutes > 0) {
             howLongAgoStr += `${diff.minutes} minute${diff.minutes === 1 ? '' : 's'} `;
         }
 
@@ -206,6 +247,7 @@ export class AppointmentsComponent implements OnInit {
     }
 
     deleteAppointment(id: number) {
+        console.log('accept apt: ', id)
         // doctor's cancelled appointments could be archived
         const dialogRef = this.dialog.open({ data: { isDeleting: true }})
         
@@ -229,7 +271,28 @@ export class AppointmentsComponent implements OnInit {
         })  
     }
 
+    onButtonClick(accordionOutput: {id: number, text: string}) {
+        switch (accordionOutput.text) {
+            case 'Cancel Appointment':
+                this.deleteAppointment(accordionOutput.id);
+                break;
+            case 'Delete Appointment':
+                this.deleteAppointment(accordionOutput.id);
+                break;
+            case 'Accept Appointment':
+                this.acceptAppointment(accordionOutput.id);
+                break;
+            case 'View In Calendar':
+                //this.openViewInCalendar(accordionOutput.id)
+                break;
+            default:
+                break;
+        }
+
+    }
+
     async acceptAppointment(id: number) {
+        console.log('accept apt: ', id)
         const appointment: Appointment | undefined = this.pendingAppointments.find(app => app.id);
         
         if (appointment) {

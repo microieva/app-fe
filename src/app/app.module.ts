@@ -34,6 +34,7 @@ import { AppointmentsComponent } from './graphql/appointment/appointments/appoin
 import { AppointmentComponent } from './graphql/appointment/appointment.component';
 import { AppCalendarComponent } from './shared/components/app-calendar/app-calendar.component';
 import { AppTableComponent } from './shared/components/app-table/app-table.component';
+import { AppAccordionComponent } from './shared/components/app-accordion/app-accordion.component';
 
 @NgModule({ 
     declarations: [
@@ -44,6 +45,7 @@ import { AppTableComponent } from './shared/components/app-table/app-table.compo
         AppSidenavComponent,
         AppCalendarComponent,
         AppTableComponent,
+        AppAccordionComponent,
         UserComponent,
         AppointmentsComponent,
         AppointmentComponent

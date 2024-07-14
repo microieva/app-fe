@@ -1,85 +1,39 @@
-<mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+<mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" class="content">
     <mat-tab>
         <ng-template mat-tab-label (click)="newTab()">
-            <span class="tab-label">New</span>
+            <span class="tab-label" *ngIf="userRole === 'patient'">New</span>
+            <span class="tab-label" *ngIf="userRole === 'doctor'">Pending Confirmation</span>
         </ng-template>
-        <div class="content">
+        <div >
             <div class="flex-row wrapper info">
                 <span class="icon material-symbols-outlined">info</span>
                 <h3 *ngIf="userRole === 'patient' && pendingAppointments.length === 0">Welcome! Here you will see your pending appointments <em>(requests approved within 24 hours)</em></h3> 
                 <h3 *ngIf="userRole === 'patient' && pendingAppointments.length !== 0">Here you can view and cancel pending appointments</h3>
-                <h3 *ngIf="userRole === 'doctor' && pendingAppointments.length !== 0">Appointments waiting for confirmation <em>(oldest to newest)</em></h3>
+                <h3 *ngIf="userRole === 'doctor' && pendingAppointments.length !== 0">Appointments waiting for confirmation</h3>
                 <h3 *ngIf="userRole === 'doctor' && pendingAppointments.length === 0">No appointment requests at the moment</h3>
                 <button mat-stroked-button (click)="openCalendar()">{{ 'Open Calendar' }}</button>
             </div>
             <div class="page">
                 <div class="appointments" *ngIf="pendingAppointments.length !== 0">
-                    <mat-accordion>
-                        <mat-expansion-panel hideToggle (opened)="panelOpenState.set(true)" (closed)="panelOpenState.set(false)" *ngFor="let appointment of pendingDataSource">
-                          <mat-expansion-panel-header>
-                            <mat-panel-title *ngIf="userRole === 'patient'"> {{ 'Pending doctor confirmation' }}</mat-panel-title>
-                            <mat-panel-title *ngIf="userRole === 'doctor'"> {{ 'View details' }}</mat-panel-title>
-                            <mat-panel-description>
-                                <p>Appointment created: <em>{{appointment.howLongAgoStr}}</em></p>
-                            </mat-panel-description>
-                          </mat-expansion-panel-header>
-                          <div class="flex-column wrapper">
-                                <p class="title">{{ 'Appointment Details' }}</p>
-                                <div class="flex-row">
-                                    <div class="flex-column">
-                                        <p>{{ 'Date' }}</p>
-                                        <h3>{{appointment.date}}</h3>
-                                    </div>
-                                    <div class="flex-column">
-                                        <p>{{ 'Start Time' }}</p>
-                                        <h3>{{appointment.start}}</h3>
-                                    </div>
-                                    <div class="flex-column">
-                                        <p>{{ 'End Time' }}</p>
-                                        <h3>{{appointment.end}}</h3>
-                                    </div>
-                                    <div class="actions column">   
-                                        <button 
-                                            *ngIf="userRole === 'doctor'"
-                                            style="margin-right:1rem;background-color:rgb(151,170,192)" 
-                                            mat-stroked-button 
-                                            (click)="acceptAppointment(appointment.id)">{{ 'View In Calendar' }}
-                                        </button>
-                                        <button 
-                                            *ngIf="userRole === 'doctor'"
-                                            style="margin-right:1rem;background-color:rgb(151,170,192)" 
-                                            mat-stroked-button 
-                                            (click)="acceptAppointment(appointment.id)">{{ 'Accept Appointment' }}
-                                        </button>
-                                        <button 
-                                            style="margin-right:1rem;background-color:rgb(177,158,191)" 
-                                            mat-stroked-button 
-                                            (click)="deleteAppointment(appointment.id)">{{ appointment.button }}
-                                        </button>
-                                    </div>
-                    
-                                </div>
-                          </div>
-                        </mat-expansion-panel>
-                      </mat-accordion>
-                      
+                    <app-accordion [dataSource]="pendingDataSource" (buttonClick)="onButtonClick($event)"></app-accordion> 
                 </div>
                 <div class="btn-block" *ngIf="userRole === 'patient'">
                     <div>
                         <h3>You are in safe hands!</h3>
                         <p class="title bg">Make an appointment for a consultation</p>
-                        <em>Appointment confirmation will be sent by email. Make sure you have provided your correctl email address. You can always find your account details on My Account page.</em>
+                        <em>Appointment confirmation will be sent by email. Make sure you have provided your correct email address. You can always find your account details on <a [routerLink]="['/user']">My Account page</a>.</em>
                     </div>
                     <button mat-stroked-button (click)="openCalendar()">{{ 'Make an Appointment' }}</button>
                 </div>
             </div>
         </div>
     </mat-tab>
-    <mat-tab *ngIf="pendingAppointments.length !== 0 || upcomingAppointments.length !== 0">
+    <mat-tab *ngIf="pendingAppointments.length !== 0 || pastAppointments.length !==0">
         <ng-template mat-tab-label>
-            <span class="tab-label">Upcoming</span>
+            <span class="tab-label" *ngIf="userRole === 'patient'">Upcoming</span>
+            <span class="tab-label" *ngIf="userRole === 'doctor'">Accepted Appointments</span>
         </ng-template>
-        <div class="content">
+        <div>
             <div class="flex-row wrapper info">
                 <span class="icon material-symbols-outlined">info</span>
                 <h3 *ngIf="upcomingAppointments.length !== 0">Your appointments</h3>
@@ -89,65 +43,35 @@
                 <button mat-stroked-button (click)="openCalendar()">{{ 'Open Calendar' }}</button>
             </div>
             <div class="page">
-                <div class="btn-block column" *ngIf="upcomingAppointments.length === 0">
+                <div class="btn-block column" *ngIf="userRole === 'patient' && upcomingAppointments.length === 0">
                     <div><em>No upcoming appointments at the moment</em></div>
                     <div><em>Appointment requests confirmed within 24 hours!</em></div>   
                 </div>
                 <div class="appointments" *ngIf="upcomingAppointments.length !== 0">
-                    <mat-accordion>
-                        <mat-expansion-panel hideToggle (opened)="panelOpenState.set(true)" (closed)="panelOpenState.set(false)" *ngFor="let appointment of upcomingDataSource">
-                          <mat-expansion-panel-header>
-                            <mat-panel-title *ngIf="userRole === 'patient'"> {{ 'Upcoming appointment' }}</mat-panel-title>
-                            <mat-panel-title *ngIf="userRole === 'doctor'"> {{ 'View details' }}</mat-panel-title>
-                            <mat-panel-description>
-                                <p>Appointment date: <em>{{appointment.howSoonStr}}</em></p>  
-                            </mat-panel-description>
-                          </mat-expansion-panel-header>
-                          <div class="flex-column wrapper">
-                                <p class="title">{{ 'Appointment Details' }}</p>
-                                <div class="flex-row">
-                                    <div class="flex-column">
-                                        <p>{{ 'Date' }}</p>
-                                        <h3>{{appointment.date}}</h3>
-                                    </div>
-                                    <div class="flex-column">
-                                        <p>{{ 'Start Time' }}</p>
-                                        <h3>{{appointment.start}}</h3>
-                                    </div>
-                                    <div class="flex-column">
-                                        <p>{{ 'End Time' }}</p>
-                                        <h3>{{appointment.end}}</h3>
-                                    </div>
-                                    <div class="actions column">   
-                                        <button 
-                                            *ngIf="userRole === 'doctor'"
-                                            style="margin-right:1rem;background-color:rgb(171 183 198);" 
-                                            mat-stroked-button 
-                                            (click)="acceptAppointment(appointment.id)">{{ 'View In Calendar' }}
-                                        </button>
-                                        <button 
-                                            style="margin-right:1rem;background-color:rgb(177,158,191)" 
-                                            mat-stroked-button 
-                                            (click)="deleteAppointment(appointment.id)">{{ appointment.button }}
-                                        </button>
-                                    </div>
-                    
-                                </div>
-                          </div>
-                        </mat-expansion-panel>
-                    </mat-accordion>      
-                 </div>
+                    <app-accordion [dataSource]="upcomingDataSource" (buttonClick)="onButtonClick($event)"></app-accordion> 
+                </div>
             </div>
         </div>
     </mat-tab>
-    <mat-tab *ngIf="count > 0">
+    <mat-tab *ngIf="pastAppointments.length !== 0">
         <ng-template mat-tab-label>
             <span class="tab-label">Past</span>
         </ng-template>
-        <div class="content">
+        <div class="flex-row wrapper info">
+            <span class="icon material-symbols-outlined">info</span>
+            <h3 *ngIf="userRole === 'patient' && pastAppointments.length === 0">Here you will find your past appointments</h3> 
+            <h3 *ngIf="userRole === 'patient' && pastAppointments.length !== 0">Your past appointments <em>(newest to oldest)</em></h3>
+            <h3 *ngIf="userRole === 'doctor' && pastAppointments.length !== 0">Archive <em>(newest to oldest)</em></h3>
+            <h3 *ngIf="userRole === 'doctor' && pastAppointments.length === 0">Empty archive</h3>
+            <button mat-stroked-button (click)="openCalendar()">{{ 'Open Calendar' }}</button>
+        </div>
+        <div>
             <div class="page">
-                <div class="btn-block" *ngIf="upcomingAppointments.length === 0">
+                <div class="btn-block" *ngIf="pastAppointments.length === 0">
                     <p>No upcoming appointments at the moment</p>
+                </div>
+                <div class="appointments" *ngIf="pastAppointments.length !== 0">
+                    <app-accordion [dataSource]="pastDataSource" (buttonClick)="onButtonClick($event)"></app-accordion> 
                 </div>
             </div>
         </div>

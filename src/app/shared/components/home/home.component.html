@@ -10,8 +10,10 @@
         <button *ngIf="me" mat-stroked-button type="button" color="secondary" (click)="logOut()">{{ 'Log Out' }}</button>
     </mat-toolbar>
 </ng-container>
-<div style="display: flex">
-    <app-sidenav [isUserUpdated]="updatedAt" [isAuth]="isAuth"></app-sidenav>
+<div class="content-view-wrapper">
+    <div class="sidenav" style="background-color: rgb(172,188,207);">
+        <app-sidenav [isUserUpdated]="updatedAt" [isAuth]="isAuth"></app-sidenav>
+    </div>
     <div class="content">
         <router-outlet></router-outlet>
     </div>

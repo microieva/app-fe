@@ -47,11 +47,11 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; color: rgb(
 li {list-style: none;}
 a {text-decoration: none; color: inherit;}
 .content {
+  height: 100%;
   width: 100%;
-  background-color:rgba(163, 177, 192, 0.454)
+  background-color:rgba(163, 177, 192, 0.454);
 }
 app-sidenav {
-  height: calc(100vh - 4rem);
   width: 18rem;
   background-color:rgb(111, 143, 175, 40%);
 }
@@ -71,6 +71,7 @@ app-sidenav {
 mat-form-field {
   margin: 0 0.5rem;
 }
+
 .mat-mdc-tab.mdc-tab {
   min-width: 16rem;
   &--active {background-color: rgb(139,149,161);}

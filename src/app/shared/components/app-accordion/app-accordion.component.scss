@@ -1,0 +1,27 @@
+
+button {
+    height: 1.8rem;
+    padding: 5px 10px;
+    margin-bottom: 5px;
+}
+.title {
+    margin-bottom:0;
+    color: rgb(78, 84, 90);
+}
+.details {
+    width: 70%;
+    align-self: center;
+}
+
+.header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    p {
+        color: rgb(78, 84, 90);
+    }
+}
+
+

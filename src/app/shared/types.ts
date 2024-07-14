@@ -47,3 +47,15 @@ export interface Paged<T> {
     length: number
     slice: T[]
 }
+
+export interface AppAccordionDataSource {
+    id: number
+    howLogAgoStr?: string
+    howSoonStr?: string
+    pastDate?: string
+    title?: string
+    buttons: string[]
+    date: string
+    start: string
+    end: string
+}

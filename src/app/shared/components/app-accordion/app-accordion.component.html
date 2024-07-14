@@ -1,0 +1,52 @@
+<mat-accordion>
+    <mat-expansion-panel hideToggle (opened)="panelOpenState.set(true)" (closed)="panelOpenState.set(false)" *ngFor="let element of dataSource">
+        <mat-expansion-panel-header>
+            <div class="header">
+                <h4> {{ element.title }}</h4>
+                <p *ngIf="element.howLongAgoStr">Appointment created: <em>{{element.howLongAgoStr}}</em></p>
+                <p *ngIf="element.howSoonStr">Appointment date: <em>{{element.howSoonStr}}</em></p>
+                <p *ngIf="element.pastDate">Appointment date: <em>{{element.pastDate}}</em></p>
+            </div>
+        </mat-expansion-panel-header>
+        <div class="flex-column wrapper">
+            <p class="title">{{ 'Appointment Details' }}</p>
+            <div class="flex-row">
+                <div class="details flex-row">
+                    <div class="flex-column">
+                        <p>{{ 'Date' }}</p>
+                        <h3>{{element.date}}</h3>
+                    </div>
+                    <div class="flex-column">
+                        <p>{{ 'Start Time' }}</p>
+                        <h3>{{element.start}}</h3>
+                    </div>
+                    <div class="flex-column">
+                        <p>{{ 'End Time' }}</p>
+                        <h3>{{element.end}}</h3>
+                    </div>
+                </div>
+                <div class="actions flex-column">   
+                    <button 
+                        *ngFor="let buttontext of element.buttons"
+                        style="margin-right:1rem;background-color:rgb(151,170,192)" 
+                        mat-stroked-button 
+                        (click)="onButtonClick(element.id, buttontext)">{{ buttontext }}
+                    </button>
+                    <!-- <button 
+                        *ngIf="userRole === 'doctor'"
+                        style="margin-right:1rem;background-color:rgb(151,170,192)" 
+                        mat-stroked-button 
+                        (click)="onAcceptAppointment(element.id)">{{ 'Accept Appointment' }}
+                    </button>
+                    <button 
+                        style="margin-right:1rem;background-color:rgb(177,158,191)" 
+                        mat-stroked-button 
+                        (click)="onDeleteAppointment(element.id)">{{ appointment.button }}
+                    </button> -->
+                </div>
+                    
+            </div>
+        </div>
+    </mat-expansion-panel>
+</mat-accordion>
+                  

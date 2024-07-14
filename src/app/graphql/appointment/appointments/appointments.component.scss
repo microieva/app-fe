@@ -1,6 +1,6 @@
 .content {
     border-top: 1px solid rgb(111, 143, 175, 40%);
-    height: calc(100vh - 6rem);
+    //height: calc(100vh - 6rem);
 }
 .page {
     max-width: 75%;
@@ -22,13 +22,6 @@ mat-panel-description {
 .column {
     display: flex;
     flex-direction: column;
-}
-.actions {
-    button {
-        height: 1.8rem;
-        padding: 5px 10px;
-        margin-bottom: 5px;
-    }
 }
 
 .btn-block {

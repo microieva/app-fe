@@ -1,6 +1,7 @@
-app-sidenav {
+.sidenav {
     //border-right: 1px solid rgb(229,238,245);
     border-right: 0.8px solid darkgray;
+    width: 20rem;
 }
 mat-toolbar {
     border-bottom: 0.8px solid darkgray;
@@ -23,4 +24,8 @@ mat-toolbar {
     p {
         margin: 0;
     }
+}
+.content-view-wrapper {
+    display: flex; 
+    height: calc(100vh - 4rem);
 }
