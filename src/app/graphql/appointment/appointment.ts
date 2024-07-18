@@ -1,3 +1,5 @@
+import { User } from "../user/user"
+
 export interface Appointment {
     id: number
     patientId: number
@@ -7,4 +9,6 @@ export interface Appointment {
     start: string
     end: string
     allDay: boolean
+    patient?: User
+    doctor?: User
 }

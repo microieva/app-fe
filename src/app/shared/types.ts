@@ -36,6 +36,7 @@ export interface AppDialogData {
     isLoggingIn: boolean
     showDirectLoginForm: boolean
     input: boolean
+    eventInfo: any
 }
 
 export interface DirectLoginInput {

@@ -1,5 +1,12 @@
 <mat-accordion>
-    <mat-expansion-panel hideToggle (opened)="panelOpenState.set(true)" (closed)="panelOpenState.set(false)" *ngFor="let element of dataSource">
+    <mat-expansion-panel 
+        hideToggle 
+        (opened)="panelOpenState.set(true)" 
+        (closed)="panelOpenState.set(false)" 
+        *ngFor="let element of dataSource"
+        [ngStyle]="{backgroundColor: (markAppointmentId !== undefined && markAppointmentId === element.id) ? 'aqua': ''}"
+        (click)="resetBackground(element.id)"
+    >
         <mat-expansion-panel-header>
             <div class="header">
                 <h4> {{ element.title }}</h4>
@@ -8,7 +15,7 @@
                 <p *ngIf="element.pastDate">Appointment date: <em>{{element.pastDate}}</em></p>
             </div>
         </mat-expansion-panel-header>
-        <div class="flex-column wrapper">
+        <div class="flex-column wrapper clickable" (click)="onAppointmentClick(element.id, element.title)">
             <p class="title">{{ 'Appointment Details' }}</p>
             <div class="flex-row">
                 <div class="details flex-row">
@@ -30,19 +37,10 @@
                         *ngFor="let buttontext of element.buttons"
                         style="margin-right:1rem;background-color:rgb(151,170,192)" 
                         mat-stroked-button 
-                        (click)="onButtonClick(element.id, buttontext)">{{ buttontext }}
+                        (click)="onButtonClick(element.id, buttontext)"
+                    >
+                        {{ buttontext }}
                     </button>
-                    <!-- <button 
-                        *ngIf="userRole === 'doctor'"
-                        style="margin-right:1rem;background-color:rgb(151,170,192)" 
-                        mat-stroked-button 
-                        (click)="onAcceptAppointment(element.id)">{{ 'Accept Appointment' }}
-                    </button>
-                    <button 
-                        style="margin-right:1rem;background-color:rgb(177,158,191)" 
-                        mat-stroked-button 
-                        (click)="onDeleteAppointment(element.id)">{{ appointment.button }}
-                    </button> -->
                 </div>
                     
             </div>

@@ -3,6 +3,11 @@ import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms"
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { AppAuthService } from "../../services/app-auth.service";
 import { AppDialogData, DirectLoginInput } from "../../types";
+import { AppGraphQLService } from "../../services/app-graphql.service";
+import { AppDialogService } from "../../services/app-dialog.service";
+import { Appointment } from "../../../graphql/appointment/appointment";
+import { DateTime } from "luxon";
+import { Router } from "@angular/router";
 
 @Component({
     selector: 'app-dialog',
@@ -16,18 +21,37 @@ export class AppDialogComponent implements OnInit {
     showDirectLoginForm: boolean;
     isLoggingIn: boolean;
     input: boolean;
+    eventInfo: any;
     error: string | undefined;
     form: LoginForm;
+
+    appointment: Appointment | undefined;
+
+    createdAt: string | undefined;
+    eventTitle: string | undefined;
+    patientName: string | undefined;
+    patientDob:  string | undefined;
+    doctorName: string | null = null;
+    eventDate:  string | undefined;
+    eventStartTime:  string | undefined;
+    eventEndTime:  string | undefined;
+    appointmentId: number | undefined;
+
 
     @Output() ok = new EventEmitter<boolean>(false);
     @Output() loginSuccess = new EventEmitter<boolean>(false);
     @Output() event = new EventEmitter<string>();
+    @Output() eventId = new EventEmitter<number>();
+    @Output() linkId = new EventEmitter<number>();
 
     constructor(
         @Inject(MAT_DIALOG_DATA) data: AppDialogData,
         private dialogRef: MatDialogRef<AppDialogComponent>,
         private formBuilder: FormBuilder,
-        private authService: AppAuthService
+        private authService: AppAuthService,
+        private graphQLService: AppGraphQLService,
+        private dialog: AppDialogService,
+        private router: Router
     ) {
         this.loading = data.loading;
         this.message = data.message;
@@ -35,12 +59,27 @@ export class AppDialogComponent implements OnInit {
         this.isLoggingIn = data.isLoggingIn;
         this.showDirectLoginForm = data.showDirectLoginForm;
         this.input = data.input;
+        this.eventInfo = data.eventInfo;
         this.form = this.buildLoginForm()
     }
 
-    ngOnInit() {
+    async ngOnInit() {
         if (this.showDirectLoginForm) {
             this.buildLoginForm()
+        }
+        if (this.eventInfo) {
+            this.eventTitle = this.eventInfo.title;
+            await this.loadAppointment(this.eventInfo.id);
+        }
+        if (this.appointment) {
+            this.createdAt = DateTime.fromJSDate(new Date(this.appointment.createdAt)).toFormat('MMM dd, yyyy');
+            this.patientName = this.appointment.patient?.firstName+" "+this.appointment.patient?.lastName;
+            this.patientDob = this.appointment.patient?.dob && DateTime.fromJSDate(new Date(this.appointment.patient.dob)).toFormat('MMM dd, yyyy') 
+            this.doctorName = this.appointment.doctor ? this.appointment.doctor?.firstName+" "+this.appointment.doctor?.lastName : null;
+            this.eventDate = DateTime.fromJSDate(new Date(this.appointment.start)).toFormat('MMM dd, yyyy');
+            this.eventStartTime =  DateTime.fromJSDate(new Date(this.appointment.start)).toFormat('hh:mm');
+            this.eventEndTime =DateTime.fromJSDate(new Date(this.appointment.end)).toFormat('hh:mm');
+            this.appointmentId = this.appointment.id;
         }
     }
 
@@ -61,8 +100,16 @@ export class AppDialogComponent implements OnInit {
         this.showDirectLoginForm = false;
     }
 
-    onEventSubmit(event: any){
-        this.event.emit(event.input)
+    onEventSubmit(value: any){
+        this.event.emit(value.input)
+    }
+
+    onEventDelete(id: number){
+        this.eventId.emit(id);
+    }
+
+    onEventLink(id: number){
+        this.linkId.emit(id);
     }
 
     async submit() {
@@ -74,6 +121,38 @@ export class AppDialogComponent implements OnInit {
             window.location.reload(); 
         } else {
             this.error = "Invalid email or password"
+        }
+    }
+    async loadAppointment(id: number){
+        const query = `query ($appointmentId: Int!){ 
+            appointment (appointmentId: $appointmentId){ 
+                id
+                start
+                end
+                patient {
+                    firstName
+                    lastName
+                    dob
+                    id
+                }
+                doctor {
+                    firstName
+                    lastName
+                    id
+                }
+                createdAt
+                updatedAt 
+            }
+        }`
+        try {
+            const response = await this.graphQLService.send(query, {appointmentId: id});
+            if (response.data.appointment) {
+                this.appointment = response.data.appointment;
+                console.log('this.appointment: ', this.appointment)
+            }
+        } catch (error) {
+            this.dialog.open({data: {message: "Unexpected error fetching appointment: "+error}});
+            this.router.navigate(['/appointments']);
         }
     }
 }

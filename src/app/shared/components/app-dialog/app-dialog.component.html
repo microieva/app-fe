@@ -33,6 +33,18 @@
     </form>
 </mat-dialog-content>
 
-<mat-dialog-content *ngIf="input">
-   <app-event (submit)="onEventSubmit($event)"></app-event>
+<mat-dialog-content *ngIf="input || eventInfo">
+   <app-event 
+    (submit)="onEventSubmit($event)" 
+    (delete)="onEventDelete($event)"
+    [createdAt]="createdAt"
+    [eventTitle]="eventTitle"
+    [patientName]="patientName"
+    [patientDob]="patientDob"
+    [doctorName]="doctorName"
+    [eventDate]="eventDate"
+    [eventStartTime]="eventStartTime"
+    [eventEndTime]="eventEndTime"
+    [eventId]="appointmentId"
+></app-event>
 </mat-dialog-content>

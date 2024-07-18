@@ -1,6 +1,5 @@
 import { Component, OnInit } from "@angular/core";
 import { AppGraphQLService } from "../../shared/services/app-graphql.service";
-import { take } from "rxjs";
 import { User } from "./user";
 import _, { some } from "lodash-es";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -9,6 +8,7 @@ import { AppDialogService } from "../../shared/services/app-dialog.service";
 import { UserInput } from "./user.input";
 import { AppAuthService } from "../../shared/services/app-auth.service";
 import { AppTimerService } from "../../shared/services/app-timer.service";
+import { DateTime } from "luxon";
 
 @Component({
     selector: 'app-user',
@@ -20,6 +20,7 @@ export class UserComponent implements OnInit {
     missingInfo: boolean = false;
     id: number | undefined;
     form: FormGroup | undefined;
+    formattedDate: string | undefined;
 
     constructor(
         private graphQLService: AppGraphQLService,
@@ -65,7 +66,9 @@ export class UserComponent implements OnInit {
         try {
             const response = await this.graphQLService.send(query);
             if (response.data.me) {
+                this.formattedDate = DateTime.fromJSDate(new Date(response.data.me.dob)).toFormat('MMM dd, yyyy') 
                 this.me = response.data.me;
+
                 this.buildForm();
                 this.missingInfo = this.checkUserInfo();
             }
@@ -109,16 +112,18 @@ export class UserComponent implements OnInit {
     }
 
     buildForm() {
-        this.form = this.formBuilder.group({
-            firstName: this.formBuilder.control<string>(this.me?.firstName || '', [Validators.required, Validators.minLength(2)]),
-            lastName: this.formBuilder.control<string>(this.me?.lastName || '', [Validators.required, Validators.minLength(2)]),
-            dob: this.formBuilder.control<string>(this.me?.dob || '', [Validators.required]),
-            email: this.formBuilder.control<string>(this.me?.email || '', [Validators.required, Validators.email]),
-            phone: this.formBuilder.control<string>(this.me?.phone || '', [Validators.required, Validators.maxLength(10), Validators.pattern(/^[0-9.]+$/)]),
-            streetAddress: this.formBuilder.control<string>(this.me?.streetAddress || '', [Validators.required]),
-            city: this.formBuilder.control<string>(this.me?.city || '', [Validators.required]),
-            postCode: this.formBuilder.control<string>(this.me?.postCode || '', [Validators.required]),
-        });
+        if (this.me) {
+            this.form = this.formBuilder.group({
+                firstName: this.formBuilder.control<string>(this.me.firstName || '', [Validators.required, Validators.minLength(2)]),
+                lastName: this.formBuilder.control<string>(this.me.lastName || '', [Validators.required, Validators.minLength(2)]),
+                dob: this.formBuilder.control<string>(this.me.dob || '', [Validators.required]),
+                email: this.formBuilder.control<string>(this.me.email || '', [Validators.required, Validators.email]),
+                phone: this.formBuilder.control<string>(this.me.phone || '', [Validators.required, Validators.maxLength(10), Validators.pattern(/^[0-9.]+$/)]),
+                streetAddress: this.formBuilder.control<string>(this.me?.streetAddress || '', [Validators.required]),
+                city: this.formBuilder.control<string>(this.me.city || '', [Validators.required]),
+                postCode: this.formBuilder.control<string>(this.me.postCode || '', [Validators.required]),
+            });
+        }
     }
 
     async save() {

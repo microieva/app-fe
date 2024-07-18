@@ -40,6 +40,7 @@ import { AppDialogService } from "./app-dialog.service";
                 dialogRef.componentInstance.ok.subscribe((value)=> {
                     if (value) {
                         this.logout.emit(true); 
+                        this.dialog.close();
                     }
                 })
             }

@@ -15,8 +15,10 @@ export class HomeComponent implements OnInit{
     me: any;
     updatedAt: string | null = null;
     isAuth: boolean = false;
+    isUserUpdated: boolean = false;
     remainder!: Subscription;
     time!: string | null;
+    userRole: string | null = null;
 
     constructor (
         private dialog: AppDialogService,
@@ -67,6 +69,8 @@ export class HomeComponent implements OnInit{
                 this.me = response.data.me;
                 this.updatedAt = this.me.updatedAt;
                 this.isAuth = true;
+                this.isUserUpdated = response.data.me.updatedAt || null;
+                this.userRole = response.data.me.userRole;
             }
         } catch (error) {
             console.log(error)
@@ -75,6 +79,10 @@ export class HomeComponent implements OnInit{
 
     logIn() {
         this.dialog.open({data: {isLoggingIn: true}});
+    }
+
+    getIsUserUpdated () {
+        return this.isUserUpdated
     }
 
     async logOut() {

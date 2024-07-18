@@ -6,7 +6,7 @@
           <span [ngStyle]="{visibility: !isUserUpdated ? 'visible':'hidden'}" class="icon material-symbols-outlined">info</span>
         </div>
       </a>
-      <a mat-list-item [routerLink]="['/appointments']" *ngIf="isUserUpdated" routerLinkActive="activeLink">
+      <a mat-list-item [routerLink]="['/appointments']" *ngIf="isAuth && isUserUpdated" routerLinkActive="activeLink">
         <div class="flex">
           <span>{{ 'Appointments' }}</span>
           <span [ngStyle]="{visibility: !isUserUpdated ? 'visible':'hidden'}" class="icon material-symbols-outlined">info</span>

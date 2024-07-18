@@ -1,6 +1,6 @@
-<mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" class="content">
-    <mat-tab>
-        <ng-template mat-tab-label (click)="newTab()">
+<mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" class="content" (selectedTabChange)="onTabChange($event)">
+    <mat-tab label="new">
+        <ng-template mat-tab-label>
             <span class="tab-label" *ngIf="userRole === 'patient'">New</span>
             <span class="tab-label" *ngIf="userRole === 'doctor'">Pending Confirmation</span>
         </ng-template>
@@ -15,7 +15,12 @@
             </div>
             <div class="page">
                 <div class="appointments" *ngIf="pendingAppointments.length !== 0">
-                    <app-accordion [dataSource]="pendingDataSource" (buttonClick)="onButtonClick($event)"></app-accordion> 
+                    <app-accordion 
+                        [markAppointmentId]="routedAppointmentId"
+                        [dataSource]="pendingDataSource" 
+                        (buttonClick)="onButtonClick($event)"
+                        (appointmentClick)="onAppointmentClick($event)"
+                    ></app-accordion> 
                 </div>
                 <div class="btn-block" *ngIf="userRole === 'patient'">
                     <div>
@@ -28,7 +33,7 @@
             </div>
         </div>
     </mat-tab>
-    <mat-tab *ngIf="pendingAppointments.length !== 0 || pastAppointments.length !==0">
+    <mat-tab label="upcoming" *ngIf="pendingAppointments.length !== 0 || upcomingAppointments.length !==0 || pastAppointments.length !==0">
         <ng-template mat-tab-label>
             <span class="tab-label" *ngIf="userRole === 'patient'">Upcoming</span>
             <span class="tab-label" *ngIf="userRole === 'doctor'">Accepted Appointments</span>
@@ -48,12 +53,16 @@
                     <div><em>Appointment requests confirmed within 24 hours!</em></div>   
                 </div>
                 <div class="appointments" *ngIf="upcomingAppointments.length !== 0">
-                    <app-accordion [dataSource]="upcomingDataSource" (buttonClick)="onButtonClick($event)"></app-accordion> 
+                    <app-accordion 
+                        [dataSource]="upcomingDataSource" 
+                        (buttonClick)="onButtonClick($event)"
+                        (appointmentClick)="onAppointmentClick($event)"
+                    ></app-accordion> 
                 </div>
             </div>
         </div>
     </mat-tab>
-    <mat-tab *ngIf="pastAppointments.length !== 0">
+    <mat-tab label="past" *ngIf="pastAppointments.length !== 0">
         <ng-template mat-tab-label>
             <span class="tab-label">Past</span>
         </ng-template>
@@ -71,7 +80,11 @@
                     <p>No upcoming appointments at the moment</p>
                 </div>
                 <div class="appointments" *ngIf="pastAppointments.length !== 0">
-                    <app-accordion [dataSource]="pastDataSource" (buttonClick)="onButtonClick($event)"></app-accordion> 
+                    <app-accordion 
+                        [dataSource]="pastDataSource" 
+                        (buttonClick)="onButtonClick($event)"
+                        (appointmentClick)="onAppointmentClick($event)"
+                    ></app-accordion> 
                 </div>
             </div>
         </div>

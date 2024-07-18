@@ -1,5 +1,5 @@
-import { Component, OnInit, signal } from "@angular/core";
-import { Router } from "@angular/router";
+import { Component, EventEmitter, OnInit, Output, signal } from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
 import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
 import { AppDialogService } from "../../../shared/services/app-dialog.service";
@@ -14,6 +14,7 @@ import { AppAccordionDataSource } from "../../../shared/types";
 })
 export class AppointmentsComponent implements OnInit {
     id!: number;
+    routedAppointmentId: number | undefined;
     count: number = 0;
     pendingDataSource: AppAccordionDataSource[] | undefined;
     upcomingDataSource: AppAccordionDataSource[] | undefined;
@@ -21,6 +22,7 @@ export class AppointmentsComponent implements OnInit {
     pendingAppointments: Appointment[] = [];
     upcomingAppointments: Appointment[] = [];
     pastAppointments: Appointment[] = [];
+    @Output() activeTab = new EventEmitter<string>();
     readonly panelOpenState = signal(false);
 
     userRole!: string;
@@ -28,11 +30,16 @@ export class AppointmentsComponent implements OnInit {
     constructor(
         private graphQLService: AppGraphQLService,
         private router: Router,
-        private dialog: AppDialogService
+        private dialog: AppDialogService,
+        private activatedRoute: ActivatedRoute
     ){}
 
     async ngOnInit() {
         await this.loadUserRole();
+        this.activatedRoute.paramMap.subscribe(async (params)=> {
+            const id = params.get('id'); 
+            if (id) this.routedAppointmentId = +id;
+          });
     }
 
     async loadUserRole() {
@@ -47,9 +54,13 @@ export class AppointmentsComponent implements OnInit {
                 await this.loadPastAppointments();
             }
         } catch (error) {
-            this.dialog.open({data: {message: "Unexpected error fetching user role: "+error}})
+            this.router.navigate(['/'])
+            //this.dialog.open({data: {message: "Unexpected error fetching user role: "+error}})
         }
     }
+    async onTabChange(event: any){
+    }
+
     async loadPastAppointments() {
         const query = `query {
             pastAppointments {
@@ -113,7 +124,6 @@ export class AppointmentsComponent implements OnInit {
             if (response.data.upcomingAppointments) {
                 this.upcomingAppointments = response.data.upcomingAppointments;
                 this.formatAppointments("upcoming");
-                console.log('coming: ', this.upcomingAppointments)
             }
         } catch (error){
             this.dialog.open({data: {message: "Unexpected error while getting upcoming appointments: "+error}})
@@ -241,13 +251,16 @@ export class AppointmentsComponent implements OnInit {
         console.log('NEW TAB CLICK')
         console.log('countAppointments: ', this.count)
     }
+    // onTabChange(event: MatTabChangeEvent) {
+    //     //this.activeTab = event.tab.textLabel;
+    //     this.activeTab.emit(event.tab.textLabel);
+    // }
 
     openCalendar() {
         this.router.navigate(['appointments', 'calendar'])
     }
 
     deleteAppointment(id: number) {
-        console.log('accept apt: ', id)
         // doctor's cancelled appointments could be archived
         const dialogRef = this.dialog.open({ data: { isDeleting: true }})
         
@@ -288,11 +301,13 @@ export class AppointmentsComponent implements OnInit {
             default:
                 break;
         }
+    }
 
+    onAppointmentClick(eventInfo: {id: string, title: string}){
+        this.dialog.open({data: {eventInfo}})
     }
 
     async acceptAppointment(id: number) {
-        console.log('accept apt: ', id)
         const appointment: Appointment | undefined = this.pendingAppointments.find(app => app.id);
         
         if (appointment) {
@@ -310,6 +325,7 @@ export class AppointmentsComponent implements OnInit {
             }`
             try {   
                 const response = await this.graphQLService.mutate(mutation, {appointmentInput: input});
+                console.log('ACCEPT res: ', response)
                 if (response.data.saveAppointment.success) {
                     this.dialog.open({data: {message: "Appointment added to your calendar"}});
                     this.loadUpcomingAppointments();

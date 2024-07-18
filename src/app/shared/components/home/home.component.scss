@@ -27,5 +27,7 @@ mat-toolbar {
 }
 .content-view-wrapper {
     display: flex; 
-    height: calc(100vh - 4rem);
+    flex-direction: row;
+    //min-height: calc(100vh - 4rem);
+    height: 100%;
 }

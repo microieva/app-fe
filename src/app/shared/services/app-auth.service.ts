@@ -38,6 +38,7 @@ export class AppAuthService {
         }
       } catch (error) {
         this.dialog.open({data: {message: "Unexpected AuthService error: "+error}});
+        this.logOut();
       }
     }
 
@@ -61,6 +62,7 @@ export class AppAuthService {
       }
     } catch (error) {
       this.dialog.open({data: { message:  "Unexpected AuthService error: "+error}});
+      this.logOut();
     }
   }
 

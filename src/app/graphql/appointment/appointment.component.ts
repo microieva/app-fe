@@ -40,7 +40,7 @@ export class AppointmentComponent implements OnInit{
             } else {
                 this.dialog.open({data: {message: response.data.saveAppointment.message}});
             }
-            console.log("RESPONSE FROM SAVE: ", response);
+            console.log("appointmentInput: ", input, "RESPONSE FROM SAVE: ", response);
         } catch (error) {
             this.dialog.open({data: {message: error}});
         }

@@ -1,0 +1,25 @@
+.event-wrapper {
+    width: 25rem;
+    border: 1px solid rgb(111, 143, 175, 40%);
+    border-radius: 3px;
+    margin-bottom: 1rem;
+    padding: 1rem;
+}
+
+.event-info {
+    font-weight: 900;
+}
+
+.event-title {
+    margin-bottom: 1rem;
+    font-weight: bold;
+    color: rgb(139, 149, 161);
+    font-size: 11px;
+}
+.event-label {
+    font-size: 10px;
+}
+a:hover {
+    cursor: pointer;
+    color:  rgb(68, 65, 65); 
+}
