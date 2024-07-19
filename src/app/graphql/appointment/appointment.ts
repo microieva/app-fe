@@ -11,4 +11,6 @@ export interface Appointment {
     allDay: boolean
     patient?: User
     doctor?: User
+    patientMessage: string
+    doctorMessage: string
 }

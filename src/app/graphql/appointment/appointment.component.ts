@@ -1,4 +1,3 @@
-import _ from "lodash-es";
 import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { AppGraphQLService } from "../../shared/services/app-graphql.service";
@@ -20,8 +19,6 @@ export class AppointmentComponent implements OnInit{
     ngOnInit(): void {}
 
     async saveAppointment(appointment: AppointmentInput){
-        const input = _.omit(appointment, 'title', 'id');
-
         const mutation = `
             mutation ($appointmentInput: AppointmentInput!) {
                 saveAppointment (appointmentInput: $appointmentInput) {
@@ -31,18 +28,11 @@ export class AppointmentComponent implements OnInit{
             }
         `  
 
-        const variables = { appointmentInput: input };
+        const variables = { appointmentInput: appointment };
         try {
-            const response = await this.graphQLService.mutate(mutation, variables);
-            if (response.data.saveAppointment.success) {
-                this.ngOnInit()
-                // implement snackbar - this.snackbarService.open({message: response.data.saveAppointment.message})
-            } else {
-                this.dialog.open({data: {message: response.data.saveAppointment.message}});
-            }
-            console.log("appointmentInput: ", input, "RESPONSE FROM SAVE: ", response);
+            await this.graphQLService.mutate(mutation, variables);
         } catch (error) {
-            this.dialog.open({data: {message: error}});
+            this.dialog.open({data: {message: "Error saving appointment: "+error}});
         }
     }
 

@@ -34,12 +34,13 @@
                 </div>
                 <div class="actions flex-column">   
                     <button 
-                        *ngFor="let buttontext of element.buttons"
+                        *ngFor="let button of element.buttons"
                         style="margin-right:1rem;background-color:rgb(151,170,192)" 
                         mat-stroked-button 
-                        (click)="onButtonClick(element.id, buttontext)"
+                        (click)="onButtonClick(element.id, button.text); $event.stopPropagation()"
+                        [disabled]="button.disabled"
                     >
-                        {{ buttontext }}
+                        {{ button.text }}
                     </button>
                 </div>
                     

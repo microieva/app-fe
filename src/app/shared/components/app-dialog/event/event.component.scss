@@ -3,7 +3,14 @@
     border: 1px solid rgb(111, 143, 175, 40%);
     border-radius: 3px;
     margin-bottom: 1rem;
-    padding: 1rem;
+    &:not(.message) {padding: 1rem;}
+}
+.message {
+    padding: 0 1rem;
+    background-color: rgb(245,245,245);
+    .event-title {
+        margin-bottom: 10px;
+    }
 }
 
 .event-info {
@@ -19,7 +26,41 @@
 .event-label {
     font-size: 10px;
 }
-a:hover {
+a{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.title-hover, a:hover {
     cursor: pointer;
-    color:  rgb(68, 65, 65); 
+    color:  rgb(50, 47, 47); 
+}
+.material-icons {
+    height: 8px;
+    width: 8px;
+    margin:0;
+    &:hover {
+        cursor: pointer;
+        opacity: 0.4;
+    }
+}
+.icon-btn {
+    position: relative;
+    p {
+        font-weight: 900;
+        position:absolute;
+        left:25px;
+        top:0;
+    }
+}
+mat-form-field {
+    margin: 1rem 0;
+    width: 100%;
+}
+.icons {
+    position: absolute;
+    bottom:0;
+    div {
+        margin: 0.5rem;
+    }
 }

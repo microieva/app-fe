@@ -13,6 +13,7 @@ import { AppAccordionDataSource } from "../../../shared/types";
     styleUrls: ['./appointments.component.scss']
 })
 export class AppointmentsComponent implements OnInit {
+    selectedIndex: number = 0;
     id!: number;
     routedAppointmentId: number | undefined;
     count: number = 0;
@@ -22,6 +23,7 @@ export class AppointmentsComponent implements OnInit {
     pendingAppointments: Appointment[] = [];
     upcomingAppointments: Appointment[] = [];
     pastAppointments: Appointment[] = [];
+    isReservedDay: boolean = false;
     @Output() activeTab = new EventEmitter<string>();
     readonly panelOpenState = signal(false);
 
@@ -36,9 +38,13 @@ export class AppointmentsComponent implements OnInit {
 
     async ngOnInit() {
         await this.loadUserRole();
-        this.activatedRoute.paramMap.subscribe(async (params)=> {
-            const id = params.get('id'); 
+        this.activatedRoute.queryParams.subscribe(async (params)=> {
+            const id = params['id']; 
             if (id) this.routedAppointmentId = +id;
+          });
+        this.activatedRoute.queryParams.subscribe(params => {
+            const tab = params['tab'];
+            this.selectedIndex = tab ? +tab : 0;
           });
     }
 
@@ -58,8 +64,13 @@ export class AppointmentsComponent implements OnInit {
             //this.dialog.open({data: {message: "Unexpected error fetching user role: "+error}})
         }
     }
-    async onTabChange(event: any){
-    }
+    onTabChange(index: number) {
+        this.router.navigate([], {
+          relativeTo: this.activatedRoute,
+          queryParams: { tab: index },
+          queryParamsHandling: 'merge'
+        });
+      }
 
     async loadPastAppointments() {
         const query = `query {
@@ -129,20 +140,53 @@ export class AppointmentsComponent implements OnInit {
             this.dialog.open({data: {message: "Unexpected error while getting upcoming appointments: "+error}})
         }
     }
+    async checkIsReservedDay(date: string) {
+        const query = `query ($date: Date!) { isReservedDay (date: $date)}`
+        
+        try {
+            this.isReservedDay = await this.graphQLService.send(query, {date: DateTime.fromISO(date).toJSDate()});
+        } catch (error) {
+            console.log('error checking isReserved: ', error)
+        }
+        console.log('IS RESERVED ?', this.isReservedDay)
+    }
 
     formatAppointments(appointments: string): AppAccordionDataSource[] {
-        const doctorActions = ['Cancel Appointment', 'Accept Appointment', 'View In Calendar']
+        const allActions = [
+            {
+                text: 'Cancel Appointment',
+                disabled: this.isReservedDay
+            }, {
+                text: 'Accept Appointment',
+                disabled: this.isReservedDay
+            }, {
+                text: 'View In Calendar',
+                disabled: false
+            }];
+        const cancelAction = [
+            {
+                text: 'Cancel Appointment',
+                disabled: false
+            }
+        ]
+        const deleteAction = [
+            {
+                text: 'Delete Appointment',
+                disabled: false
+            }
+        ]
         switch (appointments) {
             case "pending":
                 return this.pendingDataSource = this.pendingAppointments.map(row => {
                     const created = DateTime.fromJSDate(new Date(row.createdAt)).toISO();
                     const howLongAgoStr = this.getHowLongAgo(created);
-        
+                    this.checkIsReservedDay(row.start);
+
                     return {
                         id: row.id,
                         howLongAgoStr: howLongAgoStr,
                         title: this.userRole === 'patient' ? "Pending doctor confirmation" : "View details",
-                        buttons: this.userRole === 'doctor' ? doctorActions : ["Cancel Appointment"],
+                        buttons: this.userRole === 'doctor' ? allActions : cancelAction,
                         date: DateTime.fromJSDate(new Date(row.start)).toFormat('MMM dd, yyyy'),
                         start: DateTime.fromJSDate(new Date(row.start)).toFormat('hh:mm'),
                         end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm')
@@ -158,7 +202,7 @@ export class AppointmentsComponent implements OnInit {
                         id: row.id,
                         howSoonStr: howSoonStr,
                         title: this.userRole === 'patient' ? "Confirmed appointment" : "Upcoming appointment",
-                        buttons: ["Cancel Appointment"],
+                        buttons: cancelAction,
                         date: DateTime.fromJSDate(new Date(row.start)).toFormat('MMM dd, yyyy'),
                         start: DateTime.fromJSDate(new Date(row.start)).toFormat('hh:mm'),
                         end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm')
@@ -174,7 +218,7 @@ export class AppointmentsComponent implements OnInit {
                         id: row.id,
                         pastDate: howLongAgoStr,
                         title: "View details",
-                        buttons: ["Delete Appointment"],
+                        buttons: deleteAction,
                         date: DateTime.fromJSDate(new Date(row.start)).toFormat('MMM dd, yyyy'),
                         start: DateTime.fromJSDate(new Date(row.start)).toFormat('hh:mm'),
                         end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm')
@@ -247,14 +291,6 @@ export class AppointmentsComponent implements OnInit {
         }
         return howLongAgoStr;
     }
-    newTab(){
-        console.log('NEW TAB CLICK')
-        console.log('countAppointments: ', this.count)
-    }
-    // onTabChange(event: MatTabChangeEvent) {
-    //     //this.activeTab = event.tab.textLabel;
-    //     this.activeTab.emit(event.tab.textLabel);
-    // }
 
     openCalendar() {
         this.router.navigate(['appointments', 'calendar'])
@@ -325,7 +361,7 @@ export class AppointmentsComponent implements OnInit {
             }`
             try {   
                 const response = await this.graphQLService.mutate(mutation, {appointmentInput: input});
-                console.log('ACCEPT res: ', response)
+
                 if (response.data.saveAppointment.success) {
                     this.dialog.open({data: {message: "Appointment added to your calendar"}});
                     this.loadUpcomingAppointments();

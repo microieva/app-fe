@@ -1,13 +1,13 @@
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { AppAccordionDataSource } from "../../types";
+import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { Location } from "@angular/common";
+import { AppAccordionDataSource } from "../../types";
 
 @Component({
     selector: 'app-accordion',
     templateUrl: './app-accordion.component.html',
     styleUrls: ['./app-accordion.component.scss']
 })
-export class AppAccordionComponent implements OnInit{
+export class AppAccordionComponent {
     @Input() dataSource: AppAccordionDataSource[] | undefined;
     @Input() markAppointmentId: number| null = null;
     @Output() buttonClick = new EventEmitter<{id: number, text: string}>();
@@ -16,10 +16,6 @@ export class AppAccordionComponent implements OnInit{
     constructor(
         private location: Location
     ){}
-
-    ngOnInit(): void {
-        console.log('ACCORDION GETS ID: ', this.markAppointmentId)
-    }
     
     onButtonClick(id: number, text: string){
         this.buttonClick.emit({id, text});
@@ -30,11 +26,9 @@ export class AppAccordionComponent implements OnInit{
         this.appointmentClick.emit(eventInfo);
     }
     resetBackground(id: number){
-        if (id === this.markAppointmentId) {
-            this.markAppointmentId = null;
-            const currentPath = this.location.path();
-            const newPath = currentPath.replace(/\/\d+$/, ''); 
-            this.location.replaceState(newPath);
-        }
+        this.markAppointmentId = null;
+        const currentPath = this.location.path();
+        const newPath = currentPath.replace(/\/\d+$/, ''); 
+        this.location.replaceState(newPath);
     }
 }

@@ -1,4 +1,10 @@
-<mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" class="content" (selectedTabChange)="onTabChange($event)">
+<mat-tab-group 
+    mat-stretch-tabs="false" 
+    mat-align-tabs="start" 
+    class="content" 
+    (selectedIndexChange)="onTabChange($event)"
+    [(selectedIndex)]="selectedIndex"
+>
     <mat-tab label="new">
         <ng-template mat-tab-label>
             <span class="tab-label" *ngIf="userRole === 'patient'">New</span>
@@ -54,6 +60,7 @@
                 </div>
                 <div class="appointments" *ngIf="upcomingAppointments.length !== 0">
                     <app-accordion 
+                        [markAppointmentId]="routedAppointmentId"
                         [dataSource]="upcomingDataSource" 
                         (buttonClick)="onButtonClick($event)"
                         (appointmentClick)="onAppointmentClick($event)"
@@ -81,6 +88,7 @@
                 </div>
                 <div class="appointments" *ngIf="pastAppointments.length !== 0">
                     <app-accordion 
+                        [markAppointmentId]="routedAppointmentId"
                         [dataSource]="pastDataSource" 
                         (buttonClick)="onButtonClick($event)"
                         (appointmentClick)="onAppointmentClick($event)"

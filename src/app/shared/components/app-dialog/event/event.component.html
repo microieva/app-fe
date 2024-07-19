@@ -1,9 +1,10 @@
 <form>
     <mat-dialog-content>
         <div class="flex-row">
-            <h2 *ngIf="eventTitle && eventTitle !== 'View details'">{{ eventTitle }}</h2>
-            <h2 *ngIf="eventTitle === 'View details'">{{ 'Appointment' }}</h2>
-            <h2 *ngIf="!eventTitle">{{ "New Appointment" }}</h2>
+            <h2 class="title-hover" *ngIf="eventTitle && eventTitle !== 'View details'" (click)="onLinkClick(eventId)">{{ eventTitle }}</h2>
+            <h2 class="title-hover" *ngIf="eventTitle === 'View details'" (click)="onLinkClick(eventId)">{{ 'Appointment' }}</h2>
+            <h2 *ngIf="!eventTitle && userRole === 'patient'">{{ "New Appointment" }}</h2>
+            <h2 *ngIf="!eventTitle && userRole === 'doctor'">{{ "Reserve All Day" }}</h2>
             <p class="event-label" *ngIf="eventTitle">created: <em>{{createdAt}}</em></p>
         </div>
         <div *ngIf="eventTitle" class="flex-column">
@@ -20,7 +21,11 @@
                     <div class="flex-column">
                         <p class="event-label">{{ 'Doctor' }}</p>
                         <p *ngIf="doctorName" class="event-info">{{ doctorName }}</p>
-                        <p *ngIf="!doctorName" class="event-info"><a (click)="onLinkClick(eventId)"><em>{{ 'Pending confirmation' }}</em></a></p>
+                        <p *ngIf="!doctorName" class="event-info">
+                            <a (click)="onLinkClick(eventId)">
+                                <em>{{ 'Pending confirmation' }}</em>
+                            </a>
+                        </p>
                     </div>
                 </div>
             </div>
@@ -43,13 +48,46 @@
                 </div>
             </div>
         </div>
-        <mat-form-field *ngIf="!eventTitle">
-            <mat-label>{{ 'Title' }}</mat-label>
-            <input name="input" matInput [formControl]="form.controls['input']">
-        </mat-form-field>
+        <div class="message event-wrapper" *ngIf="patientMessage">
+            <p class="event-title" *ngIf="userRole==='doctor'">{{ "Patient's Message" }}</p>
+            <p class="event-title" *ngIf="userRole==='patient'">{{ 'My Message' }}</p>
+            <p class="event-info" style="font-weight: 100; font-style: italic;">{{patientMessage}}</p>
+            <div (click)="onDeleteMessage(eventId)" *ngIf="userRole === 'patient'">
+                <span class="material-icons" style="color:rgb(175 111 174 / 90%);">close</span>
+            </div>
+        </div>
+        <div class="message event-wrapper" *ngIf="doctorMessage">
+            <p class="event-title" *ngIf="userRole==='patient'">{{ "Doctor's Message" }}</p>
+            <p class="event-title" *ngIf="userRole==='doctor'">{{ 'My Message' }}</p>
+            <p class="event-info" style="font-weight: 100; font-style: italic;">{{doctorMessage}}</p>
+            <div (click)="onDeleteMessage(eventId)" *ngIf="userRole === 'doctor'">
+                <span class="material-icons" style="color:rgb(175 111 174 / 90%);">close</span>
+            </div>
+        </div>
+        <div *ngIf="(!doctorMessage && userRole === 'doctor') || (!patientMessage && userRole === 'patient')">
+            <div class="icon-btn title-hover" (click)="showInput =!showInput" *ngIf="!showInput && eventId">
+                <span class="material-icons">add</span><p>Additional information</p>
+            </div>
+        </div>
+        <div class="event-wrapper" *ngIf="showInput" style="position: relative;">
+            <p class="event-title">{{ 'Additional Information' }}</p>
+            <mat-form-field>
+                <mat-label>{{ 'Add message' }}</mat-label>
+                <textarea matInput #message maxlength="700"></textarea>
+                <mat-hint align="end">{{message.value.length}} / 700</mat-hint>
+            </mat-form-field>
+            <div class="icons flex-row" style="float: right;">
+                <div (click)="onSaveMessage(message.value)">
+                    <span class="material-icons" style="color: green">check</span>
+                </div>
+                <div (click)="showInput =!showInput">
+                    <span class="material-icons" style="color:rgb(175 111 174 / 90%);">close</span>
+                </div>
+            </div>
+        </div>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-        <button mat-button type="submit" [mat-dialog-close]="true" cdkFocusInitial (click)="onSubmit()" *ngIf="!eventTitle">Submit</button>
+        <button mat-button type="submit" [mat-dialog-close]="true" cdkFocusInitial (click)="onSubmit()" *ngIf="!eventTitle">Confirm</button>
         <button mat-button type="button" (click)="onDelete()" *ngIf="eventTitle">{{ 'Delete' }}</button>
         <button mat-button mat-dialog-close>Cancel</button>
     </mat-dialog-actions>

@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, EventEmitter, OnInit, Output } from "@angular/core";
-import { CalendarOptions, EventInput,DateSelectArg, EventClickArg, EventApi, DayCellContentArg } from '@fullcalendar/core';
+import { CalendarOptions, EventInput,DateSelectArg, EventClickArg, EventApi, DayCellContentArg, DayCellMountArg, EventChangeArg, EventDropArg, DateSpanApi } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
@@ -7,6 +7,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import { createEventId } from "../../constants";
 import { AppDialogService } from "../../services/app-dialog.service";
 import { DateTime, Interval } from "luxon";
+import _ from "lodash-es";
 import { Appointment } from "../../../graphql/appointment/appointment";
 import { AppointmentInput } from "../../../graphql/appointment/appointment.input";
 import { AppGraphQLService } from "../../services/app-graphql.service";
@@ -19,7 +20,6 @@ import { Router } from "@angular/router";
 })
 export class AppCalendarComponent implements OnInit, AfterViewInit {
     @Output() appointment = new EventEmitter<AppointmentInput>();
-    //@Input() activeTab: string| undefined;
 
     appointmentSelections = ['All', 'Pending confirmation', 'Upcoming', 'Past']
     eventsPromise!: Promise<EventInput[]>;
@@ -42,7 +42,6 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
     async ngOnInit() {
         this.initializeCalendar();
         this.loadUserRole();
-        //console.log("CALENDAR ACTIVE TAB: ", this.activeTab)
     }
 
     async loadEvents(type?: string){
@@ -68,38 +67,6 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
         }
     }
 
-    /*async loadAllFullDayEvents(){
-        const query = `
-        query {
-            allDayAppointments {
-                id
-                start
-                end
-                allDay
-            }
-        }
-    `
-    try {
-        const response = await this.graphQLService.send(query);
-        //let events: any[] = []
-        if (response.data.allDayAppointments) {
-            console.log('response.data.allDayAppointments: ', response.data.allDayAppointments)
-            //this.allDayAppointments = response.data.allDayAppointments;
-            // this.events = this.appointments.map((appointment: Appointment) => ({
-            //     title: "Pending",
-            //     start: appointment.start,
-            //     end: appointment.end,
-            //     allDay: appointment.allDay
-            //   }));
-            } 
-            //return events;
-    } catch (error) {
-        this.dialog.open({data: {message: 'Unexpected error loading pending appointments: '+error}}) // maybe a snackbar ?
-        //return [];
-    }
-
-    }*/
-
     async ngAfterViewInit() {
         await this.loadEvents();
         this.setDisplayText(); 
@@ -116,9 +83,6 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
             initialView: 'dayGridMonth',
             events: this.events,
             views: {
-                // timeGrid: {
-                //     eventLimit: 6 
-                // },
                 dayGrid: {
                     contentHeight:600,
                     dayMaxEvents: 2,
@@ -135,10 +99,10 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
             moreLinkClick: 'popover',
             eventDisplay: 'block',
             select: (arg: DateSelectArg)=> this.handleDateSelect(arg),
-            eventClick: (arg) =>this.handleEventClick(arg),
-            eventsSet: (arg) => this.handleEvents(arg),
-            dayCellDidMount: (arg)=> this.handleDayCell(arg),
-            eventChange: (arg) => this.handleAddEvent(arg),
+            eventClick: (arg: EventClickArg) =>this.handleEventClick(arg),
+            eventsSet: (arg: EventApi[]) => this.handleEvents(arg),
+            dayCellDidMount: (arg: DayCellMountArg)=> this.handleDayCell(arg),
+            eventDrop: (arg: EventDropArg)=> this.handleEventDrop(arg),
             businessHours: {
                 daysOfWeek: [ 1, 2, 3, 4, 5 ],
                 startTime: '08:00', 
@@ -149,6 +113,34 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
             eventRemove:
             */
         }
+    }
+
+    handleEventDrop(arg: any) {
+        if (this.userRole === 'patient') {
+            if (arg.event.extendedProps.doctorId) {
+                this.dialog.open({data: {message: "Cannot change the appointment time since it has been already accepted by a doctor... Consider cancelling appointment and creating a new one."}});
+                arg.revert();
+            } else if (arg.event.extendedProps.title)  {
+                this.dialog.open({data: {message: "The appointment already past"}});
+                arg.revert();
+            }
+        }
+        let newStart;
+        let newEnd;
+
+        const startDateTime = DateTime.fromJSDate(arg.event.start).toLocal()
+        const endDateTime = DateTime.fromJSDate(arg.event.end).toLocal()
+
+        newStart = startDateTime.toISO()
+        newEnd = endDateTime.toISO();
+
+        const event: any = {
+            id: arg.event.extendedProps.dbId,
+            start: newStart,
+            end: newEnd,
+            allDay: false
+        }
+        this.appointment.emit(event);
     }
 
     async loadUserRole() {
@@ -190,7 +182,6 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
             const response = await this.graphQLService.send(query);
             if (response.data.appointments) {
                 this.appointments = response.data.appointments;
-                console.log('ALL APTNMPTS: ', this.appointments)
                 let title: string;
                 let isPast:boolean = false;
 
@@ -210,7 +201,8 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
                         end: appointment.end,
                         allDay: appointment.allDay,
                         extendedProps: {
-                            dbId: appointment.id
+                            dbId: appointment.id,
+                            doctorId: appointment.doctorId
                         }
                     }
                 });
@@ -236,9 +228,8 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
         `
         try {
             const response = await this.graphQLService.send(query);
-            //let events: any[] = []
+
             if (response.data.pendingAppointments) {
-                console.log('response.data.pendingAppointments: ', response.data.pendingAppointments)
                 this.appointments = response.data.pendingAppointments;
                 this.events = this.appointments.map((appointment: Appointment) => ({
                     title: "Pending",
@@ -246,14 +237,14 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
                     end: appointment.end,
                     allDay: appointment.allDay,
                     extendedProps: {
-                        dbId: appointment.id
+                        dbId: appointment.id,
+                        doctorId: appointment.doctorId
                     }
                   }));
                 } 
-                //return events;
         } catch (error) {
-            this.dialog.open({data: {message: 'Unexpected error loading pending appointments: '+error}}) // maybe a snackbar ?
-            //return [];
+            this.dialog.open({data: {message: 'Unexpected error loading pending appointments: '+error}}) 
+            // maybe a snackbar ?
         }
     }
     async loadUpcomingAppointments() {
@@ -272,8 +263,8 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
         `
         try {
             const response = await this.graphQLService.send(query);
+
             if (response.data.upcomingAppointments) {
-                console.log('response.data.UPAppointments: ', response.data.upcomingAppointments)
                 this.appointments = response.data.upcomingAppointments;
                 this.events = this.appointments.map((appointment: Appointment) => ({
                     title: "Upcoming",
@@ -281,12 +272,14 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
                     end: appointment.end,
                     allDay: appointment.allDay,
                     extendedProps: {
-                        dbId: appointment.id
+                        dbId: appointment.id,
+                        doctorId: appointment.doctorId
                     }
                   }));
             } 
         } catch (error) {
-            this.dialog.open({data: {message: 'Unexpected error loading upcoming appointments: '+error}}) // maybe a snackbar ?
+            this.dialog.open({data: {message: 'Unexpected error loading upcoming appointments: '+error}}) 
+            // maybe a snackbar ?
         }
     }
 
@@ -306,8 +299,8 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
         `
         try {
             const response = await this.graphQLService.send(query);
+
             if (response.data.pastAppointments) {
-                console.log('response.data.pastAppointments: ', response.data.pastAppointments)
                 this.appointments = response.data.pastAppointments;
                 this.events = this.appointments.map((appointment: Appointment) => ({
                     title: "Past",
@@ -315,12 +308,14 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
                     end: appointment.end,
                     allDay: appointment.allDay,
                     extendedProps: {
-                        dbId: appointment.id
+                        dbId: appointment.id,
+                        title: 'Pas'
                     }
                   }));
             } 
         } catch (error) {
-            this.dialog.open({data: {message: 'Unexpected error loading pending appointments: '+error}}) // maybe a snackbar ?
+            this.dialog.open({data: {message: 'Unexpected error loading pending appointments: '+error}}) 
+            // maybe a snackbar ?
         }
     }
 
@@ -349,49 +344,42 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
     handleAddEvent(arg: any){
         if (arg.view.type === 'timeGridWeek' || arg.view.type === 'timeGridDay') {
             const calendarApi = arg.view.calendar;
-            const dialogRef = this.dialog.open({data: {input: true}});
             let start: any;
             let end: any;
 
              if (arg.allDay) {
+                const startDateTime = DateTime.fromJSDate(arg.start).toLocal()
+                const endDateTime = DateTime.fromJSDate(arg.end).toLocal()
 
-                    const startDateTime = DateTime.fromJSDate(arg.start).toLocal()
-                    const endDateTime = DateTime.fromJSDate(arg.end).toLocal()
+                start = startDateTime.toISO()
+                end = endDateTime.toISO();
+            }
+            const event: any = {
+                id: createEventId(),
+                title: "New appointment",
+                start: arg.allDay ? start : arg.startStr,
+                end: arg.allDay ? end : arg.endStr,
+                allDay: arg.allDay
+            }
+            const dialogRef = this.dialog.open({data: {input: true}});
 
-                    start = startDateTime.toISO()
-                    end = endDateTime.toISO();
-                }
             dialogRef.componentInstance.event.subscribe(value => {
-                const event: any = {
-                    id: createEventId(),
-                    start: arg.allDay ? start : arg.startStr,
-                    end: arg.allDay ? end : arg.endStr,
-                    allDay: arg.allDay
-                }
-                this.appointment.emit(event);
-                calendarApi.changeView('dayGridMonth', arg.start);
+                
                 if (value) {
-                    event.title = "New appointment";
                     calendarApi.addEvent(event);
+                    this.appointment.emit({
+                        start: event.start,
+                        end: event.end,
+                        allDay: event.allDay
+                    });
                 }
+                calendarApi.changeView('dayGridMonth', arg.start);
             })
-
         }
-
-
     }
 
-    // customSlotLaneClassName(arg: any) {
-    //     if (!this.isBusinessHours(arg)) {
-    //         arg.el.classList.add('non-business-hour');
-    //     }
-    //     return;
-    // }
-
     customDayClassNames(arg: DayCellContentArg): string[] {
-
         const eventCount = this.getNumberOfAppointmentsOnSelectedDay(arg.date)
-
         if (this.isDisabledDay(arg.date) || eventCount >5) {
             return ['disabled-day'];
         } 
@@ -576,7 +564,6 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
                 }) 
             }
         })
-        // sourceId defid title
 
 
         // if (confirm(`Are you sure you want to delete the event '${clickInfo.event.title}'`)) {

@@ -36,6 +36,8 @@ export class AppDialogComponent implements OnInit {
     eventStartTime:  string | undefined;
     eventEndTime:  string | undefined;
     appointmentId: number | undefined;
+    doctorMessage: string | null = null;
+    patientMessage: string | null = null;
 
 
     @Output() ok = new EventEmitter<boolean>(false);
@@ -60,7 +62,7 @@ export class AppDialogComponent implements OnInit {
         this.showDirectLoginForm = data.showDirectLoginForm;
         this.input = data.input;
         this.eventInfo = data.eventInfo;
-        this.form = this.buildLoginForm()
+        this.form = this.buildLoginForm();
     }
 
     async ngOnInit() {
@@ -80,6 +82,8 @@ export class AppDialogComponent implements OnInit {
             this.eventStartTime =  DateTime.fromJSDate(new Date(this.appointment.start)).toFormat('hh:mm');
             this.eventEndTime =DateTime.fromJSDate(new Date(this.appointment.end)).toFormat('hh:mm');
             this.appointmentId = this.appointment.id;
+            this.doctorMessage = this.appointment.doctorMessage !=='0' ? this.appointment.doctorMessage : null;
+            this.patientMessage = this.appointment.patientMessage !== '0' ? this.appointment.patientMessage : null;
         }
     }
 
@@ -91,7 +95,6 @@ export class AppDialogComponent implements OnInit {
     }
 
     onOk(ok: boolean){
-        console.log('is this emitting ? dialog component ok: ', ok)
         this.ok.emit(ok);
     }
 
@@ -129,12 +132,14 @@ export class AppDialogComponent implements OnInit {
                 id
                 start
                 end
+                patientMessage
                 patient {
                     firstName
                     lastName
                     dob
                     id
                 }
+                doctorMessage
                 doctor {
                     firstName
                     lastName
@@ -142,13 +147,13 @@ export class AppDialogComponent implements OnInit {
                 }
                 createdAt
                 updatedAt 
+                allDay
             }
         }`
         try {
             const response = await this.graphQLService.send(query, {appointmentId: id});
             if (response.data.appointment) {
                 this.appointment = response.data.appointment;
-                console.log('this.appointment: ', this.appointment)
             }
         } catch (error) {
             this.dialog.open({data: {message: "Unexpected error fetching appointment: "+error}});

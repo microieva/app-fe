@@ -55,7 +55,7 @@ export interface AppAccordionDataSource {
     howSoonStr?: string
     pastDate?: string
     title?: string
-    buttons: string[]
+    buttons: {text: string, disabled: boolean}[]
     date: string
     start: string
     end: string
