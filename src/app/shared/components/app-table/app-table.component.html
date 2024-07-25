@@ -1,39 +1,106 @@
-<mat-form-field>
-    <mat-label>Filter</mat-label>
-    <input matInput (keyup)="applyFilter($event)" placeholder="Ex. ium" #input>
-  </mat-form-field>
-  
-  <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
-  
-    <!-- Position Column -->
-    <ng-container matColumnDef="position">
-      <th mat-header-cell *matHeaderCellDef> No. </th>
-      <td mat-cell *matCellDef="let element"> {{element.position}} </td>
-    </ng-container>
-  
-    <ng-container matColumnDef="status">
-      <th mat-header-cell *matHeaderCellDef> Status </th>
-      <td mat-cell *matCellDef="let element"> {{element.title}} </td>
-    </ng-container>
-  
-    <ng-container matColumnDef="createdAt">
-      <th mat-header-cell *matHeaderCellDef> Created </th>
-      <td mat-cell *matCellDef="let element"> {{element.createdAt}} </td>
-    </ng-container>
-  
-    <ng-container matColumnDef="button">
-		<th mat-header-cell *matHeaderCellDef>  </th>
-		<td mat-cell *matCellDef="let element"> 
-			<button class="table-btn" style="margin-right:1rem;" mat-stroked-button (click)="deleteAppointment()">{{ element.button }}</button>
-		</td>
-    </ng-container>
-  
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-  
-    <!-- Row shown when there is no matching data. -->
-    <tr class="mat-row" *matNoDataRow>
-      <td class="mat-cell" colspan="4">No data matching the filter "{{input.value}}"</td>
-    </tr>
-  </table>
-  
+<div *ngIf="length > 0">
+    <mat-form-field *ngIf="userRole === 'doctor'">
+        <mat-label>Search by patient name</mat-label>
+        <input matInput (keyup)="onSearch($event)" placeholder="..." #input>
+    </mat-form-field>
+
+    <table 
+        #scrollView
+        mat-table 
+        multiTemplateDataRows 
+        [dataSource]="dataSource" 
+        class="mat-elevation-z8" 
+        matSort 
+        (matSortChange)="onSortChange($event)"
+    >
+        <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header style="max-width:10rem;"> Queue No. </th>
+            <td mat-cell *matCellDef="let element">{{element.id}}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="title">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+            <td mat-cell *matCellDef="let element"> {{element.title}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="conditionalColumns">
+            <ng-container *ngIf="displayedColumnHeader === 'howLongAgoStr'; else startTimeHeader">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header style="max-width:20rem;">Created</th>
+            </ng-container>
+            <ng-template #startTimeHeader>
+              <th mat-header-cell *matHeaderCellDef mat-sort-header style="max-width:20rem;">Start Time</th>
+            </ng-template>
+      
+            <td mat-cell *matCellDef="let element">
+              <em *ngIf="element.howLongAgoStr">{{element.howLongAgoStr}}</em>
+              <em *ngIf="element.howSoonStr">{{element.howSoonStr}}</em>
+              <em *ngIf="element.pastDate">{{element.pastDate}}</em>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="expandedDetail">
+            <td mat-cell *matCellDef="let element" [attr.colspan]="columnsToDisplayWithExpand.length">
+                <div 
+                    class="expandable-element-detail"
+                    [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'"
+                    #expandedElementRef 
+                >
+                   <div class="flex-column wrapper clickable" (click)="onAppointmentClick(element.id, element.title); $event.stopPropagation()">
+                    <p class="title">{{ 'Appointment Details' }}</p>
+                    <div class="flex-row">
+                        <div class="details flex-row">
+                            <div class="flex-column">
+                                <p>{{ 'Date' }}</p>
+                                <h3>{{element.date}}</h3>
+                            </div>
+                            <div class="flex-column">
+                                <p>{{ 'Start Time' }}</p>
+                                <h3>{{element.start}}</h3>
+                            </div>
+                            <div class="flex-column">
+                                <p>{{ 'End Time' }}</p>
+                                <h3>{{element.end}}</h3>
+                            </div>
+                        </div>
+                        <div class="actions flex-column">   
+                            <button 
+                                *ngFor="let button of element.buttons"
+                                style="margin-right:1rem;background-color:rgb(151,170,192)" 
+                                mat-stroked-button 
+                                (click)="onButtonClick(element.id, button.text); $event.stopPropagation()"
+                                [disabled]="button.disabled"
+                            >
+                                {{ button.text }}
+                            </button>
+                        </div>        
+                    </div>
+                </div>
+              </div>
+            </td>
+          </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr 
+            mat-row 
+            *matRowDef="let element; columns: displayedColumns;" 
+            (click)="(expandedElement = expandedElement === element ? null : element); $event.stopPropagation(); onRowClick()"
+            [ngStyle]="{backgroundColor: (markAppointmentId && markAppointmentId === element.id) ? 'aqua': ''}"
+        ></tr>
+        
+        <tr mat-row *matRowDef="let element; columns: ['expandedDetail'];" class="expandable-element-detail-row"
+            [class.expandable-element-detail-row-expanded]="element == expandedElement">
+        </tr>
+
+        <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" colspan="4">No data matching the filter "{{input.value}}"</td>
+        </tr>
+    </table>
+    <mat-paginator 
+        #paginator
+        [pageIndex]="pageIndex"
+        [length]="length"
+        [pageSize]="pageLimit"
+        [pageSizeOptions]="[10, 20, 50, 100]"
+        (page)="onPageChange($event)">
+    </mat-paginator>
+</div>

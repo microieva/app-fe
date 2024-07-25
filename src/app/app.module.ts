@@ -36,6 +36,8 @@ import { AppointmentComponent } from './graphql/appointment/appointment.componen
 import { AppCalendarComponent } from './shared/components/app-calendar/app-calendar.component';
 import { AppTableComponent } from './shared/components/app-table/app-table.component';
 import { AppAccordionComponent } from './shared/components/app-accordion/app-accordion.component';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSortModule } from '@angular/material/sort';
 
 @NgModule({ 
     declarations: [
@@ -65,8 +67,10 @@ import { AppAccordionComponent } from './shared/components/app-accordion/app-acc
         MatDialogContent,
         MatDatepickerModule,
         MatTabsModule,
+        MatPaginatorModule,
         MatTableModule,
         MatRadioModule,
+        MatSortModule,
         FormsModule,
         ReactiveFormsModule,
         BrowserModule,

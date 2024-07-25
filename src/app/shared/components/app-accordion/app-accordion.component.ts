@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from "@angular/core";
-import { Location } from "@angular/common";
-import { AppAccordionDataSource } from "../../types";
+import { ActivatedRoute, Router } from "@angular/router";
+import { AppDataSource } from "../../types";
 
 @Component({
     selector: 'app-accordion',
@@ -8,13 +8,14 @@ import { AppAccordionDataSource } from "../../types";
     styleUrls: ['./app-accordion.component.scss']
 })
 export class AppAccordionComponent {
-    @Input() dataSource: AppAccordionDataSource[] | undefined;
+    @Input() dataSource: AppDataSource[] | undefined;
     @Input() markAppointmentId: number| null = null;
     @Output() buttonClick = new EventEmitter<{id: number, text: string}>();
     @Output() appointmentClick = new EventEmitter<{id: number, title: string}>();
 
     constructor(
-        private location: Location
+        private activatedRoute: ActivatedRoute,
+        private router: Router
     ){}
     
     onButtonClick(id: number, text: string){
@@ -25,10 +26,17 @@ export class AppAccordionComponent {
         const eventInfo = { id, title }
         this.appointmentClick.emit(eventInfo);
     }
-    resetBackground(id: number){
+    resetRoute(){
         this.markAppointmentId = null;
-        const currentPath = this.location.path();
-        const newPath = currentPath.replace(/\/\d+$/, ''); 
-        this.location.replaceState(newPath);
+        this.activatedRoute.queryParams.subscribe(params => {
+            const updatedParams = { ...params };
+            delete updatedParams['id'];
+
+            this.router.navigate([], {
+                relativeTo: this.activatedRoute,
+                queryParams: updatedParams,
+                queryParamsHandling: 'merge' 
+            });
+        })
     }
 }

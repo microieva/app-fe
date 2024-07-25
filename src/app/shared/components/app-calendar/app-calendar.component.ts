@@ -1,17 +1,16 @@
 import { AfterViewInit, Component, EventEmitter, OnInit, Output } from "@angular/core";
 import { CalendarOptions, EventInput,DateSelectArg, EventClickArg, EventApi, DayCellContentArg, DayCellMountArg, EventChangeArg, EventDropArg, DateSpanApi } from '@fullcalendar/core';
+import { Router } from "@angular/router";
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
-import { createEventId } from "../../constants";
-import { AppDialogService } from "../../services/app-dialog.service";
 import { DateTime, Interval } from "luxon";
-import _ from "lodash-es";
+import { AppDialogService } from "../../services/app-dialog.service";
+import { AppGraphQLService } from "../../services/app-graphql.service";
+import { createEventId } from "../../constants";
 import { Appointment } from "../../../graphql/appointment/appointment";
 import { AppointmentInput } from "../../../graphql/appointment/appointment.input";
-import { AppGraphQLService } from "../../services/app-graphql.service";
-import { Router } from "@angular/router";
 
 @Component({
     selector: 'app-calendar',
@@ -152,12 +151,10 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
             }
         } catch (error) {
             this.router.navigate(['/'])
-            //this.dialog.open({data: {message: "Unexpected error fetching user role: "+error}})
+            this.dialog.open({data: {message: "No user, must login"}})
         }
     }
-    // async handleAppointmentUpdate() {
 
-    // }
     onCheckboxChange(value: string) {
         if (value) {
             this.loadEvents(value);
@@ -208,14 +205,14 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
                 });
             } 
         } catch (error) {
+            this.dialog.open({data: {message: 'Unexpected error loading all appointments: '+error}}) 
             this.router.navigate(['appointments'])
-            //this.dialog.open({data: {message: 'Unexpected error loading all appointments: '+error}}) // maybe a snackbar ?
         }
     }
     async loadPendingAppointments() {
         const query = `
             query {
-                pendingAppointments {
+                calendarPendingAppointments {
                     id
                     start
                     end
@@ -229,8 +226,8 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
         try {
             const response = await this.graphQLService.send(query);
 
-            if (response.data.pendingAppointments) {
-                this.appointments = response.data.pendingAppointments;
+            if (response.data.calendarPendingAppointments) {
+                this.appointments = response.data.calendarPendingAppointments;
                 this.events = this.appointments.map((appointment: Appointment) => ({
                     title: "Pending",
                     start: appointment.start,
@@ -244,13 +241,12 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
                 } 
         } catch (error) {
             this.dialog.open({data: {message: 'Unexpected error loading pending appointments: '+error}}) 
-            // maybe a snackbar ?
         }
     }
     async loadUpcomingAppointments() {
         const query = `
             query {
-                upcomingAppointments {
+                calendarUpcomingAppointments {
                     id
                     start
                     end
@@ -264,8 +260,8 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
         try {
             const response = await this.graphQLService.send(query);
 
-            if (response.data.upcomingAppointments) {
-                this.appointments = response.data.upcomingAppointments;
+            if (response.data.calendarUpcomingAppointments) {
+                this.appointments = response.data.calendarUpcomingAppointments;
                 this.events = this.appointments.map((appointment: Appointment) => ({
                     title: "Upcoming",
                     start: appointment.start,
@@ -279,14 +275,13 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
             } 
         } catch (error) {
             this.dialog.open({data: {message: 'Unexpected error loading upcoming appointments: '+error}}) 
-            // maybe a snackbar ?
         }
     }
 
     async loadPastAppointments() {
         const query = `
             query {
-                pastAppointments {
+                calendarPastAppointments {
                     id
                     start
                     end
@@ -300,8 +295,8 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
         try {
             const response = await this.graphQLService.send(query);
 
-            if (response.data.pastAppointments) {
-                this.appointments = response.data.pastAppointments;
+            if (response.data.calendarPastAppointments) {
+                this.appointments = response.data.calendarPastAppointments;
                 this.events = this.appointments.map((appointment: Appointment) => ({
                     title: "Past",
                     start: appointment.start,
@@ -309,7 +304,7 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
                     allDay: appointment.allDay,
                     extendedProps: {
                         dbId: appointment.id,
-                        title: 'Pas'
+                        title: 'Past'
                     }
                   }));
             } 
@@ -405,15 +400,6 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
             el.appendChild(titleEl);
         })
     }
-
-    // handleCalendarToggle() {
-    //     this.calendarVisible = !this.calendarVisible;
-    // }
-
-    // handleWeekendsToggle() {
-    //     const { calendarOptions } = this;
-    //     calendarOptions.weekends = !calendarOptions.weekends;
-    // }
 
     handleDateSelect(arg: DateSelectArg) {
         const calendarApi = arg.view.calendar;
@@ -553,7 +539,6 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
                         try {
                             const response = await this.graphQLService.mutate(mutation, { appointmentId: id});
                             if (response.data.deleteAppointment.success) {
-                                // snackbar 
                                 this.dialog.close();
                                 clickInfo.event.remove();
                             }
@@ -564,11 +549,6 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
                 }) 
             }
         })
-
-
-        // if (confirm(`Are you sure you want to delete the event '${clickInfo.event.title}'`)) {
-        // clickInfo.event.remove();
-        // }
     }
 
     handleEvents(events: EventApi[]) {

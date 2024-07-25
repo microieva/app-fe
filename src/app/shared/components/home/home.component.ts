@@ -1,10 +1,10 @@
 import { Component, OnInit } from "@angular/core";
+import { Router } from "@angular/router";
+import { Subscription } from "rxjs";
 import { AppDialogService } from "../../services/app-dialog.service";
 import { AppAuthService } from "../../services/app-auth.service";
 import { AppGraphQLService } from "../../services/app-graphql.service";
-import { Subscription, take } from "rxjs";
 import { AppTimerService } from "../../services/app-timer.service";
-import { Router } from "@angular/router";
 
 @Component({
     selector: 'app-home',
@@ -73,7 +73,7 @@ export class HomeComponent implements OnInit{
                 this.userRole = response.data.me.userRole;
             }
         } catch (error) {
-            console.log(error)
+            this.dialog.open({data: {message: "No user, must login :"+error}})
         }
     }
 

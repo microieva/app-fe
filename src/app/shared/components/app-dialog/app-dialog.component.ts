@@ -15,7 +15,7 @@ import { Router } from "@angular/router";
     styleUrls: ['./app-dialog.component.scss']
 })
 export class AppDialogComponent implements OnInit {
-    loading: boolean;
+    isLoading: boolean;
     message: string | undefined;
     isDeleting: boolean;
     showDirectLoginForm: boolean;
@@ -39,7 +39,6 @@ export class AppDialogComponent implements OnInit {
     doctorMessage: string | null = null;
     patientMessage: string | null = null;
 
-
     @Output() ok = new EventEmitter<boolean>(false);
     @Output() loginSuccess = new EventEmitter<boolean>(false);
     @Output() event = new EventEmitter<string>();
@@ -55,7 +54,7 @@ export class AppDialogComponent implements OnInit {
         private dialog: AppDialogService,
         private router: Router
     ) {
-        this.loading = data.loading;
+        this.isLoading = data.isLoading;
         this.message = data.message;
         this.isDeleting = data.isDeleting;
         this.isLoggingIn = data.isLoggingIn;

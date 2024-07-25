@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { Router } from "@angular/router";
 import { AppDialogService } from "../../../services/app-dialog.service";
@@ -31,6 +31,7 @@ export class EventComponent implements OnInit{
     @Input() patientMessage:  string | null = null;
     @Input() doctorMessage:  string | null = null;
 
+    @ViewChild('el') el: ElementRef | undefined;
     
     constructor(
         private formBuilder: FormBuilder,
@@ -133,6 +134,7 @@ export class EventComponent implements OnInit{
     onDelete(){
         this.eventId && this.delete.emit(this.eventId);
     }
+
     onLinkClick(id: number) {
         this.dialog.close();
 
@@ -149,6 +151,14 @@ export class EventComponent implements OnInit{
             default:
                 break; 
         }
-
+    }
+    onAddClick(){
+        this.scrollToView();
+    }
+    scrollToView() {
+        if (this.el) {
+            // fix scroll to view for textarea
+            this.el.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }
     }
 }

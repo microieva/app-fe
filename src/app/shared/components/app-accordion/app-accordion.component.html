@@ -5,7 +5,7 @@
         (closed)="panelOpenState.set(false)" 
         *ngFor="let element of dataSource"
         [ngStyle]="{backgroundColor: (markAppointmentId !== undefined && markAppointmentId === element.id) ? 'aqua': ''}"
-        (click)="resetBackground(element.id)"
+        (click)="resetRoute()"
     >
         <mat-expansion-panel-header>
             <div class="header">

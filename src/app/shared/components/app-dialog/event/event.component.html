@@ -1,5 +1,5 @@
 <form>
-    <mat-dialog-content>
+    <mat-dialog-content #el>
         <div class="flex-row">
             <h2 class="title-hover" *ngIf="eventTitle && eventTitle !== 'View details'" (click)="onLinkClick(eventId)">{{ eventTitle }}</h2>
             <h2 class="title-hover" *ngIf="eventTitle === 'View details'" (click)="onLinkClick(eventId)">{{ 'Appointment' }}</h2>
@@ -65,7 +65,7 @@
             </div>
         </div>
         <div *ngIf="(!doctorMessage && userRole === 'doctor') || (!patientMessage && userRole === 'patient')">
-            <div class="icon-btn title-hover" (click)="showInput =!showInput" *ngIf="!showInput && eventId">
+            <div class="icon-btn title-hover" (click)="onAddClick(); showInput =!showInput" *ngIf="!showInput && eventId">
                 <span class="material-icons">add</span><p>Additional information</p>
             </div>
         </div>

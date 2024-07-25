@@ -30,7 +30,7 @@ export interface ExpandableAppTreeNode {
 }
 
 export interface AppDialogData {
-    loading: boolean
+    isLoading: boolean
     message: string
     isDeleting: boolean
     isLoggingIn: boolean
@@ -49,13 +49,13 @@ export interface Paged<T> {
     slice: T[]
 }
 
-export interface AppAccordionDataSource {
+export interface AppDataSource {
     id: number
     howLogAgoStr?: string
     howSoonStr?: string
     pastDate?: string
     title?: string
-    buttons: {text: string, disabled: boolean}[]
+    buttons?: {text: string, disabled: boolean}[]
     date: string
     start: string
     end: string

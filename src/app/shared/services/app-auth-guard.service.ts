@@ -8,7 +8,7 @@ export const authGuard: CanActivateFn = () => {
   const router = inject(Router);
 
   const isAuth = authService.getAuthStatus();
-  console.log('IS AUTH FROM GUARD: ', isAuth)
+
   if (!isAuth) {
     router.navigate(['/']);
   }

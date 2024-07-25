@@ -1,11 +1,11 @@
-import { Component, EventEmitter, OnInit, Output, signal } from "@angular/core";
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, OnInit, Output, ViewChild, signal } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
+import { MatTableDataSource } from "@angular/material/table";
 import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
 import { AppDialogService } from "../../../shared/services/app-dialog.service";
+import { AppDataSource } from "../../../shared/types";
 import { Appointment } from "../appointment";
-import { AppointmentInput } from "../appointment.input";
-import { AppAccordionDataSource } from "../../../shared/types";
 
 @Component({
     selector: 'test-apps',
@@ -16,128 +16,307 @@ export class AppointmentsComponent implements OnInit {
     selectedIndex: number = 0;
     id!: number;
     routedAppointmentId: number | undefined;
-    count: number = 0;
-    pendingDataSource: AppAccordionDataSource[] | undefined;
-    upcomingDataSource: AppAccordionDataSource[] | undefined;
-    pastDataSource: AppAccordionDataSource[] | undefined;
+    length: number = 0;
+    readonly totalLength: number;
+
+    countPendingAppointments: number = 0;
+    countUpcomingAppointments: number = 0;
+    countPastAppointments: number = 0;
+
+    pendingDataSource: AppDataSource[] | undefined;
+    upcomingDataSource: AppDataSource[] | undefined;
+    pastDataSource: AppDataSource[] | undefined;
+
     pendingAppointments: Appointment[] = [];
     upcomingAppointments: Appointment[] = [];
     pastAppointments: Appointment[] = [];
     isReservedDay: boolean = false;
+    dataSource: MatTableDataSource<AppDataSource> | null = null;
+
     @Output() activeTab = new EventEmitter<string>();
+    @ViewChild('scrollView') scrollView!: ElementRef;
     readonly panelOpenState = signal(false);
 
     userRole!: string;
+    pageIndex: number = 0;
+    pageLimit: number = 10;
+    sortDirection: string | null = 'DESC';
+    sortActive: string | null = 'start';
+    filterInput: string | null = null;
 
     constructor(
         private graphQLService: AppGraphQLService,
         private router: Router,
         private dialog: AppDialogService,
-        private activatedRoute: ActivatedRoute
-    ){}
-
+        private activatedRoute: ActivatedRoute,
+        private cdr: ChangeDetectorRef
+    ){
+        this.totalLength = this.length;
+    }
+    
     async ngOnInit() {
-        await this.loadUserRole();
+        await this.loadStatic();
         this.activatedRoute.queryParams.subscribe(async (params)=> {
             const id = params['id']; 
             if (id) this.routedAppointmentId = +id;
           });
-        this.activatedRoute.queryParams.subscribe(params => {
+        this.activatedRoute.queryParams.subscribe(async params => {
             const tab = params['tab'];
             this.selectedIndex = tab ? +tab : 0;
-          });
+            await this.loadData();
+        });   
+    }
+    async loadData() {
+        switch (this.selectedIndex) {
+            case 0:
+                await this.loadPendingAppointments();
+                break;
+            case 1:
+                await this.loadUpcomingAppointments();
+                break;
+            case 2:
+                await this.loadPastAppointments();
+                break;
+            default:
+                break;
+
+        }
     }
 
-    async loadUserRole() {
-        const query = `query { me { userRole }}`
+    async loadStatic() {
+        const query = `query { 
+            me { userRole }
+            countPendingAppointments
+            countUpcomingAppointments
+            countPastAppointments
+        }`
+
         try {
             const response = await this.graphQLService.send(query);
             if (response.data.me.userRole) {
                 this.userRole =response.data.me.userRole;
-                // if not checking length they could be loaded in static loader together
-                await this.loadPendingAppointments();
-                await this.loadUpcomingAppointments();
-                await this.loadPastAppointments();
+                this.countPendingAppointments = response.data.countPendingAppointments
+                this.countUpcomingAppointments = response.data.countUpcomingAppointments
+                this.countPastAppointments = response.data.countPastAppointments
             }
         } catch (error) {
             this.router.navigate(['/'])
-            //this.dialog.open({data: {message: "Unexpected error fetching user role: "+error}})
         }
     }
-    onTabChange(index: number) {
+    onTabChange(value: any) {
+        this.selectedIndex = value;
+
         this.router.navigate([], {
           relativeTo: this.activatedRoute,
-          queryParams: { tab: index },
-          queryParamsHandling: 'merge'
+          queryParams: { tab: value }
         });
-      }
-
-    async loadPastAppointments() {
-        const query = `query {
-            pastAppointments {
-                id
-                start
-                end
-                patientId
-                doctorId
-                createdAt
-            }
-        }`
-
-        try {
-            const response = await this.graphQLService.send(query);
-            if (response.data.pastAppointments) {
-                this.pastAppointments = response.data.pastAppointments;
-                this.formatAppointments("past");
-            }
-        } catch (error){
-            this.dialog.open({data: {message: "Unexpected error while getting past appointments: "+error}})
+    }
+    async onPageChange(value: any) {
+        this.pageIndex = value.pageIndex;
+        this.pageLimit = value.pageLimit;
+        await this.loadData();
+    }
+    async onSortChange(value: any) {
+        if (value.active === 'howLongAgoStr') {
+            this.sortActive = 'createdAt'
+        } else if (value.active === 'howSoonStr') {
+            this.sortActive = 'start'
+        } else if (value.active === 'pastDate'){
+            this.sortActive = 'end';
+        }
+        if (value.direction)
+        this.sortDirection = value.direction.toUpperCase();
+        await this.loadData();
+    }
+    async onFilterValueChange(value: any){
+        this.filterInput = value;
+        await this.loadData();
+    }
+    scrollToTop() {
+        if (this.scrollView) {
+          this.scrollView.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     }
     
     async loadPendingAppointments() {
-        const query = `query {
-            pendingAppointments {
-                id
-                start
-                end
-                patientId
-                doctorId
-                createdAt
+        const query = `query (
+            $pageIndex: Int!, 
+            $pageLimit: Int!, 
+            $sortDirection: String, 
+            $sortActive: String,
+            $filterInput: String
+        ){
+            pendingAppointments (
+                pageIndex: $pageIndex, 
+                pageLimit: $pageLimit,
+                sortDirection: $sortDirection,
+                sortActive: $sortActive,
+                filterInput: $filterInput
+            ){
+                length
+                slice {
+                    ... on Appointment {
+                        id
+                        start
+                        end
+                        patientId
+                        doctorId
+                        createdAt
+                        allDay     
+                        patient {
+                            firstName
+                            lastName
+                        }
+                        doctor {
+                            firstName
+                            lastName
+                        }
+                    }    
+                }
             }
         }`
+        const variables = {
+            pageIndex: this.pageIndex,
+            pageLimit: this.pageLimit,
+            sortActive: this.sortActive,
+            sortDirection: this.sortDirection,
+            filterInput: this.filterInput
+        }
+        
+        try {
+            const response = await this.graphQLService.send(query, variables);
+            if (response.data.pendingAppointments) {
+                this.pendingAppointments = response.data.pendingAppointments.slice;
+                this.length = response.data.pendingAppointments.length;
+                this.formatAppointments("pending");
+
+                if (this.countPendingAppointments > 9) {
+                    this.dataSource = new MatTableDataSource<AppDataSource>(this.pendingDataSource);
+                }
+            }
+        } catch (error){
+            this.dialog.open({data: {message: "Unexpected error while getting pending appointments: "+error}})
+        }
+    }
+    async loadUpcomingAppointments() {
+        const query = `query (
+            $pageIndex: Int!, 
+            $pageLimit: Int!, 
+            $sortDirection: String, 
+            $sortActive: String,
+            $filterInput: String
+        ){
+            upcomingAppointments (
+                pageIndex: $pageIndex, 
+                pageLimit: $pageLimit,
+                sortDirection: $sortDirection,
+                sortActive: $sortActive,
+                filterInput: $filterInput
+            ){
+                length
+                slice {
+                    ... on Appointment {
+                        id
+                        start
+                        end
+                        patientId
+                        doctorId
+                        createdAt
+                        allDay     
+                        patient {
+                            firstName
+                            lastName
+                        }
+                        doctor {
+                            firstName
+                            lastName
+                        }
+                    }    
+                }
+            }
+        }`
+        const variables = {
+            pageIndex: this.pageIndex,
+            pageLimit: this.pageLimit,
+            sortActive: this.sortActive,
+            sortDirection: this.sortDirection,
+            filterInput: this.filterInput
+        }
 
         try {
-            const response = await this.graphQLService.send(query);
-            if (response.data.pendingAppointments) {
-                this.pendingAppointments = response.data.pendingAppointments;
-                this.formatAppointments("pending");
+            const response = await this.graphQLService.send(query, variables);
+            if (response.data.upcomingAppointments) {
+                this.upcomingAppointments = response.data.upcomingAppointments.slice;
+                this.length = response.data.upcomingAppointments.length;
+                this.formatAppointments("upcoming");
+
+                if (this.countUpcomingAppointments > 9) {
+                    this.dataSource = new MatTableDataSource<AppDataSource>(this.upcomingDataSource);
+                }
             }
         } catch (error){
             this.dialog.open({data: {message: "Unexpected error while getting upcoming appointments: "+error}})
         }
     }
-    async loadUpcomingAppointments() {
-        const query = `query {
-            upcomingAppointments {
-                id
-                start
-                end
-                patientId
-                doctorId
-                createdAt
-                allDay
+    async loadPastAppointments() {
+        const query = `query (
+            $pageIndex: Int!, 
+            $pageLimit: Int!, 
+            $sortDirection: String, 
+            $sortActive: String,
+            $filterInput: String
+        ){
+            pastAppointments (
+                pageIndex: $pageIndex, 
+                pageLimit: $pageLimit,
+                sortDirection: $sortDirection,
+                sortActive: $sortActive,
+                filterInput: $filterInput
+            ){
+                length
+                slice {
+                    ... on Appointment {
+                        id
+                        start
+                        end
+                        patientId
+                        doctorId
+                        createdAt
+                        allDay     
+                        patient {
+                            firstName
+                            lastName
+                        }
+                        doctor {
+                            firstName
+                            lastName
+                        }
+                    }    
+                }
             }
         }`
+        const variables = {
+            pageIndex: this.pageIndex,
+            pageLimit: this.pageLimit,
+            sortActive: this.sortActive,
+            sortDirection: this.sortDirection,
+            filterInput: this.filterInput
+        }
 
         try {
-            const response = await this.graphQLService.send(query);
-            if (response.data.upcomingAppointments) {
-                this.upcomingAppointments = response.data.upcomingAppointments;
-                this.formatAppointments("upcoming");
+            const response = await this.graphQLService.send(query, variables);
+            if (response.data.pastAppointments) {
+                this.pastAppointments = response.data.pastAppointments.slice;
+                this.length = response.data.pastAppointments.length;
+                this.cdr.detectChanges();
+                this.formatAppointments("past");
+
+                if (this.countPastAppointments > 9) {
+                    this.dataSource = new MatTableDataSource<AppDataSource>(this.pastDataSource);
+                }
             }
         } catch (error){
-            this.dialog.open({data: {message: "Unexpected error while getting upcoming appointments: "+error}})
+            this.dialog.open({data: {message: "Unexpected error while getting past appointments: "+error}})
         }
     }
     async checkIsReservedDay(date: string) {
@@ -146,12 +325,12 @@ export class AppointmentsComponent implements OnInit {
         try {
             this.isReservedDay = await this.graphQLService.send(query, {date: DateTime.fromISO(date).toJSDate()});
         } catch (error) {
-            console.log('error checking isReserved: ', error)
+            //this.dialog.open({data: {message: "Error checking for reserved days: "+error}})
+            //FIX RESERVED DAYS !! throws error here
         }
-        console.log('IS RESERVED ?', this.isReservedDay)
     }
 
-    formatAppointments(appointments: string): AppAccordionDataSource[] {
+    formatAppointments(appointments: string) {
         const allActions = [
             {
                 text: 'Cancel Appointment',
@@ -191,7 +370,7 @@ export class AppointmentsComponent implements OnInit {
                         start: DateTime.fromJSDate(new Date(row.start)).toFormat('hh:mm'),
                         end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm')
                     } 
-                })
+                });
                 
             case "upcoming":
                 return this.upcomingDataSource = this.upcomingAppointments.map(row => {
@@ -207,7 +386,7 @@ export class AppointmentsComponent implements OnInit {
                         start: DateTime.fromJSDate(new Date(row.start)).toFormat('hh:mm'),
                         end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm')
                     };
-                })
+                });
 
             case "past":
                 return this.pastDataSource = this.pastAppointments.map(row => {
@@ -223,7 +402,7 @@ export class AppointmentsComponent implements OnInit {
                         start: DateTime.fromJSDate(new Date(row.start)).toFormat('hh:mm'),
                         end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm')
                     };
-                })
+                });
             default:
                 return [];
         }
@@ -297,7 +476,6 @@ export class AppointmentsComponent implements OnInit {
     }
 
     deleteAppointment(id: number) {
-        // doctor's cancelled appointments could be archived
         const dialogRef = this.dialog.open({ data: { isDeleting: true }})
         
         dialogRef.componentInstance.ok.subscribe(async (value)=> {
@@ -314,25 +492,25 @@ export class AppointmentsComponent implements OnInit {
                         this.ngOnInit();
                     }
                 } catch (error) {
-                    //snackbar
+                    this.dialog.open({data: {message: "Unexpected error while deleting appointment: "+error}})
                 }
             }
         })  
     }
 
-    onButtonClick(accordionOutput: {id: number, text: string}) {
-        switch (accordionOutput.text) {
+    onButtonClick({ id, text }: {id: number, text: string}) {
+        switch (text) {
             case 'Cancel Appointment':
-                this.deleteAppointment(accordionOutput.id);
+                this.deleteAppointment(id);
                 break;
             case 'Delete Appointment':
-                this.deleteAppointment(accordionOutput.id);
+                this.deleteAppointment(id);
                 break;
             case 'Accept Appointment':
-                this.acceptAppointment(accordionOutput.id);
+                this.acceptAppointment(id);
                 break;
             case 'View In Calendar':
-                //this.openViewInCalendar(accordionOutput.id)
+                this.router.navigate(['appointments', 'calendar']);
                 break;
             default:
                 break;
@@ -340,29 +518,22 @@ export class AppointmentsComponent implements OnInit {
     }
 
     onAppointmentClick(eventInfo: {id: string, title: string}){
-        this.dialog.open({data: {eventInfo}})
+        this.dialog.open({data: {eventInfo}});
     }
 
     async acceptAppointment(id: number) {
         const appointment: Appointment | undefined = this.pendingAppointments.find(app => app.id);
-        
         if (appointment) {
-            const input: AppointmentInput = {
-                id: id,
-                start: appointment.start,
-                end: appointment.end,
-                allDay: false
-            }
-            const mutation = `mutation ($appointmentInput: AppointmentInput!) {
-                saveAppointment(appointmentInput: $appointmentInput) {
+            const mutation = `mutation ($appointmentId: Int!) {
+                acceptAppointment(appointmentId: $appointmentId) {
                     success
                     message
                 }
             }`
             try {   
-                const response = await this.graphQLService.mutate(mutation, {appointmentInput: input});
+                const response = await this.graphQLService.mutate(mutation, {appointmentId: id});
 
-                if (response.data.saveAppointment.success) {
+                if (response.data.acceptAppointment.success) {
                     this.dialog.open({data: {message: "Appointment added to your calendar"}});
                     this.loadUpcomingAppointments();
                     this.ngOnInit();
