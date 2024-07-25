@@ -16,8 +16,9 @@ import { Router } from "@angular/router";
 })
 export class AppDialogComponent implements OnInit {
     isLoading: boolean;
+    isAlert: boolean;
     message: string | undefined;
-    isDeleting: boolean;
+    isConfirming: boolean;
     showDirectLoginForm: boolean;
     isLoggingIn: boolean;
     input: boolean;
@@ -55,8 +56,9 @@ export class AppDialogComponent implements OnInit {
         private router: Router
     ) {
         this.isLoading = data.isLoading;
+        this.isAlert = data.isAlert;
         this.message = data.message;
-        this.isDeleting = data.isDeleting;
+        this.isConfirming = data.isConfirming;
         this.isLoggingIn = data.isLoggingIn;
         this.showDirectLoginForm = data.showDirectLoginForm;
         this.input = data.input;

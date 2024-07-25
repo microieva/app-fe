@@ -55,7 +55,7 @@ export class TestAppsComponent implements OnInit {
     }
 
     deleteTestApp(id: number) {
-        const dialogRef = this.dialog.open({ data: { isDeleting: true }})
+        const dialogRef = this.dialog.open({ data: { isConfirming: true }})
         
         dialogRef.componentInstance.ok.subscribe((value)=> {
             if (value) {

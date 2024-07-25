@@ -18,6 +18,7 @@ export class AppointmentsComponent implements OnInit {
     routedAppointmentId: number | undefined;
     length: number = 0;
     readonly totalLength: number;
+    now: boolean = true;
 
     countPendingAppointments: number = 0;
     countUpcomingAppointments: number = 0;
@@ -476,7 +477,7 @@ export class AppointmentsComponent implements OnInit {
     }
 
     deleteAppointment(id: number) {
-        const dialogRef = this.dialog.open({ data: { isDeleting: true }})
+        const dialogRef = this.dialog.open({ data: { isConfirming: true }})
         
         dialogRef.componentInstance.ok.subscribe(async (value)=> {
             if (value) {
@@ -543,4 +544,10 @@ export class AppointmentsComponent implements OnInit {
             }
         }
     } 
+    closeTab(appointmentId: number){
+        const dialogref = this.dialog.open({data: {isConfirming: true, message: "All unsaved changes will be lost"}});
+        dialogref.componentInstance.ok.subscribe(value => {
+            console.log('OK to close');
+        })
+    }
 }

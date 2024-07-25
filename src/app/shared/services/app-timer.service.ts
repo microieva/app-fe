@@ -35,7 +35,7 @@ import { AppDialogService } from "./app-dialog.service";
             const printing = Duration.fromObject({ seconds: remainingSeconds });
             const formattedTime = printing.toFormat('mm:ss'); 
             if (formattedTime === '00:05') {
-                const dialogRef = this.dialog.open({data: { message: "Session expired, please login to renew"}});
+                const dialogRef = this.dialog.open({data: { isAlert: true, message: "Session expired, please login to renew"}});
 
                 dialogRef.componentInstance.ok.subscribe((value)=> {
                     if (value) {

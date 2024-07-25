@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from "@angular/core";
+import { Component, EventEmitter, Input, Output } from "@angular/core";
 
 @Component({
     selector: 'app-confirm',
@@ -8,6 +8,7 @@ import { Component, EventEmitter, Output } from "@angular/core";
 export class ConfirmComponent {
     title= "Are you sure?"
     @Output() ok = new EventEmitter<boolean>(false);
+    @Input() message: string | undefined;
     
     constructor(){}
 

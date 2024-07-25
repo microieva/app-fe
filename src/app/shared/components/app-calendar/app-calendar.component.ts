@@ -525,7 +525,7 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
 
         dialogRef.componentInstance.eventId.subscribe(id => {
             if (id) {
-                const ref = this.dialog.open({data: {isDeleting: true}});
+                const ref = this.dialog.open({data: {isConfirming: true}});
                 ref.componentInstance.ok.subscribe(async (value)=> {
                     if (value) {
                         

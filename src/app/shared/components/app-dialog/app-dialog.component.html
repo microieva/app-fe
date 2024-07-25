@@ -2,11 +2,11 @@
     <app-loading></app-loading>
 </mat-dialog-content>
 
-<mat-dialog-content *ngIf="isDeleting">
-    <app-confirm (ok)="onOk($event)"></app-confirm>
+<mat-dialog-content *ngIf="isConfirming">
+    <app-confirm (ok)="onOk($event)" [message]="message"></app-confirm>
 </mat-dialog-content>
 
-<mat-dialog-content *ngIf="message">
+<mat-dialog-content *ngIf="isAlert">
     <app-alert (ok)="onOk($event)" [message]="message"></app-alert>
 </mat-dialog-content>
 

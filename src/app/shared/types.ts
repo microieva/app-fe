@@ -31,8 +31,9 @@ export interface ExpandableAppTreeNode {
 
 export interface AppDialogData {
     isLoading: boolean
+    isAlert: boolean
     message: string
-    isDeleting: boolean
+    isConfirming: boolean
     isLoggingIn: boolean
     showDirectLoginForm: boolean
     input: boolean

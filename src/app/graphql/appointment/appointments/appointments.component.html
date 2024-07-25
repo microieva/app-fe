@@ -139,4 +139,20 @@
             </div>
         </div>
     </mat-tab>
+
+    <mat-tab label="current" *ngIf="now && userRole === 'doctor'">
+        <ng-template mat-tab-label>
+            <span class="tab-label">patient name</span>
+        </ng-template>
+        <div class="flex-row wrapper info">
+            <span class="icon material-symbols-outlined">info</span>
+            <h3 *ngIf="userRole === 'doctor'">Say hello</h3>
+            <button mat-stroked-button (click)="closeTab(0)">{{ 'Close' }}</button>
+        </div>
+        <div>
+            <div class="page">
+                <p>this will be create medical record page</p>
+            </div>
+        </div>
+    </mat-tab>
 </mat-tab-group>

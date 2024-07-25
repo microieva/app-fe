@@ -74,7 +74,7 @@ export class UserComponent implements OnInit {
             }
         } catch (error){
             this.router.navigate(['/']);
-            this.dialog.open({data: {message: error}});
+            this.dialog.open({data: {isAlert: true, message: "No user, must login "+error}});
         }
     }
 
@@ -86,7 +86,7 @@ export class UserComponent implements OnInit {
         this.router.navigate(['user', this.me?.id])
     }
     async deleteUser(){
-        const dialogRef = this.dialog.open({ data: { isDeleting: true }})
+        const dialogRef = this.dialog.open({ data: { isConfirming: true }})
         
         dialogRef.componentInstance.ok.subscribe(async (value)=> {
             if (value && this.me?.id) {
@@ -105,7 +105,7 @@ export class UserComponent implements OnInit {
                         this.authService.logOut(); 
                     }
                 } catch (error) {
-                    this.dialog.open({ data: { message: "Error deleting user: "+ error}})
+                    this.dialog.open({ data: { isAlert: true, message: "Error deleting user: "+ error}})
                 }
             }
         }) 
@@ -152,7 +152,7 @@ export class UserComponent implements OnInit {
                 this.router.navigate(['user']);
             }
         } catch (error) {
-            this.dialog.open({ data: { message: "Error saving user details: "+ error}})
+            this.dialog.open({ data: { isAlert: true, message: "Error saving user details: "+ error}})
         }
     }
 

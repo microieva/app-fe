@@ -55,6 +55,7 @@ export class EventComponent implements OnInit{
             }
         } catch (error) {
             this.dialog.close();
+            this.dialog.open({data: {isAlert: true, message: "No user, must login "+error}})
         }
     }
     async onSaveMessage(message: string){
@@ -80,13 +81,13 @@ export class EventComponent implements OnInit{
                 await this.loadAppointment();
             }
         } catch (error) {
-            this.dialog.open({ data: { message: "Error saving appointment message: "+ error}})
+            this.dialog.open({ data: { isAlert: true, message: "Error saving appointment message: "+ error}})
         }
         this.showInput = false;
 
     }
     async onDeleteMessage(){
-        const dialogRef = this.dialog.open({data: {isDeleting: true}});
+        const dialogRef = this.dialog.open({data: {isConfirming: true}});
         dialogRef.componentInstance.ok.subscribe(async value => {
             if (value) {
                 const mutation = `mutation ($appointmentId: Int!) {
@@ -104,7 +105,7 @@ export class EventComponent implements OnInit{
                         await this.loadAppointment();
                     }
                 } catch (error) {
-                    this.dialog.open({ data: { message: "Error saving appointment message: "+ error}})
+                    this.dialog.open({ data: { isAlert: true, message: "Error saving appointment message: "+ error}})
                 }
             }
         })
@@ -123,7 +124,7 @@ export class EventComponent implements OnInit{
                 this.patientMessage = response.data.appointment.patientMessage;
             }
         } catch (error) {
-            this.dialog.open({data: {message: "Unexpected error fetching appointment: "+error}});
+            this.dialog.open({data: {isAlert: true, message: "Unexpected error fetching appointment: "+error}});
             this.router.navigate(['/appointments']);
         }
     }
