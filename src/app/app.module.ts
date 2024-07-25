@@ -38,6 +38,7 @@ import { AppTableComponent } from './shared/components/app-table/app-table.compo
 import { AppAccordionComponent } from './shared/components/app-accordion/app-accordion.component';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
+import { AppPollingService } from './shared/services/app-polling.service';
 
 @NgModule({ 
     declarations: [
@@ -84,6 +85,7 @@ import { MatSortModule } from '@angular/material/sort';
     providers: [
         AppDialogService,
         AppTimerService,
+        AppPollingService,
         provideNativeDateAdapter(),
         provideHttpClient(withInterceptorsFromDi()), 
         provideAnimationsAsync(),

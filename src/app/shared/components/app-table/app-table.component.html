@@ -14,21 +14,21 @@
         (matSortChange)="onSortChange($event)"
     >
         <ng-container matColumnDef="id">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header style="max-width:10rem;"> Queue No. </th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:12rem;"> Queue No. </th>
             <td mat-cell *matCellDef="let element">{{element.id}}</td>
         </ng-container>
 
         <ng-container matColumnDef="title">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:20rem;">Status</th>
             <td mat-cell *matCellDef="let element"> {{element.title}} </td>
         </ng-container>
 
         <ng-container matColumnDef="conditionalColumns">
             <ng-container *ngIf="displayedColumnHeader === 'howLongAgoStr'; else startTimeHeader">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header style="max-width:20rem;">Created</th>
+              <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:20rem;">Created</th>
             </ng-container>
             <ng-template #startTimeHeader>
-              <th mat-header-cell *matHeaderCellDef mat-sort-header style="max-width:20rem;">Start Time</th>
+              <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:20rem;">Start Time</th>
             </ng-template>
       
             <td mat-cell *matCellDef="let element">

@@ -6,6 +6,7 @@ import { AppGraphQLService } from "../../../shared/services/app-graphql.service"
 import { AppDialogService } from "../../../shared/services/app-dialog.service";
 import { AppDataSource } from "../../../shared/types";
 import { Appointment } from "../appointment";
+import { AppPollingService } from "../../../shared/services/app-polling.service";
 
 @Component({
     selector: 'test-apps',
@@ -19,6 +20,7 @@ export class AppointmentsComponent implements OnInit {
     length: number = 0;
     readonly totalLength: number;
     now: boolean = true;
+    nextAppointment: Appointment | null = null;
 
     countPendingAppointments: number = 0;
     countUpcomingAppointments: number = 0;
@@ -50,7 +52,8 @@ export class AppointmentsComponent implements OnInit {
         private router: Router,
         private dialog: AppDialogService,
         private activatedRoute: ActivatedRoute,
-        private cdr: ChangeDetectorRef
+        private cdr: ChangeDetectorRef,
+        private pollingService: AppPollingService
     ){
         this.totalLength = this.length;
     }
@@ -65,7 +68,27 @@ export class AppointmentsComponent implements OnInit {
             const tab = params['tab'];
             this.selectedIndex = tab ? +tab : 0;
             await this.loadData();
-        });   
+        });  
+        this.pollingService.isAppointment.subscribe(async (value: any) => {
+            // if (value) {
+            //     this.nextAppointment = value
+            //     console.log('AT APPOINTMENTS: ', this.nextAppointment)
+            // } else {
+            //     this.nextAppointment = null
+            // }
+            if (value.nextAppointment) {
+                this.nextAppointment = value.nextAppointment;
+
+            }
+            console.log('AT APPOINTMENTS: ', this.nextAppointment)
+        });
+
+        if (this.userRole === 'doctor' && !this.nextAppointment) {
+            this.pollingService.pollNextAppointmentStartTime(); 
+        } else if (this.userRole === 'doctor' && this.nextAppointment) {
+            this.pollingService.pollCurrentAppointmentEndTime(this.nextAppointment.id)
+        }
+        console.log('current aptmt ?', this.nextAppointment)
     }
     async loadData() {
         switch (this.selectedIndex) {
@@ -535,7 +558,7 @@ export class AppointmentsComponent implements OnInit {
                 const response = await this.graphQLService.mutate(mutation, {appointmentId: id});
 
                 if (response.data.acceptAppointment.success) {
-                    this.dialog.open({data: {message: "Appointment added to your calendar"}});
+                    this.dialog.open({data: {isAlert: true, message: "Appointment added to your calendar"}});
                     this.loadUpcomingAppointments();
                     this.ngOnInit();
                 }

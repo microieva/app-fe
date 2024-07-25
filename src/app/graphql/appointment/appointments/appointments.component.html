@@ -140,7 +140,7 @@
         </div>
     </mat-tab>
 
-    <mat-tab label="current" *ngIf="now && userRole === 'doctor'">
+    <mat-tab label="current" *ngIf="nextAppointment !== null">
         <ng-template mat-tab-label>
             <span class="tab-label">patient name</span>
         </ng-template>
