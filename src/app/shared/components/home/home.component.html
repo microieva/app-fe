@@ -8,14 +8,11 @@
     <button *ngIf="!me" mat-stroked-button type="button" color="secondary" (click)="logIn()">{{ 'Log In' }}</button>
     <button *ngIf="me" mat-stroked-button type="button" color="secondary" (click)="logOut()">{{ 'Log Out' }}</button>
 </mat-toolbar>
-<ng-container >
-    <div class="content-view-wrapper">
-        <div class="sidenav" style="background-color: rgb(172,188,207);">
-            <app-sidenav [isUserUpdated]="isUserUpdated" [isAuth]="isAuth"></app-sidenav>
-        </div>
-        <div class="content">
-            <router-outlet></router-outlet>
-        </div>
-
+<div class="content-view-wrapper">
+    <div class="sidenav" style="background-color: rgb(172,188,207);">
+        <app-sidenav [isUserUpdated]="isUserUpdated" [isAuth]="isAuth"></app-sidenav>
     </div>
-</ng-container>
+    <div class="content container">
+        <router-outlet></router-outlet>
+    </div>       
+</div>

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ElementRef, EventEmitter, OnInit, Output, ViewChild, signal } from "@angular/core";
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, OnInit, Output, QueryList, ViewChild, ViewChildren, ViewContainerRef, signal } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { MatTableDataSource } from "@angular/material/table";
 import { DateTime } from "luxon";
@@ -6,10 +6,13 @@ import { AppGraphQLService } from "../../../shared/services/app-graphql.service"
 import { AppDialogService } from "../../../shared/services/app-dialog.service";
 import { AppDataSource } from "../../../shared/types";
 import { Appointment } from "../appointment";
-import { AppPollingService } from "../../../shared/services/app-polling.service";
+import { AppNextAppointmentService } from "../../../shared/services/app-next-appointment.service";
+import { AppTimerService } from "../../../shared/services/app-timer.service";
+import { AppointmentComponent } from "../appointment.component";
+import { AppTabsService } from "../../../shared/services/app-tabs.service";
 
 @Component({
-    selector: 'test-apps',
+    selector: 'app-appointments',
     templateUrl: './appointments.component.html',
     styleUrls: ['./appointments.component.scss']
 })
@@ -19,8 +22,14 @@ export class AppointmentsComponent implements OnInit {
     routedAppointmentId: number | undefined;
     length: number = 0;
     readonly totalLength: number;
-    now: boolean = true;
-    nextAppointment: Appointment | null = null;
+    now: boolean = false;;
+    nextAppointmentStartTime: string | undefined;
+    appointment: Appointment | null = null;
+    private previousNextId: number | null = null;
+    nextId: number | null = 195;
+
+    @ViewChildren('tabContent', { read: ViewContainerRef }) tabContents!: QueryList<ViewContainerRef>;
+    tabs: any[] | null = null;
 
     countPendingAppointments: number = 0;
     countUpcomingAppointments: number = 0;
@@ -43,7 +52,7 @@ export class AppointmentsComponent implements OnInit {
     userRole!: string;
     pageIndex: number = 0;
     pageLimit: number = 10;
-    sortDirection: string | null = 'DESC';
+    sortDirection: string | null = null;
     sortActive: string | null = 'start';
     filterInput: string | null = null;
 
@@ -53,12 +62,15 @@ export class AppointmentsComponent implements OnInit {
         private dialog: AppDialogService,
         private activatedRoute: ActivatedRoute,
         private cdr: ChangeDetectorRef,
-        private pollingService: AppPollingService
+        private nextAppointmentService: AppNextAppointmentService,
+        private timerService: AppTimerService,
+        public tabsService: AppTabsService
     ){
         this.totalLength = this.length;
     }
     
     async ngOnInit() {
+        this.tabs = this.tabsService.getTabs()
         await this.loadStatic();
         this.activatedRoute.queryParams.subscribe(async (params)=> {
             const id = params['id']; 
@@ -68,28 +80,46 @@ export class AppointmentsComponent implements OnInit {
             const tab = params['tab'];
             this.selectedIndex = tab ? +tab : 0;
             await this.loadData();
-        });  
-        this.pollingService.isAppointment.subscribe(async (value: any) => {
-            // if (value) {
-            //     this.nextAppointment = value
-            //     console.log('AT APPOINTMENTS: ', this.nextAppointment)
-            // } else {
-            //     this.nextAppointment = null
-            // }
-            if (value.nextAppointment) {
-                this.nextAppointment = value.nextAppointment;
+        }); 
 
+        this.nextAppointmentService.appointmentInfo.subscribe((subscription) => {
+            if (subscription && subscription.nextAppointment) {
+                this.nextId = subscription.nextAppointment.nextId;
+
+                if (this.previousNextId !== this.nextId) {
+                    this.previousNextId = this.nextId;
+                    this.nextAppointmentStartTime = DateTime.fromISO(subscription.nextAppointment.nextStart).toFormat('hh:mm');
+                    this.timerService.startAppointmentTimer(subscription.nextAppointment.nextStart);
+                }
             }
-            console.log('AT APPOINTMENTS: ', this.nextAppointment)
         });
+        //****************************************************************************** */
+        // UNCOMMENT THIS FOR MONDAY
 
-        if (this.userRole === 'doctor' && !this.nextAppointment) {
-            this.pollingService.pollNextAppointmentStartTime(); 
-        } else if (this.userRole === 'doctor' && this.nextAppointment) {
-            this.pollingService.pollCurrentAppointmentEndTime(this.nextAppointment.id)
-        }
-        console.log('current aptmt ?', this.nextAppointment)
+
+        // this.timerService.nextAppointmentCountDown.subscribe(async value => {
+        //     if (value === '00:05:00') {  
+        //         this.createAppointmentTab()
+        //     }   
+        // });
+        
+        this.createAppointmentTab()
     }
+    createAppointmentTab() {
+        const id = this.nextId
+        const title = "patient_name"
+        const component = AppointmentComponent;
+
+        if (id) {
+            this.tabsService.addTab(title, component, id);
+            this.tabs = this.tabsService.getTabs();
+        }
+    }
+    onTabClose(id: number){
+        this.tabsService.closeTab(id);
+        this.tabs = this.tabsService.getTabs();
+    }
+    
     async loadData() {
         switch (this.selectedIndex) {
             case 0:
@@ -203,7 +233,7 @@ export class AppointmentsComponent implements OnInit {
             pageIndex: this.pageIndex,
             pageLimit: this.pageLimit,
             sortActive: this.sortActive,
-            sortDirection: this.sortDirection,
+            sortDirection: this.sortDirection || 'DESC',
             filterInput: this.filterInput
         }
         
@@ -263,7 +293,7 @@ export class AppointmentsComponent implements OnInit {
             pageIndex: this.pageIndex,
             pageLimit: this.pageLimit,
             sortActive: this.sortActive,
-            sortDirection: this.sortDirection,
+            sortDirection: this.sortDirection || 'ASC',
             filterInput: this.filterInput
         }
 
@@ -323,7 +353,7 @@ export class AppointmentsComponent implements OnInit {
             pageIndex: this.pageIndex,
             pageLimit: this.pageLimit,
             sortActive: this.sortActive,
-            sortDirection: this.sortDirection,
+            sortDirection: this.sortDirection || 'ASC',
             filterInput: this.filterInput
         }
 
@@ -354,7 +384,7 @@ export class AppointmentsComponent implements OnInit {
         }
     }
 
-    formatAppointments(appointments: string) {
+    formatAppointments(view: string) {
         const allActions = [
             {
                 text: 'Cancel Appointment',
@@ -378,9 +408,9 @@ export class AppointmentsComponent implements OnInit {
                 disabled: false
             }
         ]
-        switch (appointments) {
+        switch (view) {
             case "pending":
-                return this.pendingDataSource = this.pendingAppointments.map(row => {
+                this.pendingDataSource = this.pendingAppointments.map(row => {
                     const created = DateTime.fromJSDate(new Date(row.createdAt)).toISO();
                     const howLongAgoStr = this.getHowLongAgo(created);
                     this.checkIsReservedDay(row.start);
@@ -395,9 +425,9 @@ export class AppointmentsComponent implements OnInit {
                         end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm')
                     } 
                 });
-                
+                break;
             case "upcoming":
-                return this.upcomingDataSource = this.upcomingAppointments.map(row => {
+                this.upcomingDataSource = this.upcomingAppointments.map(row => {
                     const startT = DateTime.fromJSDate(new Date(row.start)).toISO();
                     const howSoonStr = this.getHowSoonUpcoming(startT);
 
@@ -411,9 +441,9 @@ export class AppointmentsComponent implements OnInit {
                         end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm')
                     };
                 });
-
+                break;
             case "past":
-                return this.pastDataSource = this.pastAppointments.map(row => {
+                this.pastDataSource = this.pastAppointments.map(row => {
                     const startT = DateTime.fromJSDate(new Date(row.start)).toISO();
                     const howLongAgoStr = this.getHowLongAgo(startT);
 
@@ -427,8 +457,9 @@ export class AppointmentsComponent implements OnInit {
                         end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm')
                     };
                 });
+                break;
             default:
-                return [];
+                break;
         }
     }
 
@@ -567,10 +598,4 @@ export class AppointmentsComponent implements OnInit {
             }
         }
     } 
-    closeTab(appointmentId: number){
-        const dialogref = this.dialog.open({data: {isConfirming: true, message: "All unsaved changes will be lost"}});
-        dialogref.componentInstance.ok.subscribe(value => {
-            console.log('OK to close');
-        })
-    }
 }

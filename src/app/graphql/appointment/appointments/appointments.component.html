@@ -30,7 +30,7 @@
                         (pageChange)="onPageChange($event)"
                         (sortChange)="onSortChange($event)"
                         (filterValue)="onFilterValueChange($event, async)"
-                        (appointmentClick)="onAppointmentClick($event)"
+                        (appointmentClick)="onAppointmentClick($event, async)"
                         (buttonClick)="onButtonClick($event)"
                     >
                     </app-table>
@@ -39,7 +39,7 @@
                         [markAppointmentId]="routedAppointmentId"
                         [dataSource]="pendingDataSource" 
                         (buttonClick)="onButtonClick($event)"
-                        (appointmentClick)="onAppointmentClick($event)"
+                        (appointmentClick)="onAppointmentClick($event, async)"
                     ></app-accordion> 
                 </div>
                 <div class="btn-block" *ngIf="userRole === 'patient'">
@@ -61,7 +61,7 @@
         <div>
             <div class="flex-row wrapper info">
                 <span class="icon material-symbols-outlined">info</span>
-                <h3 *ngIf="upcomingAppointments.length !== 0">Your appointments</h3>
+                <h3 *ngIf="upcomingAppointments.length !== 0">Your appointments <em>(next starts at {{nextAppointmentStartTime}})</em></h3>
                 <h3 *ngIf="userRole === 'doctor' && upcomingAppointments.length === 0">You have no future appointments at the moment</h3>
                 
                 <h3 *ngIf="userRole === 'patient' && upcomingAppointments.length === 0">Here will be displayed your upcoming appointments after doctor's confirmation</h3>
@@ -82,7 +82,7 @@
                         (pageChange)="onPageChange($event)"
                         (sortChange)="onSortChange($event)"
                         (filterValue)="onFilterValueChange($event, async)"
-                        (appointmentClick)="onAppointmentClick($event)"
+                        (appointmentClick)="onAppointmentClick($event, async)"
                         (buttonClick)="onButtonClick($event)"
                     >
                     </app-table>
@@ -91,7 +91,7 @@
                         [markAppointmentId]="routedAppointmentId"
                         [dataSource]="upcomingDataSource" 
                         (buttonClick)="onButtonClick($event)"
-                        (appointmentClick)="onAppointmentClick($event)"
+                        (appointmentClick)="onAppointmentClick($event, async)"
                     ></app-accordion> 
                 </div>
             </div>
@@ -124,7 +124,7 @@
                         (pageChange)="onPageChange($event)"
                         (sortChange)="onSortChange($event)"
                         (filterValue)="onFilterValueChange($event, async)"
-                        (appointmentClick)="onAppointmentClick($event)"
+                        (appointmentClick)="onAppointmentClick($event, async)"
                         (buttonClick)="onButtonClick($event)"
                     >
                     </app-table>
@@ -133,26 +133,16 @@
                         [markAppointmentId]="routedAppointmentId"
                         [dataSource]="pastDataSource" 
                         (buttonClick)="onButtonClick($event)"
-                        (appointmentClick)="onAppointmentClick($event)"
+                        (appointmentClick)="onAppointmentClick($event, async)"
                     ></app-accordion>
                 </div>
             </div>
         </div>
     </mat-tab>
-
-    <mat-tab label="current" *ngIf="nextAppointment !== null">
-        <ng-template mat-tab-label>
-            <span class="tab-label">patient name</span>
+    <mat-tab *ngFor="let tab of tabs">
+        <ng-template mat-tab-label>{{ tab.title }}</ng-template>
+        <ng-template matTabContent>
+            <app-appointment [id]="tab.id" (close)="onTabClose($event)"></app-appointment>
         </ng-template>
-        <div class="flex-row wrapper info">
-            <span class="icon material-symbols-outlined">info</span>
-            <h3 *ngIf="userRole === 'doctor'">Say hello</h3>
-            <button mat-stroked-button (click)="closeTab(0)">{{ 'Close' }}</button>
-        </div>
-        <div>
-            <div class="page">
-                <p>this will be create medical record page</p>
-            </div>
-        </div>
     </mat-tab>
 </mat-tab-group>

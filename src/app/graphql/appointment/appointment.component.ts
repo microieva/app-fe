@@ -1,42 +1,61 @@
-import { Component, OnInit } from "@angular/core";
-import { Router } from "@angular/router";
+import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { Appointment } from "./appointment";
 import { AppGraphQLService } from "../../shared/services/app-graphql.service";
 import { AppDialogService } from "../../shared/services/app-dialog.service";
-import { AppointmentInput } from "./appointment.input";
+import { AppTabsService } from "../../shared/services/app-tabs.service";
 
 @Component({
     selector: 'app-appointment',
     templateUrl: './appointment.component.html',
-    styleUrls: ['appointment.component.scss']
+    styleUrls: ['./appointment.component.scss']
 })
-export class AppointmentComponent implements OnInit{
+export class AppointmentComponent implements OnInit {
+    @Input() id!: number;
+    @Output() close = new EventEmitter<number>();
+    appointment!: Appointment
+    
     constructor(
-        private router: Router,
         private graphQLService: AppGraphQLService,
-        private dialog: AppDialogService
+        private dialog: AppDialogService,
+        private tabsService: AppTabsService
     ){}
 
-    ngOnInit(): void {}
-
-    async saveAppointment(appointment: AppointmentInput){
-        const mutation = `
-            mutation ($appointmentInput: AppointmentInput!) {
-                saveAppointment (appointmentInput: $appointmentInput) {
-                    success
-                    message
-                }
-            }
-        `  
-
-        const variables = { appointmentInput: appointment };
-        try {
-            await this.graphQLService.mutate(mutation, variables);
-        } catch (error) {
-            this.dialog.open({data: {message: "Error saving appointment: "+error}});
-        }
+    ngOnInit(): void {
+        this.loadAppointment()
     }
-
-    cancel(){
-        this.router.navigate(['appointments'])
+    closeTab(){
+        const dialogref = this.dialog.open({data: {isConfirming: true, message: "All unsaved data will be lost"}});
+        dialogref.componentInstance.ok.subscribe(subscription => {
+            if (subscription) {
+                this.close.emit(this.id)
+            }
+        })
+    }
+    async loadAppointment(){
+        const query = `query ($appointmentId: Int!){ 
+            appointment (appointmentId: $appointmentId) {
+                id
+                patient {
+                    firstName
+                    lastName
+                    dob
+                }
+                doctor {
+                    firstName
+                    lastName
+                }
+                start
+                end
+                createdAt
+            }
+        }`
+        try {
+            const response = await this.graphQLService.send(query, {appointmentId: this.id});
+            if (response.data.appointment) {
+                this.appointment = response.data.appointment;
+            }
+        } catch (error) {
+            this.dialog.open({data: {isAlert: true, message: "Unexpected error loading current appointment: "+error}})
+        }
     }
 }

@@ -20,7 +20,7 @@ import { AppDataSource } from "../../types";
 })
 export class AppTableComponent implements OnInit, AfterViewInit {
     displayedColumns: string[] = ['id', 'title', 'conditionalColumns'];
-    displayedColumnHeader: string = 'howLongAgoStr';
+    displayedColumnHeader: string | undefined;
     columnsToDisplayWithExpand = [...this.displayedColumns, 'expandedDetail'];
     expandedElement: any | null;
 
@@ -74,7 +74,7 @@ export class AppTableComponent implements OnInit, AfterViewInit {
         if (this.dataSource) {
             this.dataSource?.data.find(element => {
                 if (element.howLogAgoStr) {
-                    this.displayedColumnHeader = 'howlongAgoStr'
+                    this.displayedColumnHeader = 'howLongAgoStr'
                 } else if (element.howSoonStr) {
                     this.displayedColumnHeader = 'startTimeHeader'
                 } else if (element.pastDate) {
@@ -94,7 +94,7 @@ export class AppTableComponent implements OnInit, AfterViewInit {
     ngOnChanges(changes: any): void {
         if (changes['dataSource'] && changes['length']) {
           if (this.dataSource && this.paginator) {
-               this.dataSource.paginator = this.paginator;
+                this.dataSource.paginator = this.paginator;
                 this.dataSource.paginator.firstPage();
           }
         }

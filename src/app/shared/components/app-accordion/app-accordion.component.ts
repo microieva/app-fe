@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { AppDataSource } from "../../types";
 
@@ -7,7 +7,7 @@ import { AppDataSource } from "../../types";
     templateUrl: './app-accordion.component.html',
     styleUrls: ['./app-accordion.component.scss']
 })
-export class AppAccordionComponent {
+export class AppAccordionComponent implements OnInit{
     @Input() dataSource: AppDataSource[] | undefined;
     @Input() markAppointmentId: number| null = null;
     @Output() buttonClick = new EventEmitter<{id: number, text: string}>();
@@ -17,6 +17,9 @@ export class AppAccordionComponent {
         private activatedRoute: ActivatedRoute,
         private router: Router
     ){}
+
+    ngOnInit(): void {
+    }
     
     onButtonClick(id: number, text: string){
         this.buttonClick.emit({id, text});

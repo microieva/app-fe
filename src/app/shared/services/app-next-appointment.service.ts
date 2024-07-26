@@ -5,15 +5,36 @@ import { BehaviorSubject, Subscription } from "rxjs";
 @Injectable({
     providedIn: 'root'
 })
-export class AppPollingService {   
+export class AppNextAppointmentService {   
     private appointmentSubject = new BehaviorSubject<any>(null);
-    public isAppointment = this.appointmentSubject.asObservable();
+    public appointmentInfo = this.appointmentSubject.asObservable();
     private pollingSubscription: Subscription | null = null;
 
     constructor(private apollo: Apollo) {}
 
-    async pollNextAppointmentStartTime(){
-        console.log('I AM CALLED')
+    async pollNextAppointment() {
+        const query = gql`query { 
+            nextAppointment {
+                nextId
+                nextStart
+                nextEnd
+            }
+        }`
+        this.pollingSubscription = this.apollo
+            .watchQuery({
+            query,
+            fetchPolicy: 'network-only',
+            pollInterval: 20 * 60 * 1000  
+            })
+            .valueChanges.subscribe(result => {
+                if (result.data) {
+                    this.appointmentSubject.next(result.data);
+                }
+            });
+    }
+
+    /*async pollNextAppointmentStartTime(){
+        console.log('**********************************POLLING FOR start time CALLED')
         const query = gql`query { 
             nextAppointment {
                 id
@@ -26,7 +47,7 @@ export class AppPollingService {
             }
         }`
         if (this.pollingSubscription) {
-            this.stopPolling();
+            //this.stopPolling();
         }
 
         this.pollingSubscription = this.apollo
@@ -36,11 +57,11 @@ export class AppPollingService {
           pollInterval: 10000 
         })
         .valueChanges.subscribe(result => {
-          console.log('POLLING START :', result);
-          if (result.data) {
-            this.appointmentSubject.next(result.data);
-            this.stopPolling();
-          }
+            if (result.data) {
+                this.appointmentSubject.next(result.data);
+                console.log('POLL DATA result :', result);
+                //this.stopPolling();
+            }
         });
     }
     async pollCurrentAppointmentEndTime(appointmentId: number){
@@ -82,5 +103,5 @@ export class AppPollingService {
           this.pollingSubscription.unsubscribe();
           this.pollingSubscription = null; 
         }
-      }
+      }*/
 }

@@ -15,7 +15,7 @@
                 <p *ngIf="element.pastDate">Appointment date: <em>{{element.pastDate}}</em></p>
             </div>
         </mat-expansion-panel-header>
-        <div class="flex-column wrapper clickable" (click)="onAppointmentClick(element.id, element.title)">
+        <div class="flex-column wrapper clickable" (click)="onAppointmentClick(element.id, element.title, async)">
             <p class="title">{{ 'Appointment Details' }}</p>
             <div class="flex-row">
                 <div class="details flex-row">

@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Apollo } from 'apollo-angular';
-import { DateTime } from "luxon";
 import { AppGraphQLService } from './app-graphql.service';
 import { AppDialogService } from './app-dialog.service';
 import { DirectLoginInput } from '../types';
@@ -21,17 +20,20 @@ export class AppAuthService {
 
   async logIn(input: DirectLoginInput) {
     const query = `query ($directLoginInput: LoginInput!) {
-      login(directLoginInput: $directLoginInput)
+      login(directLoginInput: $directLoginInput) {
+        token
+        expiresAt
+      }
     }`
 
       try {
         const response = await this.graphQLService.send(query, {directLoginInput: input});
 
         if (response.data) {
-          const token = response.data.login;
+          const token = response.data.login.token;
+          const tokenExpire = response.data.login.expiresAt;
           this.isAuthenticated = true;
-          const tokenStart = DateTime.local();
-          const tokenExpire = tokenStart.plus({ hours: 1 }).toISO();
+
           localStorage.setItem('authToken', token);
           localStorage.setItem('tokenExpire', tokenExpire);
           return token;
@@ -44,17 +46,20 @@ export class AppAuthService {
 
   async loginWithGoogle(credential: string){
     const mutation = `mutation ($googleCredential: String!){
-        loginWithGoogle(googleCredential: $googleCredential) 
+        loginWithGoogle(googleCredential: $googleCredential) {
+          token
+          expiresAt
+        } 
     }`
 
     try {
       const response = await this.graphQLService.mutate(mutation, { googleCredential: credential });
 
       if (response.data) {
-        const token = response.data.loginWithGoogle;
+        const token = response.data.loginWithGoogle.token;
+        const tokenExpire = response.data.loginWithGoogle.expiresAt;
         this.isAuthenticated = true;
-        const tokenStart = DateTime.local();
-        const tokenExpire = tokenStart.plus({ hours: 1}).toISO();
+
         localStorage.setItem('authToken', token);
         localStorage.setItem('tokenExpire', tokenExpire);
         this.dialog.close();

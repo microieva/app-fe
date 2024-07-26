@@ -5,8 +5,7 @@ import { AppDialogService } from "../../services/app-dialog.service";
 import { AppAuthService } from "../../services/app-auth.service";
 import { AppGraphQLService } from "../../services/app-graphql.service";
 import { AppTimerService } from "../../services/app-timer.service";
-import { AppPollingService } from "../../services/app-polling.service";
-import { Appointment } from "../../../graphql/appointment/appointment";
+import { AppNextAppointmentService } from "../../services/app-next-appointment.service";
 
 @Component({
     selector: 'app-home',
@@ -21,14 +20,14 @@ export class HomeComponent implements OnInit{
     remainder!: Subscription;
     time!: string | null;
     userRole: string | null = null;
-    nextAppointment: Appointment | null = null;
+    nextAppointmentId: number | null = null;
 
     constructor (
         private dialog: AppDialogService,
         private authService: AppAuthService,
         private graphQLService: AppGraphQLService,
         private timerService: AppTimerService,
-        private pollingService: AppPollingService,
+        private nextAppointmentService: AppNextAppointmentService,
         private router: Router
     ) {}
 
@@ -37,8 +36,8 @@ export class HomeComponent implements OnInit{
             await this.loadMe();
             const tokenExpire = localStorage.getItem('tokenExpire');
             if (tokenExpire) {
-                this.remainder = this.timerService.startTimer(tokenExpire);
-                this.timerService.time.subscribe(value=> {
+                this.remainder = this.timerService.startTokenTimer(tokenExpire);
+                this.timerService.tokenCountDown.subscribe(value=> {
                     this.time = value;
                 });
                 this.timerService.logout.subscribe(value => {
@@ -51,25 +50,13 @@ export class HomeComponent implements OnInit{
                 this.timerService.ok.subscribe(value => {
                     if (value) this.router.navigate(['/'])
                 });
-                this.pollingService.isAppointment.subscribe(async (value: any) => {
-                    if (value.nextAppointment) {
-                        this.nextAppointment = value.nextAppointment
-                        console.log('AT HOME: ', this.nextAppointment)
-                        if (this.nextAppointment) {
-                            this.dialog.open({data: {isAlert: true, message: `You have an appointment in 5 min\n ${this.nextAppointment.start}`}})
-
-                        }
-                    }
-                });
             }
         } else {
             this.me = null;
             this.updatedAt = null;
             this.isAuth = false;
         }
-        if (!this.nextAppointment) {
-            await this.pollingService.pollNextAppointmentStartTime();
-        }
+        //await this.nextAppointmentService.pollNextAppointment();
     }
 
     async loadMe() {

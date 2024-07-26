@@ -17,6 +17,11 @@ export interface MutationResponse {
     message?: string
 }
 
+export interface LoginResponse {
+    token: string
+    expiresAt: string
+}
+
 export interface AppTreeNode {
     name: string
     children?: AppTreeNode[]

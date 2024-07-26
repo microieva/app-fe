@@ -32,13 +32,15 @@ import { UserComponent } from './graphql/user/user.component';
 import { LUXON_DATE_FORMATS } from './shared/constants';
 import { AppTimerService } from './shared/services/app-timer.service';
 import { AppointmentsComponent } from './graphql/appointment/appointments/appointments.component';
-import { AppointmentComponent } from './graphql/appointment/appointment.component';
+import { CalendarComponent } from './graphql/appointment/calendar/calendar.component';
 import { AppCalendarComponent } from './shared/components/app-calendar/app-calendar.component';
 import { AppTableComponent } from './shared/components/app-table/app-table.component';
 import { AppAccordionComponent } from './shared/components/app-accordion/app-accordion.component';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
-import { AppPollingService } from './shared/services/app-polling.service';
+import { AppNextAppointmentService } from './shared/services/app-next-appointment.service';
+import { AppointmentComponent } from './graphql/appointment/appointment.component';
+import { AppTabsService } from './shared/services/app-tabs.service';
 
 @NgModule({ 
     declarations: [
@@ -52,7 +54,8 @@ import { AppPollingService } from './shared/services/app-polling.service';
         AppAccordionComponent,
         UserComponent,
         AppointmentsComponent,
-        AppointmentComponent
+        AppointmentComponent,
+        CalendarComponent
     ],
     bootstrap: [AppComponent], 
     imports: [
@@ -85,7 +88,8 @@ import { AppPollingService } from './shared/services/app-polling.service';
     providers: [
         AppDialogService,
         AppTimerService,
-        AppPollingService,
+        AppNextAppointmentService,
+        AppTabsService,
         provideNativeDateAdapter(),
         provideHttpClient(withInterceptorsFromDi()), 
         provideAnimationsAsync(),
