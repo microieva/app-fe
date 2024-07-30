@@ -27,6 +27,7 @@ export class AppointmentsComponent implements OnInit {
     appointment: Appointment | null = null;
     private previousNextId: number | null = null;
     nextId: number | null = 195;
+    markAppointmentId: number| null = null;
 
     @ViewChildren('tabContent', { read: ViewContainerRef }) tabContents!: QueryList<ViewContainerRef>;
     tabs: any[] | null = null;
@@ -93,21 +94,18 @@ export class AppointmentsComponent implements OnInit {
                 }
             }
         });
-        //****************************************************************************** */
-        // UNCOMMENT THIS FOR MONDAY
 
-
-        // this.timerService.nextAppointmentCountDown.subscribe(async value => {
-        //     if (value === '00:05:00') {  
-        //         this.createAppointmentTab()
-        //     }   
-        // });
+        this.timerService.nextAppointmentCountDown.subscribe(async value => {
+            if (value === '00:05:00') {  
+                this.createAppointmentTab()
+            }   
+        });
         
-        this.createAppointmentTab()
+        //this.createAppointmentTab()
     }
     createAppointmentTab() {
         const id = this.nextId
-        const title = "patient_name"
+        const title = this.nextAppointmentStartTime || 'test';
         const component = AppointmentComponent;
 
         if (id) {

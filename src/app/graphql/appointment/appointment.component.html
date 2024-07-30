@@ -4,8 +4,96 @@
     <h3>Say hello</h3>
     <button mat-stroked-button (click)="closeTab()">{{ 'Close' }}</button>
 </div>
-<div>
-    <div class="page">
-        <p>this will be create medical record page</p>
+<div class="page">
+    <div *ngIf="appointment" class="flex-column">
+        <div class="flex-column wrapper">
+            <p class="title">{{ 'Basic Information' }}</p>
+            <div class="flex-row">
+                <div class="flex-column">
+                    <p>{{ 'Name' }}</p>
+                    <h3>{{ appointment.patient.firstName }} {{ appointment.patient.lastName }}</h3>
+                </div>
+                <div class="flex-column">
+                    <p>{{ 'Date of Birth' }}</p>
+                    <h3>{{ formattedDate }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="flex-column wrapper">
+            <p class="title">{{ 'Contact Details' }}</p>
+            <div class="flex-row">
+                <div class="flex-column">
+                    <p>{{ 'Phone Number' }}</p>
+                    <h3 *ngIf="appointment.patient.phone">{{ appointment.patient.phone }}</h3>
+                </div>
+                <div class="flex-column">
+                    <p>{{ 'Email' }}</p>
+                    <h3 *ngIf="appointment.patient.email">{{ appointment.patient.email }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="flex-column wrapper">
+            <p class="title">{{ 'Medical Record' }}</p>
+            <div class="flex-row">
+                <div class="flex-column">
+                    <button 
+                        mat-stroked-button 
+                        (click)="openRecords()" 
+                        style="background-color: #99A9BD;"
+                    >
+                        {{ 'View Patient History' }}
+                    </button>
+                </div>
+                <div class="flex-column">
+                    <button 
+                        *ngIf="!record"
+                        mat-stroked-button 
+                        (click)="createRecord()" 
+                        style=" background-color: rgb(175 111 174 / 40%);" 
+                        [disabled]="isCreating"
+                    >
+                        {{ 'Create New Record' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="record wrapper" *ngIf="isCreating || isEditting">
+            <p class="title">{{ 'New Record' }}</p>
+            <app-record 
+                [appointmentId]="appointment.id" 
+                [patientId]="appointment.patient.id"
+                (cancel)="onCancel()"
+                (reload)="onReload()"
+            ></app-record>
+        </div>
+        <div class="record wrapper" *ngIf="record && !isEditting && !isCreating">
+            <div class="flex-row">
+                <p class="title" *ngIf="!record.draft">{{ 'Saved Record' }}</p>
+                <p class="title" *ngIf="record.draft">{{ 'Record Draft' }}</p>
+                <div style="align-self: baseline;">
+                    <p><em>created: </em>{{ created }}</p>
+                    <!-- <p *ngIf="record.updatedAt"><em>updated: </em>{{ updated }}</p> -->
+                </div>
+            </div>
+            <div class="actions">
+                <button 
+                    *ngIf="record.draft"
+                    mat-stroked-button 
+                    (click)="editRecord()" 
+                    style="background-color: #99A9BD;"
+                >
+                    {{ 'Edit Record' }}
+                </button>
+                <button 
+                    mat-stroked-button 
+                    (click)="deleteRecord()" 
+                    style="background-color: #99A9BD;"
+                >
+                    {{ 'Delete Record' }}
+                </button>
+            </div>
+            <h4>{{ record.title }}</h4>
+            <div [innerHtml]="record.text"></div>
+        </div>
     </div>
 </div>

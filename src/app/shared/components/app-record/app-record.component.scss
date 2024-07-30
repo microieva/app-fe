@@ -1,0 +1,14 @@
+.editor {
+    margin: 0 0.5rem;
+    .NgxEditor__MenuBar {
+        --ngx-editor-menubar-bg-color: transparent;
+    }
+    
+    .NgxEditor__Content {
+        --ngx-editor-background-color: transparent;
+        border: none;
+    }
+}
+.actions {
+    margin-right: 1rem;
+}

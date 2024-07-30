@@ -93,7 +93,7 @@ import { AppDialogService } from "./app-dialog.service";
                 appointmentCountDown = `${remainingHours}h ${remainingMinutes}min`
             }
             
-            if (appointmentCountDown === '05:00') {
+            if (appointmentCountDown === '00:05:00') {
                 const displayTime = `\n Starting at ${DateTime.fromISO(timeStamp).toFormat('hh:mm')}`
                 this.dialog.open({data: {isAlert: true, message: `You have an appointment in 5 min${displayTime}`}})
             }

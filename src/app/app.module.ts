@@ -41,6 +41,8 @@ import { MatSortModule } from '@angular/material/sort';
 import { AppNextAppointmentService } from './shared/services/app-next-appointment.service';
 import { AppointmentComponent } from './graphql/appointment/appointment.component';
 import { AppTabsService } from './shared/services/app-tabs.service';
+import { AppRecordComponent } from './shared/components/app-record/app-record.component';
+import { NgxEditorModule } from 'ngx-editor';
 
 @NgModule({ 
     declarations: [
@@ -52,6 +54,7 @@ import { AppTabsService } from './shared/services/app-tabs.service';
         AppCalendarComponent,
         AppTableComponent,
         AppAccordionComponent,
+        AppRecordComponent,
         UserComponent,
         AppointmentsComponent,
         AppointmentComponent,
@@ -59,6 +62,7 @@ import { AppTabsService } from './shared/services/app-tabs.service';
     ],
     bootstrap: [AppComponent], 
     imports: [
+        NgxEditorModule,
         MatCheckboxModule,
         MatButtonModule,
         MatFormFieldModule,

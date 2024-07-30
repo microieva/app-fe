@@ -1,7 +1,7 @@
 .sidenav {
     //border-right: 1px solid rgb(229,238,245);
     border-right: 0.8px solid darkgray;
-    width: 20rem;
+    width: 18rem;
 }
 mat-toolbar {
     border-bottom: 0.8px solid darkgray;
@@ -31,5 +31,5 @@ mat-toolbar {
     height: 100%;
 }
 .container {
-    width: calc(100vw - 20rem)
+    width: calc(100vw - 18rem)
 }

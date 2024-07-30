@@ -56,7 +56,7 @@ export class HomeComponent implements OnInit{
             this.updatedAt = null;
             this.isAuth = false;
         }
-        //await this.nextAppointmentService.pollNextAppointment();
+        await this.nextAppointmentService.pollNextAppointment();
     }
 
     async loadMe() {

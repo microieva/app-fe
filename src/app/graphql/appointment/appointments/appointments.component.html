@@ -139,8 +139,10 @@
             </div>
         </div>
     </mat-tab>
-    <mat-tab *ngFor="let tab of tabs">
-        <ng-template mat-tab-label>{{ tab.title }}</ng-template>
+    <mat-tab 
+        *ngFor="let tab of tabs"
+    >
+        <ng-template mat-tab-label><span class="tab-label">{{ tab.title }}</span></ng-template>
         <ng-template matTabContent>
             <app-appointment [id]="tab.id" (close)="onTabClose($event)"></app-appointment>
         </ng-template>

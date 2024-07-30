@@ -1,0 +1,42 @@
+<form *ngIf="form" [formGroup]="form" class="flex-column">
+    <mat-form-field>
+        <mat-label>{{ 'Add title' }}</mat-label>
+        <input matInput formControlName="title">
+    </mat-form-field>
+    <div class="editor">
+        <ngx-editor-menu [editor]="editor" [toolbar]="toolbar" class="NgxEditor__MenuBar"> </ngx-editor-menu>
+        <ngx-editor 
+            [editor]="editor" 
+            [(ngModel)]="record && record.text || text" 
+            [ngModelOptions]="{standalone: true}" 
+            [disabled]="false" 
+            [placeholder]="'Type here...'"
+            class="NgxEditor__Content"
+            (ngModelChange)="onContentChange($event)"
+        ></ngx-editor>
+        <span>{{ currentCharacterCount }}/{{ maxCharacters }} characters</span>
+    </div>
+    <div class="actions flex-row">
+        <div>
+            <button 
+                type="submit" 
+                mat-stroked-button 
+                style="background-color: rgb(175 111 174 / 40%);" 
+                (click)="save(false)" 
+                [disabled]="currentCharacterCount === 0 && disabled"
+            >
+                Save
+            </button>
+            <button 
+                type="submit" 
+                mat-stroked-button 
+                style="background-color: rgb(111, 143, 175, 40%);" 
+                (click)="save(true)" 
+                [disabled]="currentCharacterCount === 0 && disabled"
+            >
+                Save As Draft
+            </button>
+        </div>
+        <button type="button" mat-stroked-button (click)="onCancel()">Cancel</button>
+    </div>
+</form>

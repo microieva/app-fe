@@ -5,7 +5,7 @@ import { AppDialogService } from "../../../shared/services/app-dialog.service";
 import { AppointmentInput } from "../appointment.input";
 
 @Component({
-    selector: 'app-calendar',
+    selector: 'calendar-component',
     templateUrl: './calendar.component.html',
     styleUrls: ['calendar.component.scss']
 })

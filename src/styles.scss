@@ -60,7 +60,7 @@ app-sidenav {
   padding: 2rem;
   padding-top: 0;
   min-width: 60%;
-  max-width: fit-content;
+  width: 70%;
   margin: auto;
 }
 .actions {
@@ -74,17 +74,17 @@ mat-form-field {
 }
 .mat-mdc-radio-button.mat-accent {
   --mdc-radio-disabled-selected-icon-color: black;
-    --mdc-radio-disabled-unselected-icon-color: black;
-    --mdc-radio-unselected-hover-icon-color: #212121;
-    --mdc-radio-unselected-icon-color: rgba(0, 0, 0, 0.54);
-    --mdc-radio-unselected-pressed-icon-color: rgba(0, 0, 0, 0.54);
-    --mdc-radio-selected-focus-icon-color: rgb(175 111 174 / 80%); ;
-    --mdc-radio-selected-hover-icon-color: rgb(175 111 174 / 80%); 
-    --mdc-radio-selected-icon-color: rgb(175 111 174 / 80%);  
-    --mdc-radio-selected-pressed-icon-color: rgb(175 111 174 / 80%); 
-    --mat-radio-ripple-color: black;
-    --mat-radio-checked-ripple-color: rgb(175 111 174 / 80%); 
-    --mat-radio-disabled-label-color: rgba(0, 0, 0, 0.38);
+  --mdc-radio-disabled-unselected-icon-color: black;
+  --mdc-radio-unselected-hover-icon-color: #212121;
+  --mdc-radio-unselected-icon-color: rgba(0, 0, 0, 0.54);
+  --mdc-radio-unselected-pressed-icon-color: rgba(0, 0, 0, 0.54);
+  --mdc-radio-selected-focus-icon-color: rgb(175 111 174 / 80%); ;
+  --mdc-radio-selected-hover-icon-color: rgb(175 111 174 / 80%); 
+  --mdc-radio-selected-icon-color: rgb(175 111 174 / 80%);  
+  --mdc-radio-selected-pressed-icon-color: rgb(175 111 174 / 80%); 
+  --mat-radio-ripple-color: black;
+  --mat-radio-checked-ripple-color: rgb(175 111 174 / 80%); 
+  --mat-radio-disabled-label-color: rgba(0, 0, 0, 0.38);
 }
 .mat-mdc-tab.mdc-tab {
   min-width: 16rem;
