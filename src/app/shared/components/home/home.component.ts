@@ -16,6 +16,7 @@ export class HomeComponent implements OnInit{
     me: any;
     updatedAt: string | null = null;
     isAuth: boolean = false;
+    isRecords: boolean = false;
     isUserUpdated: boolean = false;
     remainder!: Subscription;
     time!: string | null;
@@ -33,7 +34,7 @@ export class HomeComponent implements OnInit{
 
     async ngOnInit() {
         if (localStorage.getItem('authToken')) {
-            await this.loadMe();
+            await this.loadStatic();
             const tokenExpire = localStorage.getItem('tokenExpire');
             if (tokenExpire) {
                 this.remainder = this.timerService.startTokenTimer(tokenExpire);
@@ -55,11 +56,14 @@ export class HomeComponent implements OnInit{
             this.me = null;
             this.updatedAt = null;
             this.isAuth = false;
+            this.isRecords = false;
         }
-        await this.nextAppointmentService.pollNextAppointment();
+        if (this.userRole === 'doctor') {
+            await this.nextAppointmentService.pollNextAppointment();
+        }
     }
 
-    async loadMe() {
+    async loadStatic() {
         const query = `query {
             me {
                 userRole
@@ -68,12 +72,23 @@ export class HomeComponent implements OnInit{
         }`
         try {
             const response = await this.graphQLService.send(query);
+
             if (response.data.me) {
                 this.me = response.data.me;
-                this.updatedAt = this.me.updatedAt;
                 this.isAuth = true;
                 this.isUserUpdated = response.data.me.updatedAt || null;
                 this.userRole = response.data.me.userRole;
+
+                if (this.userRole !== 'admin') {
+                    try {
+                        const query = `query { countUserRecords }`
+                        const response = await this.graphQLService.send(query);
+                        this.isRecords = response.data.countUserRecords >0
+                    } catch (error) {
+                        this.dialog.open({data: {isAlert: true, message: "Unable to get record count "+error}});
+                    }
+
+                }        
             }
         } catch (error) {
             this.dialog.open({data: {message: "No user, must login :"+error}})

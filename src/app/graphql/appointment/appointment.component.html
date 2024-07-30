@@ -32,18 +32,9 @@
                 </div>
             </div>
         </div>
-        <div class="flex-column wrapper">
+        <div class="flex-column wrapper" *ngIf="!record">
             <p class="title">{{ 'Medical Record' }}</p>
             <div class="flex-row">
-                <div class="flex-column">
-                    <button 
-                        mat-stroked-button 
-                        (click)="openRecords()" 
-                        style="background-color: #99A9BD;"
-                    >
-                        {{ 'View Patient History' }}
-                    </button>
-                </div>
                 <div class="flex-column">
                     <button 
                         *ngIf="!record"
@@ -68,7 +59,7 @@
         </div>
         <div class="record wrapper" *ngIf="record && !isEditting && !isCreating">
             <div class="flex-row">
-                <p class="title" *ngIf="!record.draft">{{ 'Saved Record' }}</p>
+                <p class="title" *ngIf="!record.draft">{{ 'Medical Record' }}</p>
                 <p class="title" *ngIf="record.draft">{{ 'Record Draft' }}</p>
                 <div style="align-self: baseline;">
                     <p><em>created: </em>{{ created }}</p>

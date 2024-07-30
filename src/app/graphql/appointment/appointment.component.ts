@@ -123,9 +123,6 @@ export class AppointmentComponent implements OnInit {
             }
         })
     }
-    openRecords(){
-
-    }
     onCancel(){
         this.isCreating = false;
         this.isEditting = false;

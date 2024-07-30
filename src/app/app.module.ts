@@ -43,6 +43,7 @@ import { AppointmentComponent } from './graphql/appointment/appointment.componen
 import { AppTabsService } from './shared/services/app-tabs.service';
 import { AppRecordComponent } from './shared/components/app-record/app-record.component';
 import { NgxEditorModule } from 'ngx-editor';
+import { RecordsComponent } from './graphql/record/records/records.component';
 
 @NgModule({ 
     declarations: [
@@ -58,7 +59,8 @@ import { NgxEditorModule } from 'ngx-editor';
         UserComponent,
         AppointmentsComponent,
         AppointmentComponent,
-        CalendarComponent
+        CalendarComponent,
+        RecordsComponent
     ],
     bootstrap: [AppComponent], 
     imports: [

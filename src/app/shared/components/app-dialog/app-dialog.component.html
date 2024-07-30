@@ -35,18 +35,21 @@
 
 <mat-dialog-content *ngIf="input || eventInfo">
    <app-event 
-    (submit)="onEventSubmit($event)" 
-    (delete)="onEventDelete($event)"
-    [createdAt]="createdAt"
-    [eventTitle]="eventTitle"
-    [patientName]="patientName"
-    [patientDob]="patientDob"
-    [doctorName]="doctorName"
-    [eventDate]="eventDate"
-    [eventStartTime]="eventStartTime"
-    [eventEndTime]="eventEndTime"
-    [eventId]="appointmentId"
-    [patientMessage]="patientMessage"
-    [doctorMessage]="doctorMessage"
-></app-event>
+        (submit)="onEventSubmit($event)" 
+        (delete)="onEventDelete($event)"
+        [createdAt]="createdAt"
+        [eventTitle]="eventTitle"
+        [patientName]="patientName"
+        [patientDob]="patientDob"
+        [doctorName]="doctorName"
+        [eventDate]="eventDate"
+        [eventStartTime]="eventStartTime"
+        [eventEndTime]="eventEndTime"
+        [eventId]="appointmentId"
+        [patientMessage]="patientMessage"
+        [doctorMessage]="doctorMessage"
+    ></app-event>
 </mat-dialog-content>
+
+
+

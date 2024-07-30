@@ -29,9 +29,17 @@ export class AppNextAppointmentService {
             .valueChanges.subscribe(result => {
                 if (result.data) {
                     this.appointmentSubject.next(result.data);
+                } else {
+                    this.stopPolling();
                 }
             });
     }
+    stopPolling() {
+        if (this.pollingSubscription) {
+          this.pollingSubscription.unsubscribe();
+          this.pollingSubscription = null; 
+        }
+      }
 
     /*async pollNextAppointmentStartTime(){
         console.log('**********************************POLLING FOR start time CALLED')

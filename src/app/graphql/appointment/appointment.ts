@@ -9,7 +9,7 @@ export interface Appointment {
     start: string
     end: string
     allDay: boolean
-    patient?: User
+    patient: User
     doctor?: User
     patientMessage: string
     doctorMessage: string

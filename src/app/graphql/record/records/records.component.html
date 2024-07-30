@@ -1,0 +1,54 @@
+<mat-tab-group
+    mat-stretch-tabs="false" 
+    mat-align-tabs="start" 
+    class="content" 
+    (selectedIndexChange)="onTabChange($event)"
+    [(selectedIndex)]="selectedIndex"
+>
+    <mat-tab>
+        <ng-template mat-tab-label>
+            <span class="tab-label" >Records</span>
+        </ng-template>
+        <div>
+            <div class="flex-row wrapper info">
+                <span class="icon material-symbols-outlined">info</span>
+                <h3>This will be all completed medical records</h3> 
+                <span>{{' '}}</span>
+            </div>
+            <div class="page">
+                <!-- <app-table 
+                        *ngIf="dataSource && records.length > 9"
+                        [dataSource]="dataSource" 
+                        [length]="length"
+                        [userRole]="userRole"
+                        [markAppointmentId]="routedAppointmentId"
+                        (pageChange)="onPageChange($event)"
+                        (sortChange)="onSortChange($event)"
+                        (filterValue)="onFilterValueChange($event, async)"
+                        (appointmentClick)="onAppointmentClick($event, async)"
+                        (buttonClick)="onButtonClick($event)"
+                    >
+                    </app-table>
+                    <app-accordion     
+                        *ngIf="records.length <10"
+                        [markAppointmentId]="routedAppointmentId"
+                        [dataSource]="pendingDataSource" 
+                        (buttonClick)="onButtonClick($event)"
+                        (appointmentClick)="onAppointmentClick($event, async)"
+                    ></app-accordion>  -->
+            </div>
+        </div>
+    </mat-tab>
+    <mat-tab>
+        <ng-template mat-tab-label>
+            <span class="tab-label" >Drafts</span>
+        </ng-template>
+        <div>
+            <div class="flex-row wrapper info">
+                <span class="icon material-symbols-outlined">info</span>
+                <h3>This will be all medical records saved as drafts</h3> 
+                <span>{{' '}}</span>
+            </div>
+        </div>
+    </mat-tab>
+</mat-tab-group>

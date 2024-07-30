@@ -6,10 +6,15 @@
           <span [ngStyle]="{visibility: !isUserUpdated ? 'visible':'hidden'}" class="icon material-symbols-outlined">info</span>
         </div>
       </a>
-      <a mat-list-item [routerLink]="['/appointments']" *ngIf="isAuth && isUserUpdated" routerLinkActive="activeLink">
+      <a mat-list-item [routerLink]="['appointments']" *ngIf="isAuth && isUserUpdated" routerLinkActive="activeLink">
         <div class="flex">
           <span>{{ 'Appointments' }}</span>
           <span [ngStyle]="{visibility: !isUserUpdated ? 'visible':'hidden'}" class="icon material-symbols-outlined">info</span>
+        </div>
+      </a>
+      <a mat-list-item [routerLink]="['records']" *ngIf="isAuth && isRecords" routerLinkActive="activeLink">
+        <div class="flex">
+          <span>{{ 'Medical Records' }}</span>
         </div>
       </a>
       <a mat-list-item [routerLink]="['test-apps']" routerLinkActive="activeLink">
