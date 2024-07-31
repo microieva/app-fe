@@ -41,7 +41,7 @@ import { MatSortModule } from '@angular/material/sort';
 import { AppNextAppointmentService } from './shared/services/app-next-appointment.service';
 import { AppointmentComponent } from './graphql/appointment/appointment.component';
 import { AppTabsService } from './shared/services/app-tabs.service';
-import { AppRecordComponent } from './shared/components/app-record/app-record.component';
+import { AppEditorComponent } from './shared/components/app-editor/app-editor.component';
 import { NgxEditorModule } from 'ngx-editor';
 import { RecordsComponent } from './graphql/record/records/records.component';
 
@@ -55,7 +55,7 @@ import { RecordsComponent } from './graphql/record/records/records.component';
         AppCalendarComponent,
         AppTableComponent,
         AppAccordionComponent,
-        AppRecordComponent,
+        AppEditorComponent,
         UserComponent,
         AppointmentsComponent,
         AppointmentComponent,

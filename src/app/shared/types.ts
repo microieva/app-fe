@@ -1,3 +1,4 @@
+import { Record } from "../graphql/record/record";
 import { TestApp } from "../graphql/test-app/test-app";
 
 export interface QueryResponse {
@@ -43,6 +44,7 @@ export interface AppDialogData {
     showDirectLoginForm: boolean
     input: boolean
     eventInfo: any
+    recordInfo: Record
 }
 
 export interface DirectLoginInput {
@@ -55,7 +57,7 @@ export interface Paged<T> {
     slice: T[]
 }
 
-export interface AppDataSource {
+export interface AppointmentDataSource {
     id: number
     howLogAgoStr?: string
     howSoonStr?: string
@@ -66,3 +68,9 @@ export interface AppDataSource {
     start: string
     end: string
 }
+export interface RecordDataSource {
+    title: string
+    createdAt: string
+    updatedAt: string
+}
+export type AppDataSource = AppointmentDataSource | RecordDataSource;

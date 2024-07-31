@@ -81,9 +81,12 @@ export class HomeComponent implements OnInit{
 
                 if (this.userRole !== 'admin') {
                     try {
-                        const query = `query { countUserRecords }`
+                        const query = `query { countUserRecords {
+                            countRecords
+                            countDrafts
+                        }}`
                         const response = await this.graphQLService.send(query);
-                        this.isRecords = response.data.countUserRecords >0
+                        this.isRecords = response.data.countUserRecords.countRecords >0 || response.data.countUserRecords.countDrafts >0
                     } catch (error) {
                         this.dialog.open({data: {isAlert: true, message: "Unable to get record count "+error}});
                     }

@@ -4,7 +4,7 @@ import { MatTableDataSource } from "@angular/material/table";
 import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
 import { AppDialogService } from "../../../shared/services/app-dialog.service";
-import { AppDataSource } from "../../../shared/types";
+import { AppointmentDataSource } from "../../../shared/types";
 import { Appointment } from "../appointment";
 import { AppNextAppointmentService } from "../../../shared/services/app-next-appointment.service";
 import { AppTimerService } from "../../../shared/services/app-timer.service";
@@ -22,7 +22,7 @@ export class AppointmentsComponent implements OnInit {
     routedAppointmentId: number | undefined;
     length: number = 0;
     readonly totalLength: number;
-    now: boolean = false;;
+    now: boolean = false;
     nextAppointmentStartTime: string | undefined;
     appointment: Appointment | null = null;
     private previousNextId: number | null = null;
@@ -36,15 +36,15 @@ export class AppointmentsComponent implements OnInit {
     countUpcomingAppointments: number = 0;
     countPastAppointments: number = 0;
 
-    pendingDataSource: AppDataSource[] | undefined;
-    upcomingDataSource: AppDataSource[] | undefined;
-    pastDataSource: AppDataSource[] | undefined;
+    pendingDataSource: AppointmentDataSource[] | undefined;
+    upcomingDataSource: AppointmentDataSource[] | undefined;
+    pastDataSource: AppointmentDataSource[] | undefined;
 
     pendingAppointments: Appointment[] = [];
     upcomingAppointments: Appointment[] = [];
     pastAppointments: Appointment[] = [];
     isReservedDay: boolean = false;
-    dataSource: MatTableDataSource<AppDataSource> | null = null;
+    dataSource: MatTableDataSource<AppointmentDataSource> | null = null;
 
     @Output() activeTab = new EventEmitter<string>();
     @ViewChild('scrollView') scrollView!: ElementRef;
@@ -131,7 +131,6 @@ export class AppointmentsComponent implements OnInit {
                 break;
             default:
                 break;
-
         }
     }
 
@@ -240,10 +239,10 @@ export class AppointmentsComponent implements OnInit {
             if (response.data.pendingAppointments) {
                 this.pendingAppointments = response.data.pendingAppointments.slice;
                 this.length = response.data.pendingAppointments.length;
-                this.formatAppointments("pending");
+                this.formatDataSource("pending");
 
                 if (this.countPendingAppointments > 9) {
-                    this.dataSource = new MatTableDataSource<AppDataSource>(this.pendingDataSource);
+                    this.dataSource = new MatTableDataSource<AppointmentDataSource>(this.pendingDataSource);
                 }
             }
         } catch (error){
@@ -300,10 +299,10 @@ export class AppointmentsComponent implements OnInit {
             if (response.data.upcomingAppointments) {
                 this.upcomingAppointments = response.data.upcomingAppointments.slice;
                 this.length = response.data.upcomingAppointments.length;
-                this.formatAppointments("upcoming");
+                this.formatDataSource("upcoming");
 
                 if (this.countUpcomingAppointments > 9) {
-                    this.dataSource = new MatTableDataSource<AppDataSource>(this.upcomingDataSource);
+                    this.dataSource = new MatTableDataSource<AppointmentDataSource>(this.upcomingDataSource);
                 }
             }
         } catch (error){
@@ -361,10 +360,10 @@ export class AppointmentsComponent implements OnInit {
                 this.pastAppointments = response.data.pastAppointments.slice;
                 this.length = response.data.pastAppointments.length;
                 this.cdr.detectChanges();
-                this.formatAppointments("past");
+                this.formatDataSource("past");
 
                 if (this.countPastAppointments > 9) {
-                    this.dataSource = new MatTableDataSource<AppDataSource>(this.pastDataSource);
+                    this.dataSource = new MatTableDataSource<AppointmentDataSource>(this.pastDataSource);
                 }
             }
         } catch (error){
@@ -382,7 +381,7 @@ export class AppointmentsComponent implements OnInit {
         }
     }
 
-    formatAppointments(view: string) {
+    formatDataSource(view: string) {
         const allActions = [
             {
                 text: 'Cancel Appointment',

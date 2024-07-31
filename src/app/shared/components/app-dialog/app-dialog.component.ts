@@ -8,6 +8,7 @@ import { AppDialogService } from "../../services/app-dialog.service";
 import { Appointment } from "../../../graphql/appointment/appointment";
 import { DateTime } from "luxon";
 import { Router } from "@angular/router";
+import { Record } from "../../../graphql/record/record";
 
 @Component({
     selector: 'app-dialog',
@@ -23,6 +24,7 @@ export class AppDialogComponent implements OnInit {
     isLoggingIn: boolean;
     input: boolean;
     eventInfo: any;
+    recordInfo: any;
     error: string | undefined;
     form: LoginForm;
 
@@ -39,6 +41,8 @@ export class AppDialogComponent implements OnInit {
     appointmentId: number | undefined;
     doctorMessage: string | null = null;
     patientMessage: string | null = null;
+    recordTitle: string | undefined;
+    recordText: string | undefined;
 
     @Output() ok = new EventEmitter<boolean>(false);
     @Output() loginSuccess = new EventEmitter<boolean>(false);
@@ -63,6 +67,7 @@ export class AppDialogComponent implements OnInit {
         this.showDirectLoginForm = data.showDirectLoginForm;
         this.input = data.input;
         this.eventInfo = data.eventInfo;
+        this.recordInfo = data.recordInfo;
         this.form = this.buildLoginForm();
     }
 
@@ -73,6 +78,10 @@ export class AppDialogComponent implements OnInit {
         if (this.eventInfo) {
             this.eventTitle = this.eventInfo.title;
             await this.loadAppointment(this.eventInfo.id);
+        }
+        if (this.recordInfo) {
+            this.recordTitle = this.recordInfo.title;
+            this.recordText = this.recordInfo.text;
         }
         if (this.appointment) {
             this.createdAt = DateTime.fromJSDate(new Date(this.appointment.createdAt)).toFormat('MMM dd, yyyy');

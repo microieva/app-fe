@@ -74,7 +74,7 @@
                 </div>
                 <div class="appointments">
                     <app-table 
-                        *ngIf="dataSource && countUpcomingAppointments > 9"
+                        *ngIf="dataSource && length > 9"
                         [dataSource]="dataSource" 
                         [length]="length"
                         [userRole]="userRole"
@@ -87,7 +87,7 @@
                     >
                     </app-table>
                     <app-accordion 
-                        *ngIf="countUpcomingAppointments<10"
+                        *ngIf="length<10"
                         [markAppointmentId]="routedAppointmentId"
                         [dataSource]="upcomingDataSource" 
                         (buttonClick)="onButtonClick($event)"

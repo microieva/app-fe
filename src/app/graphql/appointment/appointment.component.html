@@ -50,12 +50,12 @@
         </div>
         <div class="record wrapper" *ngIf="isCreating || isEditting">
             <p class="title">{{ 'New Record' }}</p>
-            <app-record 
+            <app-editor 
                 [appointmentId]="appointment.id" 
                 [patientId]="appointment.patient.id"
                 (cancel)="onCancel()"
                 (reload)="onReload()"
-            ></app-record>
+            ></app-editor>
         </div>
         <div class="record wrapper" *ngIf="record && !isEditting && !isCreating">
             <div class="flex-row">

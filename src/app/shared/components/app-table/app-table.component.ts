@@ -19,9 +19,11 @@ import { AppDataSource } from "../../types";
       ],
 })
 export class AppTableComponent implements OnInit, AfterViewInit {
-    displayedColumns: string[] = ['id', 'title', 'conditionalColumns'];
+    //displayedColumns: string[] = ['id', 'title', 'conditionalAppointmentColumns', 'conditionalRecordColumns'];
+    displayedColumns: string[] = [];
     displayedColumnHeader: string | undefined;
-    columnsToDisplayWithExpand = [...this.displayedColumns, 'expandedDetail'];
+    //columnsToDisplayWithExpand = [...this.displayedColumns, 'expandedDetail'];
+    columnsToDisplayWithExpand: string[] = [];
     expandedElement: any | null;
 
     private searchSubject = new Subject<string>();
@@ -32,7 +34,8 @@ export class AppTableComponent implements OnInit, AfterViewInit {
     @Output() appointmentClick = new EventEmitter<{id: number, title: string}>();
     @Output() buttonClick = new EventEmitter<{id: number, text: string}>();
 
-    @Input() dataSource: MatTableDataSource<AppDataSource> | null = null;
+    @Input() dataSource: AppDataSource[] | null = null;
+    tableDataSource: MatTableDataSource<AppDataSource> | undefined;
     @Input() length: number = 0;
     @Input() userRole!: string;
     @Input() markAppointmentId: number| null = null;
@@ -71,31 +74,43 @@ export class AppTableComponent implements OnInit, AfterViewInit {
     }
     
     ngOnInit() {
+        // if (this.dataSource) {
+        //     this.dataSource?.data.find(element => {
+        //         if (element.howLogAgoStr) {
+        //             this.displayedColumnHeader = 'howLongAgoStr'
+        //         } else if (element.howSoonStr) {
+        //             this.displayedColumnHeader = 'startTimeHeader'
+        //         } else if (element.pastDate) {
+        //             this.displayedColumnHeader = 'pastDateStr'
+        //         } else if (element.createdAt) {}
+        //     })   
+        // }
         if (this.dataSource) {
-            this.dataSource?.data.find(element => {
-                if (element.howLogAgoStr) {
-                    this.displayedColumnHeader = 'howLongAgoStr'
-                } else if (element.howSoonStr) {
-                    this.displayedColumnHeader = 'startTimeHeader'
-                } else if (element.pastDate) {
-                    this.displayedColumnHeader = 'pastDateStr'
-                }
-            })   
+            const firstElement = this.dataSource[0];
+
+            if ('id' in firstElement) {
+                this.displayedColumns = ['id', 'status', 'time'];
+                this.columnsToDisplayWithExpand = [...this.displayedColumns, 'expandedDetail'];  
+            } else if ('createdAt' in firstElement) {
+                this.displayedColumns = ['title', 'created'];
+            }
+            this.tableDataSource = new MatTableDataSource(this.dataSource);
         }
+        console.log('TABLE DATA SOURCE: ', this.dataSource)
     }
     ngAfterViewInit(): void {   
-        if (this.paginator && this.dataSource) {
-            this.dataSource.paginator = this.paginator;
+        if (this.paginator && this.tableDataSource) {
+            this.tableDataSource.paginator = this.paginator;
             this.sort.disableClear = true;
-            this.dataSource.sort = this.sort;
+            this.tableDataSource.sort = this.sort;
         }
     }
 
     ngOnChanges(changes: any): void {
-        if (changes['dataSource'] && changes['length']) {
-          if (this.dataSource && this.paginator) {
-                this.dataSource.paginator = this.paginator;
-                this.dataSource.paginator.firstPage();
+        if (changes['tableDataSource'] && changes['length']) {
+          if (this.tableDataSource && this.paginator) {
+                this.tableDataSource.paginator = this.paginator;
+                this.tableDataSource.paginator.firstPage();
           }
         }
     }
@@ -109,9 +124,9 @@ export class AppTableComponent implements OnInit, AfterViewInit {
     onSearch(event: KeyboardEvent) {
         const filterValue = (event.target as HTMLInputElement).value;
 
-        if (this.dataSource) {
+        if (this.tableDataSource) {
             this.searchSubject.next(filterValue);
-            this.dataSource.filter = filterValue.trim().toLowerCase();
+            this.tableDataSource.filter = filterValue.trim().toLowerCase();
         }
     }
 

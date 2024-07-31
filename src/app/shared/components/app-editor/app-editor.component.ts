@@ -1,19 +1,18 @@
+import { Editor, Toolbar, ToolbarItem } from 'ngx-editor';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { FormGroup, FormControl, FormBuilder, Validators } from "@angular/forms";
+import { DomSanitizer } from "@angular/platform-browser";
 import { AppGraphQLService } from "../../services/app-graphql.service";
 import { AppDialogService } from "../../services/app-dialog.service";
-import { FormGroup, FormControl, FormBuilder, Validators } from "@angular/forms";
 import { Record } from "../../../graphql/record/record";
 import { RecordInput } from "../../../graphql/record/record.input";
-import { Router } from "@angular/router";
-import { Editor, Toolbar, ToolbarItem } from 'ngx-editor';
-import { DomSanitizer } from "@angular/platform-browser";
 
 @Component({
-    selector: 'app-record',
-    templateUrl: './app-record.component.html',
-    styleUrls: ['./app-record.component.scss']
+    selector: 'app-editor',
+    templateUrl: './app-editor.component.html',
+    styleUrls: ['./app-editor.component.scss']
 })
-export class AppRecordComponent implements OnInit, OnDestroy {
+export class AppEditorComponent implements OnInit, OnDestroy {
     record: Record | undefined;
     form: RecordForm | undefined;
     disabled: boolean = true;

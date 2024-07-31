@@ -8,7 +8,7 @@
         #scrollView
         mat-table 
         multiTemplateDataRows 
-        [dataSource]="dataSource" 
+        [dataSource]="tableDataSource" 
         class="mat-elevation-z8" 
         matSort 
         (matSortChange)="onSortChange($event)"
@@ -18,24 +18,49 @@
             <td mat-cell *matCellDef="let element">{{element.id}}</td>
         </ng-container>
 
-        <ng-container matColumnDef="title">
+        <ng-container matColumnDef="status">
             <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:20rem;">Status</th>
             <td mat-cell *matCellDef="let element"> {{element.title}} </td>
         </ng-container>
 
-        <ng-container matColumnDef="conditionalColumns">
+        <ng-container matColumnDef="time">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:20rem;">Appointment Time</th>
+            <td mat-cell *matCellDef="let element">
+                <em *ngIf="element.howLongAgoStr">{{element.howLongAgoStr}}</em>
+                <em *ngIf="element.howSoonStr">{{element.howSoonStr}}</em>
+                <em *ngIf="element.pastDate">{{element.pastDate}}</em>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="title">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:20rem;">Title</th>
+            <td mat-cell *matCellDef="let element"> {{element.title}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="created">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:20rem;">Record Created</th>
+            <td mat-cell *matCellDef="let element">
+                <em *ngIf="element.updatedAt">{{element.updatedAt}}</em>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="conditionalAppointmentColumns">
             <ng-container *ngIf="displayedColumnHeader === 'howLongAgoStr'; else startTimeHeader">
               <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:20rem;">Created</th>
             </ng-container>
             <ng-template #startTimeHeader>
               <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:20rem;">Start Time</th>
             </ng-template>
+
+            <!-- <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:20rem;">Time</th>
       
             <td mat-cell *matCellDef="let element">
               <em *ngIf="element.howLongAgoStr">{{element.howLongAgoStr}}</em>
               <em *ngIf="element.howSoonStr">{{element.howSoonStr}}</em>
               <em *ngIf="element.pastDate">{{element.pastDate}}</em>
-            </td>
+              <em *ngIf="element.createdAt">{{element.createdAt}}</em>
+              <em *ngIf="element.updatedAt">{{element.updatedAt}}</em>
+            </td> -->
         </ng-container>
 
         <ng-container matColumnDef="expandedDetail">

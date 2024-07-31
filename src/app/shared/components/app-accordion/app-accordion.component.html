@@ -7,15 +7,19 @@
         [ngStyle]="{backgroundColor: (markAppointmentId !== undefined && markAppointmentId === element.id) ? 'aqua': ''}"
         (click)="resetRoute()"
     >
-        <mat-expansion-panel-header>
+        <mat-expansion-panel-header (click)="onAccordionClick(element.id)">
             <div class="header">
                 <h4> {{ element.title }}</h4>
                 <p *ngIf="element.howLongAgoStr">Appointment created: <em>{{element.howLongAgoStr}}</em></p>
-                <p *ngIf="element.howSoonStr">Appointment date: <em>{{element.howSoonStr}}</em></p>
+                <p *ngIf="element.howSoonStr">Appointment time: <em>{{element.howSoonStr}}</em></p>
                 <p *ngIf="element.pastDate">Appointment date: <em>{{element.pastDate}}</em></p>
+                <p *ngIf="element.updatedAt && userRole==='patient'">Created: <em>{{element.updatedAt}}</em></p>
+                <p *ngIf="element.updatedAt && !element.draft && userRole==='doctor'">Saved on: <em>{{element.updatedAt}}</em></p>
+                <p *ngIf="element.createdAt && element.draft">Created: <em>{{element.createdAt}}</em></p>
+                <p *ngIf="element.updatedAt && element.draft">Last updated: <em>{{element.updatedAt}}</em></p>
             </div>
         </mat-expansion-panel-header>
-        <div class="flex-column wrapper clickable" (click)="onAppointmentClick(element.id, element.title, async)">
+        <div *ngIf="element.date" class="flex-column wrapper clickable" (click)="onAppointmentClick(element.id, element.title, async)">
             <p class="title">{{ 'Appointment Details' }}</p>
             <div class="flex-row">
                 <div class="details flex-row">
@@ -41,6 +45,38 @@
                         [disabled]="button.disabled"
                     >
                         {{ button.text }}
+                    </button>
+                </div>
+                    
+            </div>
+        </div>
+
+        <div *ngIf="element.createdAt" class="flex-column wrapper clickable" (click)="onRecordClick(element.id, async)">
+            <p class="title">{{ 'Record Details' }}</p>
+            <div class="flex-row">
+                <div class="flex-row" style="width: 100%; margin-top:1rem;">
+                    <div class="flex-column">
+                        <p>{{ 'Created' }}</p>
+                        <h3>{{element.createdAt}}</h3>
+                    </div>
+                    <div class="flex-column">
+                        <p>{{ 'Last updated' }}</p>
+                        <h3>{{element.updatedAt}}</h3>
+                    </div>
+                    <div class="flex-column" *ngIf="record">
+                        <p>{{ 'Patient name' }}</p>
+                        <h3>{{patientName}}</h3>
+                    </div>
+                </div>
+                <div class="actions flex-column" *ngIf="element.buttons">   
+                    <button 
+                        *ngFor="let button of element.buttons"
+                        style="margin-right:1rem;background-color:rgb(151,170,192)" 
+                        mat-stroked-button 
+                        (click)="onButtonClick(element.id, button.text); $event.stopPropagation()"
+                        [disabled]="button.disabled"
+                    >
+                        <span *ngIf="button.text">{{ button.text }}</span>
                     </button>
                 </div>
                     

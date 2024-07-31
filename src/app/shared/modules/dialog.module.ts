@@ -12,6 +12,7 @@ import { MatDividerModule } from "@angular/material/divider";
 import { ReactiveFormsModule } from "@angular/forms";
 import { AlertComponent } from "../components/app-dialog/alert/alert.component";
 import { EventComponent } from "../components/app-dialog/event/event.component";
+import { RecordDetailsComponent } from "../components/app-dialog/record-details/record-details.component";
 
 @NgModule({
     declarations: [
@@ -20,7 +21,8 @@ import { EventComponent } from "../components/app-dialog/event/event.component";
         LoadingComponent,
         AlertComponent,
         LoginComponent,
-        EventComponent
+        EventComponent,
+        RecordDetailsComponent
     ],
     imports: [
         ReactiveFormsModule,
