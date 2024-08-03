@@ -4,11 +4,14 @@ import { User } from "./user";
 import _, { some } from "lodash-es";
 import { ActivatedRoute, Router } from "@angular/router";
 import { FormGroup, FormControl, FormBuilder, Validators } from "@angular/forms";
-import { AppDialogService } from "../../shared/services/app-dialog.service";
+//import { AppDialogService } from "../../shared/services/app-dialog.service";
 import { UserInput } from "./user.input";
 import { AppAuthService } from "../../shared/services/app-auth.service";
 import { AppTimerService } from "../../shared/services/app-timer.service";
 import { DateTime } from "luxon";
+import { AlertComponent } from "../../shared/components/app-alert/app-alert.component";
+import { ConfirmComponent } from "../../shared/components/app-confirm/app-confirm.component";
+import { MatDialog } from "@angular/material/dialog";
 
 @Component({
     selector: 'app-user',
@@ -27,7 +30,7 @@ export class UserComponent implements OnInit {
         private router: Router,
         private activatedRoute: ActivatedRoute,
         private formBuilder: FormBuilder,
-        private dialog: AppDialogService,
+        private dialog: MatDialog,
         private authService: AppAuthService,
         private timerService: AppTimerService
     ){
@@ -74,7 +77,7 @@ export class UserComponent implements OnInit {
             }
         } catch (error){
             this.router.navigate(['/']);
-            this.dialog.open({data: {isAlert: true, message: "No user, must login "+error}});
+            this.dialog.open(AlertComponent, {data: {message: "No user, must login "+error}});
         }
     }
 
@@ -86,7 +89,7 @@ export class UserComponent implements OnInit {
         this.router.navigate(['user', this.me?.id])
     }
     async deleteUser(){
-        const dialogRef = this.dialog.open({ data: { isConfirming: true }})
+        const dialogRef = this.dialog.open(ConfirmComponent)
         
         dialogRef.componentInstance.ok.subscribe(async (value)=> {
             if (value && this.me?.id) {
@@ -105,7 +108,7 @@ export class UserComponent implements OnInit {
                         this.authService.logOut(); 
                     }
                 } catch (error) {
-                    this.dialog.open({ data: { isAlert: true, message: "Error deleting user: "+ error}})
+                    this.dialog.open(AlertComponent, { data: {message: "Error deleting user: "+ error}})
                 }
             }
         }) 
@@ -152,7 +155,7 @@ export class UserComponent implements OnInit {
                 this.router.navigate(['user']);
             }
         } catch (error) {
-            this.dialog.open({ data: { isAlert: true, message: "Error saving user details: "+ error}})
+            this.dialog.open(AlertComponent, { data: {message: "Error saving user details: "+ error}})
         }
     }
 

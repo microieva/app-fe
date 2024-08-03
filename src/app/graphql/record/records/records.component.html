@@ -34,7 +34,8 @@
                     [dataSource]="recordDataSource" 
                     [userRole]="userRole"
                     (buttonClick)="onButtonClick($event)"
-                    (recordClick)="onRecordClick($event, async)"
+                    (recordId)="onRecordClick($event, async)"
+                    (reload)="onReload()"
                 ></app-accordion> 
             </div>
         </div>
@@ -67,7 +68,8 @@
                     [dataSource]="draftDataSource" 
                     [userRole]="userRole"
                     (buttonClick)="onButtonClick($event)"
-                    (recordClick)="onRecordClick($event, async)"
+                    (recordId)="onRecordClick($event, async)"
+                    (reload)="onReload()"
                 ></app-accordion> 
             </div>
         </div>

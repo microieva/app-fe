@@ -3,9 +3,12 @@ import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angu
 import { FormGroup, FormControl, FormBuilder, Validators } from "@angular/forms";
 import { DomSanitizer } from "@angular/platform-browser";
 import { AppGraphQLService } from "../../services/app-graphql.service";
-import { AppDialogService } from "../../services/app-dialog.service";
+//import { AppDialogService } from "../../services/app-dialog.service";
 import { Record } from "../../../graphql/record/record";
 import { RecordInput } from "../../../graphql/record/record.input";
+import { MatDialog } from '@angular/material/dialog';
+import { AlertComponent } from '../app-alert/app-alert.component';
+import { ConfirmComponent } from '../app-confirm/app-confirm.component';
 
 @Component({
     selector: 'app-editor',
@@ -13,7 +16,7 @@ import { RecordInput } from "../../../graphql/record/record.input";
     styleUrls: ['./app-editor.component.scss']
 })
 export class AppEditorComponent implements OnInit, OnDestroy {
-    record: Record | undefined;
+
     form: RecordForm | undefined;
     disabled: boolean = true;
 
@@ -36,50 +39,32 @@ export class AppEditorComponent implements OnInit, OnDestroy {
     }
     text = '';
 
-    @Input() appointmentId!: number;
-    @Input() patientId!: number;
+    @Input() record: Record | undefined;
+    @Input() appointmentId: number | undefined;
     @Output() cancel = new EventEmitter<boolean>();
     @Output() reload = new EventEmitter<boolean>();
+    @Output() saveRecord = new EventEmitter<RecordInput>();
 
     constructor(
-        private graphQLService: AppGraphQLService,
-        private dialog: AppDialogService,
+        private dialog: MatDialog,
         private formBuilder: FormBuilder,
         private sanitizer: DomSanitizer
     ){}
 
     async ngOnInit() {
-        this.editor = new Editor();
-        await this.loadRecord();
+        console.log('appointmentId IN EDITOR: ', this.appointmentId)
         this.buildForm();
+        this.editor = new Editor();
         this.form?.get('title')?.valueChanges.subscribe(value => {
             this.disabled = value.length < 1;
         });
     }
-    async loadRecord(){
-        const query = `query ($appointmentId: Int!) {
-            record (appointmentId: $appointmentId) {
-                id
-                title
-                text
-                createdAt
-                draft
-            }
-        }`
-
-        try {
-            const response = await this.graphQLService.send(query, {appointmentId: this.appointmentId});
-            if (response.data) {
-                this.record = response.data.record;
-                this.buildForm();
-            }
-        } catch (error) {
-            this.dialog.open({data: {message: "Unexpected error loading medical record: "+error}})
-        }   
-    }
+    
     buildForm(){
+        const title = this.record?.title;
+
         this.form = this.formBuilder.group({
-            title: this.formBuilder.control<string>(this.record?.title || '', Validators.minLength(1)),
+            title: this.formBuilder.control<string>(title || '', Validators.minLength(1)),
         }) as RecordForm
     }
     addTitleChangeListener() {
@@ -87,32 +72,22 @@ export class AppEditorComponent implements OnInit, OnDestroy {
       }
 
     async save(draft: boolean) {
-        const input: RecordInput = {
-            id: this.record?.id,
+        const input: any = {
+            //id: this.record?.id,
             title: this.form?.value.title!,
             text: this.text,
-            appointmentId: this.appointmentId,
             draft
         }
-
-        const mutation = `mutation ($recordInput: RecordInput!){
-            saveRecord(recordInput: $recordInput) {
-                success
-                message
-            }
-        }`
-        try {
-            const response = await this.graphQLService.mutate(mutation, { recordInput: input })
-            if (response.data.saveRecord.success) {
-                this.reload.emit(true);
-            }    
-        } catch (error) {
-            this.dialog.open({data: { isAlert: true, message: "Unexpected error saving medical record: "+error}})
-        }
-        
+        this.saveRecord.emit(input);
     }
     onCancel() {
-        this.cancel.emit(true);
+        const dialogRef = this.dialog.open(ConfirmComponent, {data: {message: "All unsaved changes will be lost"}});
+        dialogRef.componentInstance.ok.subscribe(subscription => {
+            if (subscription) {
+                // TO DO: check for prev and changes, isCOnfirming only if title || text changed 
+                this.cancel.emit(true);
+            }
+        })
     }
     ngOnDestroy(): void {
         this.editor.destroy();

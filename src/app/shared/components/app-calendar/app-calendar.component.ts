@@ -6,11 +6,15 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
 import { DateTime, Interval } from "luxon";
-import { AppDialogService } from "../../services/app-dialog.service";
+//import { AppDialogService } from "../../services/app-dialog.service";
 import { AppGraphQLService } from "../../services/app-graphql.service";
 import { createEventId } from "../../constants";
 import { Appointment } from "../../../graphql/appointment/appointment";
 import { AppointmentInput } from "../../../graphql/appointment/appointment.input";
+import { MatDialog } from "@angular/material/dialog";
+import { AlertComponent } from "../app-alert/app-alert.component";
+import { EventComponent } from "../app-event/event.component";
+import { ConfirmComponent } from "../app-confirm/app-confirm.component";
 
 @Component({
     selector: 'app-calendar',
@@ -31,7 +35,7 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
     events:any[] = []; 
     userRole!: string;
     constructor(
-        private dialog: AppDialogService,
+        private dialog: MatDialog,
         private graphQLService: AppGraphQLService,
         private router: Router
     ){}
@@ -117,10 +121,10 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
     handleEventDrop(arg: any) {
         if (this.userRole === 'patient') {
             if (arg.event.extendedProps.doctorId) {
-                this.dialog.open({data: {message: "Cannot change the appointment time since it has been already accepted by a doctor... Consider cancelling appointment and creating a new one."}});
+                this.dialog.open(AlertComponent, {data: {message: "Cannot change the appointment time since it has been already accepted by a doctor... Consider cancelling appointment and creating a new one."}});
                 arg.revert();
             } else if (arg.event.extendedProps.title)  {
-                this.dialog.open({data: {message: "The appointment already past"}});
+                this.dialog.open(AlertComponent, {data: {message: "The appointment already past"}});
                 arg.revert();
             }
         }
@@ -151,7 +155,7 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
             }
         } catch (error) {
             this.router.navigate(['/'])
-            this.dialog.open({data: {message: "No user, must login"}})
+            this.dialog.open(AlertComponent, {data: {message: "No user, must login"}})
         }
     }
 
@@ -205,7 +209,7 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
                 });
             } 
         } catch (error) {
-            this.dialog.open({data: {message: 'Unexpected error loading all appointments: '+error}}) 
+            this.dialog.open(AlertComponent, {data: {message: 'Unexpected error loading all appointments: '+error}}) 
             this.router.navigate(['appointments'])
         }
     }
@@ -240,7 +244,7 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
                   }));
                 } 
         } catch (error) {
-            this.dialog.open({data: {message: 'Unexpected error loading pending appointments: '+error}}) 
+            this.dialog.open(AlertComponent, {data: {message: 'Unexpected error loading pending appointments: '+error}}) 
         }
     }
     async loadUpcomingAppointments() {
@@ -274,7 +278,7 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
                   }));
             } 
         } catch (error) {
-            this.dialog.open({data: {message: 'Unexpected error loading upcoming appointments: '+error}}) 
+            this.dialog.open(AlertComponent, {data: {message: 'Unexpected error loading upcoming appointments: '+error}}) 
         }
     }
 
@@ -309,7 +313,7 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
                   }));
             } 
         } catch (error) {
-            this.dialog.open({data: {message: 'Unexpected error loading pending appointments: '+error}}) 
+            this.dialog.open(AlertComponent,{data: {message: 'Unexpected error loading pending appointments: '+error}}) 
             // maybe a snackbar ?
         }
     }
@@ -356,9 +360,9 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
                 end: arg.allDay ? end : arg.endStr,
                 allDay: arg.allDay
             }
-            const dialogRef = this.dialog.open({data: {input: true}});
+            const dialogRef = this.dialog.open(EventComponent);
 
-            dialogRef.componentInstance.event.subscribe(value => {
+            /*dialogRef.componentInstance.event.subscribe(value => {
                 
                 if (value) {
                     calendarApi.addEvent(event);
@@ -369,7 +373,7 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
                     });
                 }
                 calendarApi.changeView('dayGridMonth', arg.start);
-            })
+            })*/
         }
     }
 
@@ -416,7 +420,7 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
                 } else {
                     if (arg.allDay && numberOfAppointmentsOnSelectedDay <1) this.handleDayView(arg);
                     else if (arg.allDay && numberOfAppointmentsOnSelectedDay >0) {
-                        this.dialog.open({data: {message: "You have appointments on this day"}});
+                        this.dialog.open(AlertComponent, {data: {message: "You have appointments on this day"}});
                         calendarApi.unselect();
                     }
                     else calendarApi.unselect();
@@ -429,7 +433,7 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
                 } else {
                     if (arg.allDay && numberOfAppointmentsOnSelectedDay <1) this.handleDayView(arg);
                     else if (arg.allDay && numberOfAppointmentsOnSelectedDay >0) {
-                        this.dialog.open({data: {message: "You have appointments on this day"}});
+                        this.dialog.open(AlertComponent, {data: {message: "You have appointments on this day"}});
                         calendarApi.unselect();
                     }
                     else calendarApi.unselect();
@@ -476,11 +480,14 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
             this.handleAddEvent(arg);
             //this.handleAddAllDayEvent();
         }
-        if (this.isBusinessHours(arg) && arg.start.getDay() !== 0 && arg.start.getDay() !== 6) {
+        if (this.isBusinessHours(arg) && 
+            arg.start.getDay() !== 0 
+            //&& arg.start.getDay() !== 6 /// TEMPORARY TO DO: uncomment 
+        ) {
             this.handleAddEvent(arg);
         } 
             const calendarApi = arg.view.calendar;
-            if (!arg.allDay) this.dialog.open({data: {message: "Outside working hours"}})
+            if (!arg.allDay) this.dialog.open(AlertComponent, {data: {message: "Outside working hours"}})
             calendarApi.unselect(); 
         
     }
@@ -494,7 +501,7 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
         } 
         const calendarApi = arg.view.calendar;
 
-        if (!isBusinessHours && !arg.allDay) this.dialog.open({data: {message: "Outside working hours"}});
+        if (!isBusinessHours && !arg.allDay) this.dialog.open(AlertComponent, {data: {message: "Outside working hours"}});
         calendarApi.unselect(); 
     }
     isDouble(date: any): boolean {
@@ -521,11 +528,11 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
             title: clickInfo.event.title,
             id: clickInfo.event.extendedProps['dbId']
         }
-        const dialogRef = this.dialog.open({data: {eventInfo}});
+        const dialogRef = this.dialog.open(EventComponent, {data: {eventInfo}});
 
-        dialogRef.componentInstance.eventId.subscribe(id => {
+        /*dialogRef.componentInstance.eventId.subscribe(id => {
             if (id) {
-                const ref = this.dialog.open({data: {isConfirming: true}});
+                const ref = this.dialog.open(ConfirmComponent);
                 ref.componentInstance.ok.subscribe(async (value)=> {
                     if (value) {
                         
@@ -539,16 +546,16 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
                         try {
                             const response = await this.graphQLService.mutate(mutation, { appointmentId: id});
                             if (response.data.deleteAppointment.success) {
-                                this.dialog.close();
+                                this.dialog.closeAll();
                                 clickInfo.event.remove();
                             }
                         } catch (error) {
-                            this.dialog.open({ data: { message: "Error deleting appointment: "+ error}})
+                            this.dialog.open(AlertComponent, { data: { message: "Error deleting appointment: "+ error}})
                         }
                     }
                 }) 
             }
-        })
+        })*/
     }
 
     handleEvents(events: EventApi[]) {

@@ -26,8 +26,6 @@ import { TestAppsComponent } from './graphql/test-app/test-apps/test-apps.compon
 import { HomeComponent } from './shared/components/home/home.component';
 import { AppSidenavComponent } from './shared/components/app-sidenav/app-sidenav.component';
 import { MatDialogContent, MatDialogModule } from '@angular/material/dialog';
-import { AppDialogService } from './shared/services/app-dialog.service';
-import { DialogModule } from './shared/modules/dialog.module';
 import { UserComponent } from './graphql/user/user.component';
 import { LUXON_DATE_FORMATS } from './shared/constants';
 import { AppTimerService } from './shared/services/app-timer.service';
@@ -44,6 +42,14 @@ import { AppTabsService } from './shared/services/app-tabs.service';
 import { AppEditorComponent } from './shared/components/app-editor/app-editor.component';
 import { NgxEditorModule } from 'ngx-editor';
 import { RecordsComponent } from './graphql/record/records/records.component';
+import { RecordComponent } from './graphql/record/record.component';
+import { AlertComponent } from './shared/components/app-alert/app-alert.component';
+import { ConfirmComponent } from './shared/components/app-confirm/app-confirm.component';
+import { EventComponent } from './shared/components/app-event/event.component';
+import { LoadingComponent } from './shared/components/app-loading/loading.component';
+import { LoginComponent } from './shared/components/app-login/app-login.componnet';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDividerModule } from '@angular/material/divider';
 
 @NgModule({ 
     declarations: [
@@ -60,7 +66,13 @@ import { RecordsComponent } from './graphql/record/records/records.component';
         AppointmentsComponent,
         AppointmentComponent,
         CalendarComponent,
-        RecordsComponent
+        RecordsComponent,
+        RecordComponent,
+        ConfirmComponent,
+        LoadingComponent,
+        AlertComponent,
+        LoginComponent,
+        EventComponent,
     ],
     bootstrap: [AppComponent], 
     imports: [
@@ -84,15 +96,16 @@ import { RecordsComponent } from './graphql/record/records/records.component';
         FormsModule,
         ReactiveFormsModule,
         BrowserModule,
+        MatProgressSpinnerModule,
         AppRoutingModule,
         GraphQLModule,
-        DialogModule,
         FullCalendarModule,
         MatExpansionModule,
-        MatAccordion
+        MatAccordion,
+        MatDividerModule,
+        NgxEditorModule
     ], 
     providers: [
-        AppDialogService,
         AppTimerService,
         AppNextAppointmentService,
         AppTabsService,

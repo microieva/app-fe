@@ -4,8 +4,11 @@ import { MatTableDataSource } from "@angular/material/table";
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
 import { RecordDataSource } from "../../../shared/types";
 import { Record } from "../record";
-import { AppDialogService } from "../../../shared/services/app-dialog.service";
+//import { AppDialogService } from "../../../shared/services/app-dialog.service";
 import { DateTime } from "luxon";
+import { RecordComponent } from "../record.component";
+import { AlertComponent } from "../../../shared/components/app-alert/app-alert.component";
+import { MatDialog } from "@angular/material/dialog";
 
 @Component({
     selector: 'app-records',
@@ -38,7 +41,7 @@ export class RecordsComponent implements OnInit {
         private graphQLService: AppGraphQLService,
         private router: Router,
         private activatedRoute: ActivatedRoute,
-        private dialog: AppDialogService
+        private dialog: MatDialog
     ){}
     async ngOnInit() {  
         await this.loadStatic();
@@ -151,7 +154,7 @@ export class RecordsComponent implements OnInit {
                 this.formatDataSource("records")
             }
         } catch (error) {
-            this.dialog.open({data: {isAlert: true, message: "Unexpected error loading records: "+error}})
+            this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading records: "+error}})
         }
     }
     async loadDrafts(){
@@ -176,6 +179,9 @@ export class RecordsComponent implements OnInit {
                         title
                         createdAt
                         updatedAt
+                        appointment {
+                            id
+                        }
                     }
                 }
             }
@@ -193,15 +199,18 @@ export class RecordsComponent implements OnInit {
             if (response.data) {
                 this.drafts = response.data.drafts.slice;
                 this.draftsLength = response.data.drafts.length;
+                //this.appointmentId = response.data.drafts.slice
                 this.formatDataSource("drafts")
             }
         } catch (error) {
-            this.dialog.open({data: {isAlert: true, message: "Unexpected error loading drafts: "+error}})
+            this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading drafts: "+error}})
         }
     }
-    onRecordClick(recordInfo: any){
-        console.log('record info ------', recordInfo)
-        this.dialog.open({data: {recordInfo}})
+    onRecordClick(recordId: any){
+        const dialogRef = this.dialog.open(RecordComponent, {data: {recordId}});
+        dialogRef.componentInstance.reload.subscribe(subscription => {
+            if (subscription) this.loadData();
+        })
     }
     onButtonClick(value: any) {
 
@@ -263,5 +272,8 @@ export class RecordsComponent implements OnInit {
             default:
                 break;
         }
+    }
+    onReload(){
+        this.loadData();
     }
 }

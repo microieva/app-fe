@@ -1,7 +1,9 @@
 import { EventEmitter, Injectable, Output } from "@angular/core";
 import { Subscription, finalize, interval, take } from "rxjs";
 import { DateTime, Duration } from "luxon";
-import { AppDialogService } from "./app-dialog.service";
+import { AlertComponent } from "../components/app-alert/app-alert.component";
+import { MatDialog } from "@angular/material/dialog";
+//import { AppDialogService } from "./app-dialog.service";
 
 @Injectable({
     providedIn: 'root'
@@ -15,7 +17,7 @@ import { AppDialogService } from "./app-dialog.service";
     subscription!: Subscription;
 
     constructor(
-        private dialog: AppDialogService
+        private dialog: MatDialog
     ) {}
 
     startTokenTimer(timeStamp: string) {
@@ -46,12 +48,12 @@ import { AppDialogService } from "./app-dialog.service";
             }
     
             if (tokenCountDown === '00:05') {
-                const dialogRef = this.dialog.open({data: { isAlert: true, message: "Session expired, please login to renew"}});
+                const dialogRef = this.dialog.open(AlertComponent, {data: {message: "Session expired, please login to renew"}});
     
                 dialogRef.componentInstance.ok.subscribe((value) => {
                     if (value) {
                         this.logout.emit(true); 
-                        this.dialog.close();
+                        this.dialog.closeAll();
                     }
                 });
             }
@@ -87,17 +89,21 @@ import { AppDialogService } from "./app-dialog.service";
 
             if (remainingSeconds < 3600) {
                 appointmentCountDown = seconds.toFormat('hh:mm:ss'); 
-            } else {
-                const remainingHours = Math.floor(remainingSeconds / 3600);
-                const remainingMinutes = Math.floor((remainingSeconds % 3600) / 60);
-                appointmentCountDown = `${remainingHours}h ${remainingMinutes}min`
-            }
+                console.log('appointmentCountDown', appointmentCountDown)
+                if (appointmentCountDown === '00:05:00') {
+                    const displayTime = `\n Starting at ${DateTime.fromISO(timeStamp).toFormat('hh:mm')}`
+                    this.dialog.open(AlertComponent, {data: { message: `You have an appointment in 5 min, at ${displayTime}`}})
+                }
+                console.log('appointmentCountDown', appointmentCountDown)
+                this.nextAppointmentCountDown.emit(appointmentCountDown);
+            } 
+            this.nextAppointmentCountDown.emit("not soon");
+            // else {
+            //     const remainingHours = Math.floor(remainingSeconds / 3600);
+            //     const remainingMinutes = Math.floor((remainingSeconds % 3600) / 60);
+            //     appointmentCountDown = `${remainingHours}h ${remainingMinutes}min`
+            // }
             
-            if (appointmentCountDown === '00:05:00') {
-                const displayTime = `\n Starting at ${DateTime.fromISO(timeStamp).toFormat('hh:mm')}`
-                this.dialog.open({data: {isAlert: true, message: `You have an appointment in 5 min${displayTime}`}})
-            }
-            this.nextAppointmentCountDown.emit(appointmentCountDown);
         });
     
         return this.subscription;

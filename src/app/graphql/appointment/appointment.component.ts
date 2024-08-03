@@ -1,68 +1,56 @@
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { Appointment } from "./appointment";
 import { AppGraphQLService } from "../../shared/services/app-graphql.service";
-import { AppDialogService } from "../../shared/services/app-dialog.service";
+//import { AppDialogService } from "../../shared/services/app-dialog.service";
 import { FormBuilder } from "@angular/forms";
-import { Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { Record } from "../record/record"; 
 import { DateTime } from "luxon";
+import { ConfirmComponent } from "../../shared/components/app-confirm/app-confirm.component";
+import { AlertComponent } from "../../shared/components/app-alert/app-alert.component";
+import { RecordComponent } from "../record/record.component";
+import { MatDialog } from "@angular/material/dialog";
 
 @Component({
     selector: 'app-appointment',
     templateUrl: './appointment.component.html',
     styleUrls: ['./appointment.component.scss']
 })
-export class AppointmentComponent implements OnInit {
+export class AppointmentComponent implements OnInit {  
+    appointment!: Appointment
+    record: Record | null = null;
+    formattedDate!: string;
+    updated: string | null = null;
+    recordId: number | null = null;
+    appointmentId!:number;
+
+    isCreating: boolean = false;
+    
     @Input() id!: number;
     @Output() close = new EventEmitter<number>();
-    appointment!: Appointment
-    formattedDate!: string;
-    created!: string;
-    updated: string | null = null;;
-    record: Record | null = null;
-    isCreating: boolean = false;
-    isEditting: boolean = false;
-    
+
     constructor(
         private graphQLService: AppGraphQLService,
-        private dialog: AppDialogService,
-        private formBuilder: FormBuilder,
+        private dialog: MatDialog,
+        private activatedRoute: ActivatedRoute,
         private router: Router
     ){}
 
     async ngOnInit() {
-        await this.loadAppointment();
-        await this.loadRecord();
+        //if (this.id) {
+            this.isCreating = false;
+            await this.loadAppointment();
+        //}
+        //if (this.recordId) {
+        //}
     }
     closeTab(){
-        const dialogref = this.dialog.open({data: {isConfirming: true, message: "All unsaved data will be lost"}});
+        const dialogref = this.dialog.open(ConfirmComponent, {data: { message: "All unsaved data will be lost"}});
         dialogref.componentInstance.ok.subscribe(subscription => {
             if (subscription) {
                 this.close.emit(this.id)
             }
         })
-    }
-
-    async loadRecord(){
-        const query = `query ($appointmentId: Int!){ 
-            record (appointmentId: $appointmentId) {
-                title
-                text
-                createdAt
-                updatedAt
-                draft
-            }
-        }`
-        try {
-            const response = await this.graphQLService.send(query, {appointmentId: this.id});
-            if (response.data.record) {
-                this.record = response.data.record;
-                this.created = DateTime.fromJSDate(new Date(response.data.record.createdAt)).toFormat('MMM dd, yyyy');
-                this.updated = DateTime.fromJSDate(new Date(response.data.record.updatedAt)).toFormat('MMM dd, yyyy'); 
-            }
-        } catch (error) {
-            this.dialog.open({data: {isAlert: true, message: "Unexpected error loading current appointment: "+error}})
-        }
     }
 
     async loadAppointment(){
@@ -84,52 +72,45 @@ export class AppointmentComponent implements OnInit {
                 start
                 end
                 createdAt
+                record {
+                    id
+                }
+                record {
+                    id
+                    title
+                    text
+                }
             }
         }`
         try {
             const response = await this.graphQLService.send(query, {appointmentId: this.id});
             if (response.data.appointment) {
                 this.appointment = response.data.appointment;
+                this.appointmentId = this.appointment.id;
+                this.record = response.data.appointment.record;
+                this.recordId = response.data.appointment.record?.id || null;
                 this.formattedDate = DateTime.fromJSDate(new Date(response.data.appointment.patient.dob)).toFormat('MMM dd, yyyy') 
+                console.log('apppointment !!: ', this.appointment)
             }
         } catch (error) {
-            this.dialog.open({data: {isAlert: true, message: "Unexpected error loading current appointment: "+error}})
+            this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading current appointment: "+error}})
         }
     }
-    createRecord() {
+    createRecord(id: number) {
+        /*const dialogRef = this.dialog.open(RecordComponent, {data: {recordId: null, appointmentId: this.appointment.id}})
+        dialogRef.componentInstance.reload.subscribe(subscription => {
+            if (subscription) this.loadAppointment();
+        })*/
         this.isCreating = true;
+        this.appointmentId = id;
     }
-    editRecord() {
-        this.isEditting = true;
-    }
-    deleteRecord() {
-        const dialogref = this.dialog.open({data: {isConfirming: true, message: "This will delete the record permanently"}});
-        dialogref.componentInstance.ok.subscribe(async subscription => {
-            if (subscription) {
-                const mutation = `mutation ($appointmentId: Int!) {
-                    deleteRecord(appointmentId: $appointmentId) {
-                        success
-                        message
-                    }
-                }`
-                try {
-                    const response = await this.graphQLService.mutate(mutation, {appointmentId: this.appointment.id});
-                    if (response.data.deleteRecord.success) {
-                        this.record = null;
-                    }
-                } catch (error) {
-                    this.dialog.open({data: {isAlert: true, message: "Unexpected error deleting record: "+error}})
-                }
-            }
-        })
-    }
-    onCancel(){
+    onRecordCancel(){
         this.isCreating = false;
-        this.isEditting = false;
     }
-    async onReload(){
+    async reload(value: boolean){
         this.isCreating = false;
-        this.isEditting = false;
-        await this.loadRecord();
+        this.loadAppointment();
+        //window.location.reload(); // works
+        console.log('reloading call -- id: ', this.appointmentId)
     }
 }

@@ -4,7 +4,9 @@ import { TestApp } from "./test-app";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { TestAppInput } from "./test-app.input";
 import { ActivatedRoute, Router } from "@angular/router";
-import { AppDialogService } from "../../shared/services/app-dialog.service";
+import { AlertComponent } from "../../shared/components/app-alert/app-alert.component";
+import { MatDialog } from "@angular/material/dialog";
+//import { AppDialogService } from "../../shared/services/app-dialog.service";
 
 @Component({
     selector: 'test-app',
@@ -20,7 +22,7 @@ export class TestAppComponent implements OnInit {
         private formBuilder: FormBuilder,
         private activatedRoute: ActivatedRoute,
         private router: Router,
-        private dialog: AppDialogService
+        private dialog: MatDialog
     ){
         this.form = undefined;
         this.testApp = undefined;
@@ -53,7 +55,7 @@ export class TestAppComponent implements OnInit {
                 this.buildForm();
             }
         } catch (error) {
-            this.dialog.open({data: {message: error}})
+            this.dialog.open(AlertComponent, {data: {message: error}})
         }
         // this.graphQLService
         //     .send(query, {testAppId: id})
@@ -85,7 +87,7 @@ export class TestAppComponent implements OnInit {
             await this.graphQLService.mutate(mutation, { testAppInput: input })
             this.router.navigate(['test-apps'])
         } catch (error) {
-            this.dialog.open({data: { message: error}})
+            this.dialog.open(AlertComponent, {data: { message: error}})
         }
         
     }

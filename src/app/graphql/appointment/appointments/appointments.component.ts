@@ -3,13 +3,17 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { MatTableDataSource } from "@angular/material/table";
 import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
-import { AppDialogService } from "../../../shared/services/app-dialog.service";
+//import { AppDialogService } from "../../../shared/services/app-dialog.service";
 import { AppointmentDataSource } from "../../../shared/types";
 import { Appointment } from "../appointment";
 import { AppNextAppointmentService } from "../../../shared/services/app-next-appointment.service";
 import { AppTimerService } from "../../../shared/services/app-timer.service";
 import { AppointmentComponent } from "../appointment.component";
 import { AppTabsService } from "../../../shared/services/app-tabs.service";
+import { AlertComponent } from "../../../shared/components/app-alert/app-alert.component";
+import { ConfirmComponent } from "../../../shared/components/app-confirm/app-confirm.component";
+import { EventComponent } from "../../../shared/components/app-event/event.component";
+import { MatDialog } from "@angular/material/dialog";
 
 @Component({
     selector: 'app-appointments',
@@ -26,15 +30,15 @@ export class AppointmentsComponent implements OnInit {
     nextAppointmentStartTime: string | undefined;
     appointment: Appointment | null = null;
     private previousNextId: number | null = null;
-    nextId: number | null = 195;
+    nextId: number | null = null;
     markAppointmentId: number| null = null;
 
     @ViewChildren('tabContent', { read: ViewContainerRef }) tabContents!: QueryList<ViewContainerRef>;
     tabs: any[] | null = null;
 
-    countPendingAppointments: number = 0;
-    countUpcomingAppointments: number = 0;
-    countPastAppointments: number = 0;
+    // countPendingAppointments: number = 0;
+    // countUpcomingAppointments: number = 0;
+    // countPastAppointments: number = 0;
 
     pendingDataSource: AppointmentDataSource[] | undefined;
     upcomingDataSource: AppointmentDataSource[] | undefined;
@@ -60,7 +64,7 @@ export class AppointmentsComponent implements OnInit {
     constructor(
         private graphQLService: AppGraphQLService,
         private router: Router,
-        private dialog: AppDialogService,
+        private dialog: MatDialog,
         private activatedRoute: ActivatedRoute,
         private cdr: ChangeDetectorRef,
         private nextAppointmentService: AppNextAppointmentService,
@@ -73,10 +77,12 @@ export class AppointmentsComponent implements OnInit {
     async ngOnInit() {
         this.tabs = this.tabsService.getTabs()
         await this.loadStatic();
-        this.activatedRoute.queryParams.subscribe(async (params)=> {
-            const id = params['id']; 
-            if (id) this.routedAppointmentId = +id;
-          });
+        //console.log('pending count: ', this.countPendingAppointments, 'upc count: ', this.countUpcomingAppointments, 'past: ', this.countPastAppointments)
+        // this.activatedRoute.queryParams.subscribe(async (params)=> {
+        //     const id = params['id']; 
+        //     if (id) this.routedAppointmentId = +id;
+        //   });
+        
         this.activatedRoute.queryParams.subscribe(async params => {
             const tab = params['tab'];
             this.selectedIndex = tab ? +tab : 0;
@@ -96,12 +102,13 @@ export class AppointmentsComponent implements OnInit {
         });
 
         this.timerService.nextAppointmentCountDown.subscribe(async value => {
-            if (value === '00:05:00') {  
+            //console.log('value: ', value)
+            if (value <= '00:05:00') {  
                 this.createAppointmentTab()
             }   
         });
         
-        //this.createAppointmentTab()
+        this.createAppointmentTab()
     }
     createAppointmentTab() {
         const id = this.nextId
@@ -137,18 +144,28 @@ export class AppointmentsComponent implements OnInit {
     async loadStatic() {
         const query = `query { 
             me { userRole }
-            countPendingAppointments
-            countUpcomingAppointments
-            countPastAppointments
         }`
 
         try {
             const response = await this.graphQLService.send(query);
             if (response.data.me.userRole) {
                 this.userRole =response.data.me.userRole;
-                this.countPendingAppointments = response.data.countPendingAppointments
-                this.countUpcomingAppointments = response.data.countUpcomingAppointments
-                this.countPastAppointments = response.data.countPastAppointments
+
+                /*const query = `query {
+                    countPendingAppointments
+                    countUpcomingAppointments
+                    countPastAppointments
+                }`
+                try {
+                    const response = await this.graphQLService.send(query);
+                    if (response.data) {
+                        this.countPendingAppointments = response.data.countPendingAppointments
+                        this.countUpcomingAppointments = response.data.countUpcomingAppointments
+                        this.countPastAppointments = response.data.countPastAppointments
+                    }
+                } catch (error) {
+                    this.dialog.open(AlertComponent, {data: {message: "Error getting count: "+error}})
+                }*/
             }
         } catch (error) {
             this.router.navigate(['/'])
@@ -222,6 +239,11 @@ export class AppointmentsComponent implements OnInit {
                             firstName
                             lastName
                         }
+                        record {
+                            id
+                            title
+                            text
+                        }
                     }    
                 }
             }
@@ -237,16 +259,17 @@ export class AppointmentsComponent implements OnInit {
         try {
             const response = await this.graphQLService.send(query, variables);
             if (response.data.pendingAppointments) {
+                console.log('TO DO: fix getting record from appointment ! ', response.data.pendingAppointments)
                 this.pendingAppointments = response.data.pendingAppointments.slice;
                 this.length = response.data.pendingAppointments.length;
                 this.formatDataSource("pending");
 
-                if (this.countPendingAppointments > 9) {
+                if (this.length > 9) {
                     this.dataSource = new MatTableDataSource<AppointmentDataSource>(this.pendingDataSource);
                 }
             }
         } catch (error){
-            this.dialog.open({data: {message: "Unexpected error while getting pending appointments: "+error}})
+            this.dialog.open(AlertComponent, {data: {message: "Unexpected error while getting pending appointments: "+error}})
         }
     }
     async loadUpcomingAppointments() {
@@ -278,10 +301,6 @@ export class AppointmentsComponent implements OnInit {
                             firstName
                             lastName
                         }
-                        doctor {
-                            firstName
-                            lastName
-                        }
                     }    
                 }
             }
@@ -301,12 +320,12 @@ export class AppointmentsComponent implements OnInit {
                 this.length = response.data.upcomingAppointments.length;
                 this.formatDataSource("upcoming");
 
-                if (this.countUpcomingAppointments > 9) {
+                if (this.length > 9) {
                     this.dataSource = new MatTableDataSource<AppointmentDataSource>(this.upcomingDataSource);
                 }
             }
         } catch (error){
-            this.dialog.open({data: {message: "Unexpected error while getting upcoming appointments: "+error}})
+            this.dialog.open(AlertComponent, {data: {message: "Unexpected error while getting upcoming appointments: "+error}})
         }
     }
     async loadPastAppointments() {
@@ -338,10 +357,6 @@ export class AppointmentsComponent implements OnInit {
                             firstName
                             lastName
                         }
-                        doctor {
-                            firstName
-                            lastName
-                        }
                     }    
                 }
             }
@@ -359,15 +374,14 @@ export class AppointmentsComponent implements OnInit {
             if (response.data.pastAppointments) {
                 this.pastAppointments = response.data.pastAppointments.slice;
                 this.length = response.data.pastAppointments.length;
-                this.cdr.detectChanges();
                 this.formatDataSource("past");
 
-                if (this.countPastAppointments > 9) {
+                if (this.length > 9) {
                     this.dataSource = new MatTableDataSource<AppointmentDataSource>(this.pastDataSource);
                 }
             }
         } catch (error){
-            this.dialog.open({data: {message: "Unexpected error while getting past appointments: "+error}})
+            this.dialog.open(AlertComponent, {data: {message: "Unexpected error while getting past appointments: "+error}})
         }
     }
     async checkIsReservedDay(date: string) {
@@ -377,11 +391,12 @@ export class AppointmentsComponent implements OnInit {
             this.isReservedDay = await this.graphQLService.send(query, {date: DateTime.fromISO(date).toJSDate()});
         } catch (error) {
             //this.dialog.open({data: {message: "Error checking for reserved days: "+error}})
-            //FIX RESERVED DAYS !! throws error here
+            //TO DO: FIX RESERVED DAYS !! throws error here
         }
     }
 
     formatDataSource(view: string) {
+        // TO DO rename:  "allButtons", "cancelButton", "deleteButton"
         const allActions = [
             {
                 text: 'Cancel Appointment',
@@ -427,7 +442,7 @@ export class AppointmentsComponent implements OnInit {
                 this.upcomingDataSource = this.upcomingAppointments.map(row => {
                     const startT = DateTime.fromJSDate(new Date(row.start)).toISO();
                     const howSoonStr = this.getHowSoonUpcoming(startT);
-
+  
                     return {
                         id: row.id,
                         howSoonStr: howSoonStr,
@@ -465,7 +480,7 @@ export class AppointmentsComponent implements OnInit {
         const now = DateTime.now();
         const diff = inputDate.diff(now, ['years', 'months', 'days', 'hours', 'minutes', 'seconds']);
         let howSoonStr = 'in ';
-    
+
         if (diff.years > 0) {
             howSoonStr += `${diff.years} year${diff.years === 1 ? '' : 's'} `;
         }
@@ -528,7 +543,7 @@ export class AppointmentsComponent implements OnInit {
     }
 
     deleteAppointment(id: number) {
-        const dialogRef = this.dialog.open({ data: { isConfirming: true }})
+        const dialogRef = this.dialog.open(ConfirmComponent)
         
         dialogRef.componentInstance.ok.subscribe(async (value)=> {
             if (value) {
@@ -544,7 +559,7 @@ export class AppointmentsComponent implements OnInit {
                         this.ngOnInit();
                     }
                 } catch (error) {
-                    this.dialog.open({data: {message: "Unexpected error while deleting appointment: "+error}})
+                    this.dialog.open(AlertComponent, {data: {message: "Unexpected error while deleting appointment: "+error}})
                 }
             }
         })  
@@ -570,7 +585,7 @@ export class AppointmentsComponent implements OnInit {
     }
 
     onAppointmentClick(eventInfo: {id: string, title: string}){
-        this.dialog.open({data: {eventInfo}});
+        this.dialog.open(EventComponent, {data: {eventInfo}});
     }
 
     async acceptAppointment(id: number) {
@@ -586,12 +601,12 @@ export class AppointmentsComponent implements OnInit {
                 const response = await this.graphQLService.mutate(mutation, {appointmentId: id});
 
                 if (response.data.acceptAppointment.success) {
-                    this.dialog.open({data: {isAlert: true, message: "Appointment added to your calendar"}});
+                    this.dialog.open(AlertComponent, {data: {message: "Appointment added to your calendar"}});
                     this.loadUpcomingAppointments();
                     this.ngOnInit();
                 }
             } catch (error) {
-                this.dialog.open({data: {message: `Unexpected error: ${error}`}})
+                this.dialog.open(AlertComponent, {data: {message: `Unexpected error: ${error}`}})
             }
         }
     } 

@@ -1,22 +1,31 @@
-import { Component, OnInit } from "@angular/core";
-import { AppDialogService } from "../../../services/app-dialog.service";
+import { Component, Inject, OnInit } from "@angular/core";
+//import { AppDialogService } from "../../../services/app-dialog.service";
 import { Router } from "@angular/router";
-import { AppAuthService } from "../../../services/app-auth.service";
+import { AppAuthService } from "../../services/app-auth.service";
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
 
 @Component({
     selector: 'app-login',
-    templateUrl: './login.component.html',
-    styleUrls: ['login.component.scss']
+    templateUrl: './app-login.component.html',
+    styleUrls: ['app-login.component.scss']
 })
 export class LoginComponent implements OnInit{
     title = "Log In"
     googleCredential: string | undefined;
+    showDirectLoginForm: boolean = false;
+    isLoggingIn: boolean = false;
 
     constructor (
-        private dialog: AppDialogService,
+        private dialog: MatDialog,
         private authService: AppAuthService,
-        private router: Router
-    ) {}
+        private router: Router,
+
+        public dialogRef: MatDialogRef<LoginComponent>,
+        @Inject(MAT_DIALOG_DATA) public data: any
+    ) {
+        this.showDirectLoginForm = this.data.showDirectLoginForm;
+        this.isLoggingIn = this.data.isLoggingIn;
+    }
 
     ngOnInit() {
         // @ts-ignore
@@ -42,7 +51,7 @@ export class LoginComponent implements OnInit{
       }
 
     onDirectLoginClick(){
-        this.dialog.open({ data: { showDirectLoginForm: true, isLoggingIn: false }})
+        this.dialog.open(LoginComponent, { data: { showDirectLoginForm: true, isLoggingIn: false }})
     }
 
     async handleCredentialResponse(response: any) {

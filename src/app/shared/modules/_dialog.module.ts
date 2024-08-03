@@ -2,36 +2,42 @@ import { NgModule } from "@angular/core";
 import { AppDialogComponent } from "../components/app-dialog/app-dialog.component";
 import { CommonModule } from "@angular/common";
 import { MatDialogModule } from "@angular/material/dialog";
-import { ConfirmComponent } from "../components/app-dialog/confirm/confirm.component";
-import { LoadingComponent } from "../components/app-dialog/loading/loading.component";
+import { ConfirmComponent } from "../components/app-confirm/app-confirm.component";
+import { LoadingComponent } from "../components/app-loading/loading.component";
 import { MatButtonModule } from "@angular/material/button";
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
-import { LoginComponent } from "../components/app-dialog/login/login.componnet";
+import { LoginComponent } from "../components/app-login/app-login.componnet";
 import { MatInputModule } from "@angular/material/input";
 import { MatDividerModule } from "@angular/material/divider";
-import { ReactiveFormsModule } from "@angular/forms";
-import { AlertComponent } from "../components/app-dialog/alert/alert.component";
-import { EventComponent } from "../components/app-dialog/event/event.component";
-import { RecordDetailsComponent } from "../components/app-dialog/record-details/record-details.component";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { AlertComponent } from "../components/app-alert/app-alert.component";
+import { EventComponent } from "../components/app-event/event.component";
+import { RecordComponent } from "../../graphql/record/record.component";
+import { AppEditorComponent } from "../components/app-editor/app-editor.component";
+import { NgxEditorModule } from 'ngx-editor';
 
 @NgModule({
-    declarations: [
+    /*declarations: [
         AppDialogComponent,
         ConfirmComponent,
         LoadingComponent,
         AlertComponent,
         LoginComponent,
         EventComponent,
-        RecordDetailsComponent
+        AppEditorComponent,
+        RecordComponent,
     ],
     imports: [
+        FormsModule,
         ReactiveFormsModule,
         CommonModule,
         MatDialogModule,
         MatButtonModule,
         MatProgressSpinnerModule,
         MatInputModule,
-        MatDividerModule
-    ]
+        MatDividerModule,
+        NgxEditorModule
+        
+    ]*/
 })
 export class DialogModule {};

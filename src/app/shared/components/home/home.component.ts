@@ -1,11 +1,14 @@
 import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { Subscription } from "rxjs";
-import { AppDialogService } from "../../services/app-dialog.service";
+//import { AppDialogService } from "../../services/app-dialog.service";
 import { AppAuthService } from "../../services/app-auth.service";
 import { AppGraphQLService } from "../../services/app-graphql.service";
 import { AppTimerService } from "../../services/app-timer.service";
 import { AppNextAppointmentService } from "../../services/app-next-appointment.service";
+import { AlertComponent } from "../app-alert/app-alert.component";
+import { MatDialog } from "@angular/material/dialog";
+import { LoginComponent } from "../app-login/app-login.componnet";
 
 @Component({
     selector: 'app-home',
@@ -24,7 +27,7 @@ export class HomeComponent implements OnInit{
     nextAppointmentId: number | null = null;
 
     constructor (
-        private dialog: AppDialogService,
+        private dialog: MatDialog,
         private authService: AppAuthService,
         private graphQLService: AppGraphQLService,
         private timerService: AppTimerService,
@@ -88,18 +91,18 @@ export class HomeComponent implements OnInit{
                         const response = await this.graphQLService.send(query);
                         this.isRecords = response.data.countUserRecords.countRecords >0 || response.data.countUserRecords.countDrafts >0
                     } catch (error) {
-                        this.dialog.open({data: {isAlert: true, message: "Unable to get record count "+error}});
+                        this.dialog.open(AlertComponent, {data: {message: "Unable to get record count "+error}});
                     }
 
                 }        
             }
         } catch (error) {
-            this.dialog.open({data: {message: "No user, must login :"+error}})
+            this.dialog.open(AlertComponent, {data: {message: "No user, must login :"+error}})
         }
     }
 
     logIn() {
-        this.dialog.open({data: {isLoggingIn: true}});
+        this.dialog.open(LoginComponent);
     }
 
     getIsUserUpdated () {

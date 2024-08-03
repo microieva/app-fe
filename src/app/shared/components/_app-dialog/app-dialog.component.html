@@ -1,0 +1,30 @@
+<mat-dialog-content *ngIf="isLoading">
+    <app-loading></app-loading>
+</mat-dialog-content>
+
+<mat-dialog-content *ngIf="isConfirming">
+    <app-confirm (ok)="onOk($event)" [message]="message"></app-confirm>
+</mat-dialog-content>
+
+<mat-dialog-content *ngIf="isAlert">
+    <app-alert (ok)="onOk($event)" [message]="message"></app-alert>
+</mat-dialog-content>
+
+<mat-dialog-content *ngIf="isLoggingIn">
+    <app-login></app-login>
+</mat-dialog-content>
+
+
+
+<!-- <mat-dialog-content *ngIf="openRecord">
+    <app-record
+        [appointmentId]="appointemntId"
+        [recordId]="recordId"
+        (cancel)="onRecordCancel()"
+        (reload)="onReload()"
+    >        
+    </app-record>
+</mat-dialog-content> -->
+
+
+

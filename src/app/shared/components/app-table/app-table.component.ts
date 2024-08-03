@@ -34,8 +34,8 @@ export class AppTableComponent implements OnInit, AfterViewInit {
     @Output() appointmentClick = new EventEmitter<{id: number, title: string}>();
     @Output() buttonClick = new EventEmitter<{id: number, text: string}>();
 
-    @Input() dataSource: AppDataSource[] | null = null;
-    tableDataSource: MatTableDataSource<AppDataSource> | undefined;
+    @Input() dataSource: MatTableDataSource<AppDataSource> | undefined;
+    //dataSource: MatTableDataSource<AppDataSource> | undefined;
     @Input() length: number = 0;
     @Input() userRole!: string;
     @Input() markAppointmentId: number| null = null;
@@ -74,59 +74,50 @@ export class AppTableComponent implements OnInit, AfterViewInit {
     }
     
     ngOnInit() {
-        // if (this.dataSource) {
-        //     this.dataSource?.data.find(element => {
-        //         if (element.howLogAgoStr) {
-        //             this.displayedColumnHeader = 'howLongAgoStr'
-        //         } else if (element.howSoonStr) {
-        //             this.displayedColumnHeader = 'startTimeHeader'
-        //         } else if (element.pastDate) {
-        //             this.displayedColumnHeader = 'pastDateStr'
-        //         } else if (element.createdAt) {}
-        //     })   
-        // }
         if (this.dataSource) {
-            const firstElement = this.dataSource[0];
+            const firstElement = this.dataSource.data[0];
 
-            if ('id' in firstElement) {
+            if ('createdAt' in firstElement) {
+                this.displayedColumns = ['title', 'created'];   
+            } else {
                 this.displayedColumns = ['id', 'status', 'time'];
-                this.columnsToDisplayWithExpand = [...this.displayedColumns, 'expandedDetail'];  
-            } else if ('createdAt' in firstElement) {
-                this.displayedColumns = ['title', 'created'];
             }
-            this.tableDataSource = new MatTableDataSource(this.dataSource);
+            this.columnsToDisplayWithExpand = [...this.displayedColumns, 'expandedDetail'];  
         }
-        console.log('TABLE DATA SOURCE: ', this.dataSource)
+        console.log('TABLE datasource: ', this.dataSource?.data)
     }
     ngAfterViewInit(): void {   
-        if (this.paginator && this.tableDataSource) {
-            this.tableDataSource.paginator = this.paginator;
+        if (this.paginator && this.dataSource) {
+            this.paginator.length = this.length;
+            this.dataSource.paginator = this.paginator;
             this.sort.disableClear = true;
-            this.tableDataSource.sort = this.sort;
+            this.dataSource.sort = this.sort;
         }
+        console.log('PAG inside datasource: ', this.dataSource?.paginator?.length)
     }
+    
 
     ngOnChanges(changes: any): void {
-        if (changes['tableDataSource'] && changes['length']) {
-          if (this.tableDataSource && this.paginator) {
-                this.tableDataSource.paginator = this.paginator;
-                this.tableDataSource.paginator.firstPage();
+        if (changes['dataSource'] && changes['length']) {
+          if (this.dataSource && this.paginator) {
+                this.dataSource.paginator = this.paginator;
+                this.dataSource.paginator.firstPage();
           }
         }
     }
 
     scrollToTop() {
         if (this.scrollView) {
-          this.scrollView.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+          //this.scrollView.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
         }
     }
 
     onSearch(event: KeyboardEvent) {
         const filterValue = (event.target as HTMLInputElement).value;
 
-        if (this.tableDataSource) {
+        if (this.dataSource) {
             this.searchSubject.next(filterValue);
-            this.tableDataSource.filter = filterValue.trim().toLowerCase();
+            this.dataSource.filter = filterValue.trim().toLowerCase();
         }
     }
 
@@ -136,6 +127,7 @@ export class AppTableComponent implements OnInit, AfterViewInit {
         const pageEvent = {pageIndex: event.pageIndex, pageLimit: event.pageSize}
         this.pageChange.emit(pageEvent);
         this.scrollToTop();
+        console.log('on page change')
     }
 
     onAppointmentClick(id: number, title: string){

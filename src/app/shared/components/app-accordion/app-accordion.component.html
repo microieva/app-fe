@@ -13,8 +13,9 @@
                 <p *ngIf="element.howLongAgoStr">Appointment created: <em>{{element.howLongAgoStr}}</em></p>
                 <p *ngIf="element.howSoonStr">Appointment time: <em>{{element.howSoonStr}}</em></p>
                 <p *ngIf="element.pastDate">Appointment date: <em>{{element.pastDate}}</em></p>
+                
                 <p *ngIf="element.updatedAt && userRole==='patient'">Created: <em>{{element.updatedAt}}</em></p>
-                <p *ngIf="element.updatedAt && !element.draft && userRole==='doctor'">Saved on: <em>{{element.updatedAt}}</em></p>
+                <p *ngIf="element.updatedAt && !element.draft && userRole==='doctor'">Last saved: <em>{{element.updatedAt}}</em></p>
                 <p *ngIf="element.createdAt && element.draft">Created: <em>{{element.createdAt}}</em></p>
                 <p *ngIf="element.updatedAt && element.draft">Last updated: <em>{{element.updatedAt}}</em></p>
             </div>

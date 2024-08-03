@@ -44,7 +44,9 @@ export interface AppDialogData {
     showDirectLoginForm: boolean
     input: boolean
     eventInfo: any
-    recordInfo: Record
+    recordId: number
+    openRecord: boolean
+    appointmentId: number
 }
 
 export interface DirectLoginInput {

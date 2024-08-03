@@ -2,8 +2,10 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Apollo } from 'apollo-angular';
 import { AppGraphQLService } from './app-graphql.service';
-import { AppDialogService } from './app-dialog.service';
+//import { AppDialogService } from './app-dialog.service';
 import { DirectLoginInput } from '../types';
+import { MatDialog } from '@angular/material/dialog';
+import { AlertComponent } from '../components/app-alert/app-alert.component';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +16,7 @@ export class AppAuthService {
   constructor(
     private apollo: Apollo,
     private graphQLService: AppGraphQLService,
-    private dialog: AppDialogService,
+    private dialog: MatDialog,
     private router: Router
   ) {}
 
@@ -39,7 +41,7 @@ export class AppAuthService {
           return token;
         }
       } catch (error) {
-        this.dialog.open({data: {message: "Unexpected AuthService error: "+error}});
+        this.dialog.open(AlertComponent, {data: {message: "Unexpected AuthService error: "+error}});
         this.logOut();
       }
     }
@@ -62,11 +64,11 @@ export class AppAuthService {
 
         localStorage.setItem('authToken', token);
         localStorage.setItem('tokenExpire', tokenExpire);
-        this.dialog.close();
+        this.dialog.closeAll();
         window.location.reload();
       }
     } catch (error) {
-      this.dialog.open({data: { message:  "Unexpected AuthService error: "+error}});
+      this.dialog.open(AlertComponent, {data: { message:  "Unexpected AuthService error: "+error}});
       this.logOut();
     }
   }

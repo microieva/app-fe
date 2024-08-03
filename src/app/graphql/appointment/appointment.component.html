@@ -32,14 +32,14 @@
                 </div>
             </div>
         </div>
-        <div class="flex-column wrapper" *ngIf="!record">
+        <div class="flex-column wrapper" *ngIf="!recordId">
             <p class="title">{{ 'Medical Record' }}</p>
             <div class="flex-row">
                 <div class="flex-column">
                     <button 
                         *ngIf="!record"
                         mat-stroked-button 
-                        (click)="createRecord()" 
+                        (click)="createRecord(appointment.id)" 
                         style=" background-color: rgb(175 111 174 / 40%);" 
                         [disabled]="isCreating"
                     >
@@ -48,43 +48,13 @@
                 </div>
             </div>
         </div>
-        <div class="record wrapper" *ngIf="isCreating || isEditting">
-            <p class="title">{{ 'New Record' }}</p>
-            <app-editor 
-                [appointmentId]="appointment.id" 
-                [patientId]="appointment.patient.id"
-                (cancel)="onCancel()"
-                (reload)="onReload()"
-            ></app-editor>
-        </div>
-        <div class="record wrapper" *ngIf="record && !isEditting && !isCreating">
-            <div class="flex-row">
-                <p class="title" *ngIf="!record.draft">{{ 'Medical Record' }}</p>
-                <p class="title" *ngIf="record.draft">{{ 'Record Draft' }}</p>
-                <div style="align-self: baseline;">
-                    <p><em>created: </em>{{ created }}</p>
-                    <!-- <p *ngIf="record.updatedAt"><em>updated: </em>{{ updated }}</p> -->
-                </div>
-            </div>
-            <div class="actions">
-                <button 
-                    *ngIf="record.draft"
-                    mat-stroked-button 
-                    (click)="editRecord()" 
-                    style="background-color: #99A9BD;"
-                >
-                    {{ 'Edit Record' }}
-                </button>
-                <button 
-                    mat-stroked-button 
-                    (click)="deleteRecord()" 
-                    style="background-color: #99A9BD;"
-                >
-                    {{ 'Delete Record' }}
-                </button>
-            </div>
-            <h4>{{ record.title }}</h4>
-            <div [innerHtml]="record.text"></div>
+        <div *ngIf="recordId || isCreating">
+            <app-record 
+                [appointmentId]="appointmentId"
+                [recordId]="recordId"
+                (cancel)="onRecordCancel()"
+                (reload)="reload($event, async)"
+            ></app-record>
         </div>
     </div>
 </div>

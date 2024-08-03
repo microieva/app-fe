@@ -1,9 +1,12 @@
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { Component, EventEmitter, Inject, Input, OnInit, Output } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { AppDataSource } from "../../types";
 import { AppGraphQLService } from "../../services/app-graphql.service";
-import { AppDialogService } from "../../services/app-dialog.service";
+//import { AppDialogService } from "../../services/app-dialog.service";
 import { Record } from "../../../graphql/record/record";
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
+import { RecordComponent } from "../../../graphql/record/record.component";
+import { AlertComponent } from "../app-alert/app-alert.component";
 
 @Component({
     selector: 'app-accordion',
@@ -19,13 +22,14 @@ export class AppAccordionComponent implements OnInit{
     @Input() markAppointmentId: number| null = null;
     @Output() buttonClick = new EventEmitter<{id: number, text: string}>();
     @Output() appointmentClick = new EventEmitter<{id: number, title: string}>();
-    @Output() recordClick = new EventEmitter<{id: number, title: string, text: string}>();
+    @Output() recordId = new EventEmitter<number>();
+    @Output() reload = new EventEmitter<boolean>();
 
     constructor(
         private activatedRoute: ActivatedRoute,
         private router: Router,
         private graphQLService: AppGraphQLService,
-        private dialog: AppDialogService
+        private dialog: MatDialog
     ){}
 
     async ngOnInit() {
@@ -50,6 +54,7 @@ export class AppAccordionComponent implements OnInit{
                 createdAt
                 draft
                 appointment {
+                    id
                     patient {
                         firstName
                         lastName
@@ -67,7 +72,7 @@ export class AppAccordionComponent implements OnInit{
                 console.log('RECORD WITH PATIENT ??? ', this.record)
             }
         } catch (error) {
-            this.dialog.open({data: {message: "Unexpected error loading medical record: "+error}})
+            this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading medical record: "+error}})
         }   
     }
 
@@ -77,12 +82,13 @@ export class AppAccordionComponent implements OnInit{
     }
     onRecordClick(id: number){
         if (this.record?.id === id) {
-            const recordInfo = {
-                id: this.record.id,
-                title: this.record.title,
-                text: this.record.text
-            }
-            this.recordClick.emit(recordInfo);
+            const ref = this.dialog.open(RecordComponent, {data: {recordId: id, appointmentId: this.record.appointment.id}});
+            ref.componentInstance.reload.subscribe(subsription => {
+                if (subsription) {
+                    this.reload.emit(true);
+                    //this.dialog.closeAll();
+                }
+            })
         }
     }
     resetRoute(){

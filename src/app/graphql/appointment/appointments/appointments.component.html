@@ -22,7 +22,7 @@
             <div class="page" #scrollView>
                 <div class="appointments">
                     <app-table 
-                        *ngIf="dataSource && countPendingAppointments > 9"
+                        *ngIf="dataSource && length > 9"
                         [dataSource]="dataSource" 
                         [length]="length"
                         [userRole]="userRole"
@@ -35,7 +35,7 @@
                     >
                     </app-table>
                     <app-accordion     
-                        *ngIf="countPendingAppointments<10"
+                        *ngIf="length<10"
                         [markAppointmentId]="routedAppointmentId"
                         [dataSource]="pendingDataSource" 
                         (buttonClick)="onButtonClick($event)"
@@ -53,7 +53,7 @@
             </div>
         </div>
     </mat-tab>
-    <mat-tab label="upcoming" *ngIf="countPendingAppointments !== 0 || countUpcomingAppointments !== 0">
+    <mat-tab label="upcoming">
         <ng-template mat-tab-label>
             <span class="tab-label" *ngIf="userRole === 'patient'">Upcoming</span>
             <span class="tab-label" *ngIf="userRole === 'doctor'">Accepted Appointments</span>
@@ -97,7 +97,7 @@
             </div>
         </div>
     </mat-tab>
-    <mat-tab label="past" *ngIf="countUpcomingAppointments !== 0 || countPastAppointments !== 0">
+    <mat-tab label="past">
         <ng-template mat-tab-label>
             <span class="tab-label">Past</span>
         </ng-template>
@@ -116,7 +116,7 @@
                 </div>
                 <div class="appointments">
                     <app-table 
-                        *ngIf="dataSource && countPastAppointments > 9"
+                        *ngIf="dataSource && length > 9"
                         [dataSource]="dataSource" 
                         [length]="length"
                         [userRole]="userRole"
@@ -129,7 +129,7 @@
                     >
                     </app-table>
                     <app-accordion 
-                        *ngIf="countPastAppointments<10"
+                        *ngIf="length<10"
                         [markAppointmentId]="routedAppointmentId"
                         [dataSource]="pastDataSource" 
                         (buttonClick)="onButtonClick($event)"

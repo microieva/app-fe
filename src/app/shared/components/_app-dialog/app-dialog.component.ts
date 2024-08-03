@@ -1,14 +1,15 @@
 import { Component, EventEmitter, Inject, OnInit, Output } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { AppAuthService } from "../../services/app-auth.service";
 import { AppDialogData, DirectLoginInput } from "../../types";
 import { AppGraphQLService } from "../../services/app-graphql.service";
-import { AppDialogService } from "../../services/app-dialog.service";
+//import { AppDialogService } from "../../services/app-dialog.service";
 import { Appointment } from "../../../graphql/appointment/appointment";
 import { DateTime } from "luxon";
 import { Router } from "@angular/router";
 import { Record } from "../../../graphql/record/record";
+import { AlertComponent } from "../app-alert/app-alert.component";
 
 @Component({
     selector: 'app-dialog',
@@ -41,14 +42,16 @@ export class AppDialogComponent implements OnInit {
     appointmentId: number | undefined;
     doctorMessage: string | null = null;
     patientMessage: string | null = null;
-    recordTitle: string | undefined;
-    recordText: string | undefined;
+    recordId: number | undefined;
+    //appointmentId: number | undefined;
+    openRecord: boolean = false;
 
     @Output() ok = new EventEmitter<boolean>(false);
     @Output() loginSuccess = new EventEmitter<boolean>(false);
     @Output() event = new EventEmitter<string>();
     @Output() eventId = new EventEmitter<number>();
     @Output() linkId = new EventEmitter<number>();
+    @Output() reload = new EventEmitter<boolean>();
 
     constructor(
         @Inject(MAT_DIALOG_DATA) data: AppDialogData,
@@ -56,7 +59,7 @@ export class AppDialogComponent implements OnInit {
         private formBuilder: FormBuilder,
         private authService: AppAuthService,
         private graphQLService: AppGraphQLService,
-        private dialog: AppDialogService,
+        private dialog: MatDialog,
         private router: Router
     ) {
         this.isLoading = data.isLoading;
@@ -67,7 +70,9 @@ export class AppDialogComponent implements OnInit {
         this.showDirectLoginForm = data.showDirectLoginForm;
         this.input = data.input;
         this.eventInfo = data.eventInfo;
-        this.recordInfo = data.recordInfo;
+        this.recordId = data.recordId;
+        this.appointmentId = data.appointmentId;
+        this.openRecord = data.openRecord;
         this.form = this.buildLoginForm();
     }
 
@@ -78,10 +83,6 @@ export class AppDialogComponent implements OnInit {
         if (this.eventInfo) {
             this.eventTitle = this.eventInfo.title;
             await this.loadAppointment(this.eventInfo.id);
-        }
-        if (this.recordInfo) {
-            this.recordTitle = this.recordInfo.title;
-            this.recordText = this.recordInfo.text;
         }
         if (this.appointment) {
             this.createdAt = DateTime.fromJSDate(new Date(this.appointment.createdAt)).toFormat('MMM dd, yyyy');
@@ -166,9 +167,16 @@ export class AppDialogComponent implements OnInit {
                 this.appointment = response.data.appointment;
             }
         } catch (error) {
-            this.dialog.open({data: {message: "Unexpected error fetching appointment: "+error}});
+            this.dialog.open(AlertComponent, {data: {message: "Unexpected error fetching appointment: "+error}});
             this.router.navigate(['/appointments']);
         }
+    }
+
+    onRecordCancel(){
+
+    }
+    onReload(){
+        this.reload.emit(true)
     }
 }
 

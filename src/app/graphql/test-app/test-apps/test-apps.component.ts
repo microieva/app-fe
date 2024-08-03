@@ -1,8 +1,11 @@
 import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
-import { AppDialogService } from "../../../shared/services/app-dialog.service";
+//import { AppDialogService } from "../../../shared/services/app-dialog.service";
 import { TestApp } from "../test-app";
+import { AlertComponent } from "../../../shared/components/app-alert/app-alert.component";
+import { MatDialog } from "@angular/material/dialog";
+import { ConfirmComponent } from "../../../shared/components/app-confirm/app-confirm.component";
 
 @Component({
     selector: 'test-apps',
@@ -14,7 +17,7 @@ export class TestAppsComponent implements OnInit {
 
     constructor(
         private graphQLService: AppGraphQLService,
-        private dialog: AppDialogService,
+        private dialog: MatDialog,
         private router: Router
     ){}
 
@@ -37,7 +40,7 @@ export class TestAppsComponent implements OnInit {
                 this.testApps = response.data.testApps;
             }
         } catch (error) {
-            this.dialog.open({data: {message: error}});
+            this.dialog.open(AlertComponent, {data: {message: error}});
         }
         // this.graphQLService
         //     .send(query)
@@ -55,7 +58,7 @@ export class TestAppsComponent implements OnInit {
     }
 
     deleteTestApp(id: number) {
-        const dialogRef = this.dialog.open({ data: { isConfirming: true }})
+        const dialogRef = this.dialog.open(ConfirmComponent)
         
         dialogRef.componentInstance.ok.subscribe((value)=> {
             if (value) {
@@ -76,7 +79,7 @@ export class TestAppsComponent implements OnInit {
             await this.graphQLService.mutate(mutation, { testAppId: id});
             this.ngOnInit();
         } catch (error){
-            this.dialog.open({data: {message: error}});
+            this.dialog.open(AlertComponent, {data: {message: error}});
         }
     }
 }
