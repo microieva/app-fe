@@ -188,7 +188,7 @@ export class EventComponent implements OnInit{
     }
     scrollToView() {
         if (this.el) {
-            // fix scroll to view for textarea
+            //TO DO: fix scroll to view for textarea
             this.el.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
         }
     }

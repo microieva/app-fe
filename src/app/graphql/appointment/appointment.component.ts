@@ -1,15 +1,12 @@
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { Appointment } from "./appointment";
 import { AppGraphQLService } from "../../shared/services/app-graphql.service";
-//import { AppDialogService } from "../../shared/services/app-dialog.service";
-import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Record } from "../record/record"; 
+import { MatDialog } from "@angular/material/dialog";
 import { DateTime } from "luxon";
 import { ConfirmComponent } from "../../shared/components/app-confirm/app-confirm.component";
 import { AlertComponent } from "../../shared/components/app-alert/app-alert.component";
-import { RecordComponent } from "../record/record.component";
-import { MatDialog } from "@angular/material/dialog";
+import { Record } from "../record/record"; 
 
 @Component({
     selector: 'app-appointment',
@@ -37,12 +34,8 @@ export class AppointmentComponent implements OnInit {
     ){}
 
     async ngOnInit() {
-        //if (this.id) {
-            this.isCreating = false;
-            await this.loadAppointment();
-        //}
-        //if (this.recordId) {
-        //}
+        this.isCreating = false;
+        await this.loadAppointment();
     }
     closeTab(){
         const dialogref = this.dialog.open(ConfirmComponent, {data: { message: "All unsaved data will be lost"}});
@@ -89,18 +82,13 @@ export class AppointmentComponent implements OnInit {
                 this.appointmentId = this.appointment.id;
                 this.record = response.data.appointment.record;
                 this.recordId = response.data.appointment.record?.id || null;
-                this.formattedDate = DateTime.fromJSDate(new Date(response.data.appointment.patient.dob)).toFormat('MMM dd, yyyy') 
-                console.log('apppointment !!: ', this.appointment)
+                this.formattedDate = DateTime.fromJSDate(new Date(response.data.appointment.patient.dob)).toFormat('MMM dd, yyyy');
             }
         } catch (error) {
-            this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading current appointment: "+error}})
+            this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading current appointment: "+error}});
         }
     }
     createRecord(id: number) {
-        /*const dialogRef = this.dialog.open(RecordComponent, {data: {recordId: null, appointmentId: this.appointment.id}})
-        dialogRef.componentInstance.reload.subscribe(subscription => {
-            if (subscription) this.loadAppointment();
-        })*/
         this.isCreating = true;
         this.appointmentId = id;
     }
@@ -110,7 +98,5 @@ export class AppointmentComponent implements OnInit {
     async reload(value: boolean){
         this.isCreating = false;
         this.loadAppointment();
-        //window.location.reload(); // works
-        console.log('reloading call -- id: ', this.appointmentId)
     }
 }

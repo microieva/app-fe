@@ -1,13 +1,10 @@
 import { Editor, Toolbar, ToolbarItem } from 'ngx-editor';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { FormGroup, FormControl, FormBuilder, Validators } from "@angular/forms";
+import { MatDialog } from '@angular/material/dialog';
 import { DomSanitizer } from "@angular/platform-browser";
-import { AppGraphQLService } from "../../services/app-graphql.service";
-//import { AppDialogService } from "../../services/app-dialog.service";
 import { Record } from "../../../graphql/record/record";
 import { RecordInput } from "../../../graphql/record/record.input";
-import { MatDialog } from '@angular/material/dialog';
-import { AlertComponent } from '../app-alert/app-alert.component';
 import { ConfirmComponent } from '../app-confirm/app-confirm.component';
 
 @Component({
@@ -52,7 +49,6 @@ export class AppEditorComponent implements OnInit, OnDestroy {
     ){}
 
     async ngOnInit() {
-        console.log('appointmentId IN EDITOR: ', this.appointmentId)
         this.buildForm();
         this.editor = new Editor();
         this.form?.get('title')?.valueChanges.subscribe(value => {
@@ -73,7 +69,6 @@ export class AppEditorComponent implements OnInit, OnDestroy {
 
     async save(draft: boolean) {
         const input: any = {
-            //id: this.record?.id,
             title: this.form?.value.title!,
             text: this.text,
             draft
@@ -116,5 +111,4 @@ export class AppEditorComponent implements OnInit, OnDestroy {
 
 type RecordForm = FormGroup<{
     title: FormControl<string>
-    //text: FormControl<string>
 }>

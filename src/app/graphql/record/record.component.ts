@@ -1,10 +1,10 @@
 import { Component, EventEmitter, Inject, Input, OnInit, Optional, Output } from "@angular/core";
-import { Record } from "./record"; 
 import { DateTime } from "luxon";
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { AppGraphQLService } from "../../shared/services/app-graphql.service";
 import { AlertComponent } from "../../shared/components/app-alert/app-alert.component";
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { ConfirmComponent } from "../../shared/components/app-confirm/app-confirm.component";
+import { Record } from "./record"; 
 
 @Component({
     selector: 'app-record',
@@ -49,9 +49,7 @@ export class RecordComponent implements OnInit {
             this.loadRecord()
         }
         this.appointmentId = this.appointmentId || this.aptId;
-            // this.created = DateTime.fromJSDate(new Date(this.record.createdAt)).toFormat('MMM dd, yyyy'); 
-            // this.recordId = this.record.id;
-            // this.patientId = this.record.appointment.patient.id || undefined;
+
         if (this.appointmentId && !this.id){
             this.isCreating = true
         } else {

@@ -18,7 +18,7 @@
             <div class="page">
                 <app-table 
                     *ngIf="recordDataSource && recordsLength > 10"
-                    [dataSource]="recordDataSource" 
+                    [dataSource]="dataSource" 
                     [length]="recordsLength"
                     [userRole]="userRole"
                     (pageChange)="onPageChange($event)"
@@ -53,7 +53,7 @@
             <div class="page">
                 <app-table 
                     *ngIf="draftDataSource && draftsLength > 10"
-                    [dataSource]="draftDataSource" 
+                    [dataSource]="dataSource" 
                     [length]="draftsLength"
                     [userRole]="userRole"
                     (pageChange)="onPageChange($event)"

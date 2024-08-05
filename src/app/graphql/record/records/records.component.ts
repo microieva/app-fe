@@ -1,14 +1,13 @@
+import { DateTime } from "luxon";
 import { Component, OnInit, signal } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { MatTableDataSource } from "@angular/material/table";
+import { MatDialog } from "@angular/material/dialog";
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
 import { RecordDataSource } from "../../../shared/types";
-import { Record } from "../record";
-//import { AppDialogService } from "../../../shared/services/app-dialog.service";
-import { DateTime } from "luxon";
 import { RecordComponent } from "../record.component";
 import { AlertComponent } from "../../../shared/components/app-alert/app-alert.component";
-import { MatDialog } from "@angular/material/dialog";
+import { Record } from "../record";
 
 @Component({
     selector: 'app-records',
@@ -151,7 +150,11 @@ export class RecordsComponent implements OnInit {
             if (response.data) {
                 this.records = response.data.records.slice;
                 this.recordsLength = response.data.records.length;
-                this.formatDataSource("records")
+                this.formatDataSource("records");
+
+                if (this.recordsLength > 9) {
+                    this.dataSource = new MatTableDataSource<RecordDataSource>(this.recordDataSource);
+                }
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading records: "+error}})
@@ -199,8 +202,11 @@ export class RecordsComponent implements OnInit {
             if (response.data) {
                 this.drafts = response.data.drafts.slice;
                 this.draftsLength = response.data.drafts.length;
-                //this.appointmentId = response.data.drafts.slice
+
                 this.formatDataSource("drafts")
+                if (this.draftsLength > 9) {
+                    this.dataSource = new MatTableDataSource<RecordDataSource>(this.draftDataSource);
+                }
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading drafts: "+error}})

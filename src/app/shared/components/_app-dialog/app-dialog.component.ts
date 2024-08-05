@@ -16,7 +16,7 @@ import { AlertComponent } from "../app-alert/app-alert.component";
     templateUrl: './app-dialog.component.html',
     styleUrls: ['./app-dialog.component.scss']
 })
-export class AppDialogComponent implements OnInit {
+class AppDialogComponent implements OnInit {
     isLoading: boolean;
     isAlert: boolean;
     message: string | undefined;
