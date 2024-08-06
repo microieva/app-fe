@@ -1,20 +1,25 @@
 <mat-sidenav [opened]="true" mode="side">
     <mat-nav-list style="padding:0;">
-      <a mat-list-item [routerLink]="['user']" *ngIf="isAuth" routerLinkActive="activeLink">
+      <a mat-list-item [routerLink]="['user']" *ngIf="userRole" routerLinkActive="activeLink">
         <div class="flex">
           <span>{{ 'My Account' }}</span>
           <span [ngStyle]="{visibility: !isUserUpdated ? 'visible':'hidden'}" class="icon material-symbols-outlined">info</span>
         </div>
       </a>
-      <a mat-list-item [routerLink]="['appointments']" *ngIf="isAuth && isUserUpdated" routerLinkActive="activeLink">
+      <a mat-list-item [routerLink]="['appointments']" *ngIf="userRole && userRole !== 'admin' && isUserUpdated" routerLinkActive="activeLink">
         <div class="flex">
           <span>{{ 'Appointments' }}</span>
           <span [ngStyle]="{visibility: !isUserUpdated ? 'visible':'hidden'}" class="icon material-symbols-outlined">info</span>
         </div>
       </a>
-      <a mat-list-item [routerLink]="['records']" *ngIf="isAuth && isRecords" routerLinkActive="activeLink">
+      <a mat-list-item [routerLink]="['records']" *ngIf="userRole && userRole !== 'admin' && isRecords" routerLinkActive="activeLink">
         <div class="flex">
           <span>{{ 'Medical Records' }}</span>
+        </div>
+      </a>
+      <a mat-list-item [routerLink]="['users']" *ngIf="userRole === 'admin'" routerLinkActive="activeLink">
+        <div class="flex">
+          <span>{{ 'Users' }}</span>
         </div>
       </a>
     </mat-nav-list>

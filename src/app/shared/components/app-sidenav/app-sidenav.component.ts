@@ -7,8 +7,8 @@ import { Component, Input } from "@angular/core";
 })
 export class AppSidenavComponent {
 
-    @Input() isUserUpdated!: string | null;
-    @Input() isAuth: boolean = false;
+    @Input() isUserUpdated: string | null = null;
+    @Input() userRole: string | null = null;
     @Input() isRecords: boolean = false;
 
     constructor(){}

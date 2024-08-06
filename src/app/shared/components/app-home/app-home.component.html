@@ -15,7 +15,7 @@
 </mat-toolbar>
 <div class="content-view-wrapper">
     <div class="sidenav" style="background-color: rgb(172,188,207);">
-        <app-sidenav [isUserUpdated]="isUserUpdated" [isAuth]="isAuth" [isRecords]="isRecords"></app-sidenav>
+        <app-sidenav [isUserUpdated]="isUserUpdated" [userRole]="userRole" [isRecords]="isRecords"></app-sidenav>
     </div>
     <div class="content container">
         <router-outlet></router-outlet>
