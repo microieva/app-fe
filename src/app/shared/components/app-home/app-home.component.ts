@@ -36,9 +36,9 @@ export class AppHomeComponent implements OnInit{
 
     async ngOnInit() {
         if (localStorage.getItem('authToken')) {
-            await this.loadStatic();
+            await this.loadMe();
             const tokenExpire = localStorage.getItem('tokenExpire');
-            if (tokenExpire) {
+            if (tokenExpire && this.me) {
                 this.remainder = this.timerService.startTokenTimer(tokenExpire);
                 this.timerService.tokenCountDown.subscribe(value=> {
                     this.time = value;
@@ -57,7 +57,7 @@ export class AppHomeComponent implements OnInit{
         } else {
             this.me = null;
             this.updatedAt = null;
-            this.isAuth = false;
+            this.userRole = null;
             this.isRecords = false;
         }
         if (this.userRole === 'doctor') {
@@ -65,7 +65,7 @@ export class AppHomeComponent implements OnInit{
         }
     }
 
-    async loadStatic() {
+    async loadMe() {
         const query = `query {
             me {
                 userRole
@@ -93,10 +93,12 @@ export class AppHomeComponent implements OnInit{
                         this.dialog.open(AlertComponent, {data: {message: "Unable to get record count "+error}});
                     }
 
-                }        
+                }     
+            } else {
+                this.me = null;
             }
         } catch (error) {
-            this.dialog.open(AlertComponent, {data: {message: "No user, must login :"+error}})
+            this.dialog.open(AlertComponent, {data: {message: "No user :"+error}});
         }
     }
 

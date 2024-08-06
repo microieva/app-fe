@@ -89,7 +89,7 @@ export class UserComponent implements OnInit {
         this.router.navigate(['user', this.me?.id])
     }
     async deleteUser(){
-        const dialogRef = this.dialog.open(ConfirmComponent)
+        const dialogRef = this.dialog.open(ConfirmComponent, {data: {message: "Deleting account permanently"}})
         
         dialogRef.componentInstance.ok.subscribe(async (value)=> {
             if (value && this.me?.id) {
@@ -106,6 +106,7 @@ export class UserComponent implements OnInit {
                     if (response.data.deleteUser.success) {
                         this.timerService.cancelTokenTimer();
                         this.authService.logOut(); 
+                        this.router.navigate(['/']);
                     }
                 } catch (error) {
                     this.dialog.open(AlertComponent, { data: {message: "Error deleting user: "+ error}})

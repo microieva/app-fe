@@ -95,9 +95,9 @@ export class AppointmentsComponent implements OnInit {
 
                 if (this.previousNextId !== this.nextId) {
                     this.previousNextId = this.nextId;
-                    this.nextAppointmentStartTime = DateTime.fromISO(subscription.nextAppointment.nextStart).toFormat('hh:mm');
                     this.timerService.startAppointmentTimer(subscription.nextAppointment.nextStart);
                 }
+                this.nextAppointmentStartTime = DateTime.fromISO(subscription.nextAppointment.nextStart).toFormat('hh:mm');
             }
         });
 
@@ -108,7 +108,7 @@ export class AppointmentsComponent implements OnInit {
             }   
         });
         
-        this.createAppointmentTab()
+        //this.createAppointmentTab()
     }
     createAppointmentTab() {
         const id = this.nextId
