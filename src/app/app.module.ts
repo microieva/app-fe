@@ -49,6 +49,7 @@ import { LoginComponent } from './shared/components/app-login/app-login.componne
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import {MatMenuModule} from '@angular/material/menu';
+import { UsersComponent } from './graphql/user/users/users.component';
 
 @NgModule({ 
     declarations: [
@@ -60,6 +61,7 @@ import {MatMenuModule} from '@angular/material/menu';
         AppAccordionComponent,
         AppEditorComponent,
         UserComponent,
+        UsersComponent,
         AppointmentsComponent,
         AppointmentComponent,
         CalendarComponent,

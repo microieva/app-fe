@@ -1,1 +1,76 @@
-<p>admin tabs for doctor requests & active acounts</p>
+<mat-tab-group 
+    mat-stretch-tabs="false" 
+    mat-align-tabs="start" 
+    class="content" 
+    (selectedIndexChange)="onTabChange($event)"
+    [(selectedIndex)]="selectedIndex"
+>
+    <mat-tab label="new">
+        <ng-template mat-tab-label>
+            <span class="tab-label">New Contracts</span>
+        </ng-template>
+        <div>
+            <div class="flex-row wrapper info">
+                <span class="icon material-symbols-outlined">info</span>
+                <h3>Pending approval doctor account requests</h3> 
+                <span>{{' '}}</span>
+            </div>
+            <div class="page" #scrollView>
+                <div class="users">
+                    <app-table 
+                        *ngIf="dataSource && length > 9"
+                        [dataSource]="dataSource" 
+                        [length]="length"
+                        [userRole]="userRole"
+                        (pageChange)="onPageChange($event)"
+                        (sortChange)="onSortChange($event)"
+                        (filterValue)="onFilterValueChange($event, async)"
+                        (userClick)="onUserClick($event, async)"
+                        (buttonClick)="onButtonClick($event)"
+                    >
+                    </app-table>
+                    <app-accordion     
+                        *ngIf="length<10"
+                        [dataSource]="dataSource" 
+                        (buttonClick)="onButtonClick($event)"
+                        (userClick)="onUserClick($event, async)"
+                    ></app-accordion> 
+                </div>
+            </div>
+        </div>
+    </mat-tab>
+    <mat-tab label="approved">
+        <ng-template mat-tab-label>
+            <span class="tab-label">Active Accounts</span>
+        </ng-template>
+        <div>
+            <div class="flex-row wrapper info">
+                <span class="icon material-symbols-outlined">info</span>
+                <h3>Active doctor accounts</h3>
+                <span>{{' '}}</span>
+            </div>
+            <div class="page">
+                <div class="users">
+                    <app-table 
+                        *ngIf="dataSource && length > 9"
+                        [dataSource]="dataSource" 
+                        [length]="length"
+                        [userRole]="userRole"
+                        (pageChange)="onPageChange($event)"
+                        (sortChange)="onSortChange($event)"
+                        (filterValue)="onFilterValueChange($event, async)"
+                        (userClick)="onUserClick($event, async)"
+                        (buttonClick)="onButtonClick($event)"
+                    >
+                    </app-table>
+                    <app-accordion     
+                        *ngIf="length<10"
+                        [dataSource]="dataSource" 
+                        (buttonClick)="onButtonClick($event)"
+                        (userClick)="onUserClick($event, async)"
+                    ></app-accordion> 
+                </div>
+            </div>
+        </div>
+    </mat-tab>
+</mat-tab-group>
