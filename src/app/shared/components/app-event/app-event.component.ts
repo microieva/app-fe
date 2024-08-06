@@ -9,8 +9,8 @@ import { DateTime } from "luxon";
 
 @Component({
     selector: 'app-event',
-    templateUrl: './event.component.html',
-    styleUrls: ['event.component.scss']
+    templateUrl: './app-event.component.html',
+    styleUrls: ['app-event.component.scss']
 })
 export class EventComponent implements OnInit{
     form!: FormGroup;

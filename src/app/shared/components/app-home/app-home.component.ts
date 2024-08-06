@@ -1,7 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { Subscription } from "rxjs";
-//import { AppDialogService } from "../../services/app-dialog.service";
 import { AppAuthService } from "../../services/app-auth.service";
 import { AppGraphQLService } from "../../services/app-graphql.service";
 import { AppTimerService } from "../../services/app-timer.service";
@@ -12,10 +11,10 @@ import { LoginComponent } from "../app-login/app-login.componnet";
 
 @Component({
     selector: 'app-home',
-    templateUrl: './home.component.html',
-    styleUrls: ['home.component.scss']
+    templateUrl: './app-home.component.html',
+    styleUrls: ['app-home.component.scss']
 })
-export class HomeComponent implements OnInit{
+export class AppHomeComponent implements OnInit{
     me: any;
     updatedAt: string | null = null;
     isAuth: boolean = false;
@@ -101,8 +100,11 @@ export class HomeComponent implements OnInit{
         }
     }
 
-    logIn() {
-        this.dialog.open(LoginComponent);
+    onDirectLoginClick() {
+        this.dialog.open(LoginComponent, {data: {directLogin: true}});
+    }
+    onGoogleLoginClick() {
+        this.dialog.open(LoginComponent, {data: {googleLogin: true}});
     }
 
     getIsUserUpdated () {
@@ -110,7 +112,10 @@ export class HomeComponent implements OnInit{
     }
 
     async logOut() {
-        this.timerService.cancelTimer();
+        this.timerService.cancelTokenTimer();
+        if (this.userRole === 'doctor') {
+            this.timerService.cancelAppointmentTimer();
+        }
         this.authService.logOut(); 
         this.router.navigate(['/']);
         await this.ngOnInit(); 

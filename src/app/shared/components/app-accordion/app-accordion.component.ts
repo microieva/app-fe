@@ -1,12 +1,11 @@
-import { Component, EventEmitter, Inject, Input, OnInit, Output } from "@angular/core";
+import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { AppDataSource } from "../../types";
+import { MatDialog } from "@angular/material/dialog";
 import { AppGraphQLService } from "../../services/app-graphql.service";
-//import { AppDialogService } from "../../services/app-dialog.service";
 import { Record } from "../../../graphql/record/record";
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { RecordComponent } from "../../../graphql/record/record.component";
 import { AlertComponent } from "../app-alert/app-alert.component";
+import { AppDataSource } from "../../types";
 
 @Component({
     selector: 'app-accordion',
@@ -46,7 +45,7 @@ export class AppAccordionComponent implements OnInit{
     }
 
     async loadRecord(id: number){
-        const query = `query ($recordId: Int!) {
+        const query = `query ($recordId: Int) {
             record (recordId: $recordId) {
                 id
                 title
@@ -68,8 +67,7 @@ export class AppAccordionComponent implements OnInit{
             const response = await this.graphQLService.send(query, {recordId: id});
             if (response.data) {
                 this.record = response.data.record;
-                this.patientName = this.record?.appointment.patient.firstName+' '+this.record?.appointment.patient.lastName
-                console.log('RECORD WITH PATIENT ??? ', this.record)
+                this.patientName = this.record?.appointment.patient.firstName+' '+this.record?.appointment.patient.lastName;
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading medical record: "+error}})
@@ -82,7 +80,15 @@ export class AppAccordionComponent implements OnInit{
     }
     onRecordClick(id: number){
         if (this.record?.id === id) {
-            const ref = this.dialog.open(RecordComponent, {data: {recordId: id, appointmentId: this.record.appointment.id}});
+            const ref = this.dialog.open(
+                RecordComponent, {
+                    data: {
+                        recordId: id, 
+                        appointmentId: this.record.appointment.id,
+                        width: "45rem"
+                    }
+                }
+            );
             ref.componentInstance.reload.subscribe(subsription => {
                 if (subsription) {
                     this.reload.emit(true);

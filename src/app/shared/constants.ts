@@ -1,4 +1,3 @@
-import { authGuard } from "./services/app-auth-guard.service";
 import { AppTreeNode } from "./types";
 import { MatDateFormats } from '@angular/material/core';
 import { EventInput } from '@fullcalendar/core';

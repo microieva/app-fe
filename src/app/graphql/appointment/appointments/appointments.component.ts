@@ -3,7 +3,6 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { MatTableDataSource } from "@angular/material/table";
 import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
-//import { AppDialogService } from "../../../shared/services/app-dialog.service";
 import { AppointmentDataSource } from "../../../shared/types";
 import { Appointment } from "../appointment";
 import { AppNextAppointmentService } from "../../../shared/services/app-next-appointment.service";
@@ -12,7 +11,7 @@ import { AppointmentComponent } from "../appointment.component";
 import { AppTabsService } from "../../../shared/services/app-tabs.service";
 import { AlertComponent } from "../../../shared/components/app-alert/app-alert.component";
 import { ConfirmComponent } from "../../../shared/components/app-confirm/app-confirm.component";
-import { EventComponent } from "../../../shared/components/app-event/event.component";
+import { EventComponent } from "../../../shared/components/app-event/app-event.component";
 import { MatDialog } from "@angular/material/dialog";
 
 @Component({
@@ -77,6 +76,7 @@ export class AppointmentsComponent implements OnInit {
     async ngOnInit() {
         this.tabs = this.tabsService.getTabs()
         await this.loadStatic();
+
         //console.log('pending count: ', this.countPendingAppointments, 'upc count: ', this.countUpcomingAppointments, 'past: ', this.countPastAppointments)
         // this.activatedRoute.queryParams.subscribe(async (params)=> {
         //     const id = params['id']; 
@@ -103,7 +103,7 @@ export class AppointmentsComponent implements OnInit {
 
         this.timerService.nextAppointmentCountDown.subscribe(async value => {
             //console.log('value: ', value)
-            if (value <= '00:05:00') {  
+            if (value === '00:05:00') {  
                 this.createAppointmentTab()
             }   
         });
@@ -112,10 +112,10 @@ export class AppointmentsComponent implements OnInit {
     }
     createAppointmentTab() {
         const id = this.nextId
-        const title = this.nextAppointmentStartTime || 'test';
+        const title = this.nextAppointmentStartTime;
         const component = AppointmentComponent;
 
-        if (id) {
+        if (id && title) {
             this.tabsService.addTab(title, component, id);
             this.tabs = this.tabsService.getTabs();
         }
@@ -259,7 +259,6 @@ export class AppointmentsComponent implements OnInit {
         try {
             const response = await this.graphQLService.send(query, variables);
             if (response.data.pendingAppointments) {
-                console.log('TO DO: fix getting record from appointment ! ', response.data.pendingAppointments)
                 this.pendingAppointments = response.data.pendingAppointments.slice;
                 this.length = response.data.pendingAppointments.length;
                 this.formatDataSource("pending");
@@ -365,7 +364,7 @@ export class AppointmentsComponent implements OnInit {
             pageIndex: this.pageIndex,
             pageLimit: this.pageLimit,
             sortActive: this.sortActive,
-            sortDirection: this.sortDirection || 'ASC',
+            sortDirection: this.sortDirection || 'DESC',
             filterInput: this.filterInput
         }
 
@@ -396,8 +395,7 @@ export class AppointmentsComponent implements OnInit {
     }
 
     formatDataSource(view: string) {
-        // TO DO rename:  "allButtons", "cancelButton", "deleteButton"
-        const allActions = [
+        const allButtons = [
             {
                 text: 'Cancel Appointment',
                 disabled: this.isReservedDay
@@ -408,13 +406,13 @@ export class AppointmentsComponent implements OnInit {
                 text: 'View In Calendar',
                 disabled: false
             }];
-        const cancelAction = [
+        const cancelButton = [
             {
                 text: 'Cancel Appointment',
                 disabled: false
             }
         ]
-        const deleteAction = [
+        const deleteButton = [
             {
                 text: 'Delete Appointment',
                 disabled: false
@@ -431,7 +429,7 @@ export class AppointmentsComponent implements OnInit {
                         id: row.id,
                         howLongAgoStr: howLongAgoStr,
                         title: this.userRole === 'patient' ? "Pending doctor confirmation" : "View details",
-                        buttons: this.userRole === 'doctor' ? allActions : cancelAction,
+                        buttons: this.userRole === 'doctor' ? allButtons : cancelButton,
                         date: DateTime.fromJSDate(new Date(row.start)).toFormat('MMM dd, yyyy'),
                         start: DateTime.fromJSDate(new Date(row.start)).toFormat('hh:mm'),
                         end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm')
@@ -447,7 +445,7 @@ export class AppointmentsComponent implements OnInit {
                         id: row.id,
                         howSoonStr: howSoonStr,
                         title: this.userRole === 'patient' ? "Confirmed appointment" : "Upcoming appointment",
-                        buttons: cancelAction,
+                        buttons: cancelButton,
                         date: DateTime.fromJSDate(new Date(row.start)).toFormat('MMM dd, yyyy'),
                         start: DateTime.fromJSDate(new Date(row.start)).toFormat('hh:mm'),
                         end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm')
@@ -463,7 +461,7 @@ export class AppointmentsComponent implements OnInit {
                         id: row.id,
                         pastDate: howLongAgoStr,
                         title: "View details",
-                        buttons: deleteAction,
+                        buttons: deleteButton,
                         date: DateTime.fromJSDate(new Date(row.start)).toFormat('MMM dd, yyyy'),
                         start: DateTime.fromJSDate(new Date(row.start)).toFormat('hh:mm'),
                         end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm')

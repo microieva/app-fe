@@ -29,6 +29,7 @@ export class RecordComponent implements OnInit {
 
     recId: number | undefined;
     id: number | undefined;
+    width: string | undefined;
 
     constructor(
         private dialog: MatDialog,
@@ -40,6 +41,7 @@ export class RecordComponent implements OnInit {
         if (this.data) {
             this.recId = this.data.recordId;
             this.aptId = this.data.appointmentId;
+            this.width = this.data.width;
         }
     }
 
@@ -56,8 +58,9 @@ export class RecordComponent implements OnInit {
             this.isCreating = false;
         }
     }
+    
     async loadRecord(){
-        const query = `query ($recordId: Int!){ 
+        const query = `query ($recordId: Int){ 
             record (recordId: $recordId) {
                 id
                 title

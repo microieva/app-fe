@@ -6,14 +6,13 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
 import { DateTime, Interval } from "luxon";
-//import { AppDialogService } from "../../services/app-dialog.service";
 import { AppGraphQLService } from "../../services/app-graphql.service";
 import { createEventId } from "../../constants";
 import { Appointment } from "../../../graphql/appointment/appointment";
 import { AppointmentInput } from "../../../graphql/appointment/appointment.input";
 import { MatDialog } from "@angular/material/dialog";
 import { AlertComponent } from "../app-alert/app-alert.component";
-import { EventComponent } from "../app-event/event.component";
+import { EventComponent } from "../app-event/app-event.component";
 import { ConfirmComponent } from "../app-confirm/app-confirm.component";
 
 @Component({
@@ -163,7 +162,7 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
         if (value) {
             this.loadEvents(value);
         }
-      }
+    }
 
     async loadAllAppointments() {
         const query = `
@@ -173,9 +172,8 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
                     start
                     end
                     allDay
-                    patientId
-                    doctorId
                     updatedAt
+                    doctorId
                 }
             }
         `
@@ -346,13 +344,12 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
             let start: any;
             let end: any;
 
-             if (arg.allDay) {
-                const startDateTime = DateTime.fromJSDate(arg.start).toLocal()
-                const endDateTime = DateTime.fromJSDate(arg.end).toLocal()
+            const startDateTime = DateTime.fromJSDate(arg.start).toLocal()
+            const endDateTime = DateTime.fromJSDate(arg.end).toLocal()
 
-                start = startDateTime.toISO()
-                end = endDateTime.toISO();
-            }
+            start = startDateTime.toISO()
+            end = endDateTime.toISO();
+
             const event: any = {
                 id: createEventId(),
                 title: "New appointment",
@@ -360,11 +357,16 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
                 end: arg.allDay ? end : arg.endStr,
                 allDay: arg.allDay
             }
-            const dialogRef = this.dialog.open(EventComponent);
 
-            /*dialogRef.componentInstance.event.subscribe(value => {
-                
-                if (value) {
+            const dialogRef = this.dialog.open(
+                ConfirmComponent, {
+                    data: {
+                        message: arg.allDay ? "Reserve full day?" : "Saving appointment from "+DateTime.fromISO(arg.startStr).toFormat('hh:mm')+" to "+DateTime.fromISO(arg.endStr).toFormat('hh:mm')+", "+DateTime.fromISO(arg.startStr).toFormat('MMM dd')
+                    }
+                }
+            )
+            dialogRef.componentInstance.ok.subscribe(subscription => {
+                if (subscription) {
                     calendarApi.addEvent(event);
                     this.appointment.emit({
                         start: event.start,
@@ -373,7 +375,7 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
                     });
                 }
                 calendarApi.changeView('dayGridMonth', arg.start);
-            })*/
+            })
         }
     }
 
@@ -480,15 +482,17 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
             this.handleAddEvent(arg);
             //this.handleAddAllDayEvent();
         }
+
         if (this.isBusinessHours(arg) && 
             arg.start.getDay() !== 0 
             //&& arg.start.getDay() !== 6 /// TEMPORARY TO DO: uncomment 
         ) {
             this.handleAddEvent(arg);
         } 
-            const calendarApi = arg.view.calendar;
-            if (!arg.allDay) this.dialog.open(AlertComponent, {data: {message: "Outside working hours"}})
-            calendarApi.unselect(); 
+
+        const calendarApi = arg.view.calendar;
+        if (!arg.allDay) this.dialog.open(AlertComponent, {data: {message: "Outside working hours"}})
+        calendarApi.unselect(); 
         
     }
     
@@ -505,9 +509,11 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
         calendarApi.unselect(); 
     }
     isDouble(date: any): boolean {
-        return this.events.find((event) => 
-            DateTime.fromISO(event.start).toFormat('hh:mm') === DateTime.fromISO(date.startStr).toFormat('hh:mm')
-        );
+        return false;
+        // TO DO: 
+        // return this.appointments.some((event) => 
+        //     DateTime.fromISO(event.start).toFormat('hh:mm') === DateTime.fromISO(date.startStr).toFormat('hh:mm')
+        // );
     }
 
     isBusinessHours(date: any): boolean {
@@ -530,9 +536,9 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
         }
         const dialogRef = this.dialog.open(EventComponent, {data: {eventInfo}});
 
-        /*dialogRef.componentInstance.eventId.subscribe(id => {
+        dialogRef.componentInstance.delete.subscribe(id => {
             if (id) {
-                const ref = this.dialog.open(ConfirmComponent);
+                const ref = this.dialog.open(ConfirmComponent, {data: {message: 'This appointment will be deleted from the system'}});
                 ref.componentInstance.ok.subscribe(async (value)=> {
                     if (value) {
                         
@@ -555,7 +561,7 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
                     }
                 }) 
             }
-        })*/
+        })
     }
 
     handleEvents(events: EventApi[]) {

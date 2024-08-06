@@ -186,6 +186,9 @@ mat-form-field {
   margin: 1rem;
   padding: 1rem;
 }
+.mdc-dialog__container.wrapper{
+  max-width: 45rem;
+}
 .info {
   background-color: rgb(175 111 174 / 40%); 
   align-items: center;

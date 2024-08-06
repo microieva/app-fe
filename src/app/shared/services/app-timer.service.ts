@@ -1,9 +1,8 @@
 import { EventEmitter, Injectable, Output } from "@angular/core";
 import { Subscription, finalize, interval, take } from "rxjs";
 import { DateTime, Duration } from "luxon";
-import { AlertComponent } from "../components/app-alert/app-alert.component";
 import { MatDialog } from "@angular/material/dialog";
-//import { AppDialogService } from "./app-dialog.service";
+import { AlertComponent } from "../components/app-alert/app-alert.component";
 
 @Injectable({
     providedIn: 'root'
@@ -14,7 +13,8 @@ import { MatDialog } from "@angular/material/dialog";
     @Output() nextAppointmentCountDown = new EventEmitter<string>();
     @Output() ok = new EventEmitter<boolean>(false);
 
-    subscription!: Subscription;
+    tokenTimerSubscription!: Subscription;
+    appointmentTimerSubscription!: Subscription;
 
     constructor(
         private dialog: MatDialog
@@ -33,7 +33,7 @@ import { MatDialog } from "@angular/material/dialog";
             }) 
         );
     
-        this.subscription = counter.subscribe((val) => {
+        this.tokenTimerSubscription = counter.subscribe((val) => {
             const remainingSeconds = duration - val;
             const seconds = Duration.fromObject({ seconds: remainingSeconds });
             
@@ -65,7 +65,7 @@ import { MatDialog } from "@angular/material/dialog";
             this.tokenCountDown.emit(tokenCountDown);
         });
     
-        return this.subscription;
+        return this.tokenTimerSubscription;
     }
 
     startAppointmentTimer(timeStamp: string) {
@@ -82,35 +82,26 @@ import { MatDialog } from "@angular/material/dialog";
             }) 
         );
     
-        this.subscription = counter.subscribe((val) => {
+        this.appointmentTimerSubscription = counter.subscribe((val) => {
             const remainingSeconds = duration - val;
             const seconds = Duration.fromObject({ seconds: remainingSeconds });
-            let appointmentCountDown: string;
+            let appointmentCountDown: string = seconds.toFormat('hh:mm:ss'); 
 
-            if (remainingSeconds < 3600) {
-                appointmentCountDown = seconds.toFormat('hh:mm:ss'); 
-                console.log('appointmentCountDown', appointmentCountDown)
-                if (appointmentCountDown === '00:05:00') {
-                    const displayTime = `\n Starting at ${DateTime.fromISO(timeStamp).toFormat('hh:mm')}`
-                    this.dialog.open(AlertComponent, {data: { message: `You have an appointment in 5 min, at ${displayTime}`}})
-                }
-                console.log('appointmentCountDown', appointmentCountDown)
-                this.nextAppointmentCountDown.emit(appointmentCountDown);
-            } 
-            this.nextAppointmentCountDown.emit("not soon");
-            // else {
-            //     const remainingHours = Math.floor(remainingSeconds / 3600);
-            //     const remainingMinutes = Math.floor((remainingSeconds % 3600) / 60);
-            //     appointmentCountDown = `${remainingHours}h ${remainingMinutes}min`
-            // }
-            
+            if (appointmentCountDown === '00:05:00') {
+                const displayTime = `\n Starting at ${DateTime.fromISO(timeStamp).toFormat('hh:mm')}`
+                this.dialog.open(AlertComponent, {data: { message: `You have an appointment in 5 min, at ${displayTime}`}})
+            }
+            this.nextAppointmentCountDown.emit(appointmentCountDown);
         });
     
-        return this.subscription;
+        return this.appointmentTimerSubscription;
     }   
     
-    cancelTimer() {
-        this.subscription.unsubscribe();
+    cancelTokenTimer() {
+        this.tokenTimerSubscription.unsubscribe();
+    }
+    cancelAppointmentTimer(){
+        this.appointmentTimerSubscription.unsubscribe();
     }
 }
 

@@ -1,18 +1,3 @@
-import { Record } from "../graphql/record/record";
-import { TestApp } from "../graphql/test-app/test-app";
-
-export interface QueryResponse {
-    loading: boolean
-    data?: QueryDataType
-}
-
-interface QueryDataType {
-    testApps: TestApp[]
-    testApp: TestApp
-    login: string
-    me: any
-}
-
 export interface MutationResponse {
     success: boolean
     message?: string

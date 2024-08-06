@@ -27,7 +27,6 @@ class AppDialogComponent implements OnInit {
     eventInfo: any;
     recordInfo: any;
     error: string | undefined;
-    form: LoginForm;
 
     appointment: Appointment | undefined;
 
@@ -73,46 +72,24 @@ class AppDialogComponent implements OnInit {
         this.recordId = data.recordId;
         this.appointmentId = data.appointmentId;
         this.openRecord = data.openRecord;
-        this.form = this.buildLoginForm();
     }
 
     async ngOnInit() {
-        if (this.showDirectLoginForm) {
-            this.buildLoginForm()
-        }
         if (this.eventInfo) {
             this.eventTitle = this.eventInfo.title;
-            await this.loadAppointment(this.eventInfo.id);
+            //await this.loadAppointment(this.eventInfo.id);
         }
-        if (this.appointment) {
-            this.createdAt = DateTime.fromJSDate(new Date(this.appointment.createdAt)).toFormat('MMM dd, yyyy');
-            this.patientName = this.appointment.patient?.firstName+" "+this.appointment.patient?.lastName;
-            this.patientDob = this.appointment.patient?.dob && DateTime.fromJSDate(new Date(this.appointment.patient.dob)).toFormat('MMM dd, yyyy') 
-            this.doctorName = this.appointment.doctor ? this.appointment.doctor?.firstName+" "+this.appointment.doctor?.lastName : null;
-            this.eventDate = DateTime.fromJSDate(new Date(this.appointment.start)).toFormat('MMM dd, yyyy');
-            this.eventStartTime =  DateTime.fromJSDate(new Date(this.appointment.start)).toFormat('hh:mm');
-            this.eventEndTime =DateTime.fromJSDate(new Date(this.appointment.end)).toFormat('hh:mm');
-            this.appointmentId = this.appointment.id;
-            this.doctorMessage = this.appointment.doctorMessage !=='0' ? this.appointment.doctorMessage : null;
-            this.patientMessage = this.appointment.patientMessage !== '0' ? this.appointment.patientMessage : null;
-        }
-    }
-
-    buildLoginForm(){
-        return this.form = this.formBuilder.group({
-            email: this.formBuilder.control<string>('', [Validators.required]),
-            password: this.formBuilder.control<string>('', [Validators.required, Validators.email])
-        }) as LoginForm
+       
     }
 
     onOk(ok: boolean){
         this.ok.emit(ok);
     }
 
-    cancelDirectLogin(){
-        this.isLoggingIn = true;
-        this.showDirectLoginForm = false;
-    }
+    // cancelDirectLogin(){
+    //     this.isLoggingIn = true;
+    //     this.showDirectLoginForm = false;
+    // }
 
     onEventSubmit(value: any){
         this.event.emit(value.input)
@@ -126,51 +103,6 @@ class AppDialogComponent implements OnInit {
         this.linkId.emit(id);
     }
 
-    async submit() {
-        const input = this.form.value;
-
-        const token = await this.authService.logIn(input as DirectLoginInput);
-        if (token) {
-            this.dialogRef.close();
-            window.location.reload(); 
-        } else {
-            this.error = "Invalid email or password"
-        }
-    }
-    async loadAppointment(id: number){
-        const query = `query ($appointmentId: Int!){ 
-            appointment (appointmentId: $appointmentId){ 
-                id
-                start
-                end
-                patientMessage
-                patient {
-                    firstName
-                    lastName
-                    dob
-                    id
-                }
-                doctorMessage
-                doctor {
-                    firstName
-                    lastName
-                    id
-                }
-                createdAt
-                updatedAt 
-                allDay
-            }
-        }`
-        try {
-            const response = await this.graphQLService.send(query, {appointmentId: id});
-            if (response.data.appointment) {
-                this.appointment = response.data.appointment;
-            }
-        } catch (error) {
-            this.dialog.open(AlertComponent, {data: {message: "Unexpected error fetching appointment: "+error}});
-            this.router.navigate(['/appointments']);
-        }
-    }
 
     onRecordCancel(){
 
@@ -180,7 +112,3 @@ class AppDialogComponent implements OnInit {
     }
 }
 
-type LoginForm = FormGroup<({
-    email: FormControl<string>
-    password: FormControl<string>
-})>

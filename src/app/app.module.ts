@@ -6,7 +6,6 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { GraphQLModule } from './shared/modules/graphql.module';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { TestAppComponent } from './graphql/test-app/test-app.component';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -22,8 +21,7 @@ import {MatTableModule} from '@angular/material/table';
 import {MatAccordion, MatExpansionModule} from '@angular/material/expansion';
 import {MatRadioModule} from '@angular/material/radio';
 import { MAT_DATE_FORMATS, MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
-import { TestAppsComponent } from './graphql/test-app/test-apps/test-apps.component';
-import { HomeComponent } from './shared/components/home/home.component';
+import { AppHomeComponent } from './shared/components/app-home/app-home.component';
 import { AppSidenavComponent } from './shared/components/app-sidenav/app-sidenav.component';
 import { MatDialogContent, MatDialogModule } from '@angular/material/dialog';
 import { UserComponent } from './graphql/user/user.component';
@@ -45,18 +43,17 @@ import { RecordsComponent } from './graphql/record/records/records.component';
 import { RecordComponent } from './graphql/record/record.component';
 import { AlertComponent } from './shared/components/app-alert/app-alert.component';
 import { ConfirmComponent } from './shared/components/app-confirm/app-confirm.component';
-import { EventComponent } from './shared/components/app-event/event.component';
+import { EventComponent } from './shared/components/app-event/app-event.component';
 import { LoadingComponent } from './shared/components/app-loading/loading.component';
 import { LoginComponent } from './shared/components/app-login/app-login.componnet';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
+import {MatMenuModule} from '@angular/material/menu';
 
 @NgModule({ 
     declarations: [
         AppComponent,
-        HomeComponent,
-        TestAppsComponent,
-        TestAppComponent,
+        AppHomeComponent,
         AppSidenavComponent,
         AppCalendarComponent,
         AppTableComponent,
@@ -72,11 +69,12 @@ import { MatDividerModule } from '@angular/material/divider';
         LoadingComponent,
         AlertComponent,
         LoginComponent,
-        EventComponent,
+        EventComponent
     ],
     bootstrap: [AppComponent], 
     imports: [
         NgxEditorModule,
+        MatMenuModule,
         MatCheckboxModule,
         MatButtonModule,
         MatFormFieldModule,

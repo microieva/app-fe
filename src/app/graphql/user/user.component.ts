@@ -104,7 +104,7 @@ export class UserComponent implements OnInit {
                 try {
                     const response = await this.graphQLService.mutate(mutation, { userId: this.me.id});
                     if (response.data.deleteUser.success) {
-                        this.timerService.cancelTimer();
+                        this.timerService.cancelTokenTimer();
                         this.authService.logOut(); 
                     }
                 } catch (error) {

@@ -84,7 +84,6 @@ export class AppTableComponent implements OnInit, AfterViewInit {
             }
             this.columnsToDisplayWithExpand = [...this.displayedColumns, 'expandedDetail'];  
         }
-        console.log('TABLE datasource: ', this.dataSource?.data)
     }
     ngAfterViewInit(): void {   
         if (this.paginator && this.dataSource) {
@@ -93,7 +92,7 @@ export class AppTableComponent implements OnInit, AfterViewInit {
             this.sort.disableClear = true;
             this.dataSource.sort = this.sort;
         }
-        console.log('PAG inside datasource: ', this.dataSource?.paginator?.length)
+        //console.log('PAG inside datasource: ', this.dataSource?.paginator?.length)
     }
     
 
@@ -127,7 +126,6 @@ export class AppTableComponent implements OnInit, AfterViewInit {
         const pageEvent = {pageIndex: event.pageIndex, pageLimit: event.pageSize}
         this.pageChange.emit(pageEvent);
         this.scrollToTop();
-        console.log('on page change')
     }
 
     onAppointmentClick(id: number, title: string){

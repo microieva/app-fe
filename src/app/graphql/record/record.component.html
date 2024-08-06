@@ -1,52 +1,55 @@
-<div class="record wrapper" *ngIf="(isEditting && record) || isCreating">
-    <p class="title" *ngIf="isCreating">{{ 'New Record' }}</p>
-    <p class="title" *ngIf="record">{{ 'Record Draft' }}</p>
-    <app-editor 
-        [record]="record"
-        [appointmentId]="appointmentId"
-        (cancel)="onCancel()"
-        (reload)="onReload()"
-        (saveRecord)="onSave($event)"
-    ></app-editor>
-</div>
+<div [ngStyle]="{ 'max-width': width ? width : 'inherit' }">
+    <div class="record wrapper" *ngIf="(isEditting && record) || isCreating">
+        <p class="title" *ngIf="isCreating">{{ 'New Record' }}</p>
+        <p class="title" *ngIf="record">{{ 'Record Draft' }}</p>
+        <app-editor 
+            [record]="record"
+            [appointmentId]="appointmentId"
+            (cancel)="onCancel()"
+            (reload)="onReload()"
+            (saveRecord)="onSave($event)"
+        ></app-editor>
+    </div>
 
 
-<div class="record wrapper" *ngIf="record && !isEditting && !isCreating">
-    <div class="flex-row">
-        <p class="title" *ngIf="!record.draft">{{ 'Medical Record' }}</p>
-        <p class="title" *ngIf="record.draft">{{ 'Record Draft' }}</p>
-        <div style="align-self: baseline;">
-            <p><em>created: </em>{{ created }}</p>
-            <!-- <p *ngIf="record.updatedAt"><em>updated: </em>{{ updated }}</p> -->
+    <div class="record wrapper" *ngIf="record && !isEditting && !isCreating">
+        <div class="flex-row">
+            <p class="title" *ngIf="!record.draft">{{ 'Medical Record' }}</p>
+            <p class="title" *ngIf="record.draft">{{ 'Record Draft' }}</p>
+            <div style="align-self: baseline;">
+                <p><em>created: </em>{{ created }}</p>
+            </div>
+        </div>
+        <div class="actions flex-row">
+            <div>
+                <button 
+                    *ngIf="record.draft"
+                    mat-stroked-button 
+                    (click)="editRecord()" 
+                    isEditting=!isEditting
+                    style="background-color: #99A9BD;"
+                >
+                    {{ 'Edit Record' }}
+                </button>
+                <button 
+                    mat-stroked-button 
+                    (click)="deleteRecord()" 
+                    style="background-color: #99A9BD;"
+                >
+                    {{ 'Delete Record' }}
+                </button>
+            </div>
+            <button 
+                *ngIf="recId"
+                mat-stroked-button 
+                (click)="close()" 
+            >
+                {{ 'Close' }}
+            </button>
+        </div>
+        <div class="record-content">
+            <h2>{{ record.title }}</h2>
+            <div [innerHtml]="record.text"></div>
         </div>
     </div>
-    <div class="actions flex-row">
-        <div>
-            <button 
-                *ngIf="record.draft"
-                mat-stroked-button 
-                (click)="editRecord()" 
-                isEditting=!isEditting
-                style="background-color: #99A9BD;"
-            >
-                {{ 'Edit Record' }}
-            </button>
-            <button 
-                mat-stroked-button 
-                (click)="deleteRecord()" 
-                style="background-color: #99A9BD;"
-            >
-                {{ 'Delete Record' }}
-            </button>
-        </div>
-        <button 
-            *ngIf="recId"
-            mat-stroked-button 
-            (click)="close()" 
-        >
-            {{ 'Close' }}
-        </button>
-    </div>
-    <h4>{{ record.title }}</h4>
-    <div [innerHtml]="record.text"></div>
 </div>
