@@ -12,4 +12,5 @@ export interface User {
     city: string
     postCode: string
     updatedAt: string
+    createdAt: string
 }

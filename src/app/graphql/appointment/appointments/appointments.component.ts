@@ -103,20 +103,84 @@ export class AppointmentsComponent implements OnInit {
 
         this.timerService.nextAppointmentCountDown.subscribe(async value => {
             //console.log('value: ', value)
+            const tabs = JSON.parse(localStorage.getItem('tabs') || '');
+
             if (value === '00:05:00') {  
-                this.createAppointmentTab()
-            }   
+                this.createAppointmentTab();
+            } 
+            /*else if (value === '00:04:30') {
+                const isCreated = tabs.find((tab: any) => tab.id === this.nextId);
+                if (!isCreated) {
+                    this.createAppointmentTab();
+                }
+            } else if (value === '00:04:00') {
+                const isCreated = tabs.find((tab: any) => tab.id === this.nextId);
+                if (!isCreated) {
+                    this.createAppointmentTab();
+                }
+            } else if (value === '00:03:30') {
+                const isCreated = tabs.find((tab: any) => tab.id === this.nextId);
+                if (!isCreated) {
+                    this.createAppointmentTab();
+                }
+            } else if (value === '00:03:00') {
+                const isCreated = tabs.find((tab: any) => tab.id === this.nextId);
+                if (!isCreated) {
+                    this.createAppointmentTab();
+                }
+            } else if (value === '00:02:30') {
+                const isCreated = tabs.find((tab: any) => tab.id === this.nextId);
+                if (!isCreated) {
+                    this.createAppointmentTab();
+                }
+            } else if (value === '00:02:00') {
+                const isCreated = tabs.find((tab: any) => tab.id === this.nextId);
+                if (!isCreated) {
+                    this.createAppointmentTab();
+                }
+            } else if (value === '00:01:30') {
+                const isCreated = tabs.find((tab: any) => tab.id === this.nextId);
+                if (!isCreated) {
+                    this.createAppointmentTab();
+                }
+            } else if (value === '00:01:00') {
+                const isCreated = tabs.find((tab: any) => tab.id === this.nextId);
+                if (!isCreated) {
+                    this.createAppointmentTab();
+                }
+            } else if (value === '00:00:30') {
+                const isCreated = tabs.find((tab: any) => tab.id === this.nextId);
+                if (!isCreated) {
+                    this.createAppointmentTab();
+                }
+            } else if (value === '00:00:20') {
+                const isCreated = tabs.find((tab: any) => tab.id === this.nextId);
+                if (!isCreated) {
+                    this.createAppointmentTab();
+                }
+            } else if (value === '00:00:10') {
+                const isCreated = tabs.find((tab: any) => tab.id === this.nextId);
+                if (!isCreated) {
+                    this.createAppointmentTab();
+                }
+            } */
+
         });
         
         //this.createAppointmentTab()
     }
-    createAppointmentTab() {
+    createAppointmentTab(appointmentId?: number) {
         const id = this.nextId
         const title = this.nextAppointmentStartTime;
         const component = AppointmentComponent;
 
-        if (id && title) {
+        if (id && title && !appointmentId) {
             this.tabsService.addTab(title, component, id);
+            this.tabs = this.tabsService.getTabs();
+        }
+
+        if (appointmentId) {
+            this.tabsService.addTab("Appointment Workspace", component, appointmentId);
             this.tabs = this.tabsService.getTabs();
         }
     }
@@ -583,7 +647,12 @@ export class AppointmentsComponent implements OnInit {
     }
 
     onAppointmentClick(eventInfo: {id: string, title: string}){
-        this.dialog.open(EventComponent, {data: {eventInfo}});
+        const dialogRef = this.dialog.open(EventComponent, {data: {eventInfo}});
+        dialogRef.componentInstance.isOpeningTab.subscribe(subscription => {
+            if (subscription) {
+                this.createAppointmentTab(subscription)
+            }
+        })
     }
 
     async acceptAppointment(id: number) {

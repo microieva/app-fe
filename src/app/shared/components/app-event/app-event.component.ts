@@ -16,6 +16,7 @@ export class EventComponent implements OnInit{
     form!: FormGroup;
     showInput: boolean = false;
     userRole!: string;
+    isOpened: boolean = false;
     
     createdAt: string | undefined;
     patientName: string | undefined;
@@ -29,6 +30,7 @@ export class EventComponent implements OnInit{
     @Output() delete = new EventEmitter<number>();
     @Output() message = new EventEmitter<string>();
     @Output() deleteMessage = new EventEmitter<number>();
+    @Output() isOpeningTab = new EventEmitter<number>();
 
     @ViewChild('el') el: ElementRef | undefined;
 
@@ -185,6 +187,17 @@ export class EventComponent implements OnInit{
     }
     onAddClick(){
         this.scrollToView();
+    }
+    onOpenAppointmentTab(appointmentId: number){
+        const tabs = JSON.parse(localStorage.getItem('tabs') || '');
+        const isCreated = tabs.find((tab: any) => tab.id === appointmentId);
+
+        if (!isCreated) {
+            this.isOpeningTab.emit(appointmentId);
+            this.isOpened = true;
+        } else {
+            this.dialog.open(AlertComponent, {data: {message: "Workspace open"}});
+        }
     }
     scrollToView() {
         if (this.el) {

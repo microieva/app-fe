@@ -64,6 +64,14 @@
                 <span class="material-icons" style="color:rgb(175 111 174 / 90%);">close</span>
             </div>
         </div>
+        <div 
+            [ngClass]="isOpened ? '': 'title-hover'"
+            class="icon-btn" 
+            (click)="onOpenAppointmentTab(appointmentInfo.id)" 
+            *ngIf="userRole === 'doctor' && !isOpened && doctorName"
+        >
+            <span class="material-icons">open_in_new</span><p>Open appointment workspace</p>
+        </div>
         <div *ngIf="(!doctorMessage && userRole === 'doctor') || (!patientMessage && userRole === 'patient')">
             <div class="icon-btn title-hover" (click)="onAddClick(); showInput =!showInput" *ngIf="!showInput && appointmentInfo.id">
                 <span class="material-icons">add</span><p>Additional information</p>

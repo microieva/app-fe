@@ -60,7 +60,7 @@ export class AppEditorComponent implements OnInit, OnDestroy {
         const title = this.record?.title;
 
         this.form = this.formBuilder.group({
-            title: this.formBuilder.control<string>(title || '', Validators.minLength(1)),
+            title: this.formBuilder.control<string>(title || '')
         }) as RecordForm
     }
     addTitleChangeListener() {

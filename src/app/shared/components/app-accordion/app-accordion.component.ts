@@ -6,6 +6,7 @@ import { Record } from "../../../graphql/record/record";
 import { RecordComponent } from "../../../graphql/record/record.component";
 import { AlertComponent } from "../app-alert/app-alert.component";
 import { AppDataSource } from "../../types";
+import { UserComponent } from "../../../graphql/user/user.component";
 
 @Component({
     selector: 'app-accordion',
@@ -19,6 +20,7 @@ export class AppAccordionComponent implements OnInit{
     @Input() dataSource: AppDataSource[] | undefined;
     @Input() userRole: string | undefined;
     @Input() markAppointmentId: number| null = null;
+
     @Output() buttonClick = new EventEmitter<{id: number, text: string}>();
     @Output() appointmentClick = new EventEmitter<{id: number, title: string}>();
     @Output() recordId = new EventEmitter<number>();
@@ -32,6 +34,7 @@ export class AppAccordionComponent implements OnInit{
     ){}
 
     async ngOnInit() {
+        console.log('data source accordion: ', this.dataSource)
     }
 
     
@@ -96,6 +99,30 @@ export class AppAccordionComponent implements OnInit{
                 }
             })
         }
+    }
+    onUserClick(id: number){
+        const dialogRef = this.dialog.open(UserComponent, {data: {userId: id}});
+
+        dialogRef.componentInstance.isDeletingUser.subscribe(async subscription => {
+            if (subscription) {
+                const mutation = `mutation ($userId: Int!) {
+                    deleteUser(userId: $userId) {
+                        success
+                        message
+                    }
+                }`
+
+                try {
+                    const response = await this.graphQLService.mutate(mutation, { userId: id});
+                    if (response.data.deleteUser.success) {
+                        this.ngOnInit();
+                    }
+                } catch (error) {
+                    this.dialog.open(AlertComponent, { data: {message: "Error deleting user: "+ error}})
+                }
+            }
+        })
+
     }
     resetRoute(){
         this.markAppointmentId = null;

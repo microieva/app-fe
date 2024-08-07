@@ -7,7 +7,7 @@
 >
     <mat-tab label="new">
         <ng-template mat-tab-label>
-            <span class="tab-label">New Contracts</span>
+            <span class="tab-label">New Requests</span>
         </ng-template>
         <div>
             <div class="flex-row wrapper info">
@@ -20,7 +20,7 @@
                     <app-table 
                         *ngIf="dataSource && length > 9"
                         [dataSource]="dataSource" 
-                        [length]="length"
+                        [length]="requestsLength"
                         [userRole]="userRole"
                         (pageChange)="onPageChange($event)"
                         (sortChange)="onSortChange($event)"
@@ -33,7 +33,6 @@
                         *ngIf="length<10"
                         [dataSource]="dataSource" 
                         (buttonClick)="onButtonClick($event)"
-                        (userClick)="onUserClick($event, async)"
                     ></app-accordion> 
                 </div>
             </div>
@@ -53,8 +52,8 @@
                 <div class="users">
                     <app-table 
                         *ngIf="dataSource && length > 9"
-                        [dataSource]="dataSource" 
-                        [length]="length"
+                        [dataSource]="doctors" 
+                        [length]="doctorsLength"
                         [userRole]="userRole"
                         (pageChange)="onPageChange($event)"
                         (sortChange)="onSortChange($event)"

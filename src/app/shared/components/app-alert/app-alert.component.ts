@@ -19,6 +19,7 @@ export class AlertComponent {
         this.message = data.message;
     }
     onOkClick(){
-       this.dialogRef.close();
+        this.ok.emit(true);
+        this.dialogRef.close();
     }
 }

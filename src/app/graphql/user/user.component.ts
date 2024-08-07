@@ -1,17 +1,17 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, EventEmitter, Inject, Input, OnInit, Optional, Output } from "@angular/core";
 import { AppGraphQLService } from "../../shared/services/app-graphql.service";
 import { User } from "./user";
 import _, { some } from "lodash-es";
 import { ActivatedRoute, Router } from "@angular/router";
 import { FormGroup, FormControl, FormBuilder, Validators } from "@angular/forms";
-//import { AppDialogService } from "../../shared/services/app-dialog.service";
 import { UserInput } from "./user.input";
 import { AppAuthService } from "../../shared/services/app-auth.service";
 import { AppTimerService } from "../../shared/services/app-timer.service";
 import { DateTime } from "luxon";
 import { AlertComponent } from "../../shared/components/app-alert/app-alert.component";
 import { ConfirmComponent } from "../../shared/components/app-confirm/app-confirm.component";
-import { MatDialog } from "@angular/material/dialog";
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
+import { DoctorRequest } from "./doctor-request";
 
 @Component({
     selector: 'app-user',
@@ -20,10 +20,15 @@ import { MatDialog } from "@angular/material/dialog";
 })
 export class UserComponent implements OnInit {
     me: User | undefined;
+    user: User | null = null;
+    request: DoctorRequest | null = null;
+    userId:  number | null = null;
     missingInfo: boolean = false;
     id: number | undefined;
     form: FormGroup | undefined;
     formattedDate: string | undefined;
+
+    @Output() isDeletingUser = new EventEmitter<boolean>();
 
     constructor(
         private graphQLService: AppGraphQLService,
@@ -32,12 +37,19 @@ export class UserComponent implements OnInit {
         private formBuilder: FormBuilder,
         private dialog: MatDialog,
         private authService: AppAuthService,
-        private timerService: AppTimerService
+        private timerService: AppTimerService,
+
+        @Optional() public dialogRef: MatDialogRef<UserComponent>,
+        @Optional() @Inject(MAT_DIALOG_DATA) public data: any
     ){
-        this.form = undefined;    
+        this.form = undefined; 
+        this.userId = this.data?.userId || null;
     }
 
     async ngOnInit() {
+        if (this.userId) {
+            await this.loadStatic();
+        } 
         await this.loadMe();
         this.checkUserInfo();
 
@@ -47,7 +59,46 @@ export class UserComponent implements OnInit {
             if (this.id) {
                 await this.loadMe(); 
             }
-        });
+        });  
+        console.log('userId: ', this.userId, "ME: ", this.me)
+    }
+
+    async loadStatic(){
+        const query = `query ($userId: Int!){
+            user (userId: $userId){
+                id
+                userRole
+                firstName
+                lastName
+                dob
+                phone
+                email
+                streetAddress
+                city
+                postCode
+            }
+            request (userId: $userId){
+                id
+                firstName
+                lastName
+                email
+                createdAt
+            }
+        }`
+        try {
+            const response = await this.graphQLService.send(query, {userId: this.userId});
+            if (response.data) {
+                this.formattedDate = DateTime.fromJSDate(new Date(response.data.user?.dob)).toFormat('MMM dd, yyyy') 
+                this.user = response.data.user || null;
+                this.request = response.data.request || null;
+
+                // this.buildForm();
+                // this.missingInfo = this.checkUserInfo();
+            }
+        } catch (error){
+            this.router.navigate(['/']);
+            this.dialog.open(AlertComponent, {data: {message: error}});
+        }
     }
 
     async loadMe() {
@@ -89,11 +140,14 @@ export class UserComponent implements OnInit {
         this.router.navigate(['user', this.me?.id])
     }
     async deleteUser(){
-        const dialogRef = this.dialog.open(ConfirmComponent, {data: {message: "Deleting account permanently"}})
+        const dialogRef = this.dialog.open(ConfirmComponent, {data: {message: "Deleting account and all associated data permanently"}})
         
-        dialogRef.componentInstance.ok.subscribe(async (value)=> {
-            if (value && this.me?.id) {
-                
+        dialogRef.componentInstance.ok.subscribe(async (subscription)=> {
+            if (subscription && this.me) {
+                if (this.me.userRole === 'admin') {
+                    this.isDeletingUser.emit(true);
+                    return;
+                }
                 const mutation = `mutation ($userId: Int!) {
                     deleteUser(userId: $userId) {
                         success

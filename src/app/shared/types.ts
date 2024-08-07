@@ -60,4 +60,13 @@ export interface RecordDataSource {
     createdAt: string
     updatedAt: string
 }
-export type AppDataSource = AppointmentDataSource | RecordDataSource;
+export interface UserDataSource {
+    id: number
+    createdAt: string
+    updatedAt: string
+    firstName: string
+    lastName: string
+    dob?: string
+    email: string
+}
+export type AppDataSource = AppointmentDataSource | RecordDataSource | UserDataSource;
