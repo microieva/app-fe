@@ -22,5 +22,10 @@
           <span>{{ 'Doctors' }}</span>
         </div>
       </a>
+      <a mat-list-item [routerLink]="['patients']" *ngIf="userRole === 'admin'" routerLinkActive="activeLink">
+        <div class="flex">
+          <span>{{ 'Patients' }}</span>
+        </div>
+      </a>
     </mat-nav-list>
   </mat-sidenav>

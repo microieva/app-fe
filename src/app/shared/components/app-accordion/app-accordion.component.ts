@@ -34,7 +34,7 @@ export class AppAccordionComponent implements OnInit{
     ){}
 
     async ngOnInit() {
-        console.log('data source accordion: ', this.dataSource)
+        console.log('data source in accordion: ', this.dataSource)
     }
 
     
@@ -95,7 +95,6 @@ export class AppAccordionComponent implements OnInit{
             ref.componentInstance.reload.subscribe(subsription => {
                 if (subsription) {
                     this.reload.emit(true);
-                    //this.dialog.closeAll();
                 }
             })
         }
@@ -115,6 +114,7 @@ export class AppAccordionComponent implements OnInit{
                 try {
                     const response = await this.graphQLService.mutate(mutation, { userId: id});
                     if (response.data.deleteUser.success) {
+                        this.dialog.closeAll();
                         this.ngOnInit();
                     }
                 } catch (error) {

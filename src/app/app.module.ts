@@ -50,6 +50,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import {MatMenuModule} from '@angular/material/menu';
 import { UsersComponent } from './graphql/user/users/users.component';
+import { PatientsComponent } from './graphql/user/patients/patients.component';
 
 @NgModule({ 
     declarations: [
@@ -62,6 +63,7 @@ import { UsersComponent } from './graphql/user/users/users.component';
         AppEditorComponent,
         UserComponent,
         UsersComponent,
+        PatientsComponent,
         AppointmentsComponent,
         AppointmentComponent,
         CalendarComponent,
@@ -115,7 +117,6 @@ import { UsersComponent } from './graphql/user/users/users.component';
         { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' }},
         { provide: MAT_DATE_FORMATS, useValue: LUXON_DATE_FORMATS },
         { provide: MAT_DATE_LOCALE, useValue: 'fi-FI' } 
-        //AuthGuardService
     ],
 })
 

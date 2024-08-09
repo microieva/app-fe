@@ -1,0 +1,19 @@
+<div class="flex-row wrapper info">
+    <span class="icon material-symbols-outlined">info</span>
+    <h3>Search by patient's name to create an appointment</h3> 
+    <!-- <button mat-stroked-button (click)="openCalendar()">{{ 'Open Calendar' }}</button> -->
+    <span>{{' '}}</span>
+</div>
+<div class="page">
+    <app-table
+        *ngIf="dataSource && length"
+        [dataSource]="dataSource" 
+        [length]="length"
+        [userRole]="userRole"
+        (pageChange)="onPageChange($event)"
+        (sortChange)="onSortChange($event)"
+        (filterValue)="onFilterValueChange($event, async)"
+        (userClick)="onPatientClick($event, async)"
+    >
+    </app-table>
+</div>

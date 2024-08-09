@@ -199,8 +199,7 @@ export class UsersComponent implements OnInit {
                         email: row.email,
                         firstName: row.firstName,
                         lastName: row.lastName,
-                        updatedAt: updatedAt.includes('1970') ? ' - ' : updatedAt
-                        //buttons: this.userRole === 'doctor' ? allActions : cancelAction,    
+                        updatedAt: updatedAt.includes('1970') ? ' - ' : updatedAt   
                     } 
                 });
                 break;

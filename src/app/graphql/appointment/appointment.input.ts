@@ -2,5 +2,7 @@ export interface AppointmentInput {
     id?: number
     start: string
     end: string
-    allDay: boolean
+    allDay: boolean,
+    patientId?: number,
+    patientMessage?: string
 }

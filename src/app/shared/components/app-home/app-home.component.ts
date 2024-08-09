@@ -115,9 +115,6 @@ export class AppHomeComponent implements OnInit{
 
     async logOut() {
         this.timerService.cancelTokenTimer();
-        if (this.userRole === 'doctor') {
-            this.timerService.cancelAppointmentTimer();
-        }
         this.authService.logOut(); 
         this.router.navigate(['/']);
         await this.ngOnInit(); 

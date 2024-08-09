@@ -1,12 +1,11 @@
 
 <div *ngIf="!userId">
-
     <div class="flex-row wrapper info" >
         <span class="icon material-symbols-outlined">info</span>
         <h3 *ngIf="missingInfo && !id">Add missing infomration to use Health Center services</h3>
         <h3 *ngIf="!missingInfo">Your Health Center account details</h3>
-        <button *ngIf="missingInfo && !id" mat-stroked-button (click)="updateUser()">{{ 'Update User Details' }}</button>
-        <span>{{ ' '}}</span>
+        <button *ngIf="missingInfo" mat-stroked-button (click)="updateUser()">{{ 'Update User Details' }}</button>
+        <span *ngIf="!missingInfo">{{ ' '}}</span>
     </div>
     <div class="page">
         <h2>My Account</h2>
@@ -178,8 +177,30 @@
                 </div>
             </div>
             <div class="actions flex-row">
-                <button *ngIf="!missingInfo" mat-stroked-button style="background-color: rgb(111, 143, 175, 40%);" (click)="updateUser()">{{ 'Update Information' }}</button>
-                <button style="margin-right:1rem;" mat-stroked-button (click)="deleteUser()">{{ 'Delete Account' }}</button>
+                <button 
+                    *ngIf="!missingInfo" 
+                    mat-stroked-button 
+                    style="background-color: rgb(111, 143, 175, 40%);" 
+                    (click)="updateUser()"
+                >
+                    {{ 'Update Information' }}
+                </button>
+                <button 
+                    *ngIf="user.userRole ==='doctor'"
+                    style="margin-right:1rem;" 
+                    mat-stroked-button 
+                    (click)="deleteUser()"
+                >
+                    {{ 'Delete Account' }}
+                </button>
+                <button 
+                    *ngIf="user.userRole ==='patient'"
+                    style="margin-right:1rem;" 
+                    mat-stroked-button 
+                    (click)="openCalendar(user.id)"
+                >
+                    {{ 'Make an Appointment' }}
+                </button>
             </div>
         </div>
         <div *ngIf="id">

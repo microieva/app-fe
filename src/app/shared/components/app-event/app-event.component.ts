@@ -1,6 +1,7 @@
 import { Component, ElementRef, EventEmitter, Inject, Input, OnInit, Output, ViewChild } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
-import { Router } from "@angular/router";
+import {Location} from '@angular/common';
+import { ActivatedRoute, Router } from "@angular/router";
 import { AppGraphQLService } from "../../services/app-graphql.service";
 import { AlertComponent } from "../app-alert/app-alert.component";
 import { ConfirmComponent } from "../app-confirm/app-confirm.component";
@@ -35,27 +36,60 @@ export class EventComponent implements OnInit{
     @ViewChild('el') el: ElementRef | undefined;
 
     appointmentInfo: any;
-    doctorMessage: string | undefined;
-    patientMessage: string | undefined;
+    justCreatedId: number | undefined;
+    doctorMessage: string | null = null;
+    patientMessage: string | null = null;
+    patientId: number | undefined;
+    appointmentId: number | undefined;
     
     constructor(
         private formBuilder: FormBuilder,
         private router: Router,
+        private location: Location,
         private dialog: MatDialog,
         private graphQLService: AppGraphQLService,
+        private activatedRoute: ActivatedRoute,
 
         public dialogRef: MatDialogRef<EventComponent>,
         @Inject(MAT_DIALOG_DATA) public data: any
     ){
         this.appointmentInfo = this.data.eventInfo;
+        this.patientId= this.data.eventInfo.patientId;
     }
 
     async ngOnInit() {
-
+        this.activatedRoute.queryParams.subscribe(params => {
+            this.patientId = +params['id']; 
+        });
+        if (this.patientId) {
+            this.loadJustCreatedAppointment(this.patientId);
+        }
         this.form = this.formBuilder.group({
             input: this.formBuilder.control<string>(' ')
         })
         await this.loadUserRole();
+    }
+    async loadJustCreatedAppointment(patientId: number){
+        const query = `query ($patientId: Int!) {
+            justCreatedAppointment(patientId: $patientId) {
+                id
+                start
+                end
+                createdAt
+            }
+        }`
+        try {
+            const response = await this.graphQLService.send(query, {patientId});
+            if (response.data.justCreatedAppointment) {
+                this.justCreatedId = response.data.justCreatedAppointment.id;
+                this.eventDate = DateTime.fromJSDate(new Date(response.data.justCreatedAppointment.start)).toFormat('MMM dd, yyyy');
+                this.eventStartTime =  DateTime.fromJSDate(new Date(response.data.justCreatedAppointment.start)).toFormat('hh:mm');
+                this.eventEndTime =DateTime.fromJSDate(new Date(response.data.justCreatedAppointment.end)).toFormat('hh:mm');
+                console.log('JUST CREATED: ', response.data.justCreatedAppointment)
+            }
+        } catch (error) {
+            this.dialog.open(AlertComponent, {data: {message: "Appointment failed "+error}})
+        }
     }
     async loadUserRole() {
         const query = `query { me { userRole }}`
@@ -63,7 +97,13 @@ export class EventComponent implements OnInit{
             const response = await this.graphQLService.send(query);
             if (response.data.me.userRole) {
                 this.userRole =response.data.me.userRole;
-                this.loadAppointment();
+                if (this.appointmentInfo.id) {
+                    this.loadAppointment();
+                } else {
+                    this.eventStartTime = this.appointmentInfo.start;
+                    this.eventEndTime = this.appointmentInfo.end;
+                    this.eventDate = this.appointmentInfo.date
+                }
             }
         } catch (error) {
             this.dialog.closeAll();
@@ -85,12 +125,14 @@ export class EventComponent implements OnInit{
         }`
 
         try {
+            const id = this.appointmentId || this.justCreatedId;
             const response = await this.graphQLService.mutate(
                 mutation, 
-                { appointmentId: this.appointmentInfo.id, appointmentMessage: message }
+                { appointmentId: id, appointmentMessage: message }
             );
             if (response.data.saveAppointmentMessage.success) {
                 await this.loadAppointment();
+                //await this.loadJustCreatedAppointment()
             }
         } catch (error) {
             this.dialog.open(AlertComponent, { data: {message: "Error saving appointment message: "+ error}})
@@ -99,7 +141,7 @@ export class EventComponent implements OnInit{
 
     }
     async onDeleteMessage(){
-        const dialogRef = this.dialog.open(ConfirmComponent);
+        const dialogRef = this.dialog.open(ConfirmComponent, {data: {message: "Remove message"}});
         dialogRef.componentInstance.ok.subscribe(async value => {
             if (value) {
                 const mutation = `mutation ($appointmentId: Int!) {
@@ -108,26 +150,31 @@ export class EventComponent implements OnInit{
                         message
                     }
                 }`
-        
+                const id = this.appointmentInfo.id || this.appointmentId
                 try {
                     const response = await this.graphQLService.mutate(
-                        mutation, { appointmentId: this.appointmentInfo.id }
+                        mutation, { appointmentId:  id}
                     );
                     if (response.data.deleteAppointmentMessage.success) {
                         await this.loadAppointment();
                     }
                 } catch (error) {
-                    this.dialog.open(AlertComponent, { data: {message: "Error saving appointment message: "+ error}})
+                    this.dialog.open(AlertComponent, { data: {message: "Error removing appointment message: "+ error}})
                 }
             }
         })
     }
     async loadAppointment() {
+        if (this.patientId) {
+            await this.loadJustCreatedAppointment(this.patientId);
+
+        }
         const query = `query ($appointmentId: Int!){ 
             appointment (appointmentId: $appointmentId){ 
                 patientMessage
                 doctorMessage
                 patient {
+                    id
                     firstName
                     lastName
                     dob
@@ -142,7 +189,9 @@ export class EventComponent implements OnInit{
             }
         }`
         try {
-            const response = await this.graphQLService.send(query, {appointmentId: this.appointmentInfo.id});
+            const id = this.appointmentInfo.id || this.justCreatedId
+            console.log('ID: ', id);
+            const response = await this.graphQLService.send(query, {appointmentId: id});
             if (response.data.appointment) {
                 const appointment = response.data.appointment;
                 this.createdAt = DateTime.fromJSDate(new Date(appointment.createdAt)).toFormat('MMM dd, yyyy');
@@ -154,10 +203,11 @@ export class EventComponent implements OnInit{
                 this.eventEndTime =DateTime.fromJSDate(new Date(appointment.end)).toFormat('hh:mm');
                 this.doctorMessage = response.data.appointment.doctorMessage;
                 this.patientMessage = response.data.appointment.patientMessage;
+                this.appointmentId = response.data.appointment.id;
             }
         } catch (error) {
+            this.location.back();
             this.dialog.open(AlertComponent, {data: {message: "Unexpected error fetching appointment: "+error}});
-            this.router.navigate(['/appointments']);
         }
     }
 
@@ -165,8 +215,22 @@ export class EventComponent implements OnInit{
         this.submit.emit(this.form.value);
     }
     onDelete(){
-        this.delete.emit(this.appointmentInfo.id);
+        if (this.appointmentInfo.id) {
+            this.delete.emit(this.appointmentInfo.id);
+        }
+        if (this.justCreatedId && this.patientId) {
+            console.log('emitting justcreated: ', this.justCreatedId)
+            this.delete.emit(this.justCreatedId);
+        }
+        return;
+        //this.delete.emit(this.appointmentInfo.id);
     }
+    // onCancel(){
+    //     if (this.justCreatedId && this.patientId) {
+    //         console.log('emitting justcreated: ', this.justCreatedId)
+    //         this.delete.emit(this.justCreatedId);
+    //     }
+    // }
 
     onLinkClick(id: number) {
         this.dialog.closeAll();
@@ -185,11 +249,14 @@ export class EventComponent implements OnInit{
                 break; 
         }
     }
-    onAddClick(){
+    async onAddClick(){
+        if (this.patientId) {
+            await this.loadJustCreatedAppointment(this.patientId);
+        }
         this.scrollToView();
     }
     onOpenAppointmentTab(appointmentId: number){
-        const tabs = JSON.parse(localStorage.getItem('tabs') || '');
+        const tabs = JSON.parse(localStorage.getItem('tabs') || '[]');
         const isCreated = tabs.find((tab: any) => tab.id === appointmentId);
 
         if (!isCreated) {

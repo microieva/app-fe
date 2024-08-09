@@ -1,17 +1,17 @@
-import { Component, EventEmitter, Inject, Input, OnInit, Optional, Output } from "@angular/core";
-import { AppGraphQLService } from "../../shared/services/app-graphql.service";
-import { User } from "./user";
-import _, { some } from "lodash-es";
-import { ActivatedRoute, Router } from "@angular/router";
+import { Component, EventEmitter, Inject, OnInit, Optional, Output } from "@angular/core";
 import { FormGroup, FormControl, FormBuilder, Validators } from "@angular/forms";
-import { UserInput } from "./user.input";
+import { ActivatedRoute, Router } from "@angular/router";
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
+import _, { some } from "lodash-es";
+import { DateTime } from "luxon";
+import { AppGraphQLService } from "../../shared/services/app-graphql.service";
 import { AppAuthService } from "../../shared/services/app-auth.service";
 import { AppTimerService } from "../../shared/services/app-timer.service";
-import { DateTime } from "luxon";
 import { AlertComponent } from "../../shared/components/app-alert/app-alert.component";
 import { ConfirmComponent } from "../../shared/components/app-confirm/app-confirm.component";
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
+import { UserInput } from "./user.input";
 import { DoctorRequest } from "./doctor-request";
+import { User } from "./user";
 
 @Component({
     selector: 'app-user',
@@ -60,7 +60,6 @@ export class UserComponent implements OnInit {
                 await this.loadMe(); 
             }
         });  
-        console.log('userId: ', this.userId, "ME: ", this.me)
     }
 
     async loadStatic(){
@@ -216,6 +215,11 @@ export class UserComponent implements OnInit {
 
     cancel() {
         this.router.navigate(['user']);
+    }
+
+    openCalendar(userId: number){
+        this.router.navigate(['/appointments', 'calendar'], { queryParams: { id: userId } });
+        this.dialog.closeAll();
     }
 }
 

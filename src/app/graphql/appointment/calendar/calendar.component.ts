@@ -1,7 +1,7 @@
 import { Component, OnInit } from "@angular/core";
-import { Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
-//import { AppDialogService } from "../../../shared/services/app-dialog.service";
+import { Location } from '@angular/common';
 import { AppointmentInput } from "../appointment.input";
 import { AlertComponent } from "../../../shared/components/app-alert/app-alert.component";
 import { MatDialog } from "@angular/material/dialog";
@@ -12,15 +12,20 @@ import { MatDialog } from "@angular/material/dialog";
     styleUrls: ['calendar.component.scss']
 })
 export class CalendarComponent implements OnInit{
+    patientId: number | undefined;
+
     constructor(
         private router: Router,
         private graphQLService: AppGraphQLService,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private activatedRoute: ActivatedRoute,
+        private location: Location
     ){}
 
-    ngOnInit(): void {}
+    ngOnInit(): void {
+    }
 
-    async saveAppointment(appointment: AppointmentInput){
+    async saveAppointment(appointmentInput: AppointmentInput){
         const mutation = `
             mutation ($appointmentInput: AppointmentInput!) {
                 saveAppointment (appointmentInput: $appointmentInput) {
@@ -29,16 +34,14 @@ export class CalendarComponent implements OnInit{
                 }
             }
         `  
-
-        const variables = { appointmentInput: appointment };
         try {
-            await this.graphQLService.mutate(mutation, variables);
+            await this.graphQLService.mutate(mutation, {appointmentInput});
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Error saving appointment: "+error}});
         }
     }
 
     cancel(){
-        this.router.navigate(['appointments'])
+        this.location.back()
     }
 }

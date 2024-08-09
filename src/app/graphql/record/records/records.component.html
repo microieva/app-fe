@@ -17,7 +17,7 @@
             </div>
             <div class="page">
                 <app-table 
-                    *ngIf="recordDataSource && recordsLength > 10"
+                    *ngIf="dataSource && countRecords > 9"
                     [dataSource]="dataSource" 
                     [length]="recordsLength"
                     [userRole]="userRole"
@@ -29,8 +29,7 @@
                 >
                 </app-table>
                 <app-accordion     
-                    *ngIf="recordsLength <9"
-                    [markAppointmentId]="routedAppointmentId"
+                    *ngIf="recordDataSource && countRecords <10"
                     [dataSource]="recordDataSource" 
                     [userRole]="userRole"
                     (buttonClick)="onButtonClick($event)"
@@ -52,7 +51,7 @@
             </div>
             <div class="page">
                 <app-table 
-                    *ngIf="draftDataSource && draftsLength > 10"
+                    *ngIf="dataSource"
                     [dataSource]="dataSource" 
                     [length]="draftsLength"
                     [userRole]="userRole"
@@ -64,7 +63,7 @@
                 >
                 </app-table>
                 <app-accordion     
-                    *ngIf="draftsLength <9"
+                    *ngIf="draftDataSource && countDrafts <10"
                     [dataSource]="draftDataSource" 
                     [userRole]="userRole"
                     (buttonClick)="onButtonClick($event)"

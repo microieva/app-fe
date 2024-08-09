@@ -56,6 +56,7 @@ export interface AppointmentDataSource {
     end: string
 }
 export interface RecordDataSource {
+    id: number
     title: string
     createdAt: string
     updatedAt: string

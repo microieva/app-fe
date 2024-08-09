@@ -5,6 +5,7 @@ import { AppointmentsComponent } from './graphql/appointment/appointments/appoin
 import { CalendarComponent } from './graphql/appointment/calendar/calendar.component';
 import { RecordsComponent } from './graphql/record/records/records.component';
 import { UsersComponent } from './graphql/user/users/users.component';
+import { PatientsComponent } from './graphql/user/patients/patients.component';
 
 const routes: Routes = [
   { path:'', redirectTo: '', pathMatch: 'full' },
@@ -13,7 +14,8 @@ const routes: Routes = [
   { path: 'user/:id', component: UserComponent },
   { path: 'appointments', component: AppointmentsComponent },
   { path: 'appointments/calendar', component: CalendarComponent },
-  { path: 'records', component: RecordsComponent }
+  { path: 'records', component: RecordsComponent },
+  { path: 'patients', component: PatientsComponent }
   //{ path: '**', component: NotFoundComponent }
 ];
 

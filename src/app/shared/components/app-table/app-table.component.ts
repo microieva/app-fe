@@ -3,7 +3,7 @@ import { MatTableDataSource } from "@angular/material/table";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
 import { animate, state, style, transition, trigger } from "@angular/animations";
-import { Subject, debounceTime } from "rxjs";
+import { Subject, debounceTime, first } from "rxjs";
 import { AppDataSource } from "../../types";
 
 @Component({
@@ -19,10 +19,8 @@ import { AppDataSource } from "../../types";
       ],
 })
 export class AppTableComponent implements OnInit, AfterViewInit {
-    //displayedColumns: string[] = ['id', 'title', 'conditionalAppointmentColumns', 'conditionalRecordColumns'];
     displayedColumns: string[] = [];
     displayedColumnHeader: string | undefined;
-    //columnsToDisplayWithExpand = [...this.displayedColumns, 'expandedDetail'];
     columnsToDisplayWithExpand: string[] = [];
     expandedElement: any | null;
 
@@ -32,10 +30,11 @@ export class AppTableComponent implements OnInit, AfterViewInit {
     @Output() sortChange = new EventEmitter<{active: string, direction: string}>();
     @Output() filterValue = new EventEmitter<string>();
     @Output() appointmentClick = new EventEmitter<{id: number, title: string}>();
+    @Output() recordClick = new EventEmitter<number>();
+    @Output() userClick = new EventEmitter<number>();
     @Output() buttonClick = new EventEmitter<{id: number, text: string}>();
 
-    @Input() dataSource: MatTableDataSource<AppDataSource> | undefined;
-    //dataSource: MatTableDataSource<AppDataSource> | undefined;
+    @Input() dataSource!: MatTableDataSource<AppDataSource>;
     @Input() length: number = 0;
     @Input() userRole!: string;
     @Input() markAppointmentId: number| null = null;
@@ -48,6 +47,7 @@ export class AppTableComponent implements OnInit, AfterViewInit {
 
     pageLimit: number = 10;
     pageIndex: number = 0;
+    filter: string = ''
     
     @HostListener('matSortChange', ['$event'])
     onSortChange(event: any) {
@@ -68,22 +68,29 @@ export class AppTableComponent implements OnInit, AfterViewInit {
     constructor(){
         this.searchSubject.pipe(
             debounceTime(300)
-          ).subscribe(searchTerm => {
-            this.filterValue.emit(searchTerm); 
-          });
+        ).subscribe(searchTerm => {
+                this.filterValue.emit(searchTerm); 
+        });
     }
     
     ngOnInit() {
-        if (this.dataSource) {
+        //if (this.dataSource) {
             const firstElement = this.dataSource.data[0];
-
-            if ('createdAt' in firstElement) {
-                this.displayedColumns = ['title', 'created'];   
-            } else {
-                this.displayedColumns = ['id', 'status', 'time'];
-            }
-            this.columnsToDisplayWithExpand = [...this.displayedColumns, 'expandedDetail'];  
-        }
+            console.log('input: ', this.input)
+            //if (firstElement) {
+                if ('email' in firstElement && 'firstName' in firstElement ) {
+                    console.log('here')
+                    this.displayedColumns = ['name', 'email', 'created'];
+                } else if ('patientName' in firstElement) {
+                    this.displayedColumns = ['title', 'patientName', 'created'];  
+                } else if ('createdAt' in firstElement) {
+                    this.displayedColumns = ['title', 'created']; 
+                } else {
+                    this.displayedColumns = ['id', 'status', 'time'];
+                }
+                this.columnsToDisplayWithExpand = [...this.displayedColumns, 'expandedDetail'];  
+            //}
+        //}
     }
     ngAfterViewInit(): void {   
         if (this.paginator && this.dataSource) {
@@ -130,6 +137,12 @@ export class AppTableComponent implements OnInit, AfterViewInit {
 
     onAppointmentClick(id: number, title: string){
         this.appointmentClick.emit({id, title});
+    }
+    onRecordClick(id: number){
+        this.recordClick.emit(id);
+    }
+    onUserClick(id: number) {
+        this.userClick.emit(id);
     }
     onButtonClick(id: number, text: string){
         this.buttonClick.emit({id, text});

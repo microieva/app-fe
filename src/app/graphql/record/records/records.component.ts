@@ -70,13 +70,14 @@ export class RecordsComponent implements OnInit {
             this.router.navigate(['/'])
         }
     }
-    onTabChange(value: any) {
+    async onTabChange(value: any) {
         this.selectedIndex = value;
 
         this.router.navigate([], {
           relativeTo: this.activatedRoute,
           queryParams: { tab: value }
         });
+        await this.loadData();
     }
     async onPageChange(value: any) {
         this.pageIndex = value.pageIndex;
@@ -85,7 +86,7 @@ export class RecordsComponent implements OnInit {
     }
     async onSortChange(value: any) {
         if (value.active === 'howLongAgoStr') {
-            this.sortActive = 'createdAt'
+            this.sortActive = 'createdAt';
         } else if (value.active === 'howSoonStr') {
             this.sortActive = 'start'
         } else if (value.active === 'pastDate'){
@@ -133,6 +134,14 @@ export class RecordsComponent implements OnInit {
                         title
                         createdAt
                         updatedAt
+                        appointment {
+                            id
+                            patient {
+                                firstName
+                                lastName
+                                dob
+                            }
+                        }
                     }
                 }
             }
@@ -157,7 +166,7 @@ export class RecordsComponent implements OnInit {
                 }
             }
         } catch (error) {
-            this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading records: "+error}})
+            this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading records: "+error}});
         }
     }
     async loadDrafts(){
@@ -184,6 +193,11 @@ export class RecordsComponent implements OnInit {
                         updatedAt
                         appointment {
                             id
+                            patient {
+                                firstName
+                                lastName
+                                dob
+                            }
                         }
                     }
                 }
@@ -202,9 +216,9 @@ export class RecordsComponent implements OnInit {
             if (response.data) {
                 this.drafts = response.data.drafts.slice;
                 this.draftsLength = response.data.drafts.length;
+                this.formatDataSource("drafts");
 
-                this.formatDataSource("drafts")
-                if (this.draftsLength > 9) {
+                if (this.countDrafts > 9) {
                     this.dataSource = new MatTableDataSource<RecordDataSource>(this.draftDataSource);
                 }
             }
@@ -222,42 +236,21 @@ export class RecordsComponent implements OnInit {
 
     }
     formatDataSource(view: string) {
-        /*const allActions = [
-            {
-                text: 'Cancel Appointment',
-                disabled: this.isReservedDay
-            }, {
-                text: 'Accept Appointment',
-                disabled: this.isReservedDay
-            }, {
-                text: 'View In Calendar',
-                disabled: false
-            }];
-        const cancelAction = [
-            {
-                text: 'Cancel Appointment',
-                disabled: false
-            }
-        ]
-        const deleteAction = [
-            {
-                text: 'Delete Appointment',
-                disabled: false
-            }
-        ]*/
+
         switch (view) {
             case "records":
                 this.recordDataSource = this.records.map(row => {
                     const createdAt = DateTime.fromJSDate(new Date(row.createdAt)).toFormat('MMM dd, yyyy');
                     const updatedAt = DateTime.fromJSDate(new Date(row.updatedAt)).toFormat('MMM dd, yyyy');
+                    const patientDob = DateTime.fromJSDate(new Date(row.appointment.patient.dob)).toFormat('MMM dd, yyyy');
 
                     return {
                         id: row.id,
                         createdAt,
                         title: row.title,
-                        updatedAt
-                        //buttons: this.userRole === 'doctor' ? allActions : cancelAction,
-                        
+                        updatedAt,  
+                        patientName: row.appointment.patient.firstName+" "+row.appointment.patient.lastName,
+                        patientDob
                     } 
                 });
                 break;
@@ -265,13 +258,15 @@ export class RecordsComponent implements OnInit {
                 this.draftDataSource = this.drafts.map(row => {
                     const createdAt = DateTime.fromJSDate(new Date(row.createdAt)).toFormat('MMM dd, yyyy');
                     const updatedAt = DateTime.fromJSDate(new Date(row.updatedAt)).toFormat('MMM dd, yyyy');
+                    const patientDob = DateTime.fromJSDate(new Date(row.appointment.patient.dob)).toFormat('MMM dd, yyyy');
 
                     return {
                         id: row.id,
                         createdAt,
                         title: row.title,
-                        updatedAt
-                        //buttons: this.userRole === 'doctor' ? allActions : cancelAction,    
+                        updatedAt,
+                        patientName: row.appointment.patient.firstName+" "+row.appointment.patient.lastName,
+                        patientDob   
                     } 
                 });
                 break;

@@ -35,10 +35,9 @@ export class AppTabsService {
     }
 
     getTabs(): ITab[] {
-        const tabs = localStorage.getItem('tabs');
+        const tabs = JSON.parse(localStorage.getItem('tabs') || '[]');
         if (tabs) {
-            const arr = JSON.parse(tabs);
-            const t = arr.map((tab: {id: number, title: string}) => {
+            const t = tabs.map((tab: {id: number, title: string}) => {
                 return {
                     component: AppointmentComponent,
                     id: tab.id,
@@ -47,6 +46,6 @@ export class AppTabsService {
             });
             return t;
         }
-        return []
+        return [];
     }
 }
