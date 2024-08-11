@@ -274,7 +274,7 @@ export class RecordsComponent implements OnInit {
                 break;
         }
     }
-    onReload(){
-        this.loadData();
+    async onReload(){
+        await this.loadData();
     }
 }

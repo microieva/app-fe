@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnInit, Output, ViewChild } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output, ViewChild } from "@angular/core";
 import { MatTableDataSource } from "@angular/material/table";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
@@ -18,7 +18,7 @@ import { AppDataSource } from "../../types";
         ]),
       ],
 })
-export class AppTableComponent implements OnInit, AfterViewInit {
+export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
     displayedColumns: string[] = [];
     displayedColumnHeader: string | undefined;
     columnsToDisplayWithExpand: string[] = [];
@@ -74,12 +74,11 @@ export class AppTableComponent implements OnInit, AfterViewInit {
     }
     
     ngOnInit() {
+
         //if (this.dataSource) {
             const firstElement = this.dataSource.data[0];
-            console.log('input: ', this.input)
             //if (firstElement) {
                 if ('email' in firstElement && 'firstName' in firstElement ) {
-                    console.log('here')
                     this.displayedColumns = ['name', 'email', 'created'];
                 } else if ('patientName' in firstElement) {
                     this.displayedColumns = ['title', 'patientName', 'created'];  
@@ -100,6 +99,11 @@ export class AppTableComponent implements OnInit, AfterViewInit {
             this.dataSource.sort = this.sort;
         }
         //console.log('PAG inside datasource: ', this.dataSource?.paginator?.length)
+    }
+
+    ngOnDestroy() {
+        console.log('NG *DESTROY* IS THIS RUNNING ???')
+        this.dataSource.data.length = 0;
     }
     
 

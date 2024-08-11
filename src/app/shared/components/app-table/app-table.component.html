@@ -1,11 +1,11 @@
-<div>
+
     <mat-form-field *ngIf="userRole !== 'patient'">
         <mat-label>Search by patient name</mat-label>
         <input matInput (keyup)="onSearch($event)" placeholder="..." #input>
     </mat-form-field>
 
     <table 
-        *ngIf="true"
+        *ngIf="dataSource && length"
         #scrollView
         mat-table 
         multiTemplateDataRows 
@@ -59,15 +59,6 @@
             <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:20rem;">Email</th>
             <td mat-cell *matCellDef="let element"> {{element.email}} </td>
         </ng-container>
-
-        <!-- <ng-container matColumnDef="conditionalAppointmentColumns">
-            <ng-container *ngIf="displayedColumnHeader === 'howLongAgoStr'; else startTimeHeader">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:20rem;">Created</th>
-            </ng-container>
-            <ng-template #startTimeHeader>
-              <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:20rem;">Start Time</th>
-            </ng-template>
-        </ng-container> -->
 
         <ng-container matColumnDef="expandedDetail">
             <td mat-cell *matCellDef="let element" [attr.colspan]="columnsToDisplayWithExpand.length">
@@ -150,6 +141,7 @@
 
         </div>
     </table>
+
     <mat-paginator 
         #paginator
         [length]="length"
@@ -158,4 +150,3 @@
         [pageSizeOptions]="[10, 20, 50, 100]"
         (page)="onPageChange($event)">
     </mat-paginator>
-</div>

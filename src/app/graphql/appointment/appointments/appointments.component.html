@@ -22,9 +22,9 @@
             <div class="page" #scrollView>
                 <div class="appointments">
                     <app-table 
-                        *ngIf="dataSource && length > 9"
+                        *ngIf="dataSource && countPendingAppointments > 9"
                         [dataSource]="dataSource" 
-                        [length]="length"
+                        [length]="countPendingAppointments"
                         [userRole]="userRole"
                         [markAppointmentId]="routedAppointmentId"
                         (pageChange)="onPageChange($event)"
@@ -35,7 +35,7 @@
                     >
                     </app-table>
                     <app-accordion     
-                        *ngIf="length<10"
+                        *ngIf="countPendingAppointments<9"
                         [markAppointmentId]="routedAppointmentId"
                         [dataSource]="pendingDataSource" 
                         (buttonClick)="onButtonClick($event)"
@@ -76,9 +76,9 @@
                 </div>
                 <div class="appointments">
                     <app-table 
-                        *ngIf="dataSource && length > 9"
+                        *ngIf="dataSource && countUpcomingAppointments > 9"
                         [dataSource]="dataSource" 
-                        [length]="length"
+                        [length]="countUpcomingAppointments"
                         [userRole]="userRole"
                         [markAppointmentId]="routedAppointmentId"
                         (pageChange)="onPageChange($event)"
@@ -89,7 +89,7 @@
                     >
                     </app-table>
                     <app-accordion 
-                        *ngIf="length<10"
+                        *ngIf="upcomingDataSource && countUpcomingAppointments<9"
                         [markAppointmentId]="routedAppointmentId"
                         [dataSource]="upcomingDataSource" 
                         (buttonClick)="onButtonClick($event)"
@@ -113,14 +113,14 @@
         </div>
         <div>
             <div class="page">
-                <div class="btn-block" *ngIf="pastAppointments.length === 0">
+                <div class="btn-block" *ngIf="countPastAppointments === 0">
                     <p>No previous appointments</p>
                 </div>
                 <div class="appointments">
                     <app-table 
-                        *ngIf="dataSource && length > 9"
+                        *ngIf="dataSource && countPastAppointments > 9"
                         [dataSource]="dataSource" 
-                        [length]="length"
+                        [length]="countPastAppointments"
                         [userRole]="userRole"
                         [markAppointmentId]="routedAppointmentId"
                         (pageChange)="onPageChange($event)"
@@ -131,7 +131,7 @@
                     >
                     </app-table>
                     <app-accordion 
-                        *ngIf="length<10"
+                        *ngIf="pastDataSource && countPastAppointments<9"
                         [markAppointmentId]="routedAppointmentId"
                         [dataSource]="pastDataSource" 
                         (buttonClick)="onButtonClick($event)"

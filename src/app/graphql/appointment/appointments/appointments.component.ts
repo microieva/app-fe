@@ -35,13 +35,13 @@ export class AppointmentsComponent implements OnInit {
     @ViewChildren('tabContent', { read: ViewContainerRef }) tabContents!: QueryList<ViewContainerRef>;
     tabs: any[] | null = null;
 
-    // countPendingAppointments: number = 0;
-    // countUpcomingAppointments: number = 0;
-    // countPastAppointments: number = 0;
+    countPendingAppointments: number = 0;
+    countUpcomingAppointments: number = 0;
+    countPastAppointments: number = 0;
 
-    pendingDataSource: AppointmentDataSource[] | undefined;
-    upcomingDataSource: AppointmentDataSource[] | undefined;
-    pastDataSource: AppointmentDataSource[] | undefined;
+    pendingDataSource: AppointmentDataSource[] | null = null;
+    upcomingDataSource: AppointmentDataSource[] | null = null;
+    pastDataSource: AppointmentDataSource[] | null = null;
 
     pendingAppointments: Appointment[] = [];
     upcomingAppointments: Appointment[] = [];
@@ -75,9 +75,8 @@ export class AppointmentsComponent implements OnInit {
     
     async ngOnInit() {
         this.tabs = this.tabsService.getTabs()
-        await this.loadStatic();
-
-        //console.log('pending count: ', this.countPendingAppointments, 'upc count: ', this.countUpcomingAppointments, 'past: ', this.countPastAppointments)
+        await this.loadUserRole();
+        
         // this.activatedRoute.queryParams.subscribe(async (params)=> {
         //     const id = params['id']; 
         //     if (id) this.routedAppointmentId = +id;
@@ -86,8 +85,8 @@ export class AppointmentsComponent implements OnInit {
         this.activatedRoute.queryParams.subscribe(async params => {
             const tab = params['tab'];
             this.selectedIndex = tab ? +tab : 0;
-            await this.loadData();
         }); 
+        //await this.loadData();
 
         this.nextAppointmentService.appointmentInfo.subscribe((subscription) => {
             if (subscription && subscription.nextAppointment) {
@@ -130,20 +129,29 @@ export class AppointmentsComponent implements OnInit {
     async loadData() {
         switch (this.selectedIndex) {
             case 0:
-                await this.loadPendingAppointments();
-                break;
+                if (this.countPendingAppointments > 0) {
+                    this.dataSource = null;
+                    this.upcomingDataSource = null;
+                    this.pastDataSource = null;
+                    await this.loadPendingAppointments();
+                }
+                return;
             case 1:
-                await this.loadUpcomingAppointments();
-                break;
+                if (this.countUpcomingAppointments > 0) {
+                    await this.loadUpcomingAppointments();
+                }
+                return;
             case 2:
-                await this.loadPastAppointments();
-                break;
+                if (this.countPastAppointments > 0) {
+                    await this.loadPastAppointments();
+                }
+                return;
             default:
-                break;
+                return;
         }
     }
 
-    async loadStatic() {
+    async loadUserRole() {
         const query = `query { 
             me { userRole }
         }`
@@ -151,9 +159,18 @@ export class AppointmentsComponent implements OnInit {
         try {
             const response = await this.graphQLService.send(query);
             if (response.data.me.userRole) {
-                this.userRole =response.data.me.userRole;
+                this.userRole = response.data.me.userRole;
 
-                /*const query = `query {
+                if (this.userRole !=='admin') {
+                    await this.loadStatic()
+                }
+            }
+        } catch (error) {
+            this.router.navigate(['/'])
+        }
+    }
+    async loadStatic(){
+        const query = `query {
                     countPendingAppointments
                     countUpcomingAppointments
                     countPastAppointments
@@ -164,23 +181,22 @@ export class AppointmentsComponent implements OnInit {
                         this.countPendingAppointments = response.data.countPendingAppointments
                         this.countUpcomingAppointments = response.data.countUpcomingAppointments
                         this.countPastAppointments = response.data.countPastAppointments
+                        await this.loadData();
                     }
                 } catch (error) {
                     this.dialog.open(AlertComponent, {data: {message: "Error getting count: "+error}})
-                }*/
-            }
-        } catch (error) {
-            this.router.navigate(['/'])
-        }
+                }
     }
-    onTabChange(value: any) {
+    async onTabChange(value: any) {
         this.selectedIndex = value;
 
         this.router.navigate([], {
           relativeTo: this.activatedRoute,
           queryParams: { tab: value }
         });
+        await this.loadData();
     }
+
     async onPageChange(value: any) {
         this.pageIndex = value.pageIndex;
         this.pageLimit = value.pageLimit;
@@ -265,7 +281,7 @@ export class AppointmentsComponent implements OnInit {
                 this.length = response.data.pendingAppointments.length;
                 this.formatDataSource("pending");
 
-                if (this.length > 9) {
+                if (this.length > 9 && this.pendingDataSource) {
                     this.dataSource = new MatTableDataSource<AppointmentDataSource>(this.pendingDataSource);
                 }
             }
@@ -320,8 +336,8 @@ export class AppointmentsComponent implements OnInit {
                 this.upcomingAppointments = response.data.upcomingAppointments.slice;
                 this.length = response.data.upcomingAppointments.length;
                 this.formatDataSource("upcoming");
-
-                if (this.length > 9) {
+                
+                if (this.length > 9 && this.upcomingDataSource) {
                     this.dataSource = new MatTableDataSource<AppointmentDataSource>(this.upcomingDataSource);
                 }
             }
@@ -377,7 +393,7 @@ export class AppointmentsComponent implements OnInit {
                 this.length = response.data.pastAppointments.length;
                 this.formatDataSource("past");
 
-                if (this.length > 9) {
+                if (this.length > 9 && this.pastDataSource) {
                     this.dataSource = new MatTableDataSource<AppointmentDataSource>(this.pastDataSource);
                 }
             }
