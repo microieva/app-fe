@@ -1,10 +1,11 @@
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
 import { Location } from '@angular/common';
-import { AppointmentInput } from "../appointment.input";
-import { AlertComponent } from "../../../shared/components/app-alert/app-alert.component";
 import { MatDialog } from "@angular/material/dialog";
+import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
+import { AlertComponent } from "../../../shared/components/app-alert/app-alert.component";
+import { AppointmentInput } from "../appointment.input";
+import { User } from "../../user/user";
 
 @Component({
     selector: 'calendar-component',
@@ -12,7 +13,8 @@ import { MatDialog } from "@angular/material/dialog";
     styleUrls: ['calendar.component.scss']
 })
 export class CalendarComponent implements OnInit{
-    patientId: number | undefined;
+    userRole!: string;
+    patient: User | undefined;
 
     constructor(
         private router: Router,
@@ -22,7 +24,45 @@ export class CalendarComponent implements OnInit{
         private location: Location
     ){}
 
-    ngOnInit(): void {
+    async ngOnInit() {
+        await this.loadUserRole();
+        if (this.userRole === 'admin') {
+            this.activatedRoute.queryParams.subscribe(async params => {
+                const patientId = +params['id']; 
+                await this.loadPatient(patientId);
+            });
+        }
+    }
+
+    async loadUserRole() {
+        const query = `query { me { userRole }}`
+        try {
+            const response = await this.graphQLService.send(query);
+            if (response.data) {
+                this.userRole =response.data.me.userRole;
+            }
+        } catch (error) {
+            this.router.navigate(['/'])
+            this.dialog.open(AlertComponent, {data: {message: "No user, must login"}})
+        }
+    }
+
+    async loadPatient(id: number){
+        const query = `query ($userId: Int!) {
+            user (userId: $userId) {
+                id
+                firstName
+                lastName
+            }
+        }`
+        try {
+            const response = await this.graphQLService.send(query, {userId: id});
+            if (response.data) {
+                this.patient = response.data.user;
+            }
+        } catch (error) {
+            this.dialog.open(AlertComponent, {data: {message: "Patient not found "+error}})
+        }
     }
 
     async saveAppointment(appointmentInput: AppointmentInput){

@@ -186,7 +186,7 @@
                     {{ 'Update Information' }}
                 </button>
                 <button 
-                    *ngIf="user.userRole ==='doctor'"
+                    *ngIf="user?.userRole ==='doctor'"
                     style="margin-right:1rem;" 
                     mat-stroked-button 
                     (click)="deleteUser()"
@@ -194,7 +194,7 @@
                     {{ 'Delete Account' }}
                 </button>
                 <button 
-                    *ngIf="user.userRole ==='patient'"
+                    *ngIf="user?.userRole ==='patient'"
                     style="margin-right:1rem;" 
                     mat-stroked-button 
                     (click)="openCalendar(user.id)"

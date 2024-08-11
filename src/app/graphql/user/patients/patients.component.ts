@@ -62,7 +62,6 @@ export class PatientsComponent implements OnInit {
     }
 
     async loadData(){
-        console.log('filter value ----------- ', this.filterInput)
         const query = `query (
             $pageIndex: Int!, 
             $pageLimit: Int!, 
@@ -106,7 +105,6 @@ export class PatientsComponent implements OnInit {
                 //     this.length = -1
                 // }
                 this.formatDataSource()
-                console.log('dataSource in patients: ', this.dataSource.data)
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading requests: "+error}})

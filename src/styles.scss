@@ -106,6 +106,9 @@ mat-form-field {
   --fc-event-text-color: rgb(68, 65, 65);
 
 }
+.fc-daygrid-frame {
+  height: 8rem;
+}
 .fc-daygrid-day:not(.fc-non-business):hover{
   background-color: rgb(111, 143, 175, 40%);
   cursor: pointer;
@@ -149,8 +152,8 @@ mat-form-field {
   background-color: rgb(175 111 174 / 90%);
 }
 .fc-daygrid-day {
-  height: 6rem; /* Adjust this value as needed */
-  overflow: hidden; /* Ensure content doesn't overflow */
+  height: 6rem; 
+  overflow: hidden; 
 }
 
 .fc-button-primary{
@@ -163,9 +166,6 @@ mat-form-field {
   button {
     margin-left: 0.2rem;
   }
-  // .fc-dayGridMonth-button {
-  //   border-radius: 3px;
-  // }
 }
 
 .flex-row {

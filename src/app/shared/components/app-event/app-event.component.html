@@ -73,7 +73,7 @@
             <span class="material-icons">open_in_new</span><p>Open appointment workspace</p>
         </div>
         <div *ngIf="(!doctorMessage && userRole === 'doctor') || (!patientMessage && userRole === 'patient') || (!patientMessage && userRole === 'admin')">
-            <div class="icon-btn title-hover" (click)="onAddClick(); showInput =!showInput" *ngIf="!showInput">
+            <div type="button" class="icon-btn title-hover" (click)="onAddClick(); showInput =!showInput" *ngIf="!showInput && samePatient">
                 <span class="material-icons">add</span><p>Additional information</p>
             </div>
         </div>
@@ -96,7 +96,9 @@
     </mat-dialog-content>
     <mat-dialog-actions align="end">
         <button mat-button type="submit" [mat-dialog-close]="true" cdkFocusInitial (click)="onSubmit()" *ngIf="!appointmentInfo.title">{{'Confirm'}}</button>
-        <button mat-button type="button" (click)="onDelete()" *ngIf="appointmentInfo.title">{{ 'Delete' }}</button>
-        <button mat-button type="button" (click)="onDelete()">{{'Cancel'}}</button>
+        <button mat-button type="button" (click)="onDelete()" [disabled]="appointmentInfo.title && !samePatient">
+            <span *ngIf="appointmentInfo.title">{{'Delete'}}</span>
+            <span *ngIf="!appointmentInfo.title">{{'Cancel'}}</span>
+        </button>
     </mat-dialog-actions>
 </form>

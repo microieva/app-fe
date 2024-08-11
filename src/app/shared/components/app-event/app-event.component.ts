@@ -1,12 +1,12 @@
-import { Component, ElementRef, EventEmitter, Inject, Input, OnInit, Output, ViewChild } from "@angular/core";
+import { DateTime } from "luxon";
+import { Component, ElementRef, EventEmitter, Inject, OnInit, Output, ViewChild } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import {Location} from '@angular/common';
 import { ActivatedRoute, Router } from "@angular/router";
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { AppGraphQLService } from "../../services/app-graphql.service";
 import { AlertComponent } from "../app-alert/app-alert.component";
 import { ConfirmComponent } from "../app-confirm/app-confirm.component";
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
-import { DateTime } from "luxon";
 
 @Component({
     selector: 'app-event',
@@ -16,12 +16,14 @@ import { DateTime } from "luxon";
 export class EventComponent implements OnInit{
     form!: FormGroup;
     showInput: boolean = false;
+    id!: number;
     userRole!: string;
     isOpened: boolean = false;
+    samePatient: boolean = false;
     
     createdAt: string | undefined;
     patientName: string | undefined;
-    patientDob:  string | undefined;       
+    patientDob:  string | undefined;     
     doctorName: string | null = null;
     eventDate:  string | undefined;
     eventStartTime:  string | undefined;
@@ -55,19 +57,22 @@ export class EventComponent implements OnInit{
     ){
         this.appointmentInfo = this.data.eventInfo;
         this.patientId= this.data.eventInfo.patientId;
+        this.samePatient = this.data.samePatient;
     }
 
     async ngOnInit() {
         this.activatedRoute.queryParams.subscribe(params => {
             this.patientId = +params['id']; 
         });
-        if (this.patientId) {
+        await this.loadMe();
+
+        if (this.userRole === 'admin' && this.patientId && !this.appointmentInfo.id) {
             this.loadJustCreatedAppointment(this.patientId);
-        }
+        } 
+
         this.form = this.formBuilder.group({
             input: this.formBuilder.control<string>(' ')
         })
-        await this.loadUserRole();
     }
     async loadJustCreatedAppointment(patientId: number){
         const query = `query ($patientId: Int!) {
@@ -83,20 +88,21 @@ export class EventComponent implements OnInit{
             if (response.data.justCreatedAppointment) {
                 this.justCreatedId = response.data.justCreatedAppointment.id;
                 this.eventDate = DateTime.fromJSDate(new Date(response.data.justCreatedAppointment.start)).toFormat('MMM dd, yyyy');
-                this.eventStartTime =  DateTime.fromJSDate(new Date(response.data.justCreatedAppointment.start)).toFormat('hh:mm');
-                this.eventEndTime =DateTime.fromJSDate(new Date(response.data.justCreatedAppointment.end)).toFormat('hh:mm');
-                console.log('JUST CREATED: ', response.data.justCreatedAppointment)
+                this.eventStartTime = DateTime.fromJSDate(new Date(response.data.justCreatedAppointment.start)).toFormat('hh:mm');
+                this.eventEndTime = DateTime.fromJSDate(new Date(response.data.justCreatedAppointment.end)).toFormat('hh:mm');
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Appointment failed "+error}})
         }
     }
-    async loadUserRole() {
-        const query = `query { me { userRole }}`
+    async loadMe() {
+        const query = `query { me { id userRole }}`
         try {
             const response = await this.graphQLService.send(query);
             if (response.data.me.userRole) {
                 this.userRole =response.data.me.userRole;
+                this.id = response.data.me.id;
+
                 if (this.appointmentInfo.id) {
                     this.loadAppointment();
                 } else {
@@ -125,14 +131,14 @@ export class EventComponent implements OnInit{
         }`
 
         try {
-            const id = this.appointmentId || this.justCreatedId;
+            const id = this.appointmentInfo.id || this.justCreatedId;
             const response = await this.graphQLService.mutate(
                 mutation, 
                 { appointmentId: id, appointmentMessage: message }
             );
             if (response.data.saveAppointmentMessage.success) {
                 await this.loadAppointment();
-                //await this.loadJustCreatedAppointment()
+                await this.ngOnInit();
             }
         } catch (error) {
             this.dialog.open(AlertComponent, { data: {message: "Error saving appointment message: "+ error}})
@@ -165,10 +171,6 @@ export class EventComponent implements OnInit{
         })
     }
     async loadAppointment() {
-        if (this.patientId) {
-            await this.loadJustCreatedAppointment(this.patientId);
-
-        }
         const query = `query ($appointmentId: Int!){ 
             appointment (appointmentId: $appointmentId){ 
                 patientMessage
@@ -190,7 +192,6 @@ export class EventComponent implements OnInit{
         }`
         try {
             const id = this.appointmentInfo.id || this.justCreatedId
-            console.log('ID: ', id);
             const response = await this.graphQLService.send(query, {appointmentId: id});
             if (response.data.appointment) {
                 const appointment = response.data.appointment;
@@ -214,23 +215,14 @@ export class EventComponent implements OnInit{
     onSubmit(){
         this.submit.emit(this.form.value);
     }
-    onDelete(){
+    async onDelete(){
         if (this.appointmentInfo.id) {
             this.delete.emit(this.appointmentInfo.id);
         }
-        if (this.justCreatedId && this.patientId) {
-            console.log('emitting justcreated: ', this.justCreatedId)
+        if (this.justCreatedId) {
             this.delete.emit(this.justCreatedId);
         }
-        return;
-        //this.delete.emit(this.appointmentInfo.id);
     }
-    // onCancel(){
-    //     if (this.justCreatedId && this.patientId) {
-    //         console.log('emitting justcreated: ', this.justCreatedId)
-    //         this.delete.emit(this.justCreatedId);
-    //     }
-    // }
 
     onLinkClick(id: number) {
         this.dialog.closeAll();

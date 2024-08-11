@@ -1,8 +1,9 @@
 <div class="flex-row wrapper info">
     <span class="icon material-symbols-outlined">info</span>
-    <h3>Select one of the available dates to make an appointment</h3>
+    <h3 *ngIf="userRole==='patient'">Select one of the available dates to make an appointment</h3>
+    <h3 *ngIf="userRole==='admin' && patient">Patient name: {{patient.firstName}} {{patient.lastName}}</h3>
     <button mat-stroked-button (click)="cancel()">{{ 'Close' }}</button>
 </div>
 <div class="page">
-    <app-calendar (appointment)="saveAppointment($event)"></app-calendar>
+    <app-calendar (appointment)="saveAppointment($event)" [role]="userRole"></app-calendar>
 </div>

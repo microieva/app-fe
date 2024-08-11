@@ -1,5 +1,5 @@
-import { AfterViewInit, Component, EventEmitter, OnInit, Output } from "@angular/core";
-import { CalendarOptions, EventInput,DateSelectArg, EventClickArg, EventApi, DayCellContentArg, DayCellMountArg, EventChangeArg, EventDropArg, DateSpanApi } from '@fullcalendar/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { CalendarOptions, EventInput,DateSelectArg, EventClickArg, EventApi, DayCellContentArg, DayCellMountArg, EventDropArg } from '@fullcalendar/core';
 import { ActivatedRoute, Router } from "@angular/router";
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -10,7 +10,7 @@ import { AppGraphQLService } from "../../services/app-graphql.service";
 import { createEventId } from "../../constants";
 import { Appointment } from "../../../graphql/appointment/appointment";
 import { AppointmentInput } from "../../../graphql/appointment/appointment.input";
-import { MatDialog, MatDialogRef } from "@angular/material/dialog";
+import { MatDialog } from "@angular/material/dialog";
 import { AlertComponent } from "../app-alert/app-alert.component";
 import { EventComponent } from "../app-event/app-event.component";
 import { ConfirmComponent } from "../app-confirm/app-confirm.component";
@@ -22,6 +22,7 @@ import { ConfirmComponent } from "../app-confirm/app-confirm.component";
 })
 export class AppCalendarComponent implements OnInit, AfterViewInit {
     @Output() appointment = new EventEmitter<AppointmentInput>();
+    @Input() role!: string;
 
     appointmentSelections = ['All', 'Pending confirmation', 'Upcoming', 'Past']
     eventsPromise!: Promise<EventInput[]>;
@@ -40,7 +41,9 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
         private graphQLService: AppGraphQLService,
         private router: Router,
         private activatedRoute: ActivatedRoute
-    ){}
+    ){
+        this.userRole = this.role;
+    }
 
     nonAllDayEventCount: { [key: string]: number } = {};
   
@@ -49,7 +52,6 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
             this.patientId = +params['id']; 
         });
         this.initializeCalendar();
-        this.loadUserRole();
     }
 
     async loadEvents(type?: string){
@@ -92,7 +94,7 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
             events: this.events,
             views: {
                 dayGrid: {
-                    contentHeight:600,
+                    contentHeight:800,
                     dayMaxEvents: 2,
                     dayMaxEventRows: 2
                 },
@@ -151,19 +153,6 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
         this.appointment.emit(event);
     }
 
-    async loadUserRole() {
-        const query = `query { me { userRole }}`
-        try {
-            const response = await this.graphQLService.send(query);
-            if (response.data.me.userRole) {
-                this.userRole =response.data.me.userRole;
-            }
-        } catch (error) {
-            this.router.navigate(['/'])
-            this.dialog.open(AlertComponent, {data: {message: "No user, must login"}})
-        }
-    }
-
     onCheckboxChange(value: string) {
         if (value) {
             this.loadEvents(value);
@@ -180,6 +169,12 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
                     allDay
                     updatedAt
                     doctorId
+                    patientId
+                    patient {
+                        id
+                        firstName
+                        lastName
+                    }
                 }
             }
         `
@@ -207,7 +202,8 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
                         allDay: appointment.allDay,
                         extendedProps: {
                             dbId: appointment.id,
-                            doctorId: appointment.doctorId
+                            doctorId: appointment.doctorId,
+                            patientId: appointment.patientId
                         }
                     }
                 });
@@ -350,10 +346,10 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
             let start: any;
             let end: any;
 
-            const startDateTime = DateTime.fromJSDate(arg.start).toLocal()
-            const endDateTime = DateTime.fromJSDate(arg.end).toLocal()
+            const startDateTime = DateTime.fromJSDate(arg.start).toLocal();
+            const endDateTime = DateTime.fromJSDate(arg.end).toLocal();
 
-            start = startDateTime.toISO()
+            start = startDateTime.toISO();
             end = endDateTime.toISO();
 
             const event: any = {
@@ -367,56 +363,63 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
             if (this.userRole === 'doctor') {
                 const dialogRef = this.dialog.open(
                     ConfirmComponent, {data: {message: "Reserve full day?"}}
-                )
+                );
                 dialogRef.componentInstance.ok.subscribe(subscription => {
+
                     if (subscription) {
                         calendarApi.addEvent(event);
                         this.appointment.emit({
                             start: event.start,
                             end: event.end,
-                            allDay: event.allDay,
-                            //patientId: this.patientId
+                            allDay: event.allDay
                         });
                     }
                     calendarApi.changeView('dayGridMonth', arg.start);
-                })
+                });
             } else {
                 const eventInfo = {
                     start: DateTime.fromISO(arg.startStr).toFormat('hh:mm'),
                     end: DateTime.fromISO(arg.endStr).toFormat('hh:mm'),
-                    date: DateTime.fromJSDate(new Date(arg.start)).toFormat('MMM dd, yyyy'),
-                    //patientId: this.patientId
+                    date: DateTime.fromJSDate(new Date(arg.start)).toFormat('MMM dd, yyyy')
                 }
-                
                 this.appointment.emit({
                     start,
                     end,
                     allDay: arg.allDay,
                     patientId: this.patientId
                 });
-                const dialogRef = this.dialog.open(
-                    EventComponent, {data: {eventInfo}}
-                )
+                const dialogRef = this.dialog.open(EventComponent, {data: { eventInfo }});
+
                 dialogRef.componentInstance.submit.subscribe(subscription => {
-                    console.log('what is this: ', subscription)
-                    // this.appointment.emit({
-                    //     start: eventInfo.start,
-                    //     end: eventInfo.end,
-                    //     allDay: arg.allDay,
-                    //     patientId: this.patientId
-                    // });
+
                     if (subscription) {
-                        // this.appointment.emit({
-                    //     start: eventInfo.start,
-                    //     end: eventInfo.end,
-                    //     allDay: arg.allDay,
-                    //     patientId: this.patientId
-                    // });
                         this.dialog.closeAll();
-                        calendarApi.changeView('dayGridMonth');
-                        //this.dialog.open(AlertComponent, {data: {message: "Appointment created"}});
+                        calendarApi.addEvent(event);
+                        window.location.reload();
+
                     }
-                })
+                });
+
+                dialogRef.componentInstance.delete.subscribe(async id => {
+
+                    if (id) {
+                        const mutation = `mutation ($appointmentId: Int!) {
+                            deleteAppointment (appointmentId: $appointmentId) {
+                                success
+                                message
+                            }
+                        }`
+                        try {
+                            const response = await this.graphQLService.mutate(mutation, { appointmentId: id});
+                            if (response.data.deleteAppointment.success) {
+                                this.dialog.closeAll();
+                                calendarApi.changeView('dayGridMonth');
+                            }
+                        } catch (error) {
+                            this.dialog.open(AlertComponent, { data: { message: "Error deleting appointment: "+ error}})
+                        }
+                    }
+                });
             }
         }
     }
@@ -576,10 +579,13 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
             title: clickInfo.event.title,
             id: clickInfo.event.extendedProps['dbId']
         }
-        const dialogRef = this.dialog.open(EventComponent, {data: {eventInfo}});
-        console.log('EVENT REF OPENED')
+        const event = this.events.find(event=> event.extendedProps.dbId === eventInfo.id)
+        const samePatient = event.extendedProps.patientId === this.patientId;
+
+        const dialogRef = this.dialog.open(EventComponent, {data: {eventInfo, samePatient}});
+
         dialogRef.componentInstance.delete.subscribe(id => {
-            console.log('NOT HERE ???????? on delte subsrc' , 'id: ', id)
+
             if (id) {
                 const ref = this.dialog.open(ConfirmComponent, {data: {message: 'This appointment will be deleted from the system'}});
                 ref.componentInstance.ok.subscribe(async (value)=> {
