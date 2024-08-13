@@ -72,8 +72,8 @@
         >
             <span class="material-icons">open_in_new</span><p>Open appointment workspace</p>
         </div>
-        <div *ngIf="(!doctorMessage && userRole === 'doctor') || (!patientMessage && userRole === 'patient') || (!patientMessage && userRole === 'admin')">
-            <div type="button" class="icon-btn title-hover" (click)="onAddClick(); showInput =!showInput" *ngIf="!showInput && samePatient">
+        <div *ngIf="(!doctorMessage && userRole === 'doctor') || (!patientMessage && userRole === 'patient') || (!patientMessage && userRole === 'admin' && samePatient)">
+            <div type="button" class="icon-btn title-hover" (click)="onAddClick(); showInput =!showInput" *ngIf="!showInput">
                 <span class="material-icons">add</span><p>Additional information</p>
             </div>
         </div>

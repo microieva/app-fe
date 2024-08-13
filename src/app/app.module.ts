@@ -34,7 +34,7 @@ import { AppTableComponent } from './shared/components/app-table/app-table.compo
 import { AppAccordionComponent } from './shared/components/app-accordion/app-accordion.component';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
-import { AppNextAppointmentService } from './shared/services/app-next-appointment.service';
+import { AppAppointmentService } from './shared/services/app-appointment.service';
 import { AppointmentComponent } from './graphql/appointment/appointment.component';
 import { AppTabsService } from './shared/services/app-tabs.service';
 import { AppEditorComponent } from './shared/components/app-editor/app-editor.component';
@@ -109,7 +109,7 @@ import { PatientsComponent } from './graphql/user/patients/patients.component';
     ], 
     providers: [
         AppTimerService,
-        AppNextAppointmentService,
+        AppAppointmentService,
         AppTabsService,
         provideNativeDateAdapter(),
         provideHttpClient(withInterceptorsFromDi()), 

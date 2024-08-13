@@ -5,7 +5,7 @@ import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
 import { AppointmentDataSource } from "../../../shared/types";
 import { Appointment } from "../appointment";
-import { AppNextAppointmentService } from "../../../shared/services/app-next-appointment.service";
+import { AppAppointmentService } from "../../../shared/services/app-appointment.service";
 import { AppTimerService } from "../../../shared/services/app-timer.service";
 import { AppointmentComponent } from "../appointment.component";
 import { AppTabsService } from "../../../shared/services/app-tabs.service";
@@ -13,6 +13,7 @@ import { AlertComponent } from "../../../shared/components/app-alert/app-alert.c
 import { ConfirmComponent } from "../../../shared/components/app-confirm/app-confirm.component";
 import { EventComponent } from "../../../shared/components/app-event/app-event.component";
 import { MatDialog } from "@angular/material/dialog";
+import { MatTabGroup } from "@angular/material/tabs";
 
 @Component({
     selector: 'app-appointments',
@@ -34,6 +35,7 @@ export class AppointmentsComponent implements OnInit {
 
     @ViewChildren('tabContent', { read: ViewContainerRef }) tabContents!: QueryList<ViewContainerRef>;
     tabs: any[] | null = null;
+    @ViewChild('tabGroup', { static: true }) tabGroup!: MatTabGroup;
 
     countPendingAppointments: number = 0;
     countUpcomingAppointments: number = 0;
@@ -66,7 +68,7 @@ export class AppointmentsComponent implements OnInit {
         private dialog: MatDialog,
         private activatedRoute: ActivatedRoute,
         private cdr: ChangeDetectorRef,
-        private nextAppointmentService: AppNextAppointmentService,
+        private appointmentService: AppAppointmentService,
         private timerService: AppTimerService,
         public tabsService: AppTabsService
     ){
@@ -86,9 +88,8 @@ export class AppointmentsComponent implements OnInit {
             const tab = params['tab'];
             this.selectedIndex = tab ? +tab : 0;
         }); 
-        //await this.loadData();
 
-        this.nextAppointmentService.appointmentInfo.subscribe((subscription) => {
+        this.appointmentService.appointmentInfo.subscribe((subscription) => {
             if (subscription && subscription.nextAppointment) {
                 this.nextId = subscription.nextAppointment.nextId;
 
@@ -100,7 +101,7 @@ export class AppointmentsComponent implements OnInit {
             }
         });
 
-        this.timerService.nextAppointmentCountDown.subscribe(async value => {
+        this.timerService.nextAppointmentCountdown.subscribe(async value => {
             if (value === '00:05:00') {  
                 this.createAppointmentTab();
             } 
@@ -112,13 +113,25 @@ export class AppointmentsComponent implements OnInit {
         const component = AppointmentComponent;
 
         if (id && title && !appointmentId) {
-            this.tabsService.addTab(title, component, id);
+            this.tabsService.addTab(title, component, id, this.tabGroup);
+
             this.tabs = this.tabsService.getTabs();
+            this.router.navigate([], {
+                relativeTo: this.activatedRoute,
+                queryParams: { tab: 3},
+                queryParamsHandling: 'merge' 
+            });
         }
 
         if (appointmentId) {
-            this.tabsService.addTab("Appointment Workspace", component, appointmentId);
+            this.tabsService.addTab("Appointment Workspace", component, appointmentId, this.tabGroup);
+
             this.tabs = this.tabsService.getTabs();
+            this.router.navigate([], {
+                relativeTo: this.activatedRoute,
+                queryParams: { tab: 3},
+                queryParamsHandling: 'merge' 
+            });
         }
     }
     onTabClose(id: number){
@@ -130,9 +143,6 @@ export class AppointmentsComponent implements OnInit {
         switch (this.selectedIndex) {
             case 0:
                 if (this.countPendingAppointments > 0) {
-                    this.dataSource = null;
-                    this.upcomingDataSource = null;
-                    this.pastDataSource = null;
                     await this.loadPendingAppointments();
                 }
                 return;
@@ -203,13 +213,25 @@ export class AppointmentsComponent implements OnInit {
         await this.loadData();
     }
     async onSortChange(value: any) {
-        if (value.active === 'howLongAgoStr') {
-            this.sortActive = 'createdAt'
-        } else if (value.active === 'howSoonStr') {
-            this.sortActive = 'start'
-        } else if (value.active === 'pastDate'){
-            this.sortActive = 'end';
-        }
+        switch (value.active) {
+            case 'howLongAgoStr':
+                this.sortActive = 'createdAt';
+                break;
+            case 'howSoonStr':
+                this.sortActive = 'start';
+                break;
+            case 'pastDate':
+                this.sortActive = 'end';
+                break;
+            case 'patientName':
+            case 'name':
+                this.sortActive = 'firstName';
+                break;
+            // default:
+            //     this.sortActive = value.active;
+            //     break;
+        }        
+
         if (value.direction)
         this.sortDirection = value.direction.toUpperCase();
         await this.loadData();
@@ -269,8 +291,8 @@ export class AppointmentsComponent implements OnInit {
         const variables = {
             pageIndex: this.pageIndex,
             pageLimit: this.pageLimit,
-            sortActive: this.sortActive,
-            sortDirection: this.sortDirection || 'DESC',
+            sortActive: this.sortActive || 'start',
+            sortDirection: this.sortDirection || 'ASC',
             filterInput: this.filterInput
         }
         
@@ -281,7 +303,7 @@ export class AppointmentsComponent implements OnInit {
                 this.length = response.data.pendingAppointments.length;
                 this.formatDataSource("pending");
 
-                if (this.length > 9 && this.pendingDataSource) {
+                if (this.pendingDataSource) {
                     this.dataSource = new MatTableDataSource<AppointmentDataSource>(this.pendingDataSource);
                 }
             }
@@ -337,7 +359,7 @@ export class AppointmentsComponent implements OnInit {
                 this.length = response.data.upcomingAppointments.length;
                 this.formatDataSource("upcoming");
                 
-                if (this.length > 9 && this.upcomingDataSource) {
+                if (this.upcomingDataSource) {
                     this.dataSource = new MatTableDataSource<AppointmentDataSource>(this.upcomingDataSource);
                 }
             }
@@ -393,7 +415,7 @@ export class AppointmentsComponent implements OnInit {
                 this.length = response.data.pastAppointments.length;
                 this.formatDataSource("past");
 
-                if (this.length > 9 && this.pastDataSource) {
+                if (this.pastDataSource) {
                     this.dataSource = new MatTableDataSource<AppointmentDataSource>(this.pastDataSource);
                 }
             }
@@ -446,11 +468,12 @@ export class AppointmentsComponent implements OnInit {
                     return {
                         id: row.id,
                         howLongAgoStr: howLongAgoStr,
-                        title: this.userRole === 'patient' ? "Pending doctor confirmation" : "View details",
+                        title: this.userRole === 'patient' ? "Pending doctor confirmation" : undefined,
                         buttons: this.userRole === 'doctor' ? allButtons : cancelButton,
                         date: DateTime.fromJSDate(new Date(row.start)).toFormat('MMM dd, yyyy'),
                         start: DateTime.fromJSDate(new Date(row.start)).toFormat('hh:mm'),
-                        end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm')
+                        end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm'),
+                        patientName: this.userRole==='doctor' ? `${row.patient.firstName} ${row.patient.lastName}` : undefined
                     } 
                 });
                 break;
@@ -461,12 +484,13 @@ export class AppointmentsComponent implements OnInit {
   
                     return {
                         id: row.id,
-                        howSoonStr: howSoonStr,
-                        title: this.userRole === 'patient' ? "Confirmed appointment" : "Upcoming appointment",
+                        howSoonStr,
+                        title: this.userRole === 'patient' ? "Confirmed appointment" : undefined,
                         buttons: cancelButton,
                         date: DateTime.fromJSDate(new Date(row.start)).toFormat('MMM dd, yyyy'),
                         start: DateTime.fromJSDate(new Date(row.start)).toFormat('hh:mm'),
-                        end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm')
+                        end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm'),
+                        patientName: this.userRole==='doctor' ? `${row.patient.firstName} ${row.patient.lastName}`: undefined
                     };
                 });
                 break;
@@ -478,11 +502,12 @@ export class AppointmentsComponent implements OnInit {
                     return {
                         id: row.id,
                         pastDate: howLongAgoStr,
-                        title: "View details",
+                        title: this.userRole === 'patient' ? "View details": undefined,
                         buttons: deleteButton,
                         date: DateTime.fromJSDate(new Date(row.start)).toFormat('MMM dd, yyyy'),
                         start: DateTime.fromJSDate(new Date(row.start)).toFormat('hh:mm'),
-                        end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm')
+                        end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm'),
+                        patientName: this.userRole==='doctor' ? `${row.patient.firstName} ${row.patient.lastName}`: undefined
                     };
                 });
                 break;
@@ -490,36 +515,37 @@ export class AppointmentsComponent implements OnInit {
                 break;
         }
     }
-
-    getHowSoonUpcoming(datetime: any){
-        const inputDate = DateTime.fromISO(datetime);
+    getHowSoonUpcoming(datetime: any) {
         const now = DateTime.now();
-        const diff = inputDate.diff(now, ['years', 'months', 'days', 'hours', 'minutes', 'seconds']);
-        let howSoonStr = 'in ';
+        const start = now.toISO()
 
-        if (diff.years > 0) {
-            howSoonStr += `${diff.years} year${diff.years === 1 ? '' : 's'} `;
-        }
-        if (diff.months > 0) {
-            howSoonStr += `${diff.months} month${diff.months === 1 ? '' : 's'} `;
-        }
-        if (diff.days > 0) {
-            howSoonStr += `${diff.days} day${diff.days === 1 ? '' : 's'} `;
-        }
-        if (diff.days < 1 && diff.hours > 0) {
-            howSoonStr += `${diff.hours} hour${diff.hours === 1 ? '' : 's'} `;
-        }
-        if (diff.days < 1 && diff.minutes > 0) {
-            howSoonStr += `${diff.minutes} minute${diff.minutes === 1 ? '' : 's'} `;
-        }
+        const inputDate = DateTime.fromISO(datetime);
+            const diff = inputDate.diff(now, ['years', 'months', 'days', 'hours', 'minutes', 'seconds']);
+            let howSoonStr = 'in ';
     
-        howSoonStr = howSoonStr.trim();
-    
-        if (!howSoonStr) {
-            howSoonStr = 'now';
-        }
-    
-        return howSoonStr;
+            if (diff.years > 0) {
+                howSoonStr += `${diff.years} year${diff.years === 1 ? '' : 's'} `;
+            }
+            if (diff.months > 0) {
+                howSoonStr += `${diff.months} month${diff.months === 1 ? '' : 's'} `;
+            }
+            if (diff.days > 0) {
+                howSoonStr += `${diff.days} day${diff.days === 1 ? '' : 's'} `;
+            }
+            if (diff.days < 1 && diff.hours > 0) {
+                howSoonStr += `${diff.hours} hour${diff.hours === 1 ? '' : 's'} `;
+            }
+            if (diff.days < 1 && diff.minutes > 0) {
+                howSoonStr += `${diff.minutes} minute${diff.minutes === 1 ? '' : 's'} `;
+            }
+        
+            howSoonStr = howSoonStr.trim();
+        
+            if (!howSoonStr || howSoonStr === 'in') {
+                howSoonStr = 'now';
+            }
+        
+            return howSoonStr;
     }
 
     getHowLongAgo(datetime: any) {
@@ -541,16 +567,18 @@ export class AppointmentsComponent implements OnInit {
             howLongAgoStr += `${diff.hours} hour${diff.hours === 1 ? '' : 's'} `;
         }
         if (diff.days < 1 && diff.minutes > 0) {
-            howLongAgoStr += `${diff.minutes} minute${diff.minutes === 1 ? '' : 's'} `;
+            if (diff.minutes <= 5) {
+                howLongAgoStr = 'Just now'
+            } else {
+                howLongAgoStr += `${diff.minutes} minute${diff.minutes === 1 ? '' : 's'} `;
+            }
         }
 
         howLongAgoStr = howLongAgoStr.trim();
 
-        if (howLongAgoStr) {
+        if (howLongAgoStr && howLongAgoStr !== 'Just now') {
             howLongAgoStr += ' ago';
-        } else {
-            howLongAgoStr = 'just now';
-        }
+        } 
         return howLongAgoStr;
     }
 
@@ -572,13 +600,14 @@ export class AppointmentsComponent implements OnInit {
                     }`
                     const response = await this.graphQLService.mutate(mutation, {appointmentId: id});
                     if (response.data.deleteAppointment.success) {
+                        this.dialog.closeAll();
                         this.ngOnInit();
                     }
                 } catch (error) {
                     this.dialog.open(AlertComponent, {data: {message: "Unexpected error while deleting appointment: "+error}})
                 }
             }
-        })  
+        });  
     }
 
     onButtonClick({ id, text }: {id: number, text: string}) {
@@ -601,12 +630,18 @@ export class AppointmentsComponent implements OnInit {
     }
 
     onAppointmentClick(eventInfo: {id: string, title: string}){
-        const dialogRef = this.dialog.open(EventComponent, {data: {eventInfo}});
-        dialogRef.componentInstance.isOpeningTab.subscribe(subscription => {
-            if (subscription) {
-                this.createAppointmentTab(subscription)
+        const dialogRef = this.dialog.open(EventComponent, {data: {eventInfo, samePatient: true}});
+        dialogRef.componentInstance.delete.subscribe(async id => {
+            if (id) {
+                this.deleteAppointment(id);
             }
         })
+        dialogRef.componentInstance.isOpeningTab.subscribe(subscription => {
+            if (subscription) {
+                this.createAppointmentTab(subscription);
+                this.dialog.closeAll();
+            }
+        });
     }
 
     async acceptAppointment(id: number) {
@@ -622,9 +657,13 @@ export class AppointmentsComponent implements OnInit {
                 const response = await this.graphQLService.mutate(mutation, {appointmentId: id});
 
                 if (response.data.acceptAppointment.success) {
-                    this.dialog.open(AlertComponent, {data: {message: "Appointment added to your calendar"}});
-                    this.loadUpcomingAppointments();
-                    this.ngOnInit();
+                    const ref = this.dialog.open(ConfirmComponent, {data: {message: "Appointment will be added to your calendar"}});
+
+                    ref.componentInstance.ok.subscribe(subscription => {
+                        if (subscription) {
+                            this.ngOnInit();
+                        }
+                    });
                 }
             } catch (error) {
                 this.dialog.open(AlertComponent, {data: {message: `Unexpected error: ${error}`}})

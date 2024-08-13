@@ -1,13 +1,17 @@
 import { Component, OnInit } from "@angular/core";
-import { Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
+import { MatDialog } from "@angular/material/dialog";
 import { Subscription } from "rxjs";
+import { DateTime } from "luxon";
 import { AppAuthService } from "../../services/app-auth.service";
 import { AppGraphQLService } from "../../services/app-graphql.service";
 import { AppTimerService } from "../../services/app-timer.service";
-import { AppNextAppointmentService } from "../../services/app-next-appointment.service";
+import { AppAppointmentService } from "../../services/app-appointment.service";
+import { AppTabsService } from "../../services/app-tabs.service";
 import { AlertComponent } from "../app-alert/app-alert.component";
-import { MatDialog } from "@angular/material/dialog";
 import { LoginComponent } from "../app-login/app-login.componnet";
+import { AppointmentComponent } from "../../../graphql/appointment/appointment.component";
+import { Appointment } from "../../../graphql/appointment/appointment";
 
 @Component({
     selector: 'app-home',
@@ -24,14 +28,17 @@ export class AppHomeComponent implements OnInit{
     time!: string | null;
     userRole: string | null = null;
     nextAppointmentId: number | null = null;
+    nowAppointment: Appointment | null = null;
 
     constructor (
         private dialog: MatDialog,
         private authService: AppAuthService,
         private graphQLService: AppGraphQLService,
         private timerService: AppTimerService,
-        private nextAppointmentService: AppNextAppointmentService,
-        private router: Router
+        private appointmentService: AppAppointmentService,
+        private router: Router,
+        private tabsService: AppTabsService,
+        private activatedRoute: ActivatedRoute
     ) {}
 
     async ngOnInit() {
@@ -40,7 +47,7 @@ export class AppHomeComponent implements OnInit{
             const tokenExpire = localStorage.getItem('tokenExpire');
             if (tokenExpire && this.me) {
                 this.remainder = this.timerService.startTokenTimer(tokenExpire);
-                this.timerService.tokenCountDown.subscribe(value=> {
+                this.timerService.tokenCountdown.subscribe(value=> {
                     this.time = value;
                 });
                 this.timerService.logout.subscribe(value => {
@@ -54,6 +61,42 @@ export class AppHomeComponent implements OnInit{
                     if (value) this.router.navigate(['/'])
                 });
             }
+            if (this.me.userRole === 'doctor') {
+                const nowAppointment = await this.appointmentService.loadNowAppointment();
+                let isTabAdded: boolean = false;
+                if (nowAppointment) {
+                    const patientName = nowAppointment.patient.firstName+" "+nowAppointment.patient.lastName;
+                    const start = DateTime.fromJSDate(new Date(nowAppointment.start)).toFormat('hh:mm');
+                    isTabAdded = JSON.parse(localStorage.getItem('tabs') || '[]').find((tab: any)=> tab.id === nowAppointment?.id);
+                    let isTabCreated: boolean;
+                    
+                    this.activatedRoute.queryParams.subscribe(params => {
+                        const tab = params['tab'];
+                        if (!tab) isTabCreated = false;
+                        isTabCreated = true;
+                    });
+
+                    if (!isTabAdded) {
+                        this.tabsService.addTab("offline start: "+start, AppointmentComponent, nowAppointment.id);
+                        const ref = this.dialog.open(AlertComponent, {data: {message: "Current appointment with "+patientName+"\nStarted at "+start}});
+                        this.nowAppointment = nowAppointment;
+                        ref.componentInstance.ok.subscribe(subscription => {
+                            if (subscription) {
+                                //window.location.reload();
+                                //this.tabsService.getTabs();
+                                // this.router.navigate([], {
+                                //     relativeTo: this.activatedRoute,
+                                //     queryParams: { tab: 3},
+                                //     queryParamsHandling: 'merge' 
+                                // });
+                            }
+                            isTabCreated = true;
+
+                        })
+                    } 
+                    // with this, on anyn refresh drops to the 3rd tab whiatever it is
+                }
+            }
         } else {
             this.me = null;
             this.updatedAt = null;
@@ -61,8 +104,9 @@ export class AppHomeComponent implements OnInit{
             this.isRecords = false;
         }
         if (this.userRole === 'doctor') {
-            await this.nextAppointmentService.pollNextAppointment();
+            await this.appointmentService.pollNextAppointment();
         }
+        console.log('NOW APPOINTMENT: ', this.nowAppointment)
     }
 
     async loadMe() {
@@ -99,9 +143,9 @@ export class AppHomeComponent implements OnInit{
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "No user :"+error}});
+            localStorage.clear();
         }
     }
-
     onDirectLoginClick() {
         this.dialog.open(LoginComponent, {data: {directLogin: true}});
     }

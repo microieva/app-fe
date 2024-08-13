@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AppointmentComponent } from '../../graphql/appointment/appointment.component';
+import { MatTab, MatTabGroup } from '@angular/material/tabs';
 
 export interface ITab {
     title: string
@@ -10,17 +11,36 @@ export interface ITab {
 @Injectable()
 export class AppTabsService {
 
-    addTab(title: string, component: any, id: number) {
+    addTab(title: string, component: any, id: number, tabGroup?: MatTabGroup) {
         const tabs = localStorage.getItem('tabs');
-        if (tabs) {
-            const arr = JSON.parse(tabs);
-            arr.push({title, id});
-            localStorage.setItem('tabs', JSON.stringify(arr));
+        let tabArray = tabs ? JSON.parse(tabs) : [];
+
+        const index = 3;
+        const newTab = { title, id };
+
+        if (tabArray.length > 0) {
+          tabArray.unshift(newTab)
         } else {
-            const arr = JSON.stringify([{title, id}]);
-            localStorage.setItem('tabs', arr);
+          tabArray.push(newTab);
         }
-    }
+        localStorage.setItem('tabs', JSON.stringify(tabArray)); 
+
+        const tabsInGroup = tabGroup?._tabs.toArray();    
+        const newMatTab = {
+          label: title,
+          content: component
+        } as unknown;
+    
+        if (tabsInGroup && tabsInGroup.length >= index) {
+          tabsInGroup.splice(index, 0, newMatTab as MatTab);
+        } else {
+          tabsInGroup?.push(newMatTab as MatTab);
+        }
+    
+        tabsInGroup && tabGroup?._tabs.reset(tabsInGroup);
+        tabGroup?._tabs.notifyOnChanges();   
+        tabGroup && tabGroup.selectedIndex === index;
+      }
 
     closeTab(id: number): void {
         const tabs = JSON.parse(localStorage.getItem('tabs') || '[]');

@@ -6,10 +6,10 @@
           <span [ngStyle]="{visibility: !isUserUpdated ? 'visible':'hidden'}" class="icon material-symbols-outlined">info</span>
         </div>
       </a>
-      <a mat-list-item [routerLink]="['appointments']" *ngIf="userRole && userRole !== 'admin' && isUserUpdated" routerLinkActive="activeLink">
-        <div class="flex">
+      <a mat-list-item (click)="onAppointmentsClick()" [routerLink]="['appointments']" *ngIf="userRole && userRole !== 'admin' && isUserUpdated" routerLinkActive="activeLink">
+        <div class="flex" >
           <span>{{ 'Appointments' }}</span>
-          <span [ngStyle]="{visibility: !isUserUpdated ? 'visible':'hidden'}" class="icon material-symbols-outlined">info</span>
+          <span [ngStyle]="{visibility: !isUserUpdated || isNowAppointment ? 'visible':'hidden'}" class="icon material-symbols-outlined">info</span>
         </div>
       </a>
       <a mat-list-item [routerLink]="['records']" *ngIf="userRole && userRole !== 'admin' && isRecords" routerLinkActive="activeLink">

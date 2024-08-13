@@ -7,6 +7,7 @@ import { RecordComponent } from "../../../graphql/record/record.component";
 import { AlertComponent } from "../app-alert/app-alert.component";
 import { AppDataSource } from "../../types";
 import { UserComponent } from "../../../graphql/user/user.component";
+import { EventComponent } from "../app-event/app-event.component";
 
 @Component({
     selector: 'app-accordion',
@@ -34,7 +35,6 @@ export class AppAccordionComponent implements OnInit{
     ){}
 
     async ngOnInit() {
-        console.log('data source in accordion: ', this.dataSource)
     }
 
     

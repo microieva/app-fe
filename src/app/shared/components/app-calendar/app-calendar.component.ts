@@ -33,7 +33,7 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
     allDayAppointments: Appointment[] = [];
     selectedAppointments: string = 'All';
     events:any[] = []; 
-    userRole!: string;
+    //role!: string;
     patientId: number | undefined;
 
     constructor(
@@ -42,12 +42,13 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
         private router: Router,
         private activatedRoute: ActivatedRoute
     ){
-        this.userRole = this.role;
+        
     }
 
     nonAllDayEventCount: { [key: string]: number } = {};
   
     async ngOnInit() {
+        //this.role = this.role;
         this.activatedRoute.queryParams.subscribe(params => {
             this.patientId = +params['id']; 
         });
@@ -126,7 +127,7 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
     }
 
     handleEventDrop(arg: any) {
-        if (this.userRole === 'patient') {
+        if (this.role === 'patient') {
             if (arg.event.extendedProps.doctorId) {
                 this.dialog.open(AlertComponent, {data: {message: "Cannot change the appointment time since it has been already accepted by a doctor... Consider cancelling appointment and creating a new one."}});
                 arg.revert();
@@ -360,7 +361,8 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
                 allDay: arg.allDay
             }
 
-            if (this.userRole === 'doctor') {
+            if (this.role === 'doctor') {
+                console.log('doctor click to add full day, should be dialog')
                 const dialogRef = this.dialog.open(
                     ConfirmComponent, {data: {message: "Reserve full day?"}}
                 );
@@ -386,7 +388,7 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
                     start,
                     end,
                     allDay: arg.allDay,
-                    patientId: this.patientId
+                    patientId: this.patientId || undefined
                 });
                 const dialogRef = this.dialog.open(EventComponent, {data: { eventInfo }});
 
@@ -462,7 +464,7 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
                 this.handleMonthView(arg);
                 break;
             case 'timeGridWeek':
-                if (this.userRole !== 'doctor') {
+                if (this.role !== 'doctor') {
                     this.handleWeekView(arg);
                 } else {
                     if (arg.allDay && numberOfAppointmentsOnSelectedDay <1) this.handleDayView(arg);
@@ -474,7 +476,8 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
                 }
                 break;
             case 'timeGridDay':
-                if (this.userRole !== 'doctor') {
+                console.log('numberOfAppointmentsOnSelectedDay: ', numberOfAppointmentsOnSelectedDay, 'role: ', this.role)
+                if (this.role !== 'doctor') {
                     if (!arg.allDay) this.handleDayView(arg);
                     else calendarApi.unselect();
                 } else {
@@ -495,7 +498,7 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
         const date = DateTime.fromJSDate(start).toFormat('yyyy-MM-dd').toString()
         return this.appointments.filter((appointment) => {
             const start = DateTime.fromISO(appointment.start).toFormat('yyyy-MM-dd').toString();   
-            if (date === start && appointment.updatedAt) {
+            if (date === start && appointment.doctorId) {
                 return appointment;
             }
             return null;
@@ -545,6 +548,7 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
         const isDouble = this.isDouble(arg) 
         const isBusinessHours = this.isBusinessHours(arg);
 
+        console.log('day view - allDay arg: ', arg)
         if ((!isDouble && isBusinessHours) || arg.allDay) {
             this.handleAddEvent(arg);
         } 
@@ -580,7 +584,7 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
             id: clickInfo.event.extendedProps['dbId']
         }
         const event = this.events.find(event=> event.extendedProps.dbId === eventInfo.id)
-        const samePatient = event.extendedProps.patientId === this.patientId;
+        const samePatient = !this.patientId ? true : event.extendedProps.patientId === this.patientId;
 
         const dialogRef = this.dialog.open(EventComponent, {data: {eventInfo, samePatient}});
 

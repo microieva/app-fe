@@ -42,13 +42,18 @@ export class PatientsComponent implements OnInit {
         await this.loadData();
     }
     async onSortChange(value: any) {
-        /*if (value.active === 'howLongAgoStr') {
-            this.sortActive = 'createdAt'
-        } else if (value.active === 'howSoonStr') {
-            this.sortActive = 'start'
-        } else if (value.active === 'pastDate'){
-            this.sortActive = 'end';
-        }*/
+        switch (value.active) {
+            case 'name':
+                this.sortActive = 'firstName';
+                break;
+            case 'created':
+                this.sortActive = 'createdAt';
+                break;
+            default:
+                this.sortActive = value.active;
+                break;
+        }  
+
         if (value.direction)
         this.sortDirection = value.direction.toUpperCase();
         await this.loadData();

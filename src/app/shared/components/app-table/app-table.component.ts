@@ -3,7 +3,8 @@ import { MatTableDataSource } from "@angular/material/table";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
 import { animate, state, style, transition, trigger } from "@angular/animations";
-import { Subject, debounceTime, first } from "rxjs";
+import { Subject, debounceTime } from "rxjs";
+import { AppTimerService } from "../../services/app-timer.service";
 import { AppDataSource } from "../../types";
 
 @Component({
@@ -48,9 +49,12 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
     pageLimit: number = 10;
     pageIndex: number = 0;
     filter: string = ''
+
+    howSoonStr: string | undefined;
     
     @HostListener('matSortChange', ['$event'])
     onSortChange(event: any) {
+        console.log('from sorting: ', event)
         this.sortChange.emit({active: event.active, direction: event.direction})   
     }
 
@@ -65,31 +69,47 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
         }
     }
 
-    constructor(){
+    constructor(
+        public timerService: AppTimerService
+    ){
         this.searchSubject.pipe(
             debounceTime(300)
         ).subscribe(searchTerm => {
                 this.filterValue.emit(searchTerm); 
         });
+        
     }
     
     ngOnInit() {
 
-        //if (this.dataSource) {
             const firstElement = this.dataSource.data[0];
-            //if (firstElement) {
-                if ('email' in firstElement && 'firstName' in firstElement ) {
-                    this.displayedColumns = ['name', 'email', 'created'];
-                } else if ('patientName' in firstElement) {
-                    this.displayedColumns = ['title', 'patientName', 'created'];  
-                } else if ('createdAt' in firstElement) {
-                    this.displayedColumns = ['title', 'created']; 
-                } else {
-                    this.displayedColumns = ['id', 'status', 'time'];
-                }
-                this.columnsToDisplayWithExpand = [...this.displayedColumns, 'expandedDetail'];  
-            //}
-        //}
+            if ('email' in firstElement) { // type UserDataSource
+                this.displayedColumns = ['name', 'email', 'created'];
+            } else if ('date' in firstElement && this.userRole === 'patient') {
+                this.displayedColumns =['id', 'status', 'time'] // type AppointmentDataSource - patient view
+            } else if ('date' in firstElement && this.userRole === 'doctor') { 
+                    this.displayedColumns = ['id', 'patientName', 'time']  // type AppointmentDataSource - doctor / admin view
+            } else if ('title' in firstElement && 'createdAt' in firstElement) {
+                this.displayedColumns = ['title', 'created']; 
+            }
+            
+            // else if ('patientName' in firstElement) {
+            //     this.displayedColumns = ['title', 'patientName', 'created'];  
+            // } else if ('createdAt' in firstElement) {
+            //     this.displayedColumns = ['title', 'created']; 
+            // } else {
+            //     this.displayedColumns=['id']
+            // }
+            this.columnsToDisplayWithExpand = [...this.displayedColumns, 'expandedDetail'];  
+
+        /*const now = DateTime.now();
+        this.timerService.startHowSoonTimer(now);
+        this.timerService.howSoonCountdown.subscribe((value: string)=> {
+            if (value) {
+                console.log('timer: ', value)
+                this.howSoonStr = value;
+            }
+        })*/
     }
     ngAfterViewInit(): void {   
         if (this.paginator && this.dataSource) {
@@ -103,7 +123,7 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
     ngOnDestroy() {
         console.log('NG *DESTROY* IS THIS RUNNING ???')
-        this.dataSource.data.length = 0;
+        //this.dataSource.data.length = 0;
     }
     
 
@@ -115,6 +135,9 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
           }
         }
     }
+    public getCurrentLength() {
+        return this.length
+    }
 
     scrollToTop() {
         if (this.scrollView) {
@@ -123,11 +146,11 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     onSearch(event: KeyboardEvent) {
-        const filterValue = (event.target as HTMLInputElement).value;
+        const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
 
         if (this.dataSource) {
+            this.dataSource.filter = filterValue;
             this.searchSubject.next(filterValue);
-            this.dataSource.filter = filterValue.trim().toLowerCase();
         }
     }
 

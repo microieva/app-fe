@@ -68,7 +68,9 @@ export class EventComponent implements OnInit{
 
         if (this.userRole === 'admin' && this.patientId && !this.appointmentInfo.id) {
             this.loadJustCreatedAppointment(this.patientId);
-        } 
+        } else {
+            this.loadJustCreatedAppointment(this.id);
+        }
 
         this.form = this.formBuilder.group({
             input: this.formBuilder.control<string>(' ')
@@ -255,7 +257,10 @@ export class EventComponent implements OnInit{
             this.isOpeningTab.emit(appointmentId);
             this.isOpened = true;
         } else {
-            this.dialog.open(AlertComponent, {data: {message: "Workspace open"}});
+            const ref = this.dialog.open(AlertComponent, {data: {message: "Workspace open"}});
+            ref.componentInstance.ok.subscribe(subscription => {
+                if (subscription) this.dialog.closeAll();
+            })
         }
     }
     scrollToView() {

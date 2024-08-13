@@ -1,4 +1,5 @@
 <mat-tab-group 
+    #tabGroup
     mat-stretch-tabs="false" 
     mat-align-tabs="start" 
     class="content" 
@@ -13,10 +14,10 @@
         <div>
             <div class="flex-row wrapper info">
                 <span class="icon material-symbols-outlined">info</span>
-                <h3 *ngIf="userRole === 'patient' && pendingAppointments.length === 0">Welcome! Here you will see your pending appointments <em>(requests approved within 24 hours)</em></h3> 
-                <h3 *ngIf="userRole === 'patient' && pendingAppointments.length !== 0">Here you can view and cancel pending appointments</h3>
-                <h3 *ngIf="userRole === 'doctor' && pendingAppointments.length !== 0">Appointments waiting for confirmation</h3>
-                <h3 *ngIf="userRole === 'doctor' && pendingAppointments.length === 0">No appointment requests at the moment</h3>
+                <h3 *ngIf="userRole === 'patient' && countPendingAppointments === 0">Welcome! Here you will see your pending appointments <em>(requests approved within 24 hours)</em></h3> 
+                <h3 *ngIf="userRole === 'patient' && countPendingAppointments !== 0">Here you can view and cancel pending appointments</h3>
+                <h3 *ngIf="userRole === 'doctor' && countPendingAppointments !== 0">Appointments waiting for confirmation</h3>
+                <h3 *ngIf="userRole === 'doctor' && countPendingAppointments === 0">No appointment requests at the moment</h3>
                 <button mat-stroked-button (click)="openCalendar()">{{ 'Open Calendar' }}</button>
             </div>
             <div class="page" #scrollView>
@@ -24,7 +25,7 @@
                     <app-table 
                         *ngIf="dataSource && countPendingAppointments > 9"
                         [dataSource]="dataSource" 
-                        [length]="countPendingAppointments"
+                        [length]="length"
                         [userRole]="userRole"
                         [markAppointmentId]="routedAppointmentId"
                         (pageChange)="onPageChange($event)"
@@ -35,7 +36,7 @@
                     >
                     </app-table>
                     <app-accordion     
-                        *ngIf="countPendingAppointments<9"
+                        *ngIf="countPendingAppointments<=9"
                         [markAppointmentId]="routedAppointmentId"
                         [dataSource]="pendingDataSource" 
                         (buttonClick)="onButtonClick($event)"
@@ -61,16 +62,16 @@
         <div>
             <div class="flex-row wrapper info">
                 <span class="icon material-symbols-outlined">info</span>
-                <h3 *ngIf="upcomingAppointments.length !== 0">Your appointments 
+                <h3 *ngIf="countUpcomingAppointments !== 0">Your appointments 
                     <em *ngIf="userRole === 'doctor'">(next starts at {{nextAppointmentStartTime}})</em>
                 </h3>
-                <h3 *ngIf="userRole === 'doctor' && upcomingAppointments.length === 0">You have no future appointments at the moment</h3>
+                <h3 *ngIf="userRole === 'doctor' && countUpcomingAppointments === 0">You have no future appointments at the moment</h3>
                 
-                <h3 *ngIf="userRole === 'patient' && upcomingAppointments.length === 0">Here will be displayed your upcoming appointments after doctor's confirmation</h3>
+                <h3 *ngIf="userRole === 'patient' && countUpcomingAppointments === 0">Here will be displayed your upcoming appointments after doctor's confirmation</h3>
                 <button mat-stroked-button (click)="openCalendar()">{{ 'Open Calendar' }}</button>
             </div>
             <div class="page">
-                <div class="btn-block column" *ngIf="userRole === 'patient' && upcomingAppointments.length === 0">
+                <div class="btn-block column" *ngIf="userRole === 'patient' && countUpcomingAppointments === 0">
                     <div><em>No upcoming appointments at the moment</em></div>
                     <div><em>Appointment requests confirmed within 24 hours!</em></div>   
                 </div>
@@ -78,7 +79,7 @@
                     <app-table 
                         *ngIf="dataSource && countUpcomingAppointments > 9"
                         [dataSource]="dataSource" 
-                        [length]="countUpcomingAppointments"
+                        [length]="length"
                         [userRole]="userRole"
                         [markAppointmentId]="routedAppointmentId"
                         (pageChange)="onPageChange($event)"
@@ -89,7 +90,7 @@
                     >
                     </app-table>
                     <app-accordion 
-                        *ngIf="upcomingDataSource && countUpcomingAppointments<9"
+                        *ngIf="upcomingDataSource && countUpcomingAppointments<=9"
                         [markAppointmentId]="routedAppointmentId"
                         [dataSource]="upcomingDataSource" 
                         (buttonClick)="onButtonClick($event)"
@@ -105,10 +106,10 @@
         </ng-template>
         <div class="flex-row wrapper info">
             <span class="icon material-symbols-outlined">info</span>
-            <h3 *ngIf="userRole === 'patient' && pastAppointments.length === 0">Here you will find your past appointments</h3> 
-            <h3 *ngIf="userRole === 'patient' && pastAppointments.length !== 0">Your past appointments <em>(newest to oldest)</em></h3>
-            <h3 *ngIf="userRole === 'doctor' && pastAppointments.length !== 0">Archive <em>(newest to oldest)</em></h3>
-            <h3 *ngIf="userRole === 'doctor' && pastAppointments.length === 0">Empty archive</h3>
+            <h3 *ngIf="userRole === 'patient' && countPastAppointments === 0">Here you will find your past appointments</h3> 
+            <h3 *ngIf="userRole === 'patient' && countPastAppointments !== 0">Your past appointments <em>(newest to oldest)</em></h3>
+            <h3 *ngIf="userRole === 'doctor' && countPastAppointments !== 0">Archive <em>(newest to oldest)</em></h3>
+            <h3 *ngIf="userRole === 'doctor' && countPastAppointments === 0">Empty archive</h3>
             <button mat-stroked-button (click)="openCalendar()">{{ 'Open Calendar' }}</button>
         </div>
         <div>
@@ -120,7 +121,7 @@
                     <app-table 
                         *ngIf="dataSource && countPastAppointments > 9"
                         [dataSource]="dataSource" 
-                        [length]="countPastAppointments"
+                        [length]="length"
                         [userRole]="userRole"
                         [markAppointmentId]="routedAppointmentId"
                         (pageChange)="onPageChange($event)"
@@ -131,7 +132,7 @@
                     >
                     </app-table>
                     <app-accordion 
-                        *ngIf="pastDataSource && countPastAppointments<9"
+                        *ngIf="pastDataSource && countPastAppointments<=9"
                         [markAppointmentId]="routedAppointmentId"
                         [dataSource]="pastDataSource" 
                         (buttonClick)="onButtonClick($event)"

@@ -227,7 +227,7 @@ export class RecordsComponent implements OnInit {
         }
     }
     onRecordClick(recordId: any){
-        const dialogRef = this.dialog.open(RecordComponent, {data: {recordId}});
+        const dialogRef = this.dialog.open(RecordComponent, {data: {recordId, width: "45rem"}});
         dialogRef.componentInstance.reload.subscribe(subscription => {
             if (subscription) this.loadData();
         })

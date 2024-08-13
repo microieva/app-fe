@@ -20,6 +20,8 @@ export class AppointmentComponent implements OnInit {
     updated: string | null = null;
     recordId: number | null = null;
     appointmentId!:number;
+    startTime!: string;
+    date!: string;
 
     isCreating: boolean = false;
     
@@ -28,9 +30,7 @@ export class AppointmentComponent implements OnInit {
 
     constructor(
         private graphQLService: AppGraphQLService,
-        private dialog: MatDialog,
-        private activatedRoute: ActivatedRoute,
-        private router: Router
+        private dialog: MatDialog
     ){}
 
     async ngOnInit() {
@@ -83,6 +83,8 @@ export class AppointmentComponent implements OnInit {
                 this.record = response.data.appointment.record;
                 this.recordId = response.data.appointment.record?.id || null;
                 this.formattedDate = DateTime.fromJSDate(new Date(response.data.appointment.patient.dob)).toFormat('MMM dd, yyyy');
+                this.startTime = DateTime.fromJSDate(new Date(response.data.appointment.start)).toFormat('hh:mm');
+                this.date = DateTime.fromJSDate(new Date(response.data.appointment.start)).toFormat('MMM dd, yyyy');
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading current appointment: "+error}});

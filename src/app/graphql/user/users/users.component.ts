@@ -27,7 +27,7 @@ export class UsersComponent implements OnInit {
     pageIndex: number = 0;
     pageLimit: number = 10;
     sortDirection: string | null = null;
-    sortActive: string | null = 'firstName';
+    sortActive: string = 'firstName';
     filterInput: string | null = null;
 
     constructor(
@@ -219,7 +219,24 @@ export class UsersComponent implements OnInit {
 
     onPageChange(value: any){}
 
-    onSortChange(value: any){}
+    async onSortChange(value: any){
+        switch (value.active) {
+            case 'name':
+                this.sortActive = 'firstName';
+                break;
+            case 'created':
+                this.sortActive = 'createdAt';
+                break;
+            default:
+                this.sortActive = value.active;
+                break;
+        }  
+        console.log('REQ SORT value: ', value)
+
+        if (value.direction)
+        this.sortDirection = value.direction.toUpperCase();
+        await this.loadData();
+    }
 
     onFilterValueChange(value: any){}
 

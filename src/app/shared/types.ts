@@ -54,6 +54,7 @@ export interface AppointmentDataSource {
     date: string
     start: string
     end: string
+    patientName?: string
 }
 export interface RecordDataSource {
     id: number

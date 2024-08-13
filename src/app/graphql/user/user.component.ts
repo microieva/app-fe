@@ -206,6 +206,7 @@ export class UserComponent implements OnInit {
         try {
             const response = await this.graphQLService.mutate(mutation, { userInput: input });
             if (response.data.saveUser.success) {
+                //window.location.reload();
                 this.router.navigate(['user']);
             }
         } catch (error) {
