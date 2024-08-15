@@ -49,12 +49,12 @@
         <ng-container matColumnDef="created">
             <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:20rem;">Created</th>
             <td mat-cell *matCellDef="let element">
-                <em *ngIf="element.updatedAt">{{element.updatedAt}}</em>
+                <em *ngIf="element.createdAt">{{element.createdAt}}</em>
             </td>
         </ng-container>
 
         <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:20rem;">Patient Name</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:20rem;">Name</th>
             <td mat-cell *matCellDef="let element"> {{element.firstName}} {{element.lastName}}</td>
         </ng-container>
 
@@ -73,19 +73,19 @@
                    <div 
                         class="flex-column wrapper clickable" 
                         (click)="
-                            element.patientName && !element.email && onRecordClick(element.id)
+                            !element.date && element.patientName && onRecordClick(element.id)
                             ||
-                            element.email && onUserClick(element.id)
+                            !element.date && element.email && onUserClick(element.id)
                             ||
-                            !element.patientName && !element.email && onAppointmentClick(element.id, element.title); 
+                            element.date && onAppointmentClick(element.id, element.title); 
                             $event.stopPropagation()
                         "
                     >
-                    <p class="title" *ngIf="!element.patientName && !element.firstName">{{ 'Appointment Details' }}</p>
-                    <p class="title" *ngIf="element.patientName">{{ 'Medical Record Details' }}</p>
-                    <p class="title" *ngIf="element.firstName">{{ 'User Details' }}</p>
+                    <p class="title" *ngIf="element.date">{{ 'Appointment Details' }}</p>
+                    <p class="title" *ngIf="!element.date && element.patientName">{{ 'Medical Record Details' }}</p>
+                    <p class="title" *ngIf="!element.date && element.firstName">{{ 'User Details' }}</p>
                     <div class="flex-row">
-                        <div class="details flex-row" *ngIf="!element.patientName && !element.firstName">
+                        <div class="details flex-row" *ngIf="element.date">
                             <div class="flex-column">
                                 <p>{{ 'Date' }}</p>
                                 <h3>{{element.date}}</h3>
@@ -99,14 +99,15 @@
                                 <h3>{{element.end}}</h3>
                             </div>
                         </div>
-                        <div class="details flex-row" *ngIf="element.patientName || element.firstName" style="width: 100%; margin-top:1rem;">
+                        <div class="details flex-row" *ngIf="!element.date && (element.patientName || element.firstName)" style="width: 100%; margin-top:1rem;">
                             <div class="flex-column">
                                 <p>{{ 'Created' }}</p>
                                 <h3>{{element.createdAt}}</h3>
                             </div>
                             <div class="flex-column">
                                 <p>{{ 'Last Updated' }}</p>
-                                <h3>{{element.updatedAt}}</h3>
+                                <h3 *ngIf="element.updatedAt">{{element.updatedAt}}</h3>
+                                <h3 *ngIf="!element.updatedAt">-</h3>
                             </div>
                         </div>
                         <div class="actions flex-column" *ngIf="element.buttons">   

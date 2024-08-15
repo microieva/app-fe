@@ -8,6 +8,7 @@ import { MatTableDataSource } from "@angular/material/table";
 import { UserDataSource } from "../../../shared/types";
 import { DateTime } from "luxon";
 import { ConfirmComponent } from "../../../shared/components/app-confirm/app-confirm.component";
+import { UserComponent } from "../user.component";
 
 @Component({
     selector: 'app-users',
@@ -16,10 +17,9 @@ import { ConfirmComponent } from "../../../shared/components/app-confirm/app-con
 })
 export class UsersComponent implements OnInit {
     selectedIndex: number = 0;
-    length: number = 0;
     dataSource: any;
 
-    requests: any;
+    requests: User[] | undefined;
     requestsLength: number = 0;
     doctors: User[] | undefined;
     doctorsLength: number = 0;
@@ -98,11 +98,9 @@ export class UsersComponent implements OnInit {
             if (response.data) {
                 this.requests = response.data.requests.slice;
                 this.requestsLength = response.data.requests.length;
-                this.formatDataSource("requests");
+                const formatted = this.formatDataSource("requests");
 
-                if (this.requestsLength > 9) {
-                    this.dataSource = new MatTableDataSource<UserDataSource>(this.requests);
-                }
+                this.dataSource = new MatTableDataSource<UserDataSource>(formatted);
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading requests: "+error}})
@@ -149,11 +147,9 @@ export class UsersComponent implements OnInit {
             if (response.data) {
                 this.doctors = response.data.doctors.slice;
                 this.doctorsLength = response.data.doctors.length;
-                this.formatDataSource("doctors")
+                const formatted = this.formatDataSource("doctors")
 
-                if (this.doctorsLength > 9) {
-                    this.dataSource = new MatTableDataSource<UserDataSource>(this.doctors);
-                }
+                this.dataSource = new MatTableDataSource<UserDataSource>(formatted);
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading requests: "+error}})
@@ -171,41 +167,47 @@ export class UsersComponent implements OnInit {
                 disabled: false
             }
         ]
+        let formatted: UserDataSource[] = [];
+
         switch (view) {
             case "requests":
-                this.dataSource = this.requests.map((row: UserDataSource) => {
-                    const createdAt = DateTime.fromJSDate(new Date(row.createdAt)).toFormat('MMM dd, yyyy');
-                    const updatedAt = DateTime.fromJSDate(new Date(row.updatedAt)).toFormat('MMM dd, yyyy');
+                if (this.requests) {
+                    formatted = this.requests.map((row) => {
+                        const createdAt = DateTime.fromJSDate(new Date(row.createdAt)).toFormat('MMM dd, yyyy');
 
-                    return {
-                        id: row.id,
-                        createdAt,
-                        email: row.email,
-                        firstName: row.firstName,
-                        lastName: row.lastName,
-                        buttons: requestsButtons
-                        
-                    } 
-                });
+                        return {
+                            id: row.id,
+                            createdAt,
+                            email: row.email,
+                            firstName: row.firstName,
+                            lastName: row.lastName,
+                            buttons: requestsButtons,
+                            updatedAt: '-'
+                        } 
+                    });
+                }
                 break;
             case "doctors":
-                this.dataSource = this.doctors!.map((row: UserDataSource) => {
-                    const createdAt = DateTime.fromJSDate(new Date(row.createdAt)).toFormat('MMM dd, yyyy');
-                    const updatedAt = DateTime.fromJSDate(new Date(row.updatedAt)).toFormat('MMM dd, yyyy');
-
-                    return {
-                        id: row.id,
-                        createdAt,
-                        email: row.email,
-                        firstName: row.firstName,
-                        lastName: row.lastName,
-                        updatedAt: updatedAt.includes('1970') ? ' - ' : updatedAt   
-                    } 
-                });
+                if (this.doctors) {
+                    formatted = this.doctors.map((row: UserDataSource) => {
+                        const createdAt = DateTime.fromJSDate(new Date(row.createdAt)).toFormat('MMM dd, yyyy');
+                        const updatedAt = DateTime.fromJSDate(new Date(row.updatedAt)).toFormat('MMM dd, yyyy');
+    
+                        return {
+                            id: row.id,
+                            createdAt,
+                            email: row.email,
+                            firstName: row.firstName,
+                            lastName: row.lastName,
+                            updatedAt: updatedAt.includes('1970') ? '-' : updatedAt   
+                        } 
+                    });
+                }
                 break;
             default:
                 break;
         }
+        return formatted;
     }
 
     onTabChange(value: any) {
@@ -231,7 +233,6 @@ export class UsersComponent implements OnInit {
                 this.sortActive = value.active;
                 break;
         }  
-        console.log('REQ SORT value: ', value)
 
         if (value.direction)
         this.sortDirection = value.direction.toUpperCase();
@@ -240,7 +241,15 @@ export class UsersComponent implements OnInit {
 
     onFilterValueChange(value: any){}
 
-    onUserClick(value: any){}
+    async onUserClick(id: number){
+        const dialogRef = this.dialog.open(UserComponent, {data: {userId: id}});
+
+        dialogRef.componentInstance.isDeletingUser.subscribe(async subscription => {
+            if (subscription) {
+                await this.deleteUser(id);
+            }
+        })
+    }
 
     async onButtonClick(value: any){
         const { text, id } = value;
@@ -306,7 +315,22 @@ export class UsersComponent implements OnInit {
             }
         })
     }
-    deleteUser(){
-
+    async deleteUser(id: number){
+        const mutation = `mutation ($userId: Int!) {
+            deleteUser(userId: $userId) {
+                success
+                message
+            }
+        }`
+        try {
+            const response = await this.graphQLService.mutate(mutation, { userId: id});
+            if (response.data.deleteUser.success) {
+                this.dialog.closeAll();
+                this.ngOnInit();
+            }
+            this.dialog.open(AlertComponent, {data: {message: "User account deleted"}});
+        } catch (error) {
+            this.dialog.open(AlertComponent, { data: {message: "Error deleting user: "+ error}});
+        }
     }
 }

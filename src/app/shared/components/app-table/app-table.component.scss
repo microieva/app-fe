@@ -45,7 +45,11 @@ em {
     margin: 1rem auto;
 }
 
-//-------FROM ACCORDION:
+.non-clickable:hover {
+    cursor: default;
+    pointer-events: none;
+}
+
 button {
     height: 1.8rem;
     padding: 5px 10px;

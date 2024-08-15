@@ -18,7 +18,7 @@
             <div class="page" #scrollView>
                 <div class="users">
                     <app-table 
-                        *ngIf="dataSource && length > 9"
+                        *ngIf="dataSource && requestsLength"
                         [dataSource]="dataSource" 
                         [length]="requestsLength"
                         [userRole]="userRole"
@@ -29,11 +29,6 @@
                         (buttonClick)="onButtonClick($event)"
                     >
                     </app-table>
-                    <app-accordion     
-                        *ngIf="length<10"
-                        [dataSource]="dataSource" 
-                        (buttonClick)="onButtonClick($event)"
-                    ></app-accordion> 
                 </div>
             </div>
         </div>
@@ -51,8 +46,8 @@
             <div class="page">
                 <div class="users">
                     <app-table 
-                        *ngIf="dataSource && length > 9"
-                        [dataSource]="doctors" 
+                        *ngIf="dataSource && doctorsLength"
+                        [dataSource]="dataSource" 
                         [length]="doctorsLength"
                         [userRole]="userRole"
                         (pageChange)="onPageChange($event)"
@@ -62,12 +57,6 @@
                         (buttonClick)="onButtonClick($event)"
                     >
                     </app-table>
-                    <app-accordion     
-                        *ngIf="length<10"
-                        [dataSource]="dataSource" 
-                        (buttonClick)="onButtonClick($event)"
-                        (userClick)="onUserClick($event, async)"
-                    ></app-accordion> 
                 </div>
             </div>
         </div>

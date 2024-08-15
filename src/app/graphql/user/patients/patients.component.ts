@@ -1,13 +1,12 @@
 import { Component, OnInit } from "@angular/core";
-import { Router } from "@angular/router";
-import { UserDataSource } from "../../../shared/types";
-import { MatTableDataSource } from "@angular/material/table";
-import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
 import { MatDialog } from "@angular/material/dialog";
-import { AlertComponent } from "../../../shared/components/app-alert/app-alert.component";
-import { User } from "../user";
+import { MatTableDataSource } from "@angular/material/table";
 import { DateTime } from "luxon";
+import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
+import { AlertComponent } from "../../../shared/components/app-alert/app-alert.component";
 import { UserComponent } from "../user.component";
+import { UserDataSource } from "../../../shared/types";
+import { User } from "../user";
 
 @Component({
     selector: 'app-patients',
@@ -17,7 +16,7 @@ import { UserComponent } from "../user.component";
 export class PatientsComponent implements OnInit {
     dataSource: MatTableDataSource<UserDataSource> | { data: any[]} = {data: []};
     userRole: string = 'admin'
-    length: number =0;
+    length: number = 0;
     patients: User[] | undefined;
 
     pageIndex: number = 0;
@@ -27,7 +26,6 @@ export class PatientsComponent implements OnInit {
     filterInput: string = '';
 
     constructor(
-        private router: Router,
         private graphQLService: AppGraphQLService,
         private dialog: MatDialog
     ){}
@@ -63,7 +61,7 @@ export class PatientsComponent implements OnInit {
         await this.loadData();
     }
     onPatientClick(id: number) {
-        const ref = this.dialog.open(UserComponent, {data: {userId: id}});
+        this.dialog.open(UserComponent, {data: {userId: id}});
     }
 
     async loadData(){
@@ -106,9 +104,7 @@ export class PatientsComponent implements OnInit {
             if (response.data) {
                 this.patients = response.data.patients.slice;
                 this.length = response.data.patients.length;
-                // if (this.length === 0) {
-                //     this.length = -1
-                // }
+
                 this.formatDataSource()
             }
         } catch (error) {
@@ -117,7 +113,7 @@ export class PatientsComponent implements OnInit {
 
     }
     formatDataSource(){
-        const data = this.patients?.map((row: UserDataSource) => {
+        const data = this.patients && this.patients.map((row: UserDataSource) => {
             const createdAt = DateTime.fromJSDate(new Date(row.createdAt)).toFormat('MMM dd, yyyy');
             const updatedAt = DateTime.fromJSDate(new Date(row.updatedAt)).toFormat('MMM dd, yyyy');
 
@@ -130,6 +126,6 @@ export class PatientsComponent implements OnInit {
                 updatedAt    
             } 
         });
-        this.dataSource = new MatTableDataSource<UserDataSource>(data || []);
+        this.dataSource = new MatTableDataSource<UserDataSource>(data);
     }
 }

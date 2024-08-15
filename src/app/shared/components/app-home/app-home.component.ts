@@ -23,6 +23,7 @@ export class AppHomeComponent implements OnInit{
     updatedAt: string | null = null;
     isAuth: boolean = false;
     isRecords: boolean = false;
+    isRequests: boolean =false;
     isUserUpdated: boolean = false;
     remainder!: Subscription;
     time!: string | null;
@@ -78,23 +79,9 @@ export class AppHomeComponent implements OnInit{
 
                     if (!isTabAdded) {
                         this.tabsService.addTab("offline start: "+start, AppointmentComponent, nowAppointment.id);
-                        const ref = this.dialog.open(AlertComponent, {data: {message: "Current appointment with "+patientName+"\nStarted at "+start}});
+                        this.dialog.open(AlertComponent, {data: {message: "Current appointment with "+patientName+"\nStarted at "+start}});
                         this.nowAppointment = nowAppointment;
-                        ref.componentInstance.ok.subscribe(subscription => {
-                            if (subscription) {
-                                //window.location.reload();
-                                //this.tabsService.getTabs();
-                                // this.router.navigate([], {
-                                //     relativeTo: this.activatedRoute,
-                                //     queryParams: { tab: 3},
-                                //     queryParamsHandling: 'merge' 
-                                // });
-                            }
-                            isTabCreated = true;
-
-                        })
                     } 
-                    // with this, on anyn refresh drops to the 3rd tab whiatever it is
                 }
             }
         } else {
@@ -106,7 +93,6 @@ export class AppHomeComponent implements OnInit{
         if (this.userRole === 'doctor') {
             await this.appointmentService.pollNextAppointment();
         }
-        console.log('NOW APPOINTMENT: ', this.nowAppointment)
     }
 
     async loadMe() {
@@ -132,12 +118,23 @@ export class AppHomeComponent implements OnInit{
                             countDrafts
                         }}`
                         const response = await this.graphQLService.send(query);
-                        this.isRecords = response.data.countUserRecords.countRecords >0 || response.data.countUserRecords.countDrafts >0
+                        this.isRecords = response.data.countUserRecords.countRecords >0 || response.data.countUserRecords.countDrafts >0;
+                        
                     } catch (error) {
                         this.dialog.open(AlertComponent, {data: {message: "Unable to get record count "+error}});
                     }
 
-                }     
+                } else {
+                    try {
+                        const query = `query { 
+                            countDoctorRequests
+                        }`
+                        const response = await this.graphQLService.send(query);
+                        this.isRequests = response.data.countDoctorRequests > 0;
+                    } catch (error) {
+                        this.dialog.open(AlertComponent, {data: {message: "Unable to get request count "+error}});
+                    }
+                }    
             } else {
                 this.me = null;
             }

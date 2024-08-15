@@ -15,7 +15,13 @@
 </mat-toolbar>
 <div class="content-view-wrapper">
     <div class="sidenav" style="background-color: rgb(172,188,207);"  *ngIf="userRole">
-        <app-sidenav [isUserUpdated]="isUserUpdated" [userRole]="userRole" [isRecords]="isRecords" [isNowAppointment]="nowAppointment"></app-sidenav>
+        <app-sidenav 
+            [isUserUpdated]="isUserUpdated" 
+            [userRole]="userRole" 
+            [isRecords]="isRecords" 
+            [isNowAppointment]="nowAppointment"
+            [isRequests]="isRequests"
+        ></app-sidenav>
     </div>
     <div class="content" [ngClass]="userRole ? 'container': ''">
         <router-outlet></router-outlet>

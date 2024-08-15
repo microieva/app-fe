@@ -54,7 +54,6 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
     
     @HostListener('matSortChange', ['$event'])
     onSortChange(event: any) {
-        console.log('from sorting: ', event)
         this.sortChange.emit({active: event.active, direction: event.direction})   
     }
 
@@ -81,35 +80,18 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     
     ngOnInit() {
-
-            const firstElement = this.dataSource.data[0];
-            if ('email' in firstElement) { // type UserDataSource
-                this.displayedColumns = ['name', 'email', 'created'];
-            } else if ('date' in firstElement && this.userRole === 'patient') {
-                this.displayedColumns =['id', 'status', 'time'] // type AppointmentDataSource - patient view
-            } else if ('date' in firstElement && this.userRole === 'doctor') { 
-                    this.displayedColumns = ['id', 'patientName', 'time']  // type AppointmentDataSource - doctor / admin view
-            } else if ('title' in firstElement && 'createdAt' in firstElement) {
-                this.displayedColumns = ['title', 'created']; 
-            }
-            
-            // else if ('patientName' in firstElement) {
-            //     this.displayedColumns = ['title', 'patientName', 'created'];  
-            // } else if ('createdAt' in firstElement) {
-            //     this.displayedColumns = ['title', 'created']; 
-            // } else {
-            //     this.displayedColumns=['id']
-            // }
-            this.columnsToDisplayWithExpand = [...this.displayedColumns, 'expandedDetail'];  
-
-        /*const now = DateTime.now();
-        this.timerService.startHowSoonTimer(now);
-        this.timerService.howSoonCountdown.subscribe((value: string)=> {
-            if (value) {
-                console.log('timer: ', value)
-                this.howSoonStr = value;
-            }
-        })*/
+        const firstElement = this.dataSource.data[0];
+        if ('email' in firstElement) { // type UserDataSource
+            this.displayedColumns = ['name', 'email', 'created'];
+        } else if ('date' in firstElement && this.userRole === 'patient') {
+            this.displayedColumns =['id', 'status', 'time'] // type AppointmentDataSource - patient view
+        } else if ('date' in firstElement && this.userRole === 'doctor') { 
+                this.displayedColumns = ['id', 'patientName', 'time']  // type AppointmentDataSource - doctor / admin view
+        } else if ('title' in firstElement && 'createdAt' in firstElement) {
+            this.displayedColumns = ['title', 'created']; 
+        }
+        
+        this.columnsToDisplayWithExpand = [...this.displayedColumns, 'expandedDetail'];  
     }
     ngAfterViewInit(): void {   
         if (this.paginator && this.dataSource) {
@@ -118,12 +100,10 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
             this.sort.disableClear = true;
             this.dataSource.sort = this.sort;
         }
-        //console.log('PAG inside datasource: ', this.dataSource?.paginator?.length)
     }
 
     ngOnDestroy() {
         console.log('NG *DESTROY* IS THIS RUNNING ???')
-        //this.dataSource.data.length = 0;
     }
     
 

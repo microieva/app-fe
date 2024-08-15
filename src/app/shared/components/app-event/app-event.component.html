@@ -19,9 +19,9 @@
                         <p class="event-info">{{ patientDob }}</p>
                     </div>
                     <div class="flex-column">
-                        <p class="event-label">{{ 'Doctor' }}</p>
+                        <p *ngIf="doctorName" class="event-label">{{ 'Doctor' }}</p>
                         <p *ngIf="doctorName" class="event-info">{{ doctorName }}</p>
-                        <p *ngIf="!doctorName" class="event-info">
+                        <p *ngIf="!doctorName && appointmentInfo.title !=='Missed Request'" class="event-info">
                             <a (click)="onLinkClick(appointmentInfo.id)">
                                 <em>{{ 'Pending confirmation' }}</em>
                             </a>

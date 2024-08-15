@@ -1,7 +1,6 @@
 import { Component, Input } from "@angular/core";
 import { Appointment } from "../../../graphql/appointment/appointment";
 import { ActivatedRoute, Router } from "@angular/router";
-import { AppTabsService } from "../../services/app-tabs.service";
 
 @Component({
     selector: 'app-sidenav',
@@ -13,6 +12,7 @@ export class AppSidenavComponent {
     @Input() isUserUpdated: string | null = null;
     @Input() userRole: string | null = null;
     @Input() isRecords: boolean = false;
+    @Input() isRequests: boolean = false;
     @Input() isNowAppointment: Appointment | null = null;
 
     constructor(
@@ -29,5 +29,9 @@ export class AppSidenavComponent {
             });
         }
         this.isNowAppointment = null;
+    }
+
+    onDoctorsClick(){
+        this.isRequests = false;
     }
 }
