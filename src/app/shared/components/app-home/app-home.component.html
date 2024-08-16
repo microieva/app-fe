@@ -24,7 +24,7 @@
         ></app-sidenav>
     </div>
     <div class="content" [ngClass]="userRole ? 'container': ''">
-        <div class="page">
+        <div class="page" *ngIf="!userRole">
             <div *ngIf="true" @slideInOut class="slide-div" [ngStyle]="{'transform': 'translateY(' + scrollOffset + 'px)'}">
                 This div slides up on init!
             </div>
@@ -34,9 +34,37 @@
             <div *ngIf="true" @slideInOut class="slide-div" [ngStyle]="{'transform': 'translateY(' + scrollOffset + 'px)'}">
                 This div slides up on init!
             </div>
-
         </div>
-          
-        <router-outlet></router-outlet>
-    </div>       
+        <router-outlet></router-outlet>    
+    </div>  
 </div>
+<footer>
+    <div class="page footer">
+        <div class="flex-row">
+            <div class="flex-column">
+                <em>Helsinki</em>
+                <span>Mon-Fri: 8:00 - 18:00</span>
+                <span>0 40 50 6001</span>
+                <span>Josefatinkatu 12</span>
+            </div>
+            <div class="flex-column">
+                <em>Espoo </em>
+                <span>Mon-Fri: 8:00 - 18:00</span>
+                <span>0 40 50 6002</span>
+                <span>Johansenkatu 10</span>
+            </div>
+            <div class="flex-column">
+                <em>Tampere</em>
+                <span>Mon-Fri: 8:00 - 18:00</span>
+                <span>0 40 50 6003</span>
+                <span>Tamperen katu 15</span>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>Lorem ipsum odor amet, consectetuer adipiscing elit. Quam maecenas tortor integer commodo posuere commodo, blandit consequat. Metus inceptos viverra taci ti mag ti tellus. </p>
+            <br>
+            <p>Lorem ipsum odor amet, consectetuer adipiscing elit. Quam maecenas tortor integer commodo posuere commodo, blandit consequat. Metus inceptos viverra taciti magna justo mattis tellus. </p>
+        </div>
+        <div style="float:right;">by Ieva Vyliaudaite, Helsinki 2024</div>
+    </div>
+</footer>

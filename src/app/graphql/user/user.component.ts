@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, OnInit, Optional, Output } from "@angular/core";
+import { Component, EventEmitter, HostListener, Inject, OnInit, Optional, Output } from "@angular/core";
 import { FormGroup, FormControl, FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
@@ -12,11 +12,24 @@ import { ConfirmComponent } from "../../shared/components/app-confirm/app-confir
 import { UserInput } from "./user.input";
 import { DoctorRequest } from "./doctor-request";
 import { User } from "./user";
+import { trigger, state, style, transition, animate } from "@angular/animations";
 
 @Component({
     selector: 'app-user',
     templateUrl: './user.component.html',
-    styleUrls: ['./user.component.scss']
+    styleUrls: ['./user.component.scss'],
+    animations: [
+        trigger('slideInOut', [
+            state('in', style({ transform: 'translateY(0)', opacity: 1 })),
+            transition(':enter', [
+              style({ transform: 'translateY(80%)', opacity: 0.1 }),
+              animate('600ms cubic-bezier(0.25, 0.8, 0.25, 1)', style({ transform: 'translateY(0)', opacity: 1 }))
+            ]),
+            transition(':leave', [
+              animate('600ms cubic-bezier(0.25, 0.8, 0.25, 1)', style({ transform: 'translateY(100%)', opacity: 0.1 }))
+            ])
+          ]),
+    ]
 })
 export class UserComponent implements OnInit {
     me: User | undefined;
@@ -27,6 +40,13 @@ export class UserComponent implements OnInit {
     id: number | undefined;
     form: FormGroup | undefined;
     formattedDate: string | undefined;
+    scrollOffset: number = 0;
+
+    // @HostListener('window:scroll', ['$event'])
+    // onWindowScroll(): void {
+    //   const scrollPosition = window.scrollY;
+    //   this.scrollOffset = scrollPosition * -3; 
+    // }
 
     @Output() isDeletingUser = new EventEmitter<boolean>();
 

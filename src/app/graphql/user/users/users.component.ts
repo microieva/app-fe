@@ -9,11 +9,24 @@ import { UserDataSource } from "../../../shared/types";
 import { DateTime } from "luxon";
 import { ConfirmComponent } from "../../../shared/components/app-confirm/app-confirm.component";
 import { UserComponent } from "../user.component";
+import { trigger, state, style, transition, animate } from "@angular/animations";
 
 @Component({
     selector: 'app-users',
     templateUrl: './users.component.html',
-    styleUrls: ['./users.component.scss']
+    styleUrls: ['./users.component.scss'],
+    animations: [
+        trigger('slideInOut', [
+            state('in', style({ transform: 'translateY(0)', opacity: 1 })),
+            transition(':enter', [
+              style({ transform: 'translateY(80%)', opacity: 0.1 }),
+              animate('600ms cubic-bezier(0.25, 0.8, 0.25, 1)', style({ transform: 'translateY(0)', opacity: 1 }))
+            ]),
+            transition(':leave', [
+              animate('600ms cubic-bezier(0.25, 0.8, 0.25, 1)', style({ transform: 'translateY(100%)', opacity: 0.1 }))
+            ])
+          ]),
+    ]
 })
 export class UsersComponent implements OnInit {
     selectedIndex: number = 0;

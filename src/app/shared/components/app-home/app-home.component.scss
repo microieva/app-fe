@@ -45,6 +45,21 @@ mat-toolbar {
     position: relative;
     will-change: transform;
   }
+
+footer {
+    background-color: #F5F5F5;
+    height: 14rem;
+}
+.footer {
+    margin-top: 4rem;
+}
+.flex-column {
+    //margin-top: 4rem;
+    padding: 2rem 0 4rem 0;
+}
+.footer-bottom {
+    margin: 4rem 0;
+}
   
   
   

@@ -15,7 +15,7 @@
                 <h3>Pending approval</h3> 
                 <span>{{' '}}</span>
             </div>
-            <div class="page" #scrollView>
+            <div class="page" #scrollView @slideInOut >
                 <div class="users">
                     <app-table 
                         *ngIf="dataSource && requestsLength"

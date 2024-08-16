@@ -3,7 +3,7 @@
     <h3>Search by patient's name to create an appointment</h3> 
     <span>{{' '}}</span>
 </div>
-<div class="page">
+<div class="page" @slideInOut>
     <app-table
         *ngIf="dataSource && length"
         [dataSource]="dataSource" 

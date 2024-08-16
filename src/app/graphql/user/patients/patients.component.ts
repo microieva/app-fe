@@ -1,6 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatTableDataSource } from "@angular/material/table";
+import { animate, state, style, transition, trigger } from "@angular/animations";
 import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
 import { AlertComponent } from "../../../shared/components/app-alert/app-alert.component";
@@ -11,7 +12,19 @@ import { User } from "../user";
 @Component({
     selector: 'app-patients',
     templateUrl: './patients.component.html',
-    styleUrls: ['./patients.component.scss']
+    styleUrls: ['./patients.component.scss'],
+    animations: [
+        trigger('slideInOut', [
+            state('in', style({ transform: 'translateY(0)', opacity: 1 })),
+            transition(':enter', [
+              style({ transform: 'translateY(80%)', opacity: 0.1 }),
+              animate('600ms cubic-bezier(0.25, 0.8, 0.25, 1)', style({ transform: 'translateY(0)', opacity: 1 }))
+            ]),
+            transition(':leave', [
+              animate('600ms cubic-bezier(0.25, 0.8, 0.25, 1)', style({ transform: 'translateY(100%)', opacity: 0.1 }))
+            ])
+          ]),
+    ]
 })
 export class PatientsComponent implements OnInit {
     dataSource: MatTableDataSource<UserDataSource> | { data: any[]} = {data: []};

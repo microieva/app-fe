@@ -1,5 +1,6 @@
 import { Component, HostListener, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
+import { RouterOutlet } from '@angular/router';
 import { MatDialog } from "@angular/material/dialog";
 import { Subscription } from "rxjs";
 import { DateTime } from "luxon";
@@ -12,7 +13,7 @@ import { AlertComponent } from "../app-alert/app-alert.component";
 import { LoginComponent } from "../app-login/app-login.componnet";
 import { AppointmentComponent } from "../../../graphql/appointment/appointment.component";
 import { Appointment } from "../../../graphql/appointment/appointment";
-import { trigger, transition, style, animate, state } from "@angular/animations";
+import { trigger, transition, style, animate, state, query } from "@angular/animations";
 
 @Component({
     selector: 'app-home',
@@ -40,8 +41,16 @@ import { trigger, transition, style, animate, state } from "@angular/animations"
           transition(':leave', [
             animate('600ms cubic-bezier(0.25, 0.8, 0.25, 1)', style({ transform: 'translateY(100%)', opacity: 0.1 }))
           ])
-        ])
-      ]
+        ]),
+        // trigger('routeAnimations', [
+        //     transition('* <=> *', [
+        //       query(':enter > *', [
+        //         style({ transform: 'translateY(100%)', opacity: 0.5 }),
+        //         animate('600ms cubic-bezier(0.25, 0.8, 0.25, 1)', style({ transform: 'translateY(0)', opacity: 1 }))
+        //       ], { optional: true }),
+        //     ])
+        //   ]),
+    ]
 })
 export class AppHomeComponent implements OnInit{
     me: any;
@@ -192,4 +201,7 @@ export class AppHomeComponent implements OnInit{
         this.router.navigate(['/']);
         await this.ngOnInit(); 
     }
+    prepareRoute(outlet: RouterOutlet) {
+        return outlet && outlet.activatedRouteData && outlet.activatedRouteData['animation'];
+      }
 }
