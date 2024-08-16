@@ -36,7 +36,7 @@
                     >
                     </app-table>
                     <app-accordion     
-                        *ngIf="countPendingAppointments<=9"
+                        *ngIf="pendingDataSource && countPendingAppointments<10"
                         [markAppointmentId]="routedAppointmentId"
                         [dataSource]="pendingDataSource" 
                         (buttonClick)="onButtonClick($event)"

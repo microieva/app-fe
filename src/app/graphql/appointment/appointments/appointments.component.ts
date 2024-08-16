@@ -79,10 +79,10 @@ export class AppointmentsComponent implements OnInit {
         this.tabs = this.tabsService.getTabs()
         await this.loadUserRole();
         
-        // this.activatedRoute.queryParams.subscribe(async (params)=> {
-        //     const id = params['id']; 
-        //     if (id) this.routedAppointmentId = +id;
-        //   });
+        this.activatedRoute.queryParams.subscribe(async (params)=> {
+            const id = params['id']; 
+            if (id) this.routedAppointmentId = +id;
+        });
         
         this.activatedRoute.queryParams.subscribe(async params => {
             const tab = params['tab'];
@@ -97,7 +97,7 @@ export class AppointmentsComponent implements OnInit {
                     this.previousNextId = this.nextId;
                     this.timerService.startAppointmentTimer(subscription.nextAppointment.nextStart);
                 }
-                this.nextAppointmentStartTime = DateTime.fromISO(subscription.nextAppointment.nextStart).toFormat('hh:mm');
+                this.nextAppointmentStartTime = DateTime.fromISO(subscription.nextAppointment.nextStart).toFormat('hh:mm a');
             }
         });
 
@@ -471,8 +471,8 @@ export class AppointmentsComponent implements OnInit {
                         title: this.userRole === 'patient' ? "Pending doctor confirmation" : undefined,
                         buttons: this.userRole === 'doctor' ? allButtons : cancelButton,
                         date: DateTime.fromJSDate(new Date(row.start)).toFormat('MMM dd, yyyy'),
-                        start: DateTime.fromJSDate(new Date(row.start)).toFormat('hh:mm'),
-                        end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm'),
+                        start: DateTime.fromJSDate(new Date(row.start)).toFormat('hh:mm a'),
+                        end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm a'),
                         patientName: this.userRole==='doctor' ? `${row.patient.firstName} ${row.patient.lastName}` : undefined
                     } 
                 });
@@ -488,8 +488,8 @@ export class AppointmentsComponent implements OnInit {
                         title: this.userRole === 'patient' ? "Confirmed appointment" : undefined,
                         buttons: cancelButton,
                         date: DateTime.fromJSDate(new Date(row.start)).toFormat('MMM dd, yyyy'),
-                        start: DateTime.fromJSDate(new Date(row.start)).toFormat('hh:mm'),
-                        end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm'),
+                        start: DateTime.fromJSDate(new Date(row.start)).toFormat('hh:mm a'),
+                        end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm a'),
                         patientName: this.userRole==='doctor' ? `${row.patient.firstName} ${row.patient.lastName}`: undefined
                     };
                 });
@@ -505,8 +505,8 @@ export class AppointmentsComponent implements OnInit {
                         title: this.userRole === 'patient' ? "View details": undefined,
                         buttons: deleteButton,
                         date: DateTime.fromJSDate(new Date(row.start)).toFormat('MMM dd, yyyy'),
-                        start: DateTime.fromJSDate(new Date(row.start)).toFormat('hh:mm'),
-                        end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm'),
+                        start: DateTime.fromJSDate(new Date(row.start)).toFormat('hh:mm a'),
+                        end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm a'),
                         patientName: this.userRole==='doctor' ? `${row.patient.firstName} ${row.patient.lastName}`: undefined
                     };
                 });
@@ -568,11 +568,14 @@ export class AppointmentsComponent implements OnInit {
         }
         if (diff.days < 1 && diff.minutes > 0) {
             if (diff.minutes <= 5) {
-                howLongAgoStr = 'Just now'
+                howLongAgoStr = 'Just now';
             } else {
                 howLongAgoStr += `${diff.minutes} minute${diff.minutes === 1 ? '' : 's'} `;
             }
         }
+        // if (diff.days <1 && diff.minutes === 0 ) {
+        //     howLongAgoStr = 'Just now';
+        // }
 
         howLongAgoStr = howLongAgoStr.trim();
 
@@ -619,7 +622,12 @@ export class AppointmentsComponent implements OnInit {
                 this.deleteAppointment(id);
                 break;
             case 'Accept Appointment':
-                this.acceptAppointment(id);
+                if (this.dataSource!.data.length === 1) {
+                    this.acceptAppointment(id);
+                    this.pageIndex-=-1;
+                } else {
+                    this.acceptAppointment(id);
+                }
                 break;
             case 'View In Calendar':
                 this.router.navigate(['appointments', 'calendar']);
@@ -630,6 +638,9 @@ export class AppointmentsComponent implements OnInit {
     }
 
     onAppointmentClick(eventInfo: {id: string, title: string}){
+        if (!eventInfo.title && this.userRole === 'doctor') {
+            eventInfo.title = 'Appointment Info'
+        }
         const dialogRef = this.dialog.open(EventComponent, {data: {eventInfo, samePatient: true}});
         dialogRef.componentInstance.delete.subscribe(async id => {
             if (id) {
@@ -657,11 +668,12 @@ export class AppointmentsComponent implements OnInit {
                 const response = await this.graphQLService.mutate(mutation, {appointmentId: id});
 
                 if (response.data.acceptAppointment.success) {
-                    const ref = this.dialog.open(ConfirmComponent, {data: {message: "Appointment will be added to your calendar"}});
+                    const ref = this.dialog.open(ConfirmComponent, {data: {message: "Appointment added to your calendar"}});
 
                     ref.componentInstance.ok.subscribe(subscription => {
                         if (subscription) {
-                            this.ngOnInit();
+                            //this.ngOnInit();
+                            this.loadPendingAppointments();
                         }
                     });
                 }

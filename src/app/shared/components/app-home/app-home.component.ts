@@ -67,7 +67,7 @@ export class AppHomeComponent implements OnInit{
                 let isTabAdded: boolean = false;
                 if (nowAppointment) {
                     const patientName = nowAppointment.patient.firstName+" "+nowAppointment.patient.lastName;
-                    const start = DateTime.fromJSDate(new Date(nowAppointment.start)).toFormat('hh:mm');
+                    const start = DateTime.fromJSDate(new Date(nowAppointment.start)).toFormat('hh:mm a');
                     isTabAdded = JSON.parse(localStorage.getItem('tabs') || '[]').find((tab: any)=> tab.id === nowAppointment?.id);
                     let isTabCreated: boolean;
                     

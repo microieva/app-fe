@@ -90,8 +90,8 @@ export class EventComponent implements OnInit{
             if (response.data.justCreatedAppointment) {
                 this.justCreatedId = response.data.justCreatedAppointment.id;
                 this.eventDate = DateTime.fromJSDate(new Date(response.data.justCreatedAppointment.start)).toFormat('MMM dd, yyyy');
-                this.eventStartTime = DateTime.fromJSDate(new Date(response.data.justCreatedAppointment.start)).toFormat('hh:mm');
-                this.eventEndTime = DateTime.fromJSDate(new Date(response.data.justCreatedAppointment.end)).toFormat('hh:mm');
+                this.eventStartTime = DateTime.fromJSDate(new Date(response.data.justCreatedAppointment.start)).toFormat('hh:mm a');
+                this.eventEndTime = DateTime.fromJSDate(new Date(response.data.justCreatedAppointment.end)).toFormat('hh:mm a');
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Appointment failed "+error}})
@@ -202,8 +202,8 @@ export class EventComponent implements OnInit{
                 this.patientDob = appointment.patient?.dob && DateTime.fromJSDate(new Date(appointment.patient.dob)).toFormat('MMM dd, yyyy'); 
                 this.doctorName = appointment.doctor ? appointment.doctor?.firstName+" "+appointment.doctor?.lastName : null;
                 this.eventDate = DateTime.fromJSDate(new Date(appointment.start)).toFormat('MMM dd, yyyy');
-                this.eventStartTime =  DateTime.fromJSDate(new Date(appointment.start)).toFormat('hh:mm');
-                this.eventEndTime =DateTime.fromJSDate(new Date(appointment.end)).toFormat('hh:mm');
+                this.eventStartTime =  DateTime.fromJSDate(new Date(appointment.start)).toFormat('hh:mm a');
+                this.eventEndTime =DateTime.fromJSDate(new Date(appointment.end)).toFormat('hh:mm a');
                 this.doctorMessage = response.data.appointment.doctorMessage;
                 this.patientMessage = response.data.appointment.patientMessage;
                 this.appointmentId = response.data.appointment.id;

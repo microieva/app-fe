@@ -1,26 +1,26 @@
-import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { CalendarOptions, EventInput,DateSelectArg, EventClickArg, EventApi, DayCellContentArg, DayCellMountArg, EventDropArg, DatesSetArg } from '@fullcalendar/core';
+import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { CalendarOptions, EventInput,DateSelectArg, EventClickArg, EventApi, DayCellContentArg, EventDropArg, DatesSetArg } from '@fullcalendar/core';
 import { ActivatedRoute, Router } from "@angular/router";
+import { MatDialog } from "@angular/material/dialog";
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
 import { DateTime, Interval } from "luxon";
 import { AppGraphQLService } from "../../services/app-graphql.service";
-import { createEventId } from "../../constants";
-import { Appointment } from "../../../graphql/appointment/appointment";
-import { AppointmentInput } from "../../../graphql/appointment/appointment.input";
-import { MatDialog } from "@angular/material/dialog";
 import { AlertComponent } from "../app-alert/app-alert.component";
 import { EventComponent } from "../app-event/app-event.component";
 import { ConfirmComponent } from "../app-confirm/app-confirm.component";
+import { createEventId } from "../../constants";
+import { Appointment } from "../../../graphql/appointment/appointment";
+import { AppointmentInput } from "../../../graphql/appointment/appointment.input";
 
 @Component({
     selector: 'app-calendar',
     templateUrl: './app-calendar.component.html',
     styleUrls: ['app-calendar.component.scss']
 })
-export class AppCalendarComponent implements OnInit, AfterViewInit {
+export class AppCalendarComponent implements OnInit {
     @Output() appointment = new EventEmitter<AppointmentInput>();
     @Input() role!: string;
 
@@ -42,9 +42,7 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
         private graphQLService: AppGraphQLService,
         private router: Router,
         private activatedRoute: ActivatedRoute
-    ){
-        
-    }
+    ){}
 
     nonAllDayEventCount: { [key: string]: number } = {};
   
@@ -56,7 +54,6 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
     }
 
     async loadEvents(type?: string){
-        //this.setDisplayText();
 
         switch (type) {
             case 'Pending confirmation':
@@ -80,10 +77,6 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
                 this.initializeCalendar();
                 return;
         }
-    }
-
-    async ngAfterViewInit() {
-        this.setDisplayText(); 
     }
 
     initializeCalendar(){
@@ -116,17 +109,12 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
             select: (arg: DateSelectArg)=> this.handleDateSelect(arg),
             eventClick: (arg: EventClickArg) =>this.handleEventClick(arg),
             eventsSet: (arg: EventApi[]) => this.handleEvents(arg),
-            dayCellDidMount: (arg: DayCellMountArg)=> this.handleDayCell(arg),
             eventDrop: (arg: EventDropArg)=> this.handleEventDrop(arg),
             businessHours: {
                 daysOfWeek: [ 1, 2, 3, 4, 5 ],
                 startTime: '08:00', 
                 endTime: '18:00'
               }
-            /* events for queries:
-            eventAdd:
-            eventRemove:
-            */
         }
     }
 
@@ -206,21 +194,25 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
             if (response.data) {
                 this.appointments = response.data.calendarAllAppointments.monthSlice;
                 let title: string;
-                let isPast:boolean = false;
 
-                const now = DateTime.now().toISO({ includeOffset: false });
-
+                const now = DateTime.now().toISO({ includeOffset: true });
                 this.events = this.appointments.map((appointment: Appointment) => {
-                    if (!appointment.doctorId) {
-                        if (!appointment.doctorId && appointment.start < now) title = "Missed Request"
-                        else if (!appointment.doctorId && appointment.end > now)title = "Pending"
+
+                    const start = DateTime.fromISO(appointment.start).toLocal();
+                    const startStr = start.toISO({includeOffset: true});
+
+                    if (!appointment.doctorId && startStr! < now) {
+                        title = "Missed Request"
+                    } else if (!appointment.doctorId && startStr! > now) {
+                        title = "Pending"
                     }
-                    if (appointment.doctorId) {
-                        const now = DateTime.local().toISO() 
-                        isPast = appointment.start < now;
-                        if (appointment.doctorId && isPast) title = "Past";
-                        else if (appointment.doctorId && !isPast) title = "Upcoming"
+
+                    if (appointment.doctorId && startStr! < now) {
+                        title = "Past"
+                    } else if (appointment.doctorId && startStr! > now) {
+                        title = "Upcoming"
                     }
+
                     return {
                         title,
                         start: appointment.start,
@@ -425,28 +417,6 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
         }
     }
 
-
-    handleDayCell(arg:any){
-        //TO DO:::  if more than 6 events, target.className = "disabled-day"
-        //need to implement querying appointments. the events array might be = appointments
-        const d = DateTime.fromJSDate(new Date(arg.date)).toISO();
-
-        const api = arg.view.calendar;
-        const events = api.getEvents()
-        //console.log('events: ', events)
-        //console.log('arg: ', arg)
-        const dateFormatted = d && DateTime.fromISO(d).toFormat('yyyy-MM-dd');
-        //console.log('dateFormatted: ', dateFormatted)
-        // const count =  events.filter((event: any) => {
-        //     console.log('EVENT NEED START TIME: ', event)
-        //     if (dateFormatted === event.startStr) {
-        //         return event;
-        //     }
-        //     return;
-        // }).length;
-        // console.log('DAY CELL event count: ', count)
-    }
-
     handleAddEvent(arg: any){
         if (arg.view.type === 'timeGridWeek' || arg.view.type === 'timeGridDay') {
             const calendarApi = arg.view.calendar;
@@ -485,8 +455,8 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
                 });
             } else {
                 const eventInfo = {
-                    start: DateTime.fromISO(arg.startStr).toFormat('hh:mm'),
-                    end: DateTime.fromISO(arg.endStr).toFormat('hh:mm'),
+                    start: DateTime.fromISO(arg.startStr).toFormat('hh:mm a'),
+                    end: DateTime.fromISO(arg.endStr).toFormat('hh:mm a'),
                     date: DateTime.fromJSDate(new Date(arg.start)).toFormat('MMM dd, yyyy')
                 }
                 this.appointment.emit({
@@ -541,7 +511,7 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
 
     isDisabledDay(date: any): boolean {
         return this.currentEvents.some(event => {
-            const d = DateTime.fromJSDate(new Date(date));
+            const d = DateTime.fromJSDate(date);
             if ((event.allDay && d.toFormat('yyyy-MM-dd') === event.startStr)) {
                 return true;
             }
@@ -629,30 +599,27 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
     }
 
     handleWeekView(arg: any){
-        if (arg.allDay) {
-            // TO DO: CHECK IF FREE AND NOT IN THE PAST
+        const isFuture = this.isFuture(arg);
+
+        if (arg.allDay && isFuture) {
             this.handleAddEvent(arg);
-            //this.handleAddAllDayEvent();
         }
 
-        if (this.isBusinessHours(arg) && 
-            arg.start.getDay() !== 0 
-            //&& arg.start.getDay() !== 6 /// TEMPORARY TO DO: uncomment 
-        ) {
+        if (this.isBusinessHours(arg) && arg.start.getDay() !== 0) {
             this.handleAddEvent(arg);
         } 
 
         const calendarApi = arg.view.calendar;
         if (!arg.allDay) this.dialog.open(AlertComponent, {data: {message: "Outside working hours"}})
-        calendarApi.unselect(); 
-        
+        calendarApi.unselect();    
     }
     
     handleDayView(arg: any) {
         const isDouble = this.isDouble(arg) 
         const isBusinessHours = this.isBusinessHours(arg);
+        const isFuture = this.isFuture(arg);
 
-        if ((!isDouble && isBusinessHours) || arg.allDay) {
+        if ((!isDouble && isBusinessHours && isFuture) || isFuture && arg.allDay) {
             this.handleAddEvent(arg);
         } 
         const calendarApi = arg.view.calendar;
@@ -660,12 +627,15 @@ export class AppCalendarComponent implements OnInit, AfterViewInit {
         if (!isBusinessHours && !arg.allDay) this.dialog.open(AlertComponent, {data: {message: "Outside working hours"}});
         calendarApi.unselect(); 
     }
-    isDouble(date: any): boolean {
-        return false;
-        // TO DO: 
-        // return this.appointments.some((event) => 
-        //     DateTime.fromISO(event.start).toFormat('hh:mm') === DateTime.fromISO(date.startStr).toFormat('hh:mm')
-        // );
+    isDouble(arg: any): boolean {
+        return this.appointments.some((event) => 
+            DateTime.fromISO(event.start).toFormat('hh:mm') === DateTime.fromISO(arg.startStr).toFormat('hh:mm')
+        );
+    }
+
+    isFuture(arg: any): boolean {
+        const now = DateTime.now().toISO({includeOffset: true});
+        return arg.startStr > now;
     }
 
     isBusinessHours(date: any): boolean {

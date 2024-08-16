@@ -38,7 +38,7 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
     @Input() dataSource!: MatTableDataSource<AppDataSource>;
     @Input() length: number = 0;
     @Input() userRole!: string;
-    @Input() markAppointmentId: number| null = null;
+    @Input() markAppointmentId: number | null = null;
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;

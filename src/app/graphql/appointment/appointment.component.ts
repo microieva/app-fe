@@ -83,7 +83,7 @@ export class AppointmentComponent implements OnInit {
                 this.record = response.data.appointment.record;
                 this.recordId = response.data.appointment.record?.id || null;
                 this.formattedDate = DateTime.fromJSDate(new Date(response.data.appointment.patient.dob)).toFormat('MMM dd, yyyy');
-                this.startTime = DateTime.fromJSDate(new Date(response.data.appointment.start)).toFormat('hh:mm');
+                this.startTime = DateTime.fromJSDate(new Date(response.data.appointment.start)).toFormat('hh:mm a');
                 this.date = DateTime.fromJSDate(new Date(response.data.appointment.start)).toFormat('MMM dd, yyyy');
             }
         } catch (error) {

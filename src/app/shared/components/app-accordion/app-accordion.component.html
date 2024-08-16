@@ -9,7 +9,10 @@
     >
         <mat-expansion-panel-header (click)="onAccordionClick(element.id)">
             <div class="header">
-                <h4 *ngIf="!element.firstName">{{ element.title }} <span *ngIf="element.patientName">| <em>{{element.patientName}}</em></span></h4>
+                <h4 *ngIf="!element.firstName">{{ element.title }} 
+                    <span *ngIf="element.title && element.patientName">|</span>
+                    <em>{{element.patientName}}</em>
+                </h4>
                 <h4 *ngIf="element.firstName"> {{element.firstName}} {{element.lastName}}, <em>{{element.email}}</em></h4>
                 <p *ngIf="element.howLongAgoStr">Appointment created: <em>{{element.howLongAgoStr}}</em></p>
                 <p *ngIf="element.howSoonStr">Appointment time: <em>{{element.howSoonStr}}</em></p>

@@ -91,7 +91,7 @@ import { AlertComponent } from "../components/app-alert/app-alert.component";
             let appointmentCountdown: string = seconds.toFormat('hh:mm:ss'); 
 
             if (appointmentCountdown === '00:05:00') {
-                const displayTime = `\n Starting at ${DateTime.fromISO(timeStamp).toFormat('hh:mm')}`
+                const displayTime = `\n Starting at ${DateTime.fromISO(timeStamp).toFormat('hh:mm a')}`
                 this.dialog.open(AlertComponent, {data: { message: `You have an appointment in 5 min, at ${displayTime}`}})
             }
             this.nextAppointmentCountdown.emit(appointmentCountdown);
