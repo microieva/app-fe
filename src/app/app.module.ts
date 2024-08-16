@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -77,6 +78,7 @@ import { PatientsComponent } from './graphql/user/patients/patients.component';
     ],
     bootstrap: [AppComponent], 
     imports: [
+        BrowserAnimationsModule,
         NgxEditorModule,
         MatMenuModule,
         MatCheckboxModule,

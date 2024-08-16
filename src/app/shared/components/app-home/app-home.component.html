@@ -24,6 +24,19 @@
         ></app-sidenav>
     </div>
     <div class="content" [ngClass]="userRole ? 'container': ''">
+        <div class="page">
+            <div *ngIf="true" @slideInOut class="slide-div" [ngStyle]="{'transform': 'translateY(' + scrollOffset + 'px)'}">
+                This div slides up on init!
+            </div>
+            <div *ngIf="true" @slideInOut class="slide-div" [ngStyle]="{'transform': 'translateY(' + scrollOffset + 'px)'}">
+                This div slides up on init!
+            </div>
+            <div *ngIf="true" @slideInOut class="slide-div" [ngStyle]="{'transform': 'translateY(' + scrollOffset + 'px)'}">
+                This div slides up on init!
+            </div>
+
+        </div>
+          
         <router-outlet></router-outlet>
     </div>       
 </div>

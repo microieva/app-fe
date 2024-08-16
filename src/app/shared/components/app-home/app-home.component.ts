@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, HostListener, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { MatDialog } from "@angular/material/dialog";
 import { Subscription } from "rxjs";
@@ -12,11 +12,36 @@ import { AlertComponent } from "../app-alert/app-alert.component";
 import { LoginComponent } from "../app-login/app-login.componnet";
 import { AppointmentComponent } from "../../../graphql/appointment/appointment.component";
 import { Appointment } from "../../../graphql/appointment/appointment";
+import { trigger, transition, style, animate, state } from "@angular/animations";
 
 @Component({
     selector: 'app-home',
     templateUrl: './app-home.component.html',
-    styleUrls: ['app-home.component.scss']
+    styleUrls: ['app-home.component.scss'],
+    // animations: [
+    //     trigger('slideInOut', [
+    //       state('in', style({ transform: 'translateY(0)', opacity: 1 })),
+    //       transition(':enter', [
+    //         style({ transform: 'translateY(50%)', opacity: 0.1 }),
+    //         animate('300ms ease-in', style({ transform: 'translateY(0)', opacity: 1 }))
+    //       ]),
+    //       transition(':leave', [
+    //         animate('300ms ease-out', style({ transform: 'translateY(100%)', opacity: 0.1 }))
+    //       ])
+    //     ])
+    // ]
+    animations: [
+        trigger('slideInOut', [
+          state('in', style({ transform: 'translateY(0)', opacity: 1 })),
+          transition(':enter', [
+            style({ transform: 'translateY(80%)', opacity: 0.1 }),
+            animate('600ms cubic-bezier(0.25, 0.8, 0.25, 1)', style({ transform: 'translateY(0)', opacity: 1 }))
+          ]),
+          transition(':leave', [
+            animate('600ms cubic-bezier(0.25, 0.8, 0.25, 1)', style({ transform: 'translateY(100%)', opacity: 0.1 }))
+          ])
+        ])
+      ]
 })
 export class AppHomeComponent implements OnInit{
     me: any;
@@ -30,6 +55,13 @@ export class AppHomeComponent implements OnInit{
     userRole: string | null = null;
     nextAppointmentId: number | null = null;
     nowAppointment: Appointment | null = null;
+    scrollOffset: number = 0;
+
+    @HostListener('window:scroll', ['$event'])
+    onWindowScroll(): void {
+      const scrollPosition = window.scrollY;
+      this.scrollOffset = scrollPosition * -3; 
+    }
 
     constructor (
         private dialog: MatDialog,
