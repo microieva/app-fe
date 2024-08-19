@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit } from "@angular/core";
+import { Component, ElementRef, HostListener, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { RouterOutlet } from '@angular/router';
 import { MatDialog } from "@angular/material/dialog";
@@ -13,7 +13,8 @@ import { AlertComponent } from "../app-alert/app-alert.component";
 import { LoginComponent } from "../app-login/app-login.componnet";
 import { AppointmentComponent } from "../../../graphql/appointment/appointment.component";
 import { Appointment } from "../../../graphql/appointment/appointment";
-import { trigger, transition, style, animate, state, query } from "@angular/animations";
+import { trigger, transition, style, animate, state, query, keyframes } from "@angular/animations";
+import { FormBuilder, FormControl } from "@angular/forms";
 
 @Component({
     selector: 'app-home',
@@ -33,23 +34,30 @@ import { trigger, transition, style, animate, state, query } from "@angular/anim
     // ]
     animations: [
         trigger('slideInOut', [
-          state('in', style({ transform: 'translateY(0)', opacity: 1 })),
-          transition(':enter', [
-            style({ transform: 'translateY(80%)', opacity: 0.1 }),
-            animate('600ms cubic-bezier(0.25, 0.8, 0.25, 1)', style({ transform: 'translateY(0)', opacity: 1 }))
-          ]),
-          transition(':leave', [
-            animate('600ms cubic-bezier(0.25, 0.8, 0.25, 1)', style({ transform: 'translateY(100%)', opacity: 0.1 }))
-          ])
+            state('in', style({ transform: 'translateY(0)', opacity: 1 })),
+            transition(':enter', [
+                style({ transform: 'translateY(80%)', opacity: 0.1 }),
+                animate('600ms cubic-bezier(0.25, 0.8, 0.25, 1)', style({ transform: 'translateY(0)', opacity: 1 }))
+            ]),
+            transition(':leave', [
+                animate('600ms cubic-bezier(0.25, 0.8, 0.25, 1)', style({ transform: 'translateY(100%)', opacity: 0.1 }))
+            ])
         ]),
-        // trigger('routeAnimations', [
-        //     transition('* <=> *', [
-        //       query(':enter > *', [
-        //         style({ transform: 'translateY(100%)', opacity: 0.5 }),
-        //         animate('600ms cubic-bezier(0.25, 0.8, 0.25, 1)', style({ transform: 'translateY(0)', opacity: 1 }))
-        //       ], { optional: true }),
-        //     ])
-        //   ]),
+        trigger('typingAnimation', [
+            transition(':enter', [
+              animate('3s steps(30)', keyframes([
+                style({ width: '0', overflow: 'hidden', borderRight: '1px solid black' }),
+                style({ width: '100%', overflow: 'hidden', borderRight: '1px solid black' }),
+              ]))
+            ]),
+            transition(':leave', [
+              animate('0s')
+            ])
+        ]),
+        trigger('cursorAnimation', [
+            state('blink', style({ opacity: 0 })),
+            transition('* => blink', animate('700ms ease-in-out infinite')),
+        ])
     ]
 })
 export class AppHomeComponent implements OnInit{
@@ -65,11 +73,15 @@ export class AppHomeComponent implements OnInit{
     nextAppointmentId: number | null = null;
     nowAppointment: Appointment | null = null;
     scrollOffset: number = 0;
+    fullText: string = 'Sign up for our Newsletter!';
+    displayedText: string = '';
+    email!: FormControl;
+    isInView: boolean = false;
 
     @HostListener('window:scroll', ['$event'])
     onWindowScroll(): void {
-      const scrollPosition = window.scrollY;
-      this.scrollOffset = scrollPosition * -3; 
+        const scrollPosition = window.scrollY;
+        this.scrollOffset = scrollPosition * -3.1; 
     }
 
     constructor (
@@ -80,10 +92,15 @@ export class AppHomeComponent implements OnInit{
         private appointmentService: AppAppointmentService,
         private router: Router,
         private tabsService: AppTabsService,
-        private activatedRoute: ActivatedRoute
+        private activatedRoute: ActivatedRoute,
+        private formBuilder: FormBuilder,
+        private el: ElementRef
     ) {}
 
     async ngOnInit() {
+        this.startTypingAnimation();
+        this.email = this.formBuilder.control<string>('');
+
         if (localStorage.getItem('authToken')) {
             await this.loadMe();
             const tokenExpire = localStorage.getItem('tokenExpire');
@@ -130,11 +147,42 @@ export class AppHomeComponent implements OnInit{
             this.updatedAt = null;
             this.userRole = null;
             this.isRecords = false;
+
         }
         if (this.userRole === 'doctor') {
             await this.appointmentService.pollNextAppointment();
         }
     }
+
+    // checkIfInView() {
+    //     const rect = this.el.nativeElement.getBoundingClientRect();
+    //     const windowHeight = (window.innerHeight || document.documentElement.clientHeight);
+    
+    //     if (rect.top <= windowHeight && rect.bottom >= -600) {
+    //       if (!this.isInView) {
+    //         this.isInView = true;
+    //         this.startTypingAnimation();
+    //       }
+    //     } else {
+    //       this.isInView = false;
+    //     }
+    //   }
+
+    startTypingAnimation() {
+        let index = 0;
+        const interval = setInterval(() => {
+          if (index < this.fullText.length) {
+            this.displayedText += this.fullText.charAt(index);
+            index++;
+          } else {
+            clearInterval(interval);
+            setTimeout(() => {
+              this.displayedText = '';
+              this.startTypingAnimation();
+            }, 1000); // pause before restart
+          }
+        }, 150); // Typing speed
+      }
 
     async loadMe() {
         const query = `query {

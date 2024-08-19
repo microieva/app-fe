@@ -24,21 +24,121 @@
         ></app-sidenav>
     </div>
     <div class="content" [ngClass]="userRole ? 'container': ''">
+        <div *ngIf="!userRole" class="img-wrapper">
+            <img src="assets/front-page.jpg"/>
+        </div>
         <div class="page" *ngIf="!userRole">
-            <div *ngIf="true" @slideInOut class="slide-div" [ngStyle]="{'transform': 'translateY(' + scrollOffset + 'px)'}">
-                This div slides up on init!
+            <div @slideInOut [ngStyle]="{'transform': 'translateY(' + scrollOffset + 'px)'}" class="slide-block">
+                <div *ngIf="true"  class="slide-div txt">
+                    <h1 class="title bg">Empathic health care center for all</h1>
+                    <h1 class="sm">Your are in safe hands!</h1>
+                </div>
+                <div *ngIf="true" class="slide-div block" id="top">
+                    <div class="flex-row"><h2>Same day appointments on call</h2><h2><span class="material-icons">
+                        call_outlined
+                        </span></h2></div>
+                    <div class="flex-row"><h2>Treatments & consultations</h2><h2><span class="material-symbols-outlined">
+                        stethoscope
+                        </span></h2></div>
+                    <div class="flex-row"><h2>All locations easily accessible</h2><h2><span class="material-symbols-outlined">
+                        accessible
+                        </span></h2></div>
+                </div>
+                <div *ngIf="true" class="slide-div block">
+                    <div class="flex-row"><h2>Infant & child care department</h2><h2><span class="material-symbols-outlined">
+                        child_care
+                        </span></h2></div>
+                    <div class="flex-row"><h2>Dental care department</h2><h2><span class="material-symbols-outlined">
+                        dentistry
+                        </span></h2></div>
+                    <div class="flex-row"><h2>Recovering physiotherapy unit</h2><h2><span class="material-symbols-outlined">
+                        physical_therapy
+                        </span></h2></div>
+                    <div class="flex-row"><h2>Psychotherapy department</h2><h2><span class="material-symbols-outlined">
+                        psychology
+                        </span></h2></div>
+                    <div class="flex-row"><h2>Spacial aid</h2><h2><span class="material-symbols-outlined">
+                        hearing_aid
+                        </span></h2></div>
+                </div>
+                <div class="block" id="personel">
+                    <h1>Our personel always there to help</h1>
+                    <div class="flex-row">
+                        <div class="flex-column card">
+                            <div class="card-img-wrapper">
+                                <img src="assets/doc-1.png"/>
+                            </div>
+                            <p>Some lorem ipsum lorem ipsum. A couple of sentences to fill this card space</p>
+                        </div>
+                        <div class="flex-column card">
+                            <div class="card-img-wrapper">
+                                <img src="assets/doc-2.jpeg"/>
+                            </div>
+                            <p>Some lorem ipsum lorem ipsum. A couple of sentences to fill this card space</p>
+                        </div>
+                        <div class="flex-column card">
+                            <div class="card-img-wrapper">
+                                <img src="assets/doc-3.jpeg"/>
+                            </div>
+                            <p>Some lorem ipsum lorem ipsum. A couple of sentences to fill this card space</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="block" id="feedback">
+                    <h1>Our customer feedback</h1>
+                    <div class="flex-column">
+                        <div class="flex-row row">
+                            <div class="row-img-wrapper">
+                                <img src="assets/cust-1.jpeg"/>
+                            </div>
+                            <p>Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt vulputate ad. Adipiscing morbi dapibus amet nec potenti mus suscipit dui. Ultricies auctor tempor interdum et ridiculus volutpat proin tortor erat. Gravida amet diam molestie sociosqu himenaeos nisl posuere habitasse.</p>
+                        </div>
+                        <div class="flex-row row">
+                            <div class="row-img-wrapper">
+                                <img src="assets/cust-2.png"/>
+                            </div>
+                            <p>Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt vulputate ad. Adipiscing morbi dapibus amet nec potenti mus suscipit dui. Ultricies auctor tempor interdum et ridiculus volutpat proin tortor erat. Gravida amet diam molestie sociosqu himenaeos nisl posuere habitasse.</p>
+                        </div>
+                        <div class="flex-row row">
+                            <div class="row-img-wrapper">
+                                <img src="assets/cust-3.png"/>
+                            </div>
+                            <p>Some lorem ipsum lorem ipsum. A couple of sentences to fill this card space. Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt vulputate ad. Adipiscing morbi dapibus amet nec potenti mus suscipit dui. Ultricies auctor tempor interdum et ridiculus volutpat proin tortor erat. Gravida amet diam molestie sociosqu himenaeos nisl posuere habitasse.</p>
+                        </div>
+                        <div class="flex-row row">
+                            <div class="row-img-wrapper">
+                                <img src="assets/cust-4.jpeg"/>
+                            </div>
+                            <p>Some lorem ipsum lorem ipsum. A couple of sentences to fill this card space. Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt vulputate ad. Adipiscing morbi dapibus amet nec potenti mus suscipit dui. Ultricies auctor tempor interdum et ridiculus volutpat proin tortor erat. Gravida amet diam molestie sociosqu himenaeos nisl posuere habitasse.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="block flex-column follow-us">
+                    <h1>Follow us:</h1>
+                    <div class="flex-row">
+                        <h1><span class="fa fa-facebook"></span></h1>
+                        <h1><span class="fa fa-instagram"></span></h1>
+                        <h1><span class="fa fa-linkedin"></span></h1>
+                    </div>
+                </div>
             </div>
-            <div *ngIf="true" @slideInOut class="slide-div" [ngStyle]="{'transform': 'translateY(' + scrollOffset + 'px)'}">
-                This div slides up on init!
-            </div>
-            <div *ngIf="true" @slideInOut class="slide-div" [ngStyle]="{'transform': 'translateY(' + scrollOffset + 'px)'}">
-                This div slides up on init!
+            <div class="text-block" id="animation-wrapper">
+                <div class="typing-container">
+                    <span @typingAnimation>{{ displayedText }}</span><span @cursorAnimation>|</span>
+                </div>
+                <div style="width: 100%; text-align: center;">
+                    <h1>Your email address</h1>
+                    <mat-form-field class="input">
+                        <mat-label>{{ 'Tyep here' }}</mat-label>
+                        <input matInput name="email" [formControl]="email">
+                    </mat-form-field>
+                </div>
             </div>
         </div>
         <router-outlet></router-outlet>    
     </div>  
 </div>
-<footer>
+<footer *ngIf="!me">
     <div class="page footer">
         <div class="flex-row">
             <div class="flex-column">
