@@ -47,7 +47,7 @@ import { AlertComponent } from "../components/app-alert/app-alert.component";
             } else {
                 const remainingHours = Math.floor(remainingSeconds / 3600);
                 const remainingMinutes = Math.floor((remainingSeconds % 3600) / 60);
-                tokenCountdown = `session time: ${remainingHours}h ${remainingMinutes}min remaining`;
+                tokenCountdown = `${remainingHours}h ${remainingMinutes}min`;
             }
     
             if (tokenCountdown === '00:05') {

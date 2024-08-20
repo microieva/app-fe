@@ -16,12 +16,12 @@
                     <div class="flex-row">
                         <div class="flex-column">
                             <p>{{ 'Name' }}</p>
-                            <h3>{{ me.firstName }} {{ me.lastName }}</h3>
+                            <h3 class="font">{{ me.firstName }} {{ me.lastName }}</h3>
                         </div>
                         <div class="flex-column">
                             <p>{{ 'Date of Birth' }}</p>
-                            <h3 *ngIf="me.dob">{{ formattedDate }}</h3>
-                            <em *ngIf="!me.dob">{{ 'Missing information' }}</em>
+                            <h3 *ngIf="me.dob" class="font">{{ formattedDate }}</h3>
+                            <em *ngIf="!me.dob" class="font">{{ 'Missing information' }}</em>
                         </div>
                     </div>
                 </div>
@@ -30,13 +30,13 @@
                     <div class="flex-row">
                         <div class="flex-column">
                             <p>{{ 'Phone Number' }}</p>
-                            <h3 *ngIf="me.phone">{{ me.phone }}</h3>
-                            <em *ngIf="!me.phone">{{ 'Missing information' }}</em>
+                            <h3 *ngIf="me.phone" class="font">{{ me.phone }}</h3>
+                            <em *ngIf="!me.phone" class="font">{{ 'Missing information' }}</em>
                         </div>
                         <div class="flex-column">
                             <p>{{ 'Email' }}</p>
-                            <h3 *ngIf="me.email">{{ me.email }}</h3>
-                            <em *ngIf="!me.email">{{ 'Missing information' }}</em>
+                            <h3 *ngIf="me.email" class="font">{{ me.email }}</h3>
+                            <em *ngIf="!me.email" class="font">{{ 'Missing information' }}</em>
                         </div>
                     </div>
                 </div>
@@ -45,18 +45,18 @@
                     <div class="flex-row">
                         <div class="flex-column">
                             <p>{{ 'Street Address' }}</p>
-                            <h3 *ngIf="me.streetAddress">{{ me.streetAddress }}</h3>
-                            <em *ngIf="!me.streetAddress">{{ 'Missing information' }}</em>
+                            <h3 *ngIf="me.streetAddress" class="font">{{ me.streetAddress }}</h3>
+                            <em *ngIf="!me.streetAddress" class="font">{{ 'Missing information' }}</em>
                         </div>
                         <div class="flex-column">
                             <p>{{ 'City' }}</p>
-                            <h3 *ngIf="me.city">{{ me.city }}</h3>
-                            <em *ngIf="!me.city">{{ 'Missing information' }}</em>
+                            <h3 *ngIf="me.city" class="font">{{ me.city }}</h3>
+                            <em *ngIf="!me.city" class="font">{{ 'Missing information' }}</em>
                         </div>
                         <div class="flex-column">
                             <p>{{ 'Post Code' }}</p>
-                            <h3 *ngIf="me.postCode">{{ me.postCode }}</h3>
-                            <em *ngIf="!me.postCode">{{ 'Missing information' }}</em>
+                            <h3 *ngIf="me.postCode" class="font">{{ me.postCode }}</h3>
+                            <em *ngIf="!me.postCode" class="font">{{ 'Missing information' }}</em>
                         </div>
                     </div>
                 </div>
@@ -131,12 +131,12 @@
                     <div class="flex-row">
                         <div class="flex-column">
                             <p>{{ 'Name' }}</p>
-                            <h3 *ngIf="user">{{ user.firstName }} {{ user.lastName }}</h3>
+                            <h3 *ngIf="user" class="font">{{ user.firstName }} {{ user.lastName }}</h3>
                         </div>
                         <div class="flex-column">
                             <p>{{ 'Date of Birth' }}</p>
-                            <h3 *ngIf="user.dob">{{ formattedDate }}</h3>
-                            <em *ngIf="!user.dob">{{ 'Missing information' }}</em>
+                            <h3 *ngIf="user.dob" class="font">{{ formattedDate }}</h3>
+                            <em *ngIf="!user.dob" class="font">{{ 'Missing information' }}</em>
                         </div>
                     </div>
                 </div>
@@ -145,13 +145,13 @@
                     <div class="flex-row">
                         <div class="flex-column">
                             <p>{{ 'Phone Number' }}</p>
-                            <h3 *ngIf="user.phone">{{ user.phone }}</h3>
-                            <em *ngIf="!user.phone">{{ 'Missing information' }}</em>
+                            <h3 *ngIf="user.phone" class="font">{{ user.phone }}</h3>
+                            <em *ngIf="!user.phone" class="font">{{ 'Missing information' }}</em>
                         </div>
                         <div class="flex-column">
                             <p>{{ 'Email' }}</p>
-                            <h3 *ngIf="user.email">{{ user.email }}</h3>
-                            <em *ngIf="!user.email">{{ 'Missing information' }}</em>
+                            <h3 *ngIf="user.email" class="font">{{ user.email }}</h3>
+                            <em *ngIf="!user.email" class="font">{{ 'Missing information' }}</em>
                         </div>
                     </div>
                 </div>
@@ -160,18 +160,18 @@
                     <div class="flex-row">
                         <div class="flex-column">
                             <p>{{ 'Street Address' }}</p>
-                            <h3 *ngIf="user.streetAddress">{{ user.streetAddress }}</h3>
-                            <em *ngIf="!user.streetAddress">{{ 'Missing information' }}</em>
+                            <h3 *ngIf="user.streetAddress" class="font">{{ user.streetAddress }}</h3>
+                            <em *ngIf="!user.streetAddress" class="font">{{ 'Missing information' }}</em>
                         </div>
                         <div class="flex-column">
                             <p>{{ 'City' }}</p>
-                            <h3 *ngIf="user.city">{{ user.city }}</h3>
-                            <em *ngIf="!user.city">{{ 'Missing information' }}</em>
+                            <h3 *ngIf="user.city" class="font">{{ user.city }}</h3>
+                            <em *ngIf="!user.city" class="font">{{ 'Missing information' }}</em>
                         </div>
                         <div class="flex-column">
                             <p>{{ 'Post Code' }}</p>
-                            <h3 *ngIf="user.postCode">{{ user.postCode }}</h3>
-                            <em *ngIf="!user.postCode">{{ 'Missing information' }}</em>
+                            <h3 *ngIf="user.postCode" class="font">{{ user.postCode }}</h3>
+                            <em *ngIf="!user.postCode" class="font">{{ 'Missing information' }}</em>
                         </div>
                     </div>
                 </div>

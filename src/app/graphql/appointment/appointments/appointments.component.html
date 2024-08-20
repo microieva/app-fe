@@ -46,7 +46,7 @@
                 <div class="btn-block" *ngIf="userRole === 'patient'">
                     <div>
                         <h3>You are in safe hands!</h3>
-                        <p class="title bg">Make an appointment for a consultation</p>
+                        <p class="title" style="font-size: 2rem;">Make an appointment for a consultation</p>
                         <em>Appointment confirmation will be sent by email. Make sure you have provided your correct email address. You can always find your account details on <a [routerLink]="['/user']">My Account page</a>.</em>
                     </div>
                     <button mat-stroked-button (click)="openCalendar()">{{ 'Make an Appointment' }}</button>

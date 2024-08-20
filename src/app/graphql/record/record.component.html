@@ -1,4 +1,4 @@
-<div [ngStyle]="{ 'max-width': width ? width : 'inherit' }">
+<div [ngStyle]="{ 'max-width': width ? width : 'inherit' }" style="max-height: 50rem;">
     <div class="record wrapper" *ngIf="(isEditting && record) || isCreating">
         <p class="title" *ngIf="isCreating">{{ 'New Record' }}</p>
         <p class="title" *ngIf="record">{{ 'Record Draft' }}</p>
@@ -47,7 +47,7 @@
                 {{ 'Close' }}
             </button>
         </div>
-        <div class="record-content">
+        <div class="record-content font">
             <h2>{{ record.title }}</h2>
             <div [innerHtml]="record.text"></div>
         </div>

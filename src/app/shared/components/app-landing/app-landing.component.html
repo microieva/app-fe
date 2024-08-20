@@ -1,0 +1,26 @@
+<div class="page">
+    <div class="block" *ngIf="userRole ==='admin'">
+        <div class="flex-row"><h2 class="font">Last login</h2><h2><span>{{lastLogin}}</span></h2></div>
+        <div class="flex-row"><h2 class="font">New doctor account activation requests </h2><h2><span>{{countDoctorRequests}}</span></h2></div>
+        <div class="flex-row"><h2 class="font">Registered doctors</h2><h2><span>{{countDoctors}}</span></h2></div>
+        <div class="flex-row"><h2 class="font">Registered patients</h2><h2><span>{{countPatients}}</span></h2></div>
+        <div class="flex-row"><h2 class="font">Missed appointment requests</h2><h2><span>{{countMissedAppointments}}</span></h2></div>
+    </div>
+
+    <div class="block" *ngIf="userRole ==='doctor'">
+        <div class="flex-row"><h2 class="font">Last login</h2><h2><span>{{lastLogin}}</span></h2></div>
+        <div class="flex-row"><h2 class="font">Pending appointment requests </h2><h2><span>{{countPendingAppointments}}</span></h2></div>
+        <div class="flex-row"><h2 class="font">Accepted appointments </h2><h2><span>{{countUpcomingAppointments}}</span></h2></div>  
+        <div class="flex-row"><h2 class="font">Patients</h2><h2><span>{{countPatients}}</span></h2></div>
+        <div class="flex-row"><h2 class="font">Missed appointment requests</h2><h2><span>{{countMissedAppointments}}</span></h2></div>
+    </div>
+
+    <div class="block" *ngIf="userRole ==='patient'">
+        <div class="flex-row"><h2 class="font">Last login</h2><h2><span>{{lastLogin}}</span></h2></div>
+        <div class="flex-row"><h2 class="font">Pending appointment requests </h2><h2><span>{{countPendingAppointments}}</span></h2></div>
+        <div class="flex-row"><h2 class="font">Upcoming appointments </h2><h2><span>{{countUpcomingAppointments}}</span></h2></div>     
+        <div class="flex-row"><h2 class="font">Missed appointment requests</h2><h2><span>{{countMissedAppointments}}</span></h2></div>
+        <div class="flex-row"><h2 class="font">Medical records </h2><h2><span>{{countRecords}}</span></h2></div>  
+        
+    </div>
+</div>

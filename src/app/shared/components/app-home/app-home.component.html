@@ -1,16 +1,44 @@
 <mat-toolbar>
-    <h2><a [routerLink]="['/']">Health Center</a></h2>
-    <p *ngIf="me" class="me"><em>logged in as: {{me.userRole}}</em></p>
+    <h2><a [routerLink]="['/home']">Health Center</a></h2>
+    <p *ngIf="me" class="me"><em>logged in as:</em></p>
+    <div *ngIf="me" class="time">
+        <p>{{me.firstName}} {{me.lastName}}</p>
+    </div>
     <span class="spacer"></span>
+    <p *ngIf="time && time !== '00:00'" class="me"><em>session time:</em> </p>
     <div *ngIf="time && time !== '00:00'" class="time">
         <p>{{time}}</p>
     </div>
-    <button *ngIf="!me" mat-stroked-button type="button" color="secondary"  [matMenuTriggerFor]="menu">{{ 'Log In' }}</button>
-    <mat-menu #menu="matMenu">
-        <button mat-menu-item (click)="onDirectLoginClick()">Direct Login</button>
-        <button mat-menu-item (click)="onGoogleLoginClick()">Doctor Login</button>
-        <button mat-menu-item (click)="onDirectLoginClick()">Bank Login</button>
-      </mat-menu>
+    <button *ngIf="!me" mat-stroked-button type="button" color="secondary" [matMenuTriggerFor]="menu">{{ 'Log In' }}</button>
+        <mat-menu #menu="matMenu" class="menu" style="width:20rem;">
+            <button mat-menu-item (click)="onDirectLoginClick()">
+                <div class="flex-row btn" style="width: 100%">
+                    <h3>Patient</h3>
+                    <span style="width: 5rem;"></span>
+                    <span class="material-symbols-outlined">
+                        personal_injury
+                    </span>
+                </div>
+            </button>
+            <button mat-menu-item (click)="onGoogleLoginClick()">
+                <div class="flex-row btn" style="width: 100%">
+                    <h3>Doctor</h3>
+                    <span style="width: 5rem;"></span>
+                    <span class="material-symbols-outlined">
+                        clinical_notes
+                    </span>
+                </div>
+            </button>
+            <button mat-menu-item (click)="onDirectLoginClick()">
+                <div class="flex-row btn" style="width: 100%">
+                    <h3>Administrator</h3>
+                    <span style="width: 5rem;"></span>
+                    <span class="material-symbols-outlined">
+                        manage_accounts
+                        </span>
+                </div>
+            </button>
+        </mat-menu>
     <button *ngIf="me" mat-stroked-button type="button" color="secondary" (click)="logOut()">{{ 'Log Out' }}</button>
 </mat-toolbar>
 <div class="content-view-wrapper">
@@ -29,11 +57,20 @@
         </div>
         <div class="page" *ngIf="!userRole">
             <div @slideInOut [ngStyle]="{'transform': 'translateY(' + scrollOffset + 'px)'}" class="slide-block">
-                <div *ngIf="true"  class="slide-div txt">
-                    <h1 class="title bg">Empathic health care center for all</h1>
-                    <h1 class="sm">Your are in safe hands!</h1>
+                <div class="slide-div txt">
+                    <div style="position: absolute; top: -20px">
+                        <h1 class="title bg">Empathic health care center for all</h1>
+                        <h1 class="sm">Your are in safe hands!</h1>
+
+                    </div>
+                    <div class="flex-row clickable click" (click)="openMenu($event)">
+                        <h2 class="font">Log in to your account</h2>
+                        <h2><span class="material-symbols-outlined">
+                        arrow_right
+                        </span></h2>
+                    </div>
                 </div>
-                <div *ngIf="true" class="slide-div block" id="top">
+                <div class="slide-div block font" id="top">
                     <div class="flex-row"><h2>Same day appointments on call</h2><h2><span class="material-icons">
                         call_outlined
                         </span></h2></div>
@@ -44,7 +81,7 @@
                         accessible
                         </span></h2></div>
                 </div>
-                <div *ngIf="true" class="slide-div block">
+                <div class="slide-div block font">
                     <div class="flex-row"><h2>Infant & child care department</h2><h2><span class="material-symbols-outlined">
                         child_care
                         </span></h2></div>
@@ -66,7 +103,7 @@
                     <div class="flex-row">
                         <div class="flex-column card">
                             <div class="card-img-wrapper">
-                                <img src="assets/doc-1.png"/>
+                                <img src="assets/doc-3.jpeg"/>
                             </div>
                             <p>Some lorem ipsum lorem ipsum. A couple of sentences to fill this card space</p>
                         </div>
@@ -78,7 +115,7 @@
                         </div>
                         <div class="flex-column card">
                             <div class="card-img-wrapper">
-                                <img src="assets/doc-3.jpeg"/>
+                                <img src="assets/doc-1.png"/>
                             </div>
                             <p>Some lorem ipsum lorem ipsum. A couple of sentences to fill this card space</p>
                         </div>
@@ -135,6 +172,7 @@
                 </div>
             </div>
         </div>
+       
         <router-outlet></router-outlet>    
     </div>  
 </div>

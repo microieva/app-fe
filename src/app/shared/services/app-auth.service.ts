@@ -20,30 +20,31 @@ export class AppAuthService {
     ) {}
 
     async logIn(input: DirectLoginInput) {
-        const query = `query ($directLoginInput: LoginInput!) {
-        login(directLoginInput: $directLoginInput) {
-            token
-            expiresAt
-        }
+        const mutation = `mutation ($directLoginInput: LoginInput!) {
+            login(directLoginInput: $directLoginInput) {
+                token
+                expiresAt
+            }
         }`
 
         try {
-            const response = await this.graphQLService.send(query, {directLoginInput: input});
+            const response = await this.graphQLService.mutate(mutation, {directLoginInput: input});
 
             if (response.data) {
-            const token = response.data.login.token;
-            const tokenExpire = response.data.login.expiresAt;
-            this.isAuthenticated = true;
+                const token = response.data.login.token;
+                const tokenExpire = response.data.login.expiresAt;
+                this.isAuthenticated = true;
 
-            localStorage.setItem('authToken', token);
-            localStorage.setItem('tokenExpire', tokenExpire);
-            return token;
+                localStorage.setItem('authToken', token);
+                localStorage.setItem('tokenExpire', tokenExpire);
+                this.router.navigate(['/'])
+                return token;
             }
         } catch (error) {
-            this.dialog.open(AlertComponent, {data: {message: "Unexpected AuthService error: "+error}});
+            //this.dialog.open(AlertComponent, {data: {message: "Unexpected AuthService error: "+error}});
             this.logOut();
         }
-        }
+    }
 
     async loginWithGoogle(credential: string){
         const mutation = `mutation ($googleCredential: String!){
@@ -86,4 +87,8 @@ export class AppAuthService {
     getAuthStatus(): boolean {
         return this.isAuthenticated;
     }
+
+    isLoggedIn(): boolean {
+        return !!localStorage.getItem('authToken'); 
+      }
 }

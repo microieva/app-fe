@@ -11,11 +11,11 @@
             <div class="flex-row">
                 <div class="flex-column">
                     <p>{{ 'Name' }}</p>
-                    <h3>{{ appointment.patient.firstName }} {{ appointment.patient.lastName }}</h3>
+                    <h3 class="font">{{ appointment.patient.firstName }} {{ appointment.patient.lastName }}</h3>
                 </div>
                 <div class="flex-column">
                     <p>{{ 'Date of Birth' }}</p>
-                    <h3>{{ formattedDate }}</h3>
+                    <h3 class="font">{{ formattedDate }}</h3>
                 </div>
             </div>
         </div>
@@ -24,11 +24,11 @@
             <div class="flex-row">
                 <div class="flex-column">
                     <p>{{ 'Phone Number' }}</p>
-                    <h3 *ngIf="appointment.patient.phone">{{ appointment.patient.phone }}</h3>
+                    <h3 *ngIf="appointment.patient.phone" class="font">{{ appointment.patient.phone }}</h3>
                 </div>
                 <div class="flex-column">
                     <p>{{ 'Email' }}</p>
-                    <h3 *ngIf="appointment.patient.email">{{ appointment.patient.email }}</h3>
+                    <h3 *ngIf="appointment.patient.email" class="font">{{ appointment.patient.email }}</h3>
                 </div>
             </div>
         </div>

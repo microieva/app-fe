@@ -52,11 +52,13 @@ import { MatDividerModule } from '@angular/material/divider';
 import {MatMenuModule} from '@angular/material/menu';
 import { UsersComponent } from './graphql/user/users/users.component';
 import { PatientsComponent } from './graphql/user/patients/patients.component';
+import { AppLandingComponent } from './shared/components/app-landing/app-landing.component';
 
 @NgModule({ 
     declarations: [
         AppComponent,
         AppHomeComponent,
+        AppLandingComponent,
         AppSidenavComponent,
         AppCalendarComponent,
         AppTableComponent,
@@ -107,7 +109,8 @@ import { PatientsComponent } from './graphql/user/patients/patients.component';
         MatExpansionModule,
         MatAccordion,
         MatDividerModule,
-        NgxEditorModule
+        NgxEditorModule,
+        
     ], 
     providers: [
         AppTimerService,

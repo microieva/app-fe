@@ -4,7 +4,9 @@
 }
 mat-toolbar {
     border-bottom: 0.8px solid darkgray;
+
 }
+  
 .spacer {
     flex: 1 1 auto;
 }
@@ -19,13 +21,14 @@ mat-toolbar {
     color: darkgray;
     padding: 0 1rem;
     margin-right: 1rem;
-
+    margin-left: 1rem;
     p {
         margin: 0;
     }
 }
 .page {
     max-height: calc(100vh + 65rem);
+    margin-bottom: 6rem;
 }
 .content-view-wrapper {
     display: flex; 
@@ -57,22 +60,20 @@ footer {
 .footer {
     margin-top: 4rem;
 }
-.flex-column {
-    //margin-top: 4rem;
-    padding: 2rem 0 4rem 0;
-}
+// .flex-column {
+//     //margin-top: 4rem;
+//     //padding: 2rem 0 4rem 0; // MAKE ID FOR THIS PADDING ?
+// }
 .footer-bottom {
     margin: 4rem 0;
 }
 .text-block {
-    //border: 1px solid darkgray;
     border-radius: 5px;
     width: 70%;
     height: 54rem;
     margin-bottom: 12rem;
     position: absolute;
     top: 512px; 
-    //z-index: -1;
     background: linear-gradient(to bottom, transparent 0%, rgb(158,176,197));
     opacity: 0.5;
     transition: top 0.1s ease-out; 
@@ -91,10 +92,10 @@ footer {
     color: #6c7682
 }
 .sm {
-    position: absolute;
-    bottom:-5px;
-    right: 20px;
+    float: right;
     color: rgba(188, 90, 186, 0.9); 
+    font-weight: 600;
+    margin-top:0;
 }
 .txt {
     margin-bottom: 4rem;
@@ -110,37 +111,25 @@ footer {
     flex-direction: column;
     align-items: baseline;
     color: #F5F5F5;
-    //z-index: 1;
     .flex-row {
         width: 100%;
     }
     h2 {
         border: 1px solid #F5F5F5;
-        //line-height: 2rem;
         padding: 0.5rem 1.5rem;
         width: 50%;
         margin: 0.2rem;
         align-items: center;
-        font-size: 22px;
-        font-family: "Special Elite", system-ui;
-        font-weight: 400;
-        font-style: normal;
         span {
             float: right;
             width: 1rem;
-            //height: 100%;
         }
-        // .material-icons {
-        //     color: #F5F5F5;
-        // }
     }
 }
 #top {
     margin-top: 8rem;
 }
 #animation-wrapper {
-    //border: 1px solid orange;
-    //margin-top: 6rem;
     margin-top: 4rem;
     display: flex;
     flex-direction: column;
@@ -168,7 +157,6 @@ footer {
     
     p {
         margin: 3rem 0;
-        //width: 8rem;
         align-self: center;
         font-size: larger;
     }
@@ -243,5 +231,38 @@ h1 {
     margin:auto;
 
 }
+.click {
+    font-family: "Special Elite", system-ui;
+    position: absolute;
+    bottom: -120px;
+    height: 2.5rem;
+    width: 100%;
+    h2 {
+        width: 50%;
+        border: 1px solid  rgba(188, 90, 186, 0.9); 
+        color:  rgba(188, 90, 186, 0.9); 
+        padding: 10px 16px;
+        margin: 3px;
+        span {
+            width: 1rem;
+            float: right;
+        }
+    }
+    &h2:hover {
+        background-color: rgb(175 111 174 / 40%);
+        color: #F5F5F5;
+        cursor: pointer;
+    }
+    // #fix {
+    //     height: 1.5rem;
+    // }
+}
+// .fix {
+//     padding: 1.2rem 1.5rem;
+// }
+.btn {
+    font-family: "Special Elite", system-ui;
+}
+
   
   

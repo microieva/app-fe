@@ -1,7 +1,11 @@
-import { Component, ElementRef, HostListener, OnInit } from "@angular/core";
+import { trigger, transition, style, animate, state, keyframes } from "@angular/animations";
+import { Component, HostListener, OnInit, ViewChild } from "@angular/core";
+import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from "@angular/router";
+import { FormBuilder, FormControl } from "@angular/forms";
 import { RouterOutlet } from '@angular/router';
 import { MatDialog } from "@angular/material/dialog";
+import { MatMenuTrigger } from "@angular/material/menu";
 import { Subscription } from "rxjs";
 import { DateTime } from "luxon";
 import { AppAuthService } from "../../services/app-auth.service";
@@ -13,25 +17,11 @@ import { AlertComponent } from "../app-alert/app-alert.component";
 import { LoginComponent } from "../app-login/app-login.componnet";
 import { AppointmentComponent } from "../../../graphql/appointment/appointment.component";
 import { Appointment } from "../../../graphql/appointment/appointment";
-import { trigger, transition, style, animate, state, query, keyframes } from "@angular/animations";
-import { FormBuilder, FormControl } from "@angular/forms";
 
 @Component({
     selector: 'app-home',
     templateUrl: './app-home.component.html',
     styleUrls: ['app-home.component.scss'],
-    // animations: [
-    //     trigger('slideInOut', [
-    //       state('in', style({ transform: 'translateY(0)', opacity: 1 })),
-    //       transition(':enter', [
-    //         style({ transform: 'translateY(50%)', opacity: 0.1 }),
-    //         animate('300ms ease-in', style({ transform: 'translateY(0)', opacity: 1 }))
-    //       ]),
-    //       transition(':leave', [
-    //         animate('300ms ease-out', style({ transform: 'translateY(100%)', opacity: 0.1 }))
-    //       ])
-    //     ])
-    // ]
     animations: [
         trigger('slideInOut', [
             state('in', style({ transform: 'translateY(0)', opacity: 1 })),
@@ -76,8 +66,9 @@ export class AppHomeComponent implements OnInit{
     fullText: string = 'Sign up for our Newsletter!';
     displayedText: string = '';
     email!: FormControl;
-    isInView: boolean = false;
-
+    homeRoute: boolean = true;
+    @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;
+    
     @HostListener('window:scroll', ['$event'])
     onWindowScroll(): void {
         const scrollPosition = window.scrollY;
@@ -94,7 +85,7 @@ export class AppHomeComponent implements OnInit{
         private tabsService: AppTabsService,
         private activatedRoute: ActivatedRoute,
         private formBuilder: FormBuilder,
-        private el: ElementRef
+        private location: Location
     ) {}
 
     async ngOnInit() {
@@ -153,20 +144,11 @@ export class AppHomeComponent implements OnInit{
             await this.appointmentService.pollNextAppointment();
         }
     }
-
-    // checkIfInView() {
-    //     const rect = this.el.nativeElement.getBoundingClientRect();
-    //     const windowHeight = (window.innerHeight || document.documentElement.clientHeight);
-    
-    //     if (rect.top <= windowHeight && rect.bottom >= -600) {
-    //       if (!this.isInView) {
-    //         this.isInView = true;
-    //         this.startTypingAnimation();
-    //       }
-    //     } else {
-    //       this.isInView = false;
-    //     }
-    //   }
+    openMenu(event: MouseEvent) {
+        this.menuTrigger.openMenu();
+        this.menuTrigger.menu!.xPosition = 'after';
+        this.menuTrigger.menu!.yPosition = 'above';
+    }
 
     startTypingAnimation() {
         let index = 0;
@@ -189,6 +171,8 @@ export class AppHomeComponent implements OnInit{
             me {
                 userRole
                 updatedAt
+                firstName
+                lastName
             }
         }`
         try {
@@ -199,7 +183,7 @@ export class AppHomeComponent implements OnInit{
                 this.isAuth = true;
                 this.isUserUpdated = response.data.me.updatedAt || null;
                 this.userRole = response.data.me.userRole;
-
+                this.router.navigate(['/home'])
                 if (this.userRole !== 'admin') {
                     try {
                         const query = `query { countUserRecords {
@@ -246,8 +230,11 @@ export class AppHomeComponent implements OnInit{
     async logOut() {
         this.timerService.cancelTokenTimer();
         this.authService.logOut(); 
-        this.router.navigate(['/']);
-        await this.ngOnInit(); 
+
+        this.router.navigate(['/']).then(() => {
+            this.location.replaceState('/');
+            window.location.reload();
+        });
     }
     prepareRoute(outlet: RouterOutlet) {
         return outlet && outlet.activatedRouteData && outlet.activatedRouteData['animation'];

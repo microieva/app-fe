@@ -25,12 +25,12 @@
             <mat-form-field>
                 <mat-label>{{'Email'}}</mat-label>
                 <input name="email" matInput [formControl]="form.controls.email">
-                <mat-hint>{{error}}</mat-hint>
+                <mat-hint style="color: orange;">{{error}}</mat-hint>
             </mat-form-field>
             <mat-form-field>
                 <mat-label>{{'Password'}}</mat-label>
                 <input name="password" matInput [formControl]="form.controls.password">
-                <mat-hint>{{error}}</mat-hint>
+                <mat-hint style="color: orange;">{{error}}</mat-hint>
             </mat-form-field>
         </div>
         <mat-dialog-actions align="center">
@@ -41,24 +41,35 @@
 </mat-dialog-content>
 
 <mat-dialog-content *ngIf="googleLogin">
-        <p>Login with Google</p>
+    <div class="flex-row" style="width: 35rem;">
+        <div class="flex-column">
+            <p> - Login to Health Center systems using contract email address</p>
+            <p> - Account activation might take a few hours</p>
+            <p> - Contact administrators if facing issues logging in</p>
+        </div>
+        <div class="flex-column g-column">
+            <h4>Login with healthcenter.io credentials</h4>
+                
+            <div id="g_id_onload"
+                data-client_id="234359946846-qk29f6skfdjaaoklv41g49f1du23c177.apps.googleusercontent.com"
+                data-context="signin"
+                data-ux_mode="popup"
+                data-callback="handleCredentialResponse"
+                data-auto_prompt="false">
+            </div>
         
-    <div id="g_id_onload"
-        data-client_id="234359946846-qk29f6skfdjaaoklv41g49f1du23c177.apps.googleusercontent.com"
-        data-context="signin"
-        data-ux_mode="popup"
-        data-callback="handleCredentialResponse"
-        data-auto_prompt="false">
-    </div>
+            <div id="g_id_signin"
+                data-type="standard"
+                data-shape="rectangular"
+                data-theme="outline"
+                data-text="signin_with"
+                data-size="large"
+                data-logo_alignment="left"
+                data-width="400">
+                
+            </div>
 
-    <div id="g_id_signin"
-        data-type="standard"
-        data-shape="rectangular"
-        data-theme="outline"
-        data-text="signin_with"
-        data-size="large"
-        data-logo_alignment="left"
-        data-width="400">
-        
+        </div>
+
     </div>
 </mat-dialog-content>

@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { Component, Input, OnInit } from "@angular/core";
 import { Appointment } from "../../../graphql/appointment/appointment";
 import { ActivatedRoute, Router } from "@angular/router";
 
@@ -7,7 +7,7 @@ import { ActivatedRoute, Router } from "@angular/router";
     templateUrl: './app-sidenav.component.html',
     styleUrls: ['./app-sidenav.component.scss']
 })
-export class AppSidenavComponent {
+export class AppSidenavComponent implements OnInit {
 
     @Input() isUserUpdated: string | null = null;
     @Input() userRole: string | null = null;
@@ -19,6 +19,10 @@ export class AppSidenavComponent {
         private activatedRoute: ActivatedRoute,
         private router: Router
     ){}
+
+    ngOnInit(): void {
+        //this.router.navigate(['/','home'])
+    }
 
     onAppointmentsClick(){
         if (this.isNowAppointment && this.userRole === 'doctor') {

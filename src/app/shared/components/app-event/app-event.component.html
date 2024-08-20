@@ -51,7 +51,7 @@
         <div class="message event-wrapper" *ngIf="patientMessage">
             <p class="event-title" *ngIf="userRole==='doctor' || userRole==='admin'">{{ "Patient's Message" }}</p>
             <p class="event-title" *ngIf="userRole==='patient'">{{ 'My Message' }}</p>
-            <p class="event-info" style="font-weight: 100; font-style: italic;">{{patientMessage}}</p>
+            <p class="event-info" class="font">{{patientMessage}}</p>
             <div (click)="onDeleteMessage(appointmentInfo.id)" *ngIf="userRole === 'patient' || userRole==='admin'">
                 <span class="material-icons" style="color:rgb(175 111 174 / 90%);">close</span>
             </div>
@@ -59,7 +59,7 @@
         <div class="message event-wrapper" *ngIf="doctorMessage">
             <p class="event-title" *ngIf="userRole==='patient'">{{ "Doctor's Message" }}</p>
             <p class="event-title" *ngIf="userRole==='doctor'">{{ 'My Message' }}</p>
-            <p class="event-info" style="font-weight: 100; font-style: italic;">{{doctorMessage}}</p>
+            <p class="event-info" class="font">{{doctorMessage}}</p>
             <div (click)="onDeleteMessage(appointmentInfo.id)" *ngIf="userRole === 'doctor'">
                 <span class="material-icons" style="color:rgb(175 111 174 / 90%);">close</span>
             </div>
