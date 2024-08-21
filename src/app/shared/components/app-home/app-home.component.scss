@@ -48,22 +48,18 @@ mat-toolbar {
     border: 1px solid blue;
     display: flex;
     align-items: center;
-    //justify-content: center;
     position: relative;
     will-change: transform;
   }
 
 footer {
     background-color: #F5F5F5;
-    height: 12rem;
+    height: 8rem;
 }
 .footer {
     margin-top: 4rem;
 }
-// .flex-column {
-//     //margin-top: 4rem;
-//     //padding: 2rem 0 4rem 0; // MAKE ID FOR THIS PADDING ?
-// }
+
 .footer-bottom {
     margin: 4rem 0;
 }
@@ -253,13 +249,7 @@ h1 {
         color: #F5F5F5;
         cursor: pointer;
     }
-    // #fix {
-    //     height: 1.5rem;
-    // }
 }
-// .fix {
-//     padding: 1.2rem 1.5rem;
-// }
 .btn {
     font-family: "Special Elite", system-ui;
 }

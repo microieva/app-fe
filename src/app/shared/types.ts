@@ -70,5 +70,6 @@ export interface UserDataSource {
     lastName: string
     dob?: string
     email: string
+    isRequest?: boolean;
 }
 export type AppDataSource = AppointmentDataSource | RecordDataSource | UserDataSource;

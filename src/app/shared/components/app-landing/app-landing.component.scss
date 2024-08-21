@@ -1,4 +1,5 @@
 .block {
+    margin-top:8rem;
     font-size: smaller;
     padding-top: 4rem;
     background-color: transparent;
@@ -24,4 +25,16 @@
 }
 .page {
     margin-top: 4rem;
+}
+.img-wrapper {
+    height: 5rem;
+    position: relative;
+    img {
+        z-index: -1;
+        position:absolute;
+        top: -30rem;
+        mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+        max-width:100%;
+        overflow: hidden;
+    }
 }

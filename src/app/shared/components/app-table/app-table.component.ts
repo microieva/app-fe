@@ -42,7 +42,6 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
-    @ViewChild('scrollView') scrollView: ElementRef | undefined;
     @ViewChild('input') input!: ElementRef;
     @ViewChild('expandedElementRef') expandedElementRef!: ElementRef;
 
@@ -81,6 +80,7 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
     
     ngOnInit() {
         const firstElement = this.dataSource.data[0];
+
         if ('email' in firstElement) { // type UserDataSource
             this.displayedColumns = ['name', 'email', 'created'];
         } else if ('date' in firstElement && this.userRole === 'patient') {
@@ -103,7 +103,7 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        console.log('NG *DESTROY* IS THIS RUNNING ???')
+        // TO DO past apt table bug console.log('ng destroy')
     }
     
 
@@ -117,12 +117,6 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     public getCurrentLength() {
         return this.length
-    }
-
-    scrollToTop() {
-        if (this.scrollView) {
-          //this.scrollView.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
-        }
     }
 
     onSearch(event: KeyboardEvent) {
@@ -139,7 +133,6 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
         this.pageLimit = event.pageSize;
         const pageEvent = {pageIndex: event.pageIndex, pageLimit: event.pageSize}
         this.pageChange.emit(pageEvent);
-        this.scrollToTop();
     }
 
     onAppointmentClick(id: number, title: string){

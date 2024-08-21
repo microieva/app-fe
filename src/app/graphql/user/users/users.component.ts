@@ -1,15 +1,15 @@
 import { Component, OnInit } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { ActivatedRoute, Router } from "@angular/router";
+import { trigger, state, style, transition, animate } from "@angular/animations";
+import { MatTableDataSource } from "@angular/material/table";
+import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
 import { AlertComponent } from "../../../shared/components/app-alert/app-alert.component";
-import { User } from "../user";
-import { MatTableDataSource } from "@angular/material/table";
-import { UserDataSource } from "../../../shared/types";
-import { DateTime } from "luxon";
 import { ConfirmComponent } from "../../../shared/components/app-confirm/app-confirm.component";
 import { UserComponent } from "../user.component";
-import { trigger, state, style, transition, animate } from "@angular/animations";
+import { UserDataSource } from "../../../shared/types";
+import { User } from "../user";
 
 @Component({
     selector: 'app-users',
@@ -195,7 +195,8 @@ export class UsersComponent implements OnInit {
                             firstName: row.firstName,
                             lastName: row.lastName,
                             buttons: requestsButtons,
-                            updatedAt: '-'
+                            updatedAt: '-',
+                            isRequest: true
                         } 
                     });
                 }
@@ -212,7 +213,8 @@ export class UsersComponent implements OnInit {
                             email: row.email,
                             firstName: row.firstName,
                             lastName: row.lastName,
-                            updatedAt: updatedAt.includes('1970') ? '-' : updatedAt   
+                            updatedAt: updatedAt.includes('1970') ? '-' : updatedAt,
+                            isRequest: false   
                         } 
                     });
                 }
@@ -232,7 +234,11 @@ export class UsersComponent implements OnInit {
         });
     }
 
-    onPageChange(value: any){}
+    async onPageChange(value: any){
+        this.pageIndex = value.pageIndex;
+        this.pageLimit = value.pageLimit;
+        await this.loadData();
+    }
 
     async onSortChange(value: any){
         switch (value.active) {
@@ -252,7 +258,10 @@ export class UsersComponent implements OnInit {
         await this.loadData();
     }
 
-    onFilterValueChange(value: any){}
+    async onFilterValueChange(value: any){
+        this.filterInput = value;
+        await this.loadData();
+    }
 
     async onUserClick(id: number){
         const dialogRef = this.dialog.open(UserComponent, {data: {userId: id}});

@@ -1,6 +1,7 @@
-import { Component, EventEmitter, HostListener, Inject, OnInit, Optional, Output } from "@angular/core";
+import { Component, EventEmitter, Inject, OnInit, Optional, Output } from "@angular/core";
 import { FormGroup, FormControl, FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
+import { trigger, state, style, transition, animate } from "@angular/animations";
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
 import _, { some } from "lodash-es";
 import { DateTime } from "luxon";
@@ -12,7 +13,6 @@ import { ConfirmComponent } from "../../shared/components/app-confirm/app-confir
 import { UserInput } from "./user.input";
 import { DoctorRequest } from "./doctor-request";
 import { User } from "./user";
-import { trigger, state, style, transition, animate } from "@angular/animations";
 
 @Component({
     selector: 'app-user',
@@ -41,12 +41,6 @@ export class UserComponent implements OnInit {
     form: FormGroup | undefined;
     formattedDate: string | undefined;
     scrollOffset: number = 0;
-
-    // @HostListener('window:scroll', ['$event'])
-    // onWindowScroll(): void {
-    //   const scrollPosition = window.scrollY;
-    //   this.scrollOffset = scrollPosition * -3; 
-    // }
 
     @Output() isDeletingUser = new EventEmitter<boolean>();
 
@@ -110,9 +104,6 @@ export class UserComponent implements OnInit {
                 this.formattedDate = DateTime.fromJSDate(new Date(response.data.user?.dob)).toFormat('MMM dd, yyyy') 
                 this.user = response.data.user || null;
                 this.request = response.data.request || null;
-
-                // this.buildForm();
-                // this.missingInfo = this.checkUserInfo();
             }
         } catch (error){
             this.router.navigate(['/']);

@@ -56,6 +56,12 @@ button {
     margin-bottom: 5px;
 }
 
+.non-click {
+    margin:auto;
+    cursor: default;
+    //pointer-events: none;
+}
+
 //-------------------expandable
 .expandable-element-detail {
     overflow: hidden;

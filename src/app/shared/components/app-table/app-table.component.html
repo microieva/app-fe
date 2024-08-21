@@ -71,11 +71,12 @@
                     #expandedElementRef 
                 >
                    <div 
-                        class="flex-column wrapper clickable" 
+                        [ngClass]="element.isRequest ? 'non-click': 'clickable'"
+                        class="flex-column wrapper" 
                         (click)="
                             !element.date && element.patientName && onRecordClick(element.id)
                             ||
-                            !element.date && element.email && onUserClick(element.id)
+                            !element.date && element.email && !element.isRequest && onUserClick(element.id)
                             ||
                             element.date && onAppointmentClick(element.id, element.title); 
                             $event.stopPropagation()

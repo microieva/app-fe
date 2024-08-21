@@ -1,7 +1,7 @@
 import { EventEmitter, Injectable, Output } from "@angular/core";
+import { MatDialog } from "@angular/material/dialog";
 import { Subscription, finalize, interval, take } from "rxjs";
 import { DateTime, Duration } from "luxon";
-import { MatDialog } from "@angular/material/dialog";
 import { AlertComponent } from "../components/app-alert/app-alert.component";
 
 @Injectable({
@@ -17,7 +17,6 @@ import { AlertComponent } from "../components/app-alert/app-alert.component";
 
     tokenTimerSubscription!: Subscription;
     appointmentTimerSubscription!: Subscription;
-    howSoonTimerSubscription!: Subscription;
 
     constructor(
         private dialog: MatDialog
@@ -72,7 +71,6 @@ import { AlertComponent } from "../components/app-alert/app-alert.component";
     }
 
     startAppointmentTimer(timeStamp: string) {
-        console.log('appointment timer start')
         const now = DateTime.local();
         const start = DateTime.fromISO(timeStamp); 
         const duration = start.diff(now).as('seconds');
@@ -99,64 +97,6 @@ import { AlertComponent } from "../components/app-alert/app-alert.component";
     
         return this.appointmentTimerSubscription;
     }  
-    
-    startHowSoonTimer(timeStamp?: any){
-        //let howSoonStr: string = seconds.toFormat('hh:mm:ss'); 
-
-        const start = DateTime.fromISO(timeStamp); 
-        const now = DateTime.now();
-        
-        const duration = start.diff(now).as('seconds');
-        const source = interval(1000);
-        const counter = source.pipe(
-            take(duration + 1), 
-            finalize(() => {
-                console.log('FINALIZE')
-            }) 
-            );
-            
-            this.howSoonTimerSubscription = counter.subscribe((val) => {
-                const remainingSeconds = duration - val;
-                const seconds = Duration.fromObject({ seconds: remainingSeconds });
-                this.howSoonCountdown.emit(seconds.toFormat('dd:hh:mm:ss'))
-            })
-            
-            /*const inputDate = DateTime.fromISO(now);
-            const diff = inputDate.diff(now, ['years', 'months', 'days', 'hours', 'minutes', 'seconds']);
-            let howSoonStr = 'in ';
-    
-            if (diff.years > 0) {
-                howSoonStr += `${diff.years} year${diff.years === 1 ? '' : 's'} `;
-            }
-            if (diff.months > 0) {
-                howSoonStr += `${diff.months} month${diff.months === 1 ? '' : 's'} `;
-            }
-            if (diff.days > 0) {
-                howSoonStr += `${diff.days} day${diff.days === 1 ? '' : 's'} `;
-            }
-            if (diff.days < 1 && diff.hours > 0) {
-                howSoonStr += `${diff.hours} hour${diff.hours === 1 ? '' : 's'} `;
-            }
-            if (diff.days < 1 && diff.minutes > 0) {
-                howSoonStr += `${diff.minutes} minute${diff.minutes === 1 ? '' : 's'} `;
-            }
-        
-            howSoonStr = howSoonStr.trim();
-        
-            if (!howSoonStr) {
-                howSoonStr = 'now';
-            }*/
-        
-            //return howSoonStr;
-    
-            //let howSoonStr: string = '';
-            //this.howSoonCountdown.emit(howSoonStr)
-
-    }
-    startHowLogAgoTimer(){
-        let howLongAgoStr: string = '';
-        this.howLongAgoCountdown.emit(howLongAgoStr)
-    }
     
     cancelTokenTimer() {
         this.tokenTimerSubscription.unsubscribe();

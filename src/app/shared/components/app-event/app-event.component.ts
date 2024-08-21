@@ -1,7 +1,7 @@
 import { DateTime } from "luxon";
 import { Component, ElementRef, EventEmitter, Inject, OnInit, Output, ViewChild } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
-import {Location} from '@angular/common';
+import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from "@angular/router";
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { AppGraphQLService } from "../../services/app-graphql.service";
@@ -247,7 +247,6 @@ export class EventComponent implements OnInit{
         if (this.patientId) {
             await this.loadJustCreatedAppointment(this.patientId);
         }
-        this.scrollToView();
     }
     onOpenAppointmentTab(appointmentId: number){
         const tabs = JSON.parse(localStorage.getItem('tabs') || '[]');
@@ -263,10 +262,5 @@ export class EventComponent implements OnInit{
             })
         }
     }
-    scrollToView() {
-        if (this.el) {
-            //TO DO: fix scroll to view for textarea
-            this.el.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
-        }
-    }
+
 }

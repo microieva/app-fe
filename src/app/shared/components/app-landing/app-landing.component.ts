@@ -1,8 +1,8 @@
 import { Component, OnInit } from "@angular/core";
-import { AppGraphQLService } from "../../services/app-graphql.service";
 import { MatDialog } from "@angular/material/dialog";
-import { AlertComponent } from "../app-alert/app-alert.component";
 import { DateTime } from "luxon";
+import { AppGraphQLService } from "../../services/app-graphql.service";
+import { AlertComponent } from "../app-alert/app-alert.component";
 
 @Component({
     selector: 'app-landing',
