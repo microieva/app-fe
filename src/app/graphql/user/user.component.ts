@@ -217,8 +217,9 @@ export class UserComponent implements OnInit {
         try {
             const response = await this.graphQLService.mutate(mutation, { userInput: input });
             if (response.data.saveUser.success) {
-                //window.location.reload();
-                this.router.navigate(['user']);
+                this.router.navigate(['user'], {
+                    queryParams: { updated: true }
+                });
             }
         } catch (error) {
             this.dialog.open(AlertComponent, { data: {message: "Error saving user details: "+ error}})

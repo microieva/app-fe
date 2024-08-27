@@ -136,7 +136,7 @@ export class PatientsComponent implements OnInit {
                 email: row.email,
                 firstName: row.firstName,
                 lastName: row.lastName,
-                updatedAt    
+                updatedAt: updatedAt.includes('1970') ? '-' : updatedAt    
             } 
         });
         this.dataSource = new MatTableDataSource<UserDataSource>(data);

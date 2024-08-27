@@ -3,6 +3,7 @@ import { MatDialog } from "@angular/material/dialog";
 import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../services/app-graphql.service";
 import { AlertComponent } from "../app-alert/app-alert.component";
+import { User } from "../../../graphql/user/user";
 
 @Component({
     selector: 'app-landing',
@@ -11,6 +12,7 @@ import { AlertComponent } from "../app-alert/app-alert.component";
 })
 export class AppLandingComponent implements OnInit {
     userRole!: string;
+    me!: User;
     lastLogin: string = '';
     countDoctorRequests: number = 0;
     countDoctors: number = 0;
@@ -27,7 +29,8 @@ export class AppLandingComponent implements OnInit {
 
     async ngOnInit() {
         await this.loadMe();
-        switch (this.userRole) {
+
+        switch (this.userRole && this.me.streetAddress) {
             case 'admin':
                 await this.loadAdminStatic();
                 break;
@@ -45,12 +48,14 @@ export class AppLandingComponent implements OnInit {
             me { 
                 userRole 
                 lastLogInAt
+                streetAddress
             }
         }`
         try {
             const response = await this.graphQLService.send(query);
             if (response.data) {
-                this.userRole =response.data.me.userRole;
+                this.me = response.data.me;
+                this.userRole = response.data.me.userRole;
                 const time = DateTime.fromISO(response.data.me.lastLogInAt).toFormat('hh:mm a');
                 const date = DateTime.fromISO(response.data.me.lastLogInAt).toFormat('MMM dd');
                 this.lastLogin = time+', '+date;
@@ -69,6 +74,7 @@ export class AppLandingComponent implements OnInit {
         }`
         try {
             const response = await this.graphQLService.send(query);
+
             if (response.data) {
                 this.countDoctorRequests = response.data.countDoctorRequests;
                 this.countDoctors = response.data.countDoctors;

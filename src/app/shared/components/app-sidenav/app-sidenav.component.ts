@@ -9,7 +9,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 })
 export class AppSidenavComponent implements OnInit {
 
-    @Input() isUserUpdated: string | null = null;
+    @Input() isUserUpdated!: boolean;
     @Input() userRole: string | null = null;
     @Input() isRecords: boolean = false;
     @Input() isRequests: boolean = false;
@@ -21,7 +21,11 @@ export class AppSidenavComponent implements OnInit {
     ){}
 
     ngOnInit(): void {
-        //this.router.navigate(['/','home'])
+        this.activatedRoute.queryParams.subscribe(async params => {
+            if(params['updated']) {
+                this.isUserUpdated = true;
+            }
+        });
     }
 
     onAppointmentsClick(){

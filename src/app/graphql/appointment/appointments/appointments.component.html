@@ -54,7 +54,7 @@
             </div>
         </div>
     </mat-tab>
-    <mat-tab label="upcoming">
+    <mat-tab label="upcoming" *ngIf="userRole === 'doctor' || (userRole ==='patient' && countUpcomingAppointments > 0 || countPastAppointments > 0)">
         <ng-template mat-tab-label>
             <span class="tab-label" *ngIf="userRole === 'patient'">Upcoming</span>
             <span class="tab-label" *ngIf="userRole === 'doctor'">Accepted Appointments</span>
@@ -100,7 +100,7 @@
             </div>
         </div>
     </mat-tab>
-    <mat-tab label="past">
+    <mat-tab label="past" *ngIf="userRole === 'doctor' || (userRole ==='patient' && countPastAppointments > 0)">
         <ng-template mat-tab-label>
             <span class="tab-label">Past</span>
         </ng-template>

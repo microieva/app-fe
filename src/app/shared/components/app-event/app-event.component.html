@@ -57,7 +57,7 @@
             </div>
         </div>
         <div class="message event-wrapper" *ngIf="doctorMessage">
-            <p class="event-title" *ngIf="userRole==='patient'">{{ "Doctor's Message" }}</p>
+            <p class="event-title" *ngIf="userRole==='patient' || userRole === 'admin'">{{ "Doctor's Message" }}</p>
             <p class="event-title" *ngIf="userRole==='doctor'">{{ 'My Message' }}</p>
             <p class="event-info" class="font">{{doctorMessage}}</p>
             <div (click)="onDeleteMessage(appointmentInfo.id)" *ngIf="userRole === 'doctor'">
@@ -97,7 +97,7 @@
     <mat-dialog-actions align="end">
         <button mat-button type="submit" [mat-dialog-close]="true" cdkFocusInitial (click)="onSubmit()" *ngIf="!appointmentInfo.title">{{'Confirm'}}</button>
         <button mat-button type="button" (click)="onDelete()" [disabled]="appointmentInfo.title && !samePatient">
-            <span *ngIf="appointmentInfo.title">{{'Delete'}}</span>
+            <span *ngIf="appointmentInfo.title || userRole === 'admin'">{{'Delete'}}</span>
             <span *ngIf="!appointmentInfo.title">{{'Cancel'}}</span>
         </button>
     </mat-dialog-actions>

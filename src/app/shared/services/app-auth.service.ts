@@ -90,5 +90,5 @@ export class AppAuthService {
 
     isLoggedIn(): boolean {
         return !!localStorage.getItem('authToken'); 
-      }
+    }
 }

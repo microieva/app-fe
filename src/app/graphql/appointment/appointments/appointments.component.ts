@@ -227,9 +227,6 @@ export class AppointmentsComponent implements OnInit {
             case 'name':
                 this.sortActive = 'firstName';
                 break;
-            // default:
-            //     this.sortActive = value.active;
-            //     break;
         }        
 
         if (value.direction)

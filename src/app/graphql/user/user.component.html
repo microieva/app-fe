@@ -251,8 +251,19 @@
                     </mat-form-field>
                 </div>
                 <div class="actions">
-                    <button mat-stroked-button style="background-color: rgb(111, 143, 175, 40%);" type="submit" (click)="save()" [disabled]="form.invalid || form.untouched">{{ 'Save' }}</button>
-                    <button mat-stroked-button color="secondary" type="button" (click)="cancel()">{{ 'Cancel' }}</button>
+                    <button 
+                        mat-stroked-button 
+                        style="background-color: rgb(111, 143, 175, 40%);" 
+                        type="submit" 
+                        (click)="save()" 
+                        [disabled]="form.invalid || form.untouched"
+                    >{{ 'Save' }}</button>
+                    <button 
+                        mat-stroked-button 
+                        color="secondary" 
+                        type="button" 
+                        (click)="cancel()"
+                    >{{ 'Cancel' }}</button>
                 </div>
             </form>
         </div>
