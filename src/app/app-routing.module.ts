@@ -15,8 +15,8 @@ const routes: Routes = [
   { path: '', component: AppHomeComponent },
   {
     path: 'home',
-    component: AppLandingComponent, // Component with side-nav for logged-in users
-    canActivate: [authGuard], // Protect this route with the new authGuard
+    component: AppLandingComponent, 
+    canActivate: [authGuard], 
   },
   { path: 'users', component: UsersComponent },
   { path: 'user/:id', component: UserComponent },
@@ -24,8 +24,7 @@ const routes: Routes = [
   { path: 'appointments', component: AppointmentsComponent },
   { path: 'appointments/calendar', component: CalendarComponent },
   { path: 'records', component: RecordsComponent },
-  { path: 'patients', component: PatientsComponent },
-  //{ path: '**', component: NotFoundComponent }
+  { path: 'patients', component: PatientsComponent }
 ];
 
 @NgModule({
