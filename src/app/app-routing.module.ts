@@ -11,24 +11,24 @@ import { authGuard } from './shared/services/app-auth-guard.service';
 import { AppLandingComponent } from './shared/components/app-landing/app-landing.component';
 
 const routes: Routes = [
-  { path:'', redirectTo: '/', pathMatch: 'full' },
-  { path: '', component: AppHomeComponent },
-  {
-    path: 'home',
-    component: AppLandingComponent, 
-    canActivate: [authGuard], 
-  },
-  { path: 'users', component: UsersComponent },
-  { path: 'user/:id', component: UserComponent },
-  { path: 'user', component: UserComponent },
-  { path: 'appointments', component: AppointmentsComponent },
-  { path: 'appointments/calendar', component: CalendarComponent },
-  { path: 'records', component: RecordsComponent },
-  { path: 'patients', component: PatientsComponent }
+    { path:'', redirectTo: '/', pathMatch: 'full' },
+    { path: '', component: AppHomeComponent },
+    {
+        path: 'home',
+        component: AppLandingComponent, 
+        canActivate: [authGuard], 
+    },
+    { path: 'users', component: UsersComponent },
+    { path: 'user/:id', component: UserComponent },
+    { path: 'user', component: UserComponent },
+    { path: 'appointments', component: AppointmentsComponent },
+    { path: 'appointments/calendar', component: CalendarComponent },
+    { path: 'records', component: RecordsComponent },
+    { path: 'patients', component: PatientsComponent }
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+    imports: [RouterModule.forRoot(routes)],
+    exports: [RouterModule]
 })
 export class AppRoutingModule { }

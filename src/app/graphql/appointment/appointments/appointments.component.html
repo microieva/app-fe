@@ -20,7 +20,7 @@
                 <h3 *ngIf="userRole === 'doctor' && countPendingAppointments === 0">No appointment requests at the moment</h3>
                 <button mat-stroked-button (click)="openCalendar()">{{ 'Open Calendar' }}</button>
             </div>
-            <div class="page" #scrollView>
+            <div class="page" @slideInOut>
                 <div class="appointments">
                     <app-table 
                         *ngIf="dataSource && countPendingAppointments > 9"

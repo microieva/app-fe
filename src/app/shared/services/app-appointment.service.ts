@@ -22,6 +22,10 @@ export class AppAppointmentService {
                 nextId
                 nextStart
                 nextEnd
+                patient {
+                    firstName
+                    lastName
+                }
             }
         }`
         this.pollingSubscription = this.apollo

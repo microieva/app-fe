@@ -15,7 +15,7 @@
                 <h3>This will be all completed medical records</h3> 
                 <span>{{' '}}</span>
             </div>
-            <div class="page">
+            <div class="page" @slideInOut>
                 <app-table 
                     *ngIf="dataSource && countRecords > 9"
                     [dataSource]="dataSource" 

@@ -65,7 +65,6 @@ export class UserComponent implements OnInit {
             await this.loadStatic();
         } 
         await this.loadMe();
-        this.checkUserInfo();
 
         this.activatedRoute.paramMap.subscribe(async (params)=> {
             this.id = Number(params.get('id')); 

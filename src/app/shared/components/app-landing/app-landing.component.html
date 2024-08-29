@@ -1,14 +1,13 @@
 <div class="page">
     <div class="block" *ngIf="userRole ==='admin'">
-        <div class="flex-row"><h2 class="font">Last login</h2><h2><span>{{lastLogin}}</span></h2></div>
         <div class="flex-row"><h2 class="font">New doctor account activation requests </h2><h2><span>{{countDoctorRequests}}</span></h2></div>
+        <div class="flex-row"><h2 class="font">Missed appointment requests</h2><h2><span>{{countMissedAppointments}}</span></h2></div>
         <div class="flex-row"><h2 class="font">Registered doctors</h2><h2><span>{{countDoctors}}</span></h2></div>
         <div class="flex-row"><h2 class="font">Registered patients</h2><h2><span>{{countPatients}}</span></h2></div>
-        <div class="flex-row"><h2 class="font">Missed appointment requests</h2><h2><span>{{countMissedAppointments}}</span></h2></div>
     </div>
 
     <div class="block" *ngIf="userRole ==='doctor'">
-        <div class="flex-row"><h2 class="font">Last login</h2><h2><span>{{lastLogin}}</span></h2></div>
+        <div class="flex-row" *ngIf="nextAppointmentStartTime"><h2 class="font">Next appointment, <em>patient</em></h2><h2><span>{{nextAppointmentStartTime}}<em>, {{nextAppointmentName}}</em></span></h2></div>
         <div class="flex-row"><h2 class="font">Pending appointment requests </h2><h2><span>{{countPendingAppointments}}</span></h2></div>
         <div class="flex-row"><h2 class="font">Accepted appointments </h2><h2><span>{{countUpcomingAppointments}}</span></h2></div>  
         <div class="flex-row"><h2 class="font">Patients</h2><h2><span>{{countPatients}}</span></h2></div>
@@ -17,22 +16,19 @@
 
     <div class="block" 
         *ngIf="userRole ==='patient' && me.streetAddress">
-            <div class="flex-row"><h2 class="font">Last login</h2><h2><span>{{lastLogin}}</span></h2></div>
-            <div class="flex-row"><h2 class="font">Pending appointment requests </h2><h2><span>{{countPendingAppointments}}</span></h2></div>
-            <div class="flex-row"><h2 class="font">Upcoming appointments </h2><h2><span>{{countUpcomingAppointments}}</span></h2></div>     
-            <div class="flex-row"><h2 class="font">Missed appointment requests</h2><h2><span>{{countMissedAppointments}}</span></h2></div>
-            <div class="flex-row"><h2 class="font">Medical records </h2><h2><span>{{countRecords}}</span></h2></div>      
+        <div class="flex-row" *ngIf="nextAppointmentStartTime"><h2 class="font">Next appointment, <em>doctor</em></h2><h2><span>{{nextAppointmentStartTime}}<em>, Dr {{nextAppointmentName}}</em></span></h2></div>
+        <div class="flex-row"><h2 class="font">Pending appointment requests </h2><h2><span>{{countPendingAppointments}}</span></h2></div>
+        <div class="flex-row"><h2 class="font">Upcoming appointments </h2><h2><span>{{countUpcomingAppointments}}</span></h2></div>     
+        <div class="flex-row"><h2 class="font">Missed appointment requests</h2><h2><span>{{countMissedAppointments}}</span></h2></div>
+        <div class="flex-row"><h2 class="font">Medical records </h2><h2><span>{{countRecords}}</span></h2></div>      
     </div>
 
-    <div class="block" 
-        *ngIf="userRole ==='patient' && !me.streetAddress">
-            <div class="btn-block">
-                <div style="margin-bottom: 2rem;">
-                    <h3>Welcome!</h3>
-                    <p class="title" style="font-size: 2rem;">Complete setting up your account</p>
-                    <em>Please fill out your contact details to use Health Center services. By adding the information you agree to our Terms of Service and allow us handling your personal details. We guarantee no third parties have access to the details you provide. All personal information is saved only in our internal database. Requested contact details will be used for contacting and billing.</em>
-                </div>
-                <button mat-stroked-button><a [routerLink]="['/user']">{{'Update Information'}}</a></button>
-            </div>
+    <div class="btn-block"  *ngIf="userRole ==='patient' && !me.streetAddress">
+        <div style="margin-bottom: 2rem;">
+            <h3>Welcome!</h3>
+            <p class="title" style="font-size: 2rem;">Complete setting up your account</p>
+            <em>Please fill out your contact details to use Health Center services. By adding the information you agree to our Terms of Service and allow us handling your personal details. We guarantee no third parties have access to the details you provide. All personal information is saved only in our internal database. Requested contact details will be used for contacting and billing.</em>
+        </div>
+        <button mat-stroked-button><a [routerLink]="['/user']">{{'Update Information'}}</a></button>
     </div>
 </div>

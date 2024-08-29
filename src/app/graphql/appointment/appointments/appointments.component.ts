@@ -1,10 +1,11 @@
-import { ChangeDetectorRef, Component, ElementRef, EventEmitter, OnInit, Output, QueryList, ViewChild, ViewChildren, ViewContainerRef, signal } from "@angular/core";
+import { Component, ElementRef, EventEmitter, OnInit, Output, QueryList, ViewChild, ViewChildren, ViewContainerRef, signal } from "@angular/core";
+import { trigger, state, style, transition, animate } from "@angular/animations";
 import { ActivatedRoute, Router } from "@angular/router";
 import { MatTableDataSource } from "@angular/material/table";
+import { MatTabGroup } from "@angular/material/tabs";
+import { MatDialog } from "@angular/material/dialog";
 import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
-import { AppointmentDataSource } from "../../../shared/types";
-import { Appointment } from "../appointment";
 import { AppAppointmentService } from "../../../shared/services/app-appointment.service";
 import { AppTimerService } from "../../../shared/services/app-timer.service";
 import { AppointmentComponent } from "../appointment.component";
@@ -12,13 +13,25 @@ import { AppTabsService } from "../../../shared/services/app-tabs.service";
 import { AlertComponent } from "../../../shared/components/app-alert/app-alert.component";
 import { ConfirmComponent } from "../../../shared/components/app-confirm/app-confirm.component";
 import { EventComponent } from "../../../shared/components/app-event/app-event.component";
-import { MatDialog } from "@angular/material/dialog";
-import { MatTabGroup } from "@angular/material/tabs";
+import { AppointmentDataSource } from "../../../shared/types";
+import { Appointment } from "../appointment";
 
 @Component({
     selector: 'app-appointments',
     templateUrl: './appointments.component.html',
-    styleUrls: ['./appointments.component.scss']
+    styleUrls: ['./appointments.component.scss'],
+    animations: [
+        trigger('slideInOut', [
+            state('in', style({ transform: 'translateY(0)', opacity: 1 })),
+            transition(':enter', [
+                style({ transform: 'translateY(80%)', opacity: 0.1 }),
+                animate('600ms cubic-bezier(0.25, 0.8, 0.25, 1)', style({ transform: 'translateY(0)', opacity: 1 }))
+            ]),
+            transition(':leave', [
+                animate('600ms cubic-bezier(0.25, 0.8, 0.25, 1)', style({ transform: 'translateY(100%)', opacity: 0.1 }))
+            ])
+        ]),
+    ]
 })
 export class AppointmentsComponent implements OnInit {
     selectedIndex: number = 0;
@@ -67,7 +80,6 @@ export class AppointmentsComponent implements OnInit {
         private router: Router,
         private dialog: MatDialog,
         private activatedRoute: ActivatedRoute,
-        private cdr: ChangeDetectorRef,
         private appointmentService: AppAppointmentService,
         private timerService: AppTimerService,
         public tabsService: AppTabsService
@@ -570,9 +582,9 @@ export class AppointmentsComponent implements OnInit {
                 howLongAgoStr += `${diff.minutes} minute${diff.minutes === 1 ? '' : 's'} `;
             }
         }
-        // if (diff.days <1 && diff.minutes === 0 ) {
-        //     howLongAgoStr = 'Just now';
-        // }
+        if (diff.days <1 && diff.minutes === 0 ) {
+            howLongAgoStr = 'Just now';
+        }
 
         howLongAgoStr = howLongAgoStr.trim();
 

@@ -37,11 +37,10 @@ export class AppAuthService {
 
                 localStorage.setItem('authToken', token);
                 localStorage.setItem('tokenExpire', tokenExpire);
-                this.router.navigate(['/'])
                 return token;
             }
         } catch (error) {
-            //this.dialog.open(AlertComponent, {data: {message: "Unexpected AuthService error: "+error}});
+            console.error(error);
             this.logOut();
         }
     }
@@ -81,7 +80,6 @@ export class AppAuthService {
         this.apollo.client.clearStore(); 
         localStorage.clear(); 
         this.isAuthenticated = false;
-        this.router.navigate(['/']);
     }
 
     getAuthStatus(): boolean {

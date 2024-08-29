@@ -2,6 +2,8 @@ import { Component, OnInit } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../services/app-graphql.service";
+import { AppAppointmentService } from "../../services/app-appointment.service";
+import { AppTimerService } from "../../services/app-timer.service";
 import { AlertComponent } from "../app-alert/app-alert.component";
 import { User } from "../../../graphql/user/user";
 
@@ -22,9 +24,16 @@ export class AppLandingComponent implements OnInit {
     countPendingAppointments: number = 0;
     countRecords: number = 0;
 
+    nextId: number | null = null;
+    previousNextId: number | null = null;
+    nextAppointmentStartTime: string | undefined;
+    nextAppointmentName: string | undefined;
+
     constructor(
         private graphQLService: AppGraphQLService,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private appointmentService: AppAppointmentService,
+        private timerService: AppTimerService
     ){}
 
     async ngOnInit() {
@@ -36,11 +45,27 @@ export class AppLandingComponent implements OnInit {
                 break;
             case 'doctor':
                 await this.loadDoctorStatic();
+                this.loadNextAppointmentDetails();
                 break;
             case 'patient':
                 await this.loadPatientStatic();
                 break;
         }
+    }
+
+    loadNextAppointmentDetails() {
+        this.appointmentService.appointmentInfo.subscribe(async (subscription) => {
+
+            if (subscription && subscription.nextAppointment) {
+                this.nextId = subscription.nextAppointment.nextId;
+                if (this.previousNextId !== this.nextId) {
+                    this.previousNextId = this.nextId;
+                    this.timerService.startAppointmentTimer(subscription.nextAppointment.nextStart);
+                }
+                this.nextAppointmentStartTime = DateTime.fromISO(subscription.nextAppointment.nextStart).toFormat('hh:mm a, MMM dd');
+                this.nextAppointmentName = subscription.nextAppointment.patient.firstName+' '+subscription.nextAppointment.patient.lastName;
+            }
+        });
     }
 
     async loadMe() {
@@ -112,17 +137,35 @@ export class AppLandingComponent implements OnInit {
             countUpcomingAppointments
             countRecords
             countMissedAppointments
+            nextAppointment {
+                nextId
+                nextStart
+                doctor {
+                    firstName
+                    lastName
+                }
+            }
         }`
         try {
             const response = await this.graphQLService.send(query);
+
             if (response.data) {
                 this.countPendingAppointments = response.data.countPendingAppointments;
                 this.countUpcomingAppointments = response.data.countUpcomingAppointments;
                 this.countRecords = response.data.countRecords;
                 this.countMissedAppointments = response.data.countMissedAppointments;
+                
+                if (response.data.nextAppointment) {
+                    this.nextAppointmentStartTime = DateTime.fromISO(response.data.nextAppointment.nextStart).toFormat('hh:mm a, MMM dd');
+                    this.nextAppointmentName = response.data.nextAppointment.doctor.firstName+' '+response.data.nextAppointment.doctor.lastName;
+
+                } else {
+                    this.nextAppointmentName = undefined;
+                    this.nextAppointmentStartTime = undefined;
+                }
             }
         } catch (error) {
-            this.dialog.open(AlertComponent, {data: {message: error}})
+            console.log(error)
         }
     }
 }

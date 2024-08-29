@@ -94,6 +94,7 @@ export class AppHomeComponent implements OnInit{
         if (localStorage.getItem('authToken')) {
             await this.loadMe();
             const tokenExpire = localStorage.getItem('tokenExpire');
+            
             if (tokenExpire && this.me) {
                 this.remainder = this.timerService.startTokenTimer(tokenExpire);
                 this.timerService.tokenCountdown.subscribe(value=> {
@@ -143,7 +144,7 @@ export class AppHomeComponent implements OnInit{
             await this.appointmentService.pollNextAppointment();
         }
     }
-    openMenu(event: MouseEvent) {
+    openMenu() {
         this.menuTrigger.openMenu();
         this.menuTrigger.menu!.xPosition = 'after';
         this.menuTrigger.menu!.yPosition = 'above';
@@ -152,16 +153,16 @@ export class AppHomeComponent implements OnInit{
     startTypingAnimation() {
         let index = 0;
         const interval = setInterval(() => {
-          if (index < this.fullText.length) {
-            this.displayedText += this.fullText.charAt(index);
-            index++;
-          } else {
-            clearInterval(interval);
-            setTimeout(() => {
-              this.displayedText = '';
-              this.startTypingAnimation();
-            }, 1000); // pause before restart
-          }
+            if (index < this.fullText.length) {
+                this.displayedText += this.fullText.charAt(index);
+                index++;
+            } else {
+                clearInterval(interval);
+                setTimeout(() => {
+                this.displayedText = '';
+                this.startTypingAnimation();
+                }, 1000); // pause before restart
+            }
         }, 150); // Typing speed
       }
 
@@ -227,7 +228,8 @@ export class AppHomeComponent implements OnInit{
         this.timerService.cancelTokenTimer();
         this.authService.logOut(); 
 
-        this.router.navigate(['/']).then(() => {
+        this.router.navigate(['/'])
+        .then(() => {
             this.location.replaceState('/');
             window.location.reload();
         });

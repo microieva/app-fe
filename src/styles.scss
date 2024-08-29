@@ -243,5 +243,28 @@ em {
   }
 }
 
+.btn-block {
+  color: rgb(68, 65, 65);
+  border: 1px solid rgb(111, 143, 175, 40%);
+  margin: auto;
+  margin-top: 6rem;
+  border-radius: 5px;
+  padding: 6rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  button {
+      background-color: rgb(175 111 174 / 40%);
+  }
+  div {
+      width: 55%;
+  }
+  em {
+      color: rgb(111 121 133);
+      font-size: smaller;
+  }
+}
+
 
 

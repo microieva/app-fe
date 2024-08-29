@@ -43,8 +43,6 @@ export class AppCalendarComponent implements OnInit {
         private router: Router,
         private activatedRoute: ActivatedRoute
     ){}
-
-    nonAllDayEventCount: { [key: string]: number } = {};
   
     async ngOnInit() {
         this.activatedRoute.queryParams.subscribe(params => {
@@ -465,6 +463,7 @@ export class AppCalendarComponent implements OnInit {
                     allDay: arg.allDay,
                     patientId: this.patientId || undefined
                 });
+                
                 const dialogRef = this.dialog.open(EventComponent, {data: { eventInfo }});
 
                 dialogRef.componentInstance.submit.subscribe(subscription => {
@@ -472,8 +471,6 @@ export class AppCalendarComponent implements OnInit {
                     if (subscription) {
                         this.dialog.closeAll();
                         calendarApi.addEvent(event);
-                        window.location.reload();
-
                     }
                 });
 

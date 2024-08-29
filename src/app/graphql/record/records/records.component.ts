@@ -3,6 +3,7 @@ import { Component, OnInit, signal } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { MatTableDataSource } from "@angular/material/table";
 import { MatDialog } from "@angular/material/dialog";
+import { trigger, state, style, transition, animate } from "@angular/animations";
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
 import { RecordDataSource } from "../../../shared/types";
 import { RecordComponent } from "../record.component";
@@ -12,7 +13,19 @@ import { Record } from "../record";
 @Component({
     selector: 'app-records',
     templateUrl: './records.component.html',
-    styleUrls: ['./records.component.scss']
+    styleUrls: ['./records.component.scss'],
+    animations: [
+        trigger('slideInOut', [
+            state('in', style({ transform: 'translateY(0)', opacity: 1 })),
+            transition(':enter', [
+                style({ transform: 'translateY(80%)', opacity: 0.1 }),
+                animate('600ms cubic-bezier(0.25, 0.8, 0.25, 1)', style({ transform: 'translateY(0)', opacity: 1 }))
+            ]),
+            transition(':leave', [
+                animate('600ms cubic-bezier(0.25, 0.8, 0.25, 1)', style({ transform: 'translateY(100%)', opacity: 0.1 }))
+            ])
+        ]),
+    ]
 })
 export class RecordsComponent implements OnInit {
     selectedIndex!: number;

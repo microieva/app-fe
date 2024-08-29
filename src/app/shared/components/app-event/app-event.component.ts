@@ -61,6 +61,7 @@ export class EventComponent implements OnInit{
     }
 
     async ngOnInit() {
+  
         this.activatedRoute.queryParams.subscribe(params => {
             this.patientId = +params['id']; 
         });
