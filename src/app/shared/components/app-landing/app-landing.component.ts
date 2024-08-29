@@ -30,7 +30,7 @@ export class AppLandingComponent implements OnInit {
     async ngOnInit() {
         await this.loadMe();
 
-        switch (this.userRole && this.me.streetAddress) {
+        switch (this.userRole) {
             case 'admin':
                 await this.loadAdminStatic();
                 break;
