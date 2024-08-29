@@ -3,7 +3,6 @@ import { Component, HostListener, OnInit, ViewChild } from "@angular/core";
 import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from "@angular/router";
 import { FormBuilder, FormControl } from "@angular/forms";
-import { RouterOutlet } from '@angular/router';
 import { MatDialog } from "@angular/material/dialog";
 import { MatMenuTrigger } from "@angular/material/menu";
 import { Subscription } from "rxjs";
@@ -92,23 +91,6 @@ export class AppHomeComponent implements OnInit{
         this.startTypingAnimation();
         this.email = this.formBuilder.control<string>('');
 
-<<<<<<< Updated upstream
-=======
-        this.activatedRoute.queryParams.subscribe(params => {
-            const code = params['code'];
-            const state = params['state'];
-            const scope = params['scope']
-            //const state= '123abc'
-            //const code = "eyJ6aXAiOiJERUYiLCJ0dHlwIjoiYXV0aGVudGljYXRpb25fdG9rZW4iLCJ2ZXIiOiIyLjAuMyIsImtpZCI6Im5hc2YtYXV0aGVudGljYXRpb24tdG9rZW4tZW5jcnlwdGlvbi1wcm9kIiwiY3R5IjoiSldUIiwiZW5jIjoiQTEyOEdDTSIsImFsZyI6ImRpciJ9..A3tVxqjC8PSOy1_k.GWiFCk_52tl8ukJEZElcb2Wn-CX_ikXzmppl0TXrJQfyMuETElGHig9A_40zN6ByI0FCdyxGdX9HZh_T6qApq4D1X5gX2gkc_O_cMaoXQ6_raEkrMgLkUHuhsdXOMt3JytKZYwPTFVMK7qpHvmvyxLjB7_pQJ6n34rI_nsnSwMu1BrONEFn7C9oijZsO4s6PnQLTkAOn8b1TzeUxyOQcGB_drAjIzcHYAJ_4jIA14742oqnajgSEGCxE3-2U_42Da73Kr9EEofoMJnlIj9A7mrsMydBRVU1zqTgozYWkyZhjQqpjTlpWS0GLta5p5bZZzF8HoWZuGHGzpjZj-SaG46311_2CjvqKKI9AQ1fqUEf7Mw2eY29b3TOz-Ltxlw6SIjC-OMnvhCl-Z6Uswqr9PIvp55vkaSkJqLJ_Fnm_fGi8xkJJQjK04oxjf1OKPJQHJkPuY6mxTQwBBI-vhYux0L4OUktKOl4jRltb5GErw0kdhqB1gEO4P7OO6uJmU9QOxVpifDa4DAfZeCPlu3RtkzO7iIiy3-Kid10jUF6TpRWdPkg5tDuKjODs7iwupSh5_6t4KiYM_w-IJqHfDVFfvOIUA8P1AAimbRGU1CULXV_xc9CsS8qNyAUNCJGupDPAZLqDzxcQCTIEL-k5s5PeomL-SWtYizlmYFmTVScfrRXOwyYdI0uBBOqtHFdE7yX8sjSC0qMYn68ZU_drXv3qDghjYdoyLnPyicn9eYHhvqBRZZoEXr8UXs8UbEFrjgNrxVGM-yc1VFMUQGhnfnbk-Fspxv2MwYDVUyXEnhhEtY6MxhGh28GU8DTAmD7P0Uhb1smx_DDbaWLJupLqW0eETvhqSwt6alrtPuUSBxvqFPY6k0vCru43zIi-f3pgBzmX9qwFnkwL9GU5pTTUK_nHyrMStVDpQNQwmEpGfaaya_CBWwTyeSML86x1Ock_UcuvFN-aSJLsp6Yzv3U0xfF3IVRuK4QMfDOwA2_Qpd-aaV7LpqrQrnOieUfmOxHcjhPYDnVfsLATJ-3Kj1_335Nph4o4o9O2eYm0R8GrmCQv5WtWFluGPLC20Fd0T5SVwQaf5-gPdl3GVdFx0WLiFbzc8j0yAzDuNizFbWcD-jW7nymYdoyPkSMbWjOFpXT3zYoOOB7uDE56dXaSFogVXTicG5bYdSDL29Cw2Smzmpl2c3lj6gYgCafeGI_TLNiR-Ef1PLWyhfa4pHJ70WAlcR9PWpaBrmMHl7lSqocN6kY2yOiDBczyTtcpopmjLELDs0eG7Xlyfweo4Ac1B7Sq5K306Ow3Xqj41qtTTkybxbhQZoiYubY74Jwp7OYSX7Kthi0fYa7B2yCvkVbnMJ94eQ.XpUNfynz7n-gKd8W1nKidg"
-            //const code = "IC1ZjywCNx3xm2pn9WAfgZmZ9kXodduS"
-            if (code && state) {
-                this.exchangeCodeForToken(code, state, scope);
-            } else {
-                console.error('Authorization code not found');
-            }
-        });
-
->>>>>>> Stashed changes
         if (localStorage.getItem('authToken')) {
             await this.loadMe();
             const tokenExpire = localStorage.getItem('tokenExpire');
@@ -201,13 +183,8 @@ export class AppHomeComponent implements OnInit{
                 this.isAuth = true;
                 this.isUserUpdated = response.data.me.streetAddress ? true : false;
                 this.userRole = response.data.me.userRole;
-<<<<<<< Updated upstream
                 this.router.navigate(['/home'])
-                if (this.userRole !== 'admin') {
-=======
-                
                 if (this.userRole !== 'admin' && this.isUserUpdated) {
->>>>>>> Stashed changes
                     try {
                         const query = `query { countUserRecords {
                             countRecords
@@ -255,12 +232,5 @@ export class AppHomeComponent implements OnInit{
             window.location.reload();
         });
     }
-<<<<<<< Updated upstream
-    prepareRoute(outlet: RouterOutlet) {
-        return outlet && outlet.activatedRouteData && outlet.activatedRouteData['animation'];
-      }
-}
-=======
 }
 
->>>>>>> Stashed changes
