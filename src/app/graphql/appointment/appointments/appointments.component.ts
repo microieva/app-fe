@@ -435,8 +435,7 @@ export class AppointmentsComponent implements OnInit {
         try {
             this.isReservedDay = await this.graphQLService.send(query, {date: DateTime.fromISO(date).toJSDate()});
         } catch (error) {
-            //this.dialog.open({data: {message: "Error checking for reserved days: "+error}})
-            //TO DO: FIX RESERVED DAYS !! throws error here
+           console.error(error);
         }
     }
 
