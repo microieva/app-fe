@@ -37,6 +37,9 @@ export class UsersComponent implements OnInit {
     doctors: User[] | undefined;
     doctorsLength: number = 0;
 
+    countRequests: number = 0;
+    countDoctors: number = 0;
+
     pageIndex: number = 0;
     pageLimit: number = 10;
     sortDirection: string | null = null;
@@ -50,7 +53,8 @@ export class UsersComponent implements OnInit {
         private router: Router
     ){}
 
-    ngOnInit(): void {
+    async ngOnInit() {
+        await this.loadStatic();
         this.activatedRoute.queryParams.subscribe(async params => {
             const tab = params['tab'];
             this.selectedIndex = tab ? +tab : 0;
@@ -58,13 +62,27 @@ export class UsersComponent implements OnInit {
         });   
     }
 
+    async loadStatic() {
+        const query = `query {
+            countDoctorRequests
+            countDoctors
+        }`
+        const response = await this.graphQLService.send(query);
+        this.countRequests = response.data.countDoctorRequests;
+        this.countDoctors = response.data.countDoctors;
+    }
+
     async loadData() {
         switch (this.selectedIndex) {
             case 0:
-                await this.loadRequests();
+                if (this.countRequests>0) {
+                    await this.loadRequests();
+                }
                 break;
             case 1:
-                await this.loadDoctors();
+                if (this.countDoctors>0) {
+                    await this.loadDoctors();
+                }
                 break;
             default:
                 break;

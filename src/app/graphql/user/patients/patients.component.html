@@ -5,7 +5,7 @@
 </div>
 <div class="page" @slideInOut>
     <app-table
-        *ngIf="dataSource && length"
+        *ngIf="dataSource && countPatients>0"
         [dataSource]="dataSource" 
         [length]="length"
         [userRole]="userRole"

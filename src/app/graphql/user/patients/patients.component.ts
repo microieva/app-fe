@@ -27,10 +27,11 @@ import { User } from "../user";
     ]
 })
 export class PatientsComponent implements OnInit {
-    dataSource: MatTableDataSource<UserDataSource> | { data: any[]} = {data: []};
+    dataSource: MatTableDataSource<UserDataSource> | null = null;
     userRole: string = 'admin'
     length: number = 0;
-    patients: User[] | undefined;
+    patients: User[] = [];
+    countPatients: number = 0;
 
     pageIndex: number = 0;
     pageLimit: number = 10;
@@ -44,7 +45,16 @@ export class PatientsComponent implements OnInit {
     ){}
 
     async ngOnInit() {
-        await this.loadData();
+        await this.loadCountPatients();
+        if (this.countPatients > 0) {
+            await this.loadData();
+        }
+    }
+
+    async loadCountPatients(){
+        const query = `query { countPatients }`
+        const response = await this.graphQLService.send(query);
+        this.countPatients = response.data.countPatients;
     }
 
     async onPageChange(value: any) {

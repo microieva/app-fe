@@ -71,9 +71,11 @@
                 <button mat-stroked-button (click)="openCalendar()">{{ 'Open Calendar' }}</button>
             </div>
             <div class="page">
-                <div class="btn-block column" *ngIf="userRole === 'patient' && countUpcomingAppointments === 0">
-                    <div><em>No upcoming appointments at the moment</em></div>
-                    <div><em>Appointment requests confirmed within 24 hours!</em></div>   
+                <div class="btn-block column" *ngIf="countUpcomingAppointments === 0">
+                    <div>
+                        <h3><em>No upcoming appointments at the moment</em></h3>
+                        <h3 *ngIf="userRole === 'patient'"><em>Appointment requests confirmed within 24 hours!</em></h3>   
+                    </div>
                 </div>
                 <div class="appointments">
                     <app-table 
@@ -115,7 +117,7 @@
         <div>
             <div class="page">
                 <div class="btn-block" *ngIf="countPastAppointments === 0">
-                    <p>No previous appointments</p>
+                    <h3><em>No previous appointments</em></h3>
                 </div>
                 <div class="appointments">
                     <app-table 

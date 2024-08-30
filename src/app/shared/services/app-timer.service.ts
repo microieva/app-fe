@@ -6,8 +6,8 @@ import { AlertComponent } from "../components/app-alert/app-alert.component";
 
 @Injectable({
     providedIn: 'root'
-  })
-  export class AppTimerService {   
+})
+export class AppTimerService {   
     @Output() logout = new EventEmitter<boolean>(false);
     @Output() tokenCountdown = new EventEmitter<string>();
     @Output() nextAppointmentCountdown = new EventEmitter<string>();

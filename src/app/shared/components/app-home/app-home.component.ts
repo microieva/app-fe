@@ -213,8 +213,8 @@ export class AppHomeComponent implements OnInit{
                 this.me = null;
             }
         } catch (error) {
-            this.dialog.open(AlertComponent, {data: {message: "No user :"+error}});
             localStorage.clear();
+            console.error(error);
         }
     }
     onDirectLoginClick() {

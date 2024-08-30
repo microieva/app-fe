@@ -153,6 +153,7 @@ export class UserComponent implements OnInit {
         
         dialogRef.componentInstance.ok.subscribe(async (subscription)=> {
             if (subscription && this.me) {
+
                 if (this.me.userRole === 'admin') {
                     this.isDeletingUser.emit(true);
                     return;
@@ -165,12 +166,10 @@ export class UserComponent implements OnInit {
                 }`
 
                 try {
-                    const response = await this.graphQLService.mutate(mutation, { userId: this.me.id});
-                    if (response.data.deleteUser.success) {
-                        this.timerService.cancelTokenTimer();
-                        this.authService.logOut(); 
-                        this.router.navigate(['/']);
-                    }
+                    await this.graphQLService.mutate(mutation, { userId: this.me.id});
+                    this.timerService.cancelTokenTimer();
+                    this.authService.logOut(); 
+                    this.router.navigate(['/']);
                 } catch (error) {
                     this.dialog.open(AlertComponent, { data: {message: "Error deleting user: "+ error}})
                 }

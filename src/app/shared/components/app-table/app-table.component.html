@@ -144,10 +144,9 @@
         </tr>
     </table>
 
-    <mat-paginator 
-        
+    <mat-paginator    
         #paginator
-        [length]="getCurrentLength()"
+        [length]="length"
         [pageIndex]="pageIndex"
         [pageSize]="pageLimit"
         [pageSizeOptions]="[10, 20, 50, 100]"

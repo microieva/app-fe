@@ -12,13 +12,14 @@
         <div>
             <div class="flex-row wrapper info">
                 <span class="icon material-symbols-outlined">info</span>
-                <h3>Pending approval</h3> 
+                <h3 *ngIf="countRequests > 0">Pending approval</h3> 
+                <h3 *ngIf="countRequests === 0">No new account activation requests at the moment</h3> 
                 <span>{{' '}}</span>
             </div>
             <div class="page" #scrollView @slideInOut >
                 <div class="users">
                     <app-table 
-                        *ngIf="dataSource && requestsLength"
+                        *ngIf="dataSource && countRequests>0"
                         [dataSource]="dataSource" 
                         [length]="requestsLength"
                         [userRole]="userRole"
@@ -46,7 +47,7 @@
             <div class="page">
                 <div class="users">
                     <app-table 
-                        *ngIf="dataSource && doctorsLength"
+                        *ngIf="dataSource && countDoctors>0"
                         [dataSource]="dataSource" 
                         [length]="doctorsLength"
                         [userRole]="userRole"

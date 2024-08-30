@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output, ViewChild } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnInit, Output, ViewChild } from "@angular/core";
 import { MatTableDataSource } from "@angular/material/table";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
@@ -13,13 +13,13 @@ import { AppDataSource } from "../../types";
     styleUrls: ['app-table.component.scss'],
     animations: [
         trigger('detailExpand', [
-          state('collapsed,void', style({height: '0px', minHeight: '0'})),
-          state('expanded', style({height: '*'})),
-          transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+            state('collapsed,void', style({height: '0px', minHeight: '0'})),
+            state('expanded', style({height: '*'})),
+            transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
         ]),
-      ],
+    ],
 })
-export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
+export class AppTableComponent implements OnInit, AfterViewInit {
     displayedColumns: string[] = [];
     displayedColumnHeader: string | undefined;
     columnsToDisplayWithExpand: string[] = [];
@@ -37,10 +37,11 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
     @Input() dataSource!: MatTableDataSource<AppDataSource>;
     @Input() length: number = 0;
+    @Input() reset: boolean = false;
     @Input() userRole!: string;
     @Input() markAppointmentId: number | null = null;
 
-    @ViewChild(MatPaginator) paginator!: MatPaginator;
+    @ViewChild(MatPaginator, {read: true}) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
     @ViewChild('input') input!: ElementRef;
     @ViewChild('expandedElementRef') expandedElementRef!: ElementRef;
@@ -79,19 +80,21 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     
     ngOnInit() {
-        const firstElement = this.dataSource.data[0];
-
-        if ('email' in firstElement) { // type UserDataSource
-            this.displayedColumns = ['name', 'email', 'created'];
-        } else if ('date' in firstElement && this.userRole === 'patient') {
-            this.displayedColumns =['id', 'status', 'time'] // type AppointmentDataSource - patient view
-        } else if ('date' in firstElement && this.userRole === 'doctor') { 
-                this.displayedColumns = ['id', 'patientName', 'time']  // type AppointmentDataSource - doctor / admin view
-        } else if ('title' in firstElement && 'createdAt' in firstElement) {
-            this.displayedColumns = ['title', 'created']; 
+        if (this.dataSource) {
+            const firstElement = this.dataSource.data[0];
+    
+            if ('email' in firstElement) { // type UserDataSource
+                this.displayedColumns = ['name', 'email', 'created'];
+            } else if ('date' in firstElement && this.userRole === 'patient') {
+                this.displayedColumns =['id', 'status', 'time'] // type AppointmentDataSource - patient view
+            } else if ('date' in firstElement && this.userRole === 'doctor') { 
+                    this.displayedColumns = ['id', 'patientName', 'time']  // type AppointmentDataSource - doctor / admin view
+            } else if ('title' in firstElement && 'createdAt' in firstElement) {
+                this.displayedColumns = ['title', 'created']; 
+            }
+            
+            this.columnsToDisplayWithExpand = [...this.displayedColumns, 'expandedDetail'];  
         }
-        
-        this.columnsToDisplayWithExpand = [...this.displayedColumns, 'expandedDetail'];  
     }
     ngAfterViewInit(): void {   
         if (this.paginator && this.dataSource) {
@@ -101,22 +104,15 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
             this.dataSource.sort = this.sort;
         }
     }
-
-    ngOnDestroy() {
-        // TO DO past apt table bug console.log('ng destroy')
-    }
     
 
     ngOnChanges(changes: any): void {
         if (changes['dataSource'] && changes['length']) {
-          if (this.dataSource && this.paginator) {
-                this.dataSource.paginator = this.paginator;
-                this.dataSource.paginator.firstPage();
-          }
+            if (this.dataSource && this.paginator) {
+                    this.dataSource.paginator = this.paginator;
+                    this.dataSource.paginator.firstPage();
+            }
         }
-    }
-    public getCurrentLength() {
-        return this.length
     }
 
     onSearch(event: KeyboardEvent) {

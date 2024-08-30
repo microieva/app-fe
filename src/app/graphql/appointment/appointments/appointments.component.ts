@@ -38,7 +38,6 @@ export class AppointmentsComponent implements OnInit {
     id!: number;
     routedAppointmentId: number | undefined;
     length: number = 0;
-    readonly totalLength: number;
     now: boolean = false;
     nextAppointmentStartTime: string | undefined;
     appointment: Appointment | null = null;
@@ -83,13 +82,16 @@ export class AppointmentsComponent implements OnInit {
         private appointmentService: AppAppointmentService,
         private timerService: AppTimerService,
         public tabsService: AppTabsService
-    ){
-        this.totalLength = this.length;
-    }
+    ){}
     
     async ngOnInit() {
-        this.tabs = this.tabsService.getTabs()
+        this.tabs = this.tabsService.getTabs();
         await this.loadUserRole();
+
+        if (this.userRole !=='admin') {
+            await this.loadStatic();
+            await this.loadData();
+        }
         
         this.activatedRoute.queryParams.subscribe(async (params)=> {
             const id = params['id']; 
@@ -182,10 +184,6 @@ export class AppointmentsComponent implements OnInit {
             const response = await this.graphQLService.send(query);
             if (response.data.me.userRole) {
                 this.userRole = response.data.me.userRole;
-
-                if (this.userRole !=='admin') {
-                    await this.loadStatic()
-                }
             }
         } catch (error) {
             this.router.navigate(['/'])
@@ -203,7 +201,6 @@ export class AppointmentsComponent implements OnInit {
                         this.countPendingAppointments = response.data.countPendingAppointments
                         this.countUpcomingAppointments = response.data.countUpcomingAppointments
                         this.countPastAppointments = response.data.countPastAppointments
-                        await this.loadData();
                     }
                 } catch (error) {
                     this.dialog.open(AlertComponent, {data: {message: "Error getting count: "+error}})
