@@ -591,7 +591,7 @@ export class AppointmentsComponent implements OnInit {
     }
 
     openCalendar() {
-        this.router.navigate(['appointments', 'calendar'])
+        this.router.navigate(['home/appointments/calendar'])
     }
 
     deleteAppointment(id: number) {

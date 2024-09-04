@@ -1,11 +1,13 @@
 import { Component, OnInit } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
+import { ActivatedRoute, Router } from "@angular/router";
 import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../services/app-graphql.service";
 import { AppAppointmentService } from "../../services/app-appointment.service";
 import { AppTimerService } from "../../services/app-timer.service";
 import { AlertComponent } from "../app-alert/app-alert.component";
 import { User } from "../../../graphql/user/user";
+import { Appointment } from "../../../graphql/appointment/appointment";
 
 @Component({
     selector: 'app-landing',
@@ -13,9 +15,12 @@ import { User } from "../../../graphql/user/user";
     styleUrls: ['app-landing.component.scss']
 })
 export class AppLandingComponent implements OnInit {
+    isHomeRoute: boolean = false;
     userRole!: string;
     me!: User;
-    lastLogin: string = '';
+    isUserUpdated: boolean = false;
+    nowAppointment: Appointment | null = null;
+
     countDoctorRequests: number = 0;
     countDoctors: number = 0;
     countPatients: number = 0;
@@ -30,15 +35,33 @@ export class AppLandingComponent implements OnInit {
     nextAppointmentName: string | undefined;
 
     constructor(
-        private graphQLService: AppGraphQLService,
+        private activatedRoute: ActivatedRoute,
         private dialog: MatDialog,
+        private router: Router,
+        private graphQLService: AppGraphQLService,
         private appointmentService: AppAppointmentService,
         private timerService: AppTimerService
-    ){}
+    ){
+        this.isHomeRoute = this.router.url === '/home';
+    }
 
     async ngOnInit() {
         await this.loadMe();
+        await this.loadData();
 
+        this.router.events.subscribe(() => {
+            this.isHomeRoute = this.router.url === '/home';
+        });
+
+        this.activatedRoute.queryParams.subscribe(async params => {
+            if(params['updated']) {
+                this.isUserUpdated = true;
+            }
+        });
+    }
+
+    async loadData(){
+        // if isUserUpdated && NOT admin
         switch (this.userRole) {
             case 'admin':
                 await this.loadAdminStatic();
@@ -46,6 +69,7 @@ export class AppLandingComponent implements OnInit {
             case 'doctor':
                 await this.loadDoctorStatic();
                 this.loadNextAppointmentDetails();
+                this.nowAppointment = await this.appointmentService.loadNowAppointment();
                 break;
             case 'patient':
                 await this.loadPatientStatic();
@@ -72,7 +96,6 @@ export class AppLandingComponent implements OnInit {
         const query = `query { 
             me { 
                 userRole 
-                lastLogInAt
                 streetAddress
             }
         }`
@@ -81,9 +104,7 @@ export class AppLandingComponent implements OnInit {
             if (response.data) {
                 this.me = response.data.me;
                 this.userRole = response.data.me.userRole;
-                const time = DateTime.fromISO(response.data.me.lastLogInAt).toFormat('hh:mm a');
-                const date = DateTime.fromISO(response.data.me.lastLogInAt).toFormat('MMM dd');
-                this.lastLogin = time+', '+date;
+                this.isUserUpdated = response.data.me.streetAddress ? true : false;
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "No user, "+error}})
@@ -117,6 +138,7 @@ export class AppLandingComponent implements OnInit {
             countUpcomingAppointments
             countPatients
             countMissedAppointments
+            countRecords
         }`
         try {
             const response = await this.graphQLService.send(query);
@@ -125,6 +147,7 @@ export class AppLandingComponent implements OnInit {
                 this.countUpcomingAppointments = response.data.countUpcomingAppointments;
                 this.countPatients = response.data.countPatients;
                 this.countMissedAppointments = response.data.countMissedAppointments;
+                this.countRecords = response.data.countRecords;
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: error}})
@@ -167,5 +190,20 @@ export class AppLandingComponent implements OnInit {
         } catch (error) {
             console.log(error)
         }
+    }
+
+    onAppointmentsClick(){
+        if (this.nowAppointment && this.userRole === 'doctor') {
+            this.router.navigate(['appointments'], {
+                relativeTo: this.activatedRoute,
+                queryParams: { tab: 3},
+                queryParamsHandling: 'merge' 
+            });
+        }
+        this.nowAppointment = null;
+    }
+
+    onDoctorsClick(){
+        //this.isRequests = false;
     }
 }

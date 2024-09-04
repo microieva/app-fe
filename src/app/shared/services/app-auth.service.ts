@@ -10,7 +10,6 @@ import { DirectLoginInput } from '../types';
   providedIn: 'root'
 })
 export class AppAuthService {
-    isAuthenticated: boolean = false;
 
     constructor(
         private apollo: Apollo,
@@ -33,10 +32,10 @@ export class AppAuthService {
             if (response.data) {
                 const token = response.data.login.token;
                 const tokenExpire = response.data.login.expiresAt;
-                this.isAuthenticated = true;
 
                 localStorage.setItem('authToken', token);
                 localStorage.setItem('tokenExpire', tokenExpire);
+                this.router.navigate(['/home']);
                 return token;
             }
         } catch (error) {
@@ -59,12 +58,11 @@ export class AppAuthService {
             if (response.data) {
                 const token = response.data.loginWithGoogle.token;
                 const tokenExpire = response.data.loginWithGoogle.expiresAt;
-                this.isAuthenticated = true;
 
                 localStorage.setItem('authToken', token);
                 localStorage.setItem('tokenExpire', tokenExpire);
                 this.dialog.closeAll();
-                window.location.reload();
+                this.router.navigate(['/home']);
             }
         } catch (error) {
             const ref = this.dialog.open(AlertComponent, {data: { message:  "AuthService: "+error}});
@@ -79,11 +77,6 @@ export class AppAuthService {
     logOut() {
         this.apollo.client.clearStore(); 
         localStorage.clear(); 
-        this.isAuthenticated = false;
-    }
-
-    getAuthStatus(): boolean {
-        return this.isAuthenticated;
     }
 
     isLoggedIn(): boolean {

@@ -14,7 +14,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTreeModule } from '@angular/material/tree';
-import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSidenavContainer, MatSidenavContent, MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import {MatTabsModule} from '@angular/material/tabs';
@@ -23,7 +23,6 @@ import {MatAccordion, MatExpansionModule} from '@angular/material/expansion';
 import {MatRadioModule} from '@angular/material/radio';
 import { MAT_DATE_FORMATS, MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
 import { AppHomeComponent } from './shared/components/app-home/app-home.component';
-import { AppSidenavComponent } from './shared/components/app-sidenav/app-sidenav.component';
 import { MatDialogContent, MatDialogModule } from '@angular/material/dialog';
 import { UserComponent } from './graphql/user/user.component';
 import { LUXON_DATE_FORMATS } from './shared/constants';
@@ -59,7 +58,6 @@ import { AppLandingComponent } from './shared/components/app-landing/app-landing
         AppComponent,
         AppHomeComponent,
         AppLandingComponent,
-        AppSidenavComponent,
         AppCalendarComponent,
         AppTableComponent,
         AppAccordionComponent,
@@ -90,6 +88,8 @@ import { AppLandingComponent } from './shared/components/app-landing/app-landing
         MatToolbarModule,
         MatTreeModule,
         MatSidenavModule,
+        MatSidenavContent,
+        MatSidenavContainer,
         MatListModule,
         MatDialogModule,
         MatDialogContent,

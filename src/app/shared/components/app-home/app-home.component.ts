@@ -1,21 +1,8 @@
 import { trigger, transition, style, animate, state, keyframes } from "@angular/animations";
-import { Component, HostListener, OnInit, ViewChild } from "@angular/core";
-import { Location } from '@angular/common';
-import { ActivatedRoute, Router } from "@angular/router";
+import { Component, HostListener, OnInit } from "@angular/core";
 import { FormBuilder, FormControl } from "@angular/forms";
-import { MatDialog } from "@angular/material/dialog";
-import { MatMenuTrigger } from "@angular/material/menu";
-import { Subscription } from "rxjs";
-import { DateTime } from "luxon";
-import { AppAuthService } from "../../services/app-auth.service";
-import { AppGraphQLService } from "../../services/app-graphql.service";
-import { AppTimerService } from "../../services/app-timer.service";
-import { AppAppointmentService } from "../../services/app-appointment.service";
-import { AppTabsService } from "../../services/app-tabs.service";
-import { AlertComponent } from "../app-alert/app-alert.component";
 import { LoginComponent } from "../app-login/app-login.componnet";
-import { AppointmentComponent } from "../../../graphql/appointment/appointment.component";
-import { Appointment } from "../../../graphql/appointment/appointment";
+import { MatDialog } from "@angular/material/dialog";
 
 @Component({
     selector: 'app-home',
@@ -50,23 +37,11 @@ import { Appointment } from "../../../graphql/appointment/appointment";
     ]
 })
 export class AppHomeComponent implements OnInit{
-    me: any;
-    updatedAt: string | null = null;
-    isAuth: boolean = false;
-    isRecords: boolean = false;
-    isRequests: boolean =false;
-    isUserUpdated: boolean = false;
-    remainder!: Subscription;
-    time!: string | null;
-    userRole: string | null = null;
-    nextAppointmentId: number | null = null;
-    nowAppointment: Appointment | null = null;
     scrollOffset: number = 0;
     fullText: string = 'Sign up for our Newsletter!';
     displayedText: string = '';
     email!: FormControl;
     homeRoute: boolean = true;
-    @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;
     
     @HostListener('window:scroll', ['$event'])
     onWindowScroll(): void {
@@ -75,79 +50,13 @@ export class AppHomeComponent implements OnInit{
     }
 
     constructor (
-        private dialog: MatDialog,
-        private authService: AppAuthService,
-        private graphQLService: AppGraphQLService,
-        private timerService: AppTimerService,
-        private appointmentService: AppAppointmentService,
-        private router: Router,
-        private tabsService: AppTabsService,
-        private activatedRoute: ActivatedRoute,
         private formBuilder: FormBuilder,
-        private location: Location
+        private dialog: MatDialog
     ) {}
 
     async ngOnInit() {
         this.startTypingAnimation();
         this.email = this.formBuilder.control<string>('');
-
-        if (localStorage.getItem('authToken')) {
-            await this.loadMe();
-            const tokenExpire = localStorage.getItem('tokenExpire');
-            
-            if (tokenExpire && this.me) {
-                this.remainder = this.timerService.startTokenTimer(tokenExpire);
-                this.timerService.tokenCountdown.subscribe(value=> {
-                    this.time = value;
-                });
-                this.timerService.logout.subscribe(value => {
-                    if (value) {
-                        this.time = null;
-                        this.logOut();
-                        this.remainder.unsubscribe();
-                    }
-                });
-                this.timerService.ok.subscribe(value => {
-                    if (value) this.router.navigate(['/'])
-                });
-            }
-            if (this.me.userRole === 'doctor') {
-                const nowAppointment = await this.appointmentService.loadNowAppointment();
-                let isTabAdded: boolean = false;
-                if (nowAppointment) {
-                    const patientName = nowAppointment.patient.firstName+" "+nowAppointment.patient.lastName;
-                    const start = DateTime.fromJSDate(new Date(nowAppointment.start)).toFormat('hh:mm a');
-                    isTabAdded = JSON.parse(localStorage.getItem('tabs') || '[]').find((tab: any)=> tab.id === nowAppointment?.id);
-                    let isTabCreated: boolean;
-                    
-                    this.activatedRoute.queryParams.subscribe(params => {
-                        const tab = params['tab'];
-                        if (!tab) isTabCreated = false;
-                        isTabCreated = true;
-                    });
-
-                    if (!isTabAdded) {
-                        this.tabsService.addTab("offline start: "+start, AppointmentComponent, nowAppointment.id);
-                        this.dialog.open(AlertComponent, {data: {message: "Current appointment with "+patientName+"\nStarted at "+start}});
-                        this.nowAppointment = nowAppointment;
-                    } 
-                }
-            }
-        } else {
-            this.me = null;
-            this.updatedAt = null;
-            this.userRole = null;
-            this.isRecords = false;
-
-        }
-        if (this.userRole === 'doctor') {
-            await this.appointmentService.pollNextAppointment();
-        }
-    }
-    openMenu() {
-        this.menuTrigger.openMenu();
-        this.menuTrigger.menu!.xPosition = 'after';
-        this.menuTrigger.menu!.yPosition = 'above';
     }
 
     startTypingAnimation() {
@@ -164,75 +73,13 @@ export class AppHomeComponent implements OnInit{
                 }, 1000); // pause before restart
             }
         }, 150); // Typing speed
-      }
-
-    async loadMe() {
-        const query = `query {
-            me {
-                userRole
-                updatedAt
-                firstName
-                lastName
-                streetAddress
-            }
-        }`
-        try {
-            const response = await this.graphQLService.send(query);
-
-            if (response.data) {
-                this.me = response.data.me;
-                this.isAuth = true;
-                this.isUserUpdated = response.data.me.streetAddress ? true : false;
-                this.userRole = response.data.me.userRole;
-                this.router.navigate(['/home'])
-                if (this.userRole !== 'admin' && this.isUserUpdated) {
-                    try {
-                        const query = `query { countUserRecords {
-                            countRecords
-                            countDrafts
-                        }}`
-                        const response = await this.graphQLService.send(query);
-                        this.isRecords = response.data.countUserRecords.countRecords >0 || response.data.countUserRecords.countDrafts >0;
-                        
-                    } catch (error) {
-                        this.dialog.open(AlertComponent, {data: {message: "Unable to get record count "+error}});
-                    }
-
-                } else if (this.userRole === 'admin'){
-                    try {
-                        const query = `query { 
-                            countDoctorRequests
-                        }`
-                        const response = await this.graphQLService.send(query);
-                        this.isRequests = response.data.countDoctorRequests > 0;
-                    } catch (error) {
-                        this.dialog.open(AlertComponent, {data: {message: "Unable to get request count "+error}});
-                    }
-                }    
-            } else {
-                this.me = null;
-            }
-        } catch (error) {
-            localStorage.clear();
-            console.error(error);
-        }
     }
+
     onDirectLoginClick() {
         this.dialog.open(LoginComponent, {data: {directLogin: true}});
     }
     onGoogleLoginClick() {
         this.dialog.open(LoginComponent, {data: {googleLogin: true}});
-    }
-
-    async logOut() {
-        this.timerService.cancelTokenTimer();
-        this.authService.logOut(); 
-
-        this.router.navigate(['/'])
-        .then(() => {
-            this.location.replaceState('/');
-            window.location.reload();
-        });
     }
 }
 

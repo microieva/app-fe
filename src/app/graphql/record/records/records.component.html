@@ -12,7 +12,8 @@
         <div>
             <div class="flex-row wrapper info">
                 <span class="icon material-symbols-outlined">info</span>
-                <h3>This will be all completed medical records</h3> 
+                <h3 *ngIf="countRecords === 0">No saved records</h3> 
+                <h3 *ngIf="countRecords > 0">Saved medical records</h3> 
                 <span>{{' '}}</span>
             </div>
             <div class="page" @slideInOut>
@@ -46,7 +47,8 @@
         <div>
             <div class="flex-row wrapper info">
                 <span class="icon material-symbols-outlined">info</span>
-                <h3>This will be all medical records saved as drafts</h3> 
+                <h3 *ngIf="countDrafts === 0">No saved drafts</h3> 
+                <h3 *ngIf="countDrafts > 0">Medical records saved as drafts</h3> 
                 <span>{{' '}}</span>
             </div>
             <div class="page">

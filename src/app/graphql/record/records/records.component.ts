@@ -57,32 +57,34 @@ export class RecordsComponent implements OnInit {
     ){}
     async ngOnInit() {  
         await this.loadStatic();
+
         this.activatedRoute.queryParams.subscribe(async params => {
             const tab = params['tab'];
             this.selectedIndex = tab ? +tab : 0;
             await this.loadData();
         });   
     }
+
     async loadStatic() {
         const query = `query { 
             me { userRole }
-            countUserRecords {
-                countRecords
-                countDrafts
-            }
+            countRecords
+            countDrafts
         }`
 
         try {
             const response = await this.graphQLService.send(query);
-            if (response.data.me.userRole) {
+            if (response.data) {
                 this.userRole =response.data.me.userRole;
-                this.countRecords = response.data.countUserRecords.countRecords
-                this.countDrafts = response.data.countUserRecords.countDrafts
+                this.countRecords = response.data.countRecords
+                this.countDrafts = response.data.countDrafts
             }
         } catch (error) {
-            this.router.navigate(['/'])
+            console.error(error);
+            this.router.navigate(['/home'])
         }
     }
+
     async onTabChange(value: any) {
         this.selectedIndex = value;
 
@@ -113,6 +115,7 @@ export class RecordsComponent implements OnInit {
         this.filterInput = value;
         await this.loadData();
     }
+    
     async loadData() {
         switch (this.selectedIndex) {
             case 0:
@@ -125,6 +128,7 @@ export class RecordsComponent implements OnInit {
                 break;
         }
     }
+
     async loadRecords(){
         const query = `query (
             $pageIndex: Int!, 

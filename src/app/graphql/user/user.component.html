@@ -178,7 +178,7 @@
             </div>
             <div class="actions flex-row">
                 <button 
-                    *ngIf="!missingInfo" 
+                    *ngIf="!missingInfo && user.id === me.id" 
                     mat-stroked-button 
                     style="background-color: rgb(111, 143, 175, 40%);" 
                     (click)="updateUser()"

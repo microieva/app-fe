@@ -146,7 +146,7 @@ export class UserComponent implements OnInit {
     }
 
     updateUser(){
-        this.router.navigate(['user', this.me?.id])
+        this.router.navigate(['/home/user', this.me?.id])
     }
     async deleteUser(){
         const dialogRef = this.dialog.open(ConfirmComponent, {data: {message: "Deleting account and all associated data permanently"}})
@@ -215,7 +215,7 @@ export class UserComponent implements OnInit {
         try {
             const response = await this.graphQLService.mutate(mutation, { userInput: input });
             if (response.data.saveUser.success) {
-                this.router.navigate(['user'], {
+                this.router.navigate(['/home/user'], {
                     queryParams: { updated: true }
                 });
             }
@@ -225,11 +225,11 @@ export class UserComponent implements OnInit {
     }
 
     cancel() {
-        this.router.navigate(['user']);
+        this.router.navigate(['/home/user']);
     }
 
     openCalendar(userId: number){
-        this.router.navigate(['/appointments', 'calendar'], { queryParams: { id: userId } });
+        this.router.navigate(['/home/appointments/calendar'], { queryParams: { id: userId } });
         this.dialog.closeAll();
     }
 }

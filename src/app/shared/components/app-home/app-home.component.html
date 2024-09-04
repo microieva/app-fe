@@ -1,183 +1,155 @@
-<mat-toolbar>
-    <h2><a [routerLink]="['/home']">Health Center</a></h2>
-    <p *ngIf="me" class="me"><em>logged in as:</em></p>
-    <p *ngIf="me && userRole === 'admin'" style="text-indent: 10px;">admin</p>
-    <div *ngIf="me && userRole !== 'admin'" class="time">
-        <p>{{me.firstName}} {{me.lastName}}<span *ngIf="userRole === 'doctor'">, MD</span></p>
-    </div>
-    <span class="spacer"></span>
-    <p *ngIf="time && time !== '00:00'" class="me"><em>session time:</em> </p>
-    <div *ngIf="time && time !== '00:00'" class="time">
-        <p>{{time}}</p>
-    </div>
-    <button *ngIf="!me" mat-stroked-button type="button" color="secondary" [matMenuTriggerFor]="menu">{{ 'Log In' }}</button>
-        <mat-menu #menu="matMenu" class="menu" style="width:20rem;">
-            <button mat-menu-item (click)="onDirectLoginClick()">
-                <div class="flex-row btn" style="width: 100%">
-                    <h3>Patient</h3>
-                    <span style="width: 5rem;"></span>
-                    <span class="material-symbols-outlined">
-                        personal_injury
-                    </span>
-                </div>
-            </button>
-            <button mat-menu-item (click)="onGoogleLoginClick()">
-                <div class="flex-row btn" style="width: 100%">
-                    <h3>Doctor</h3>
-                    <span style="width: 5rem;"></span>
-                    <span class="material-symbols-outlined">
-                        clinical_notes
-                    </span>
-                </div>
-            </button>
-            <button mat-menu-item (click)="onDirectLoginClick()">
-                <div class="flex-row btn" style="width: 100%">
-                    <h3>Administrator</h3>
-                    <span style="width: 5rem;"></span>
-                    <span class="material-symbols-outlined">
-                        manage_accounts
-                        </span>
-                </div>
-            </button>
-        </mat-menu>
-    <button *ngIf="me" mat-stroked-button type="button" color="secondary" (click)="logOut()">{{ 'Log Out' }}</button>
-</mat-toolbar>
 <div class="content-view-wrapper">
-    <div class="sidenav" style="background-color: rgb(172,188,207);"  *ngIf="userRole">
-        <app-sidenav 
-            [isUserUpdated]="isUserUpdated" 
-            [userRole]="userRole" 
-            [isRecords]="isRecords" 
-            [isNowAppointment]="nowAppointment"
-            [isRequests]="isRequests"
-        ></app-sidenav>
+    <div class="img-wrapper">
+        <img src="assets/front-page.jpg"/>
     </div>
-    <div class="content" [ngClass]="userRole ? 'container': ''">
-        <div *ngIf="!userRole" class="img-wrapper">
-            <img src="assets/front-page.jpg"/>
-        </div>
-        <div class="page" *ngIf="!userRole">
-            <div @slideInOut [ngStyle]="{'transform': 'translateY(' + scrollOffset + 'px)'}" class="slide-block">
-                <div class="slide-div txt">
-                    <div style="position: absolute; top: -20px">
-                        <h1 class="title bg">Empathic health care center for all</h1>
-                        <h1 class="sm">Your are in safe hands!</h1>
+    <div class="page">
+        <div @slideInOut [ngStyle]="{'transform': 'translateY(' + scrollOffset + 'px)'}" class="slide-block">
+            <div class="slide-div txt">
+                <div style="position: absolute; top: -20px">
+                    <h1 class="title bg">Empathic health care center for all</h1>
+                    <h1 class="sm">Your are in safe hands!</h1>
 
+                </div>
+                <div class="flex-row clickable click" [matMenuTriggerFor]="menu">
+                    <h2 class="font">Log in to your account</h2>
+                    <h2><span class="material-symbols-outlined">
+                    arrow_right
+                    </span></h2>
+                </div>
+                <mat-menu #menu="matMenu" class="menu" style="width:20rem; top:0px;" >
+                    <button mat-menu-item (click)="onDirectLoginClick()">
+                        <div class="flex-row font" style="width: 100%">
+                            <h3>Patient</h3>
+                            <span style="width: 5rem;"></span>
+                            <span class="material-symbols-outlined">
+                                personal_injury
+                            </span>
+                        </div>
+                    </button>
+                    <button mat-menu-item (click)="onGoogleLoginClick()">
+                        <div class="flex-row font" style="width: 100%">
+                            <h3>Doctor</h3>
+                            <span style="width: 5rem;"></span>
+                            <span class="material-symbols-outlined">
+                                clinical_notes
+                            </span>
+                        </div>
+                    </button>
+                    <button mat-menu-item (click)="onDirectLoginClick()">
+                        <div class="flex-row font" style="width: 100%">
+                            <h3>Administrator</h3>
+                            <span style="width: 5rem;"></span>
+                            <span class="material-symbols-outlined">
+                                manage_accounts
+                                </span>
+                        </div>
+                    </button>
+                </mat-menu>
+            </div>
+            <div class="slide-div block font" id="top">
+                <div class="flex-row"><h2>Same day appointments on call</h2><h2><span class="material-icons">
+                    call_outlined
+                    </span></h2></div>
+                <div class="flex-row"><h2>Treatments & consultations</h2><h2><span class="material-symbols-outlined">
+                    stethoscope
+                    </span></h2></div>
+                <div class="flex-row"><h2>All locations easily accessible</h2><h2><span class="material-symbols-outlined">
+                    accessible
+                    </span></h2></div>
+            </div>
+            <div class="slide-div block font">
+                <div class="flex-row"><h2>Infant & child care department</h2><h2><span class="material-symbols-outlined">
+                    child_care
+                    </span></h2></div>
+                <div class="flex-row"><h2>Dental care department</h2><h2><span class="material-symbols-outlined">
+                    dentistry
+                    </span></h2></div>
+                <div class="flex-row"><h2>Recovering physiotherapy unit</h2><h2><span class="material-symbols-outlined">
+                    physical_therapy
+                    </span></h2></div>
+                <div class="flex-row"><h2>Psychotherapy department</h2><h2><span class="material-symbols-outlined">
+                    psychology
+                    </span></h2></div>
+                <div class="flex-row"><h2>Spacial aid</h2><h2><span class="material-symbols-outlined">
+                    hearing_aid
+                    </span></h2></div>
+            </div>
+            <div class="block" id="personel">
+                <h1>Our personel always there to help</h1>
+                <div class="flex-row">
+                    <div class="flex-column card">
+                        <div class="card-img-wrapper">
+                            <img src="assets/doc-3.jpeg"/>
+                        </div>
+                        <p>Some lorem ipsum lorem ipsum. A couple of sentences to fill this card space</p>
                     </div>
-                    <div class="flex-row clickable click" (click)="openMenu($event)">
-                        <h2 class="font">Log in to your account</h2>
-                        <h2><span class="material-symbols-outlined">
-                        arrow_right
-                        </span></h2>
+                    <div class="flex-column card">
+                        <div class="card-img-wrapper">
+                            <img src="assets/doc-2.jpeg"/>
+                        </div>
+                        <p>Some lorem ipsum lorem ipsum. A couple of sentences to fill this card space</p>
                     </div>
-                </div>
-                <div class="slide-div block font" id="top">
-                    <div class="flex-row"><h2>Same day appointments on call</h2><h2><span class="material-icons">
-                        call_outlined
-                        </span></h2></div>
-                    <div class="flex-row"><h2>Treatments & consultations</h2><h2><span class="material-symbols-outlined">
-                        stethoscope
-                        </span></h2></div>
-                    <div class="flex-row"><h2>All locations easily accessible</h2><h2><span class="material-symbols-outlined">
-                        accessible
-                        </span></h2></div>
-                </div>
-                <div class="slide-div block font">
-                    <div class="flex-row"><h2>Infant & child care department</h2><h2><span class="material-symbols-outlined">
-                        child_care
-                        </span></h2></div>
-                    <div class="flex-row"><h2>Dental care department</h2><h2><span class="material-symbols-outlined">
-                        dentistry
-                        </span></h2></div>
-                    <div class="flex-row"><h2>Recovering physiotherapy unit</h2><h2><span class="material-symbols-outlined">
-                        physical_therapy
-                        </span></h2></div>
-                    <div class="flex-row"><h2>Psychotherapy department</h2><h2><span class="material-symbols-outlined">
-                        psychology
-                        </span></h2></div>
-                    <div class="flex-row"><h2>Spacial aid</h2><h2><span class="material-symbols-outlined">
-                        hearing_aid
-                        </span></h2></div>
-                </div>
-                <div class="block" id="personel">
-                    <h1>Our personel always there to help</h1>
-                    <div class="flex-row">
-                        <div class="flex-column card">
-                            <div class="card-img-wrapper">
-                                <img src="assets/doc-3.jpeg"/>
-                            </div>
-                            <p>Some lorem ipsum lorem ipsum. A couple of sentences to fill this card space</p>
+                    <div class="flex-column card">
+                        <div class="card-img-wrapper">
+                            <img src="assets/doc-1.png"/>
                         </div>
-                        <div class="flex-column card">
-                            <div class="card-img-wrapper">
-                                <img src="assets/doc-2.jpeg"/>
-                            </div>
-                            <p>Some lorem ipsum lorem ipsum. A couple of sentences to fill this card space</p>
-                        </div>
-                        <div class="flex-column card">
-                            <div class="card-img-wrapper">
-                                <img src="assets/doc-1.png"/>
-                            </div>
-                            <p>Some lorem ipsum lorem ipsum. A couple of sentences to fill this card space</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="block" id="feedback">
-                    <h1>Our customer feedback</h1>
-                    <div class="flex-column">
-                        <div class="flex-row row">
-                            <div class="row-img-wrapper">
-                                <img src="assets/cust-1.jpeg"/>
-                            </div>
-                            <p>Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt vulputate ad. Adipiscing morbi dapibus amet nec potenti mus suscipit dui. Ultricies auctor tempor interdum et ridiculus volutpat proin tortor erat. Gravida amet diam molestie sociosqu himenaeos nisl posuere habitasse.</p>
-                        </div>
-                        <div class="flex-row row">
-                            <div class="row-img-wrapper">
-                                <img src="assets/cust-2.png"/>
-                            </div>
-                            <p>Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt vulputate ad. Adipiscing morbi dapibus amet nec potenti mus suscipit dui. Ultricies auctor tempor interdum et ridiculus volutpat proin tortor erat. Gravida amet diam molestie sociosqu himenaeos nisl posuere habitasse.</p>
-                        </div>
-                        <div class="flex-row row">
-                            <div class="row-img-wrapper">
-                                <img src="assets/cust-3.png"/>
-                            </div>
-                            <p>Some lorem ipsum lorem ipsum. A couple of sentences to fill this card space. Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt vulputate ad. Adipiscing morbi dapibus amet nec potenti mus suscipit dui. Ultricies auctor tempor interdum et ridiculus volutpat proin tortor erat. Gravida amet diam molestie sociosqu himenaeos nisl posuere habitasse.</p>
-                        </div>
-                        <div class="flex-row row">
-                            <div class="row-img-wrapper">
-                                <img src="assets/cust-4.jpeg"/>
-                            </div>
-                            <p>Some lorem ipsum lorem ipsum. A couple of sentences to fill this card space. Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt vulputate ad. Adipiscing morbi dapibus amet nec potenti mus suscipit dui. Ultricies auctor tempor interdum et ridiculus volutpat proin tortor erat. Gravida amet diam molestie sociosqu himenaeos nisl posuere habitasse.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="block flex-column follow-us">
-                    <h1>Follow us:</h1>
-                    <div class="flex-row">
-                        <h1><span class="fa fa-facebook"></span></h1>
-                        <h1><span class="fa fa-instagram"></span></h1>
-                        <h1><span class="fa fa-linkedin"></span></h1>
+                        <p>Some lorem ipsum lorem ipsum. A couple of sentences to fill this card space</p>
                     </div>
                 </div>
             </div>
-            <div class="text-block" id="animation-wrapper">
-                <div class="typing-container">
-                    <span @typingAnimation>{{ displayedText }}</span><span @cursorAnimation>|</span>
+            <div class="block" id="feedback">
+                <h1>Our customer feedback</h1>
+                <div class="flex-column">
+                    <div class="flex-row row">
+                        <div class="row-img-wrapper">
+                            <img src="assets/cust-1.jpeg"/>
+                        </div>
+                        <p>Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt vulputate ad. Adipiscing morbi dapibus amet nec potenti mus suscipit dui. Ultricies auctor tempor interdum et ridiculus volutpat proin tortor erat. Gravida amet diam molestie sociosqu himenaeos nisl posuere habitasse.</p>
+                    </div>
+                    <div class="flex-row row">
+                        <div class="row-img-wrapper">
+                            <img src="assets/cust-2.png"/>
+                        </div>
+                        <p>Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt vulputate ad. Adipiscing morbi dapibus amet nec potenti mus suscipit dui. Ultricies auctor tempor interdum et ridiculus volutpat proin tortor erat. Gravida amet diam molestie sociosqu himenaeos nisl posuere habitasse.</p>
+                    </div>
+                    <div class="flex-row row">
+                        <div class="row-img-wrapper">
+                            <img src="assets/cust-3.png"/>
+                        </div>
+                        <p>Some lorem ipsum lorem ipsum. A couple of sentences to fill this card space. Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt vulputate ad. Adipiscing morbi dapibus amet nec potenti mus suscipit dui. Ultricies auctor tempor interdum et ridiculus volutpat proin tortor erat. Gravida amet diam molestie sociosqu himenaeos nisl posuere habitasse.</p>
+                    </div>
+                    <div class="flex-row row">
+                        <div class="row-img-wrapper">
+                            <img src="assets/cust-4.jpeg"/>
+                        </div>
+                        <p>Some lorem ipsum lorem ipsum. A couple of sentences to fill this card space. Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt vulputate ad. Adipiscing morbi dapibus amet nec potenti mus suscipit dui. Ultricies auctor tempor interdum et ridiculus volutpat proin tortor erat. Gravida amet diam molestie sociosqu himenaeos nisl posuere habitasse.</p>
+                    </div>
                 </div>
-                <div style="width: 100%; text-align: center;">
-                    <h1>Your email address</h1>
-                    <mat-form-field class="input">
-                        <mat-label>{{ 'Tyep here' }}</mat-label>
-                        <input matInput name="email" [formControl]="email">
-                    </mat-form-field>
+            </div>
+            <div class="block flex-column follow-us">
+                <h1>Follow us:</h1>
+                <div class="flex-row">
+                    <h1><span class="fa fa-facebook"></span></h1>
+                    <h1><span class="fa fa-instagram"></span></h1>
+                    <h1><span class="fa fa-linkedin"></span></h1>
                 </div>
             </div>
         </div>
-       
-        <router-outlet></router-outlet>    
-    </div>  
+        <div class="text-block" id="animation-wrapper">
+            <div class="typing-container">
+                <span @typingAnimation>{{ displayedText }}</span><span @cursorAnimation>|</span>
+            </div>
+            <div style="width: 100%; text-align: center;">
+                <h1>Your email address</h1>
+                <mat-form-field class="input">
+                    <mat-label>{{ 'Tyep here' }}</mat-label>
+                    <input matInput name="email" [formControl]="email">
+                </mat-form-field>
+            </div>
+        </div>
+    </div>
 </div>
-<footer *ngIf="!me">
+<footer>
     <div class="page footer">
         <div class="flex-row">
             <div class="flex-column">
@@ -196,7 +168,7 @@
                 <em>Tampere</em>
                 <span>Mon-Fri: 8:00 - 18:00</span>
                 <span>0 40 50 6003</span>
-                <span>Tamperen katu 15</span>
+                <span>Tampereen valtatie 35</span>
             </div>
         </div>
         <div class="footer-bottom">

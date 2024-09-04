@@ -27,4 +27,13 @@ mat-form-field {
 .g-column {
     align-items: center;
     text-align: center;
+    margin: auto;
+}
+
+li {
+    line-height: 2rem;
+    text-indent: -8px;
+    span {
+        font-size: smaller;
+    }
 }

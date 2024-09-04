@@ -1,14 +1,6 @@
-// @import "~@fullcalendar/core/main.css";
-// @import "~@fullcalendar/daygrid/main.css";
 
-// Custom Theming for Angular Material
-// For more information: https://material.angular.io/guide/theming
 @use '@angular/material' as mat;
-// Plus imports for other components in your app.
 
-// Include the common styles for Angular Material. We include this here so that you only
-// have to load a single css file for Angular Material in your app.
-// Be sure that you only ever include this mixin once!
 @include mat.core();
 
 // Define the palettes for your theme using the Material Design palettes available in palette.scss
@@ -37,7 +29,7 @@ $custom-theme-theme: mat.define-light-theme((
 // that you are using.
 @include mat.all-component-themes($custom-theme-theme);
 
-/* You can add global styles to this file, and also import other style files */
+
 :root {
   --mat-table-background-color: rgb(158,176,197);
   --mat-expansion-container-background-color: rgb(158,176,197);
@@ -55,7 +47,6 @@ a {text-decoration: none; color: inherit;}
 }
 .content {
   min-height: calc(100vh - 4rem);
-  width: 100%;
   background-color:rgba(163, 177, 192, 0.454);
 }
 app-sidenav {
@@ -264,6 +255,29 @@ em {
       color: rgb(111 121 133);
       font-size: smaller;
   }
+}
+
+// header
+
+
+.me {
+  margin-left: 1rem;
+  font-size: small;
+  color: gray;
+}
+.time {
+  border: 1px solid darkgray;
+  border-radius: 3px;
+  color: darkgray;
+  padding: 0 1rem;
+  margin-right: 1rem;
+  margin-left: 1rem;
+  p {
+      margin: 0;
+  }
+}
+.spacer {
+  flex: 1 1 auto;
 }
 
 
