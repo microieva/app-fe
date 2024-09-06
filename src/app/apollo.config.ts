@@ -3,7 +3,8 @@ import { setContext } from '@apollo/client/link/context';
 import { offsetLimitPagination } from '@apollo/client/utilities/policies/pagination';
 
 const httpLink = new HttpLink({
-  uri: 'http://localhost:4000/graphql' 
+  //uri: 'http://localhost:4000/graphql' 
+  uri: 'health-center.database.windows.net'
 });
 
 const authLink = setContext((_, { headers }) => {
@@ -12,6 +13,7 @@ const authLink = setContext((_, { headers }) => {
     headers: {
       ...headers,
       authorization: token ? `Bearer ${token}` : "",
+      'Access-Control-Allow-Origin': '*'
     }
   }
 });
@@ -24,8 +26,7 @@ export const client = new ApolloClient({
     typePolicies: {
       Query: {
         fields: {
-          slice: offsetLimitPagination(),  // without this, the initial query fetches the right data but fetchMore() doesn't cause the observable to be hit
-          // I have tried playing around with read() and merge() here unsuccessfully
+          slice: offsetLimitPagination(),  // (BP auth note) without this, the initial query fetches the right data but fetchMore() doesn't cause the observable to be hit
         }
       }
     }
