@@ -3,6 +3,7 @@
 This repository contains Angular front end for a personal portfolio project "Health Center".
 ___
 
+![](./src/assets/1.png)
 
 ### Table of Contents
 
