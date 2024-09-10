@@ -6,6 +6,7 @@ The project has not been deployed yet, and is in last stages of development.
 ![](./src/assets/1.png)
 ___
 
+![](./src/assets/1.png)
 
 ### Table of Contents
 
