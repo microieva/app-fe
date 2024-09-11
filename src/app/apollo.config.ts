@@ -3,8 +3,7 @@ import { setContext } from '@apollo/client/link/context';
 import { offsetLimitPagination } from '@apollo/client/utilities/policies/pagination';
 
 const httpLink = new HttpLink({
-  //uri: 'http://localhost:4000/graphql' 
-  uri: 'health-center.database.windows.net'
+  uri: 'http://localhost:4000/graphql' 
 });
 
 const authLink = setContext((_, { headers }) => {
