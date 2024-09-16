@@ -39,6 +39,7 @@ export class AppAuthService {
                 localStorage.setItem('authToken', token);
                 localStorage.setItem('tokenExpire', tokenExpire);
                 this.router.navigate(['/home']);
+                //window.location.reload();
                 return token;
             }
         } catch (error) {

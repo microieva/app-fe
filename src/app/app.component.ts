@@ -63,7 +63,7 @@ export class AppComponent implements OnInit{
             const tokenExpire = localStorage.getItem('tokenExpire');
             
             if (tokenExpire && this.me) {
-                this.router.navigate(['/home']);
+                this.router.navigate(['/home'])
                 this.remainder = this.timerService.startTokenTimer(tokenExpire);
                 this.timerService.tokenCountdown.subscribe(value=> {
                     this.time = value;
