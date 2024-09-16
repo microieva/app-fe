@@ -124,11 +124,7 @@ ___
 
 ###### admin
 
-<<<<<<< HEAD
 - Login using email & password (_'admin@email.com'_, _'demo'_)
-=======
-- Login using email & password
->>>>>>> 9ee4435 (Update README.md)
 - View, update, delete own account
 - View all doctors
 - View all doctor requests
@@ -147,12 +143,8 @@ ___
   
 ###### patient
 
-<<<<<<< HEAD
 - Login using eID Hub (FTN) bank authentication (_Signicat Sandbox_)
     [FTN demo credentials](https://developer.signicat.com/identity-methods/ftn/demo-ftn/)
-=======
-- _Currently only demo users via direct login_
->>>>>>> 9ee4435 (Update README.md)
 - View, update, delete own account
 - Create, *update, *delete appointments
 - View own appointments requests
