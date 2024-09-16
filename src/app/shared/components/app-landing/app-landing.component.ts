@@ -202,8 +202,4 @@ export class AppLandingComponent implements OnInit {
         }
         this.nowAppointment = null;
     }
-
-    onDoctorsClick(){
-        //this.isRequests = false;
-    }
 }

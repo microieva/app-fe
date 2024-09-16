@@ -53,7 +53,7 @@
             </div>
             <div class="page">
                 <app-table 
-                    *ngIf="dataSource"
+                    *ngIf="dataSource && countDrafts > 9"
                     [dataSource]="dataSource" 
                     [length]="draftsLength"
                     [userRole]="userRole"

@@ -200,7 +200,7 @@ export class AppCalendarComponent implements OnInit {
                     const startStr = start.toISO({includeOffset: true});
 
                     if (!appointment.doctorId && startStr! < now) {
-                        title = "Missed Request"
+                        title = "Missed request"
                     } else if (!appointment.doctorId && startStr! > now) {
                         title = "Pending"
                     }

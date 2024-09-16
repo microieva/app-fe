@@ -36,6 +36,7 @@ export class AppAuthService {
                 localStorage.setItem('authToken', token);
                 localStorage.setItem('tokenExpire', tokenExpire);
                 this.router.navigate(['/home']);
+                //window.location.reload();
                 return token;
             }
         } catch (error) {
@@ -62,7 +63,8 @@ export class AppAuthService {
                 localStorage.setItem('authToken', token);
                 localStorage.setItem('tokenExpire', tokenExpire);
                 this.dialog.closeAll();
-                this.router.navigate(['/home']);
+                window.location.reload();
+                //this.router.navigate(['/home']);
             }
         } catch (error) {
             const ref = this.dialog.open(AlertComponent, {data: { message:  "AuthService: "+error}});

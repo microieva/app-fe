@@ -232,13 +232,13 @@ export class EventComponent implements OnInit{
 
         switch (this.appointmentInfo.title) {
             case 'Pending':
-                this.router.navigate(['/appointments'], { queryParams: { tab: 0, id } }); 
+                this.router.navigate(['/home/appointments'], { queryParams: { tab: 0, id } }); 
                 break;
             case 'Upcoming':
-                this.router.navigate(['/appointments'], { queryParams: { tab: 1, id } }); 
+                this.router.navigate(['/home/appointments'], { queryParams: { tab: 1, id } }); 
                 break;
             case 'Past':
-                this.router.navigate(['/appointments'], { queryParams: { tab: 2, id } });
+                this.router.navigate(['/home/appointments'], { queryParams: { tab: 2, id } });
                 break;
             default:
                 break; 
