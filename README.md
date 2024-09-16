@@ -1,6 +1,7 @@
 ### Introduction
 
 This repository contains Angular front end for a personal portfolio project "Health Center".
+The project has not been deployed yet, and is in last stages of development.
 ___
 
 
