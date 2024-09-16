@@ -18,6 +18,7 @@ export class RecordComponent implements OnInit {
     updated: string | undefined;
     created: string | undefined;
     record: Record | null = null;
+    patientName: string | undefined;
 
     aptId :number | undefined;
 
@@ -48,7 +49,7 @@ export class RecordComponent implements OnInit {
     ngOnInit(): void {
         this.id = this.recordId || this.recId;
         if (this.id) {
-            this.loadRecord()
+            this.loadRecord();
         }
         this.appointmentId = this.appointmentId || this.aptId;
 
@@ -70,6 +71,10 @@ export class RecordComponent implements OnInit {
                 draft
                 appointment {
                     id
+                    patient {
+                        firstName
+                        lastName
+                    }
                 }
             }
         }`
@@ -81,6 +86,9 @@ export class RecordComponent implements OnInit {
                 this.isCreating = false;
                 this.updated = DateTime.fromJSDate(new Date(response.data.record.updatedAt)).toFormat('MMM dd, yyyy'); 
                 this.created = DateTime.fromJSDate(new Date(response.data.record.createdAt)).toFormat('MMM dd, yyyy'); 
+                if (this.record) {
+                    this.patientName = this.record?.appointment.patient.firstName+' '+this.record?.appointment.patient.lastName
+                }
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading record: "+error}})

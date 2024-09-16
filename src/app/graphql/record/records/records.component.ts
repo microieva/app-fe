@@ -56,6 +56,7 @@ export class RecordsComponent implements OnInit {
         private dialog: MatDialog
     ){}
     async ngOnInit() {  
+        await this.loadMe();
         await this.loadStatic();
 
         this.activatedRoute.queryParams.subscribe(async params => {
@@ -65,19 +66,42 @@ export class RecordsComponent implements OnInit {
         });   
     }
 
-    async loadStatic() {
+    async loadStatic(){
+        let query = '';
+        if (this.userRole === 'doctor') {
+            query = `query { 
+                countRecords
+                countDrafts
+            }`
+        } else {
+            query = `query {
+                countRecords
+            }`
+        }
+
+        try {
+            const response = await this.graphQLService.send(query);
+            if (response.data) {
+                if (this.userRole === 'doctor') {
+                    this.countDrafts = response.data.countDrafts;
+                }
+                this.countRecords = response.data.countRecords;
+            }
+        } catch (error) {
+            console.error(error);
+            this.router.navigate(['/home'])
+        }
+    }
+
+    async loadMe() {
         const query = `query { 
             me { userRole }
-            countRecords
-            countDrafts
         }`
 
         try {
             const response = await this.graphQLService.send(query);
             if (response.data) {
-                this.userRole =response.data.me.userRole;
-                this.countRecords = response.data.countRecords
-                this.countDrafts = response.data.countDrafts
+                this.userRole = response.data.me.userRole;
             }
         } catch (error) {
             console.error(error);
