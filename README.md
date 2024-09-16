@@ -1,27 +1,151 @@
-# AppFe
+### Introduction
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.2.1.
+This repository contains Angular front end for a personal portfolio project "Health Center".
+The project has not been deployed yet, and is in last stages of development.
+___
 
-## Development server
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+### Table of Contents
 
-## Code scaffolding
+- [Introduction](#introduction)
+- [Table of Contents](#table-of-contents)
+- [App Folder Structure](#app-folder-structure)
+- [Libraries](#libraries)
+- [User Features](#user-features)
+  - [User roles](#user-roles)
+      - [admin](#admin)
+      - [doctor](#doctor)
+      - [patient](#patient)
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+___
 
-## Build
+### App Folder Structure
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+```
+Root Folder
+└── src
+    └── / app
+        ├── apollo.config.ts
+        ├── app.routing.module.ts
+        ├── app.component.ts
+        ├── app.component.css
+        ├── app.component.html
+        ├── app.module.ts
+        ├── / graphql
+        │   ├── / appointment
+        │   │   ├── appointment.component.ts
+        │   │   ├── appointment.component.scss
+        │   │   ├── appointment.component.html
+        │   │   ├── appointment.input.ts
+        │   │   ├── appointment.ts
+        │   │   ├── / appointments
+        │   │   │   ├── / appointments
+        │   │   │   │   ├── appointments.component.ts
+        │   │   │   │   ├── appointments.component.scss
+        │   │   │   │   └── appointments.component.html
+        │   │   │   └── / calendar
+        │   │   │       ├── calendar.component.ts
+        │   │   │       ├── calendar.component.scss
+        │   │   │       └── calendar.component.html
+        │   ├── / record
+        │   │   ├── record.component.ts
+        │   │   ├── record.component.scss
+        │   │   ├── record.component.html
+        │   │   ├── record.input.ts
+        │   │   ├── record.ts
+        │   │   └── / records
+        │   │       ├── records.component.ts
+        │   │       ├── records.component.scss
+        │   │       └── records.component.html
+        │   └── / user
+        │       ├── user.component.ts
+        │       ├── user.component.scss
+        │       ├── user.component.html
+        │       ├── user.input.ts
+        │       ├── user.ts
+        │       ├── doctor-request.ts
+        │       ├── / patients
+        │       │   ├── patients.component.ts
+        │       │   ├── patients.component.scss
+        │       │   └── patients.component.html
+        │       └──  / users
+        │           ├── patients.component.ts
+        │           ├── patients.component.scss
+        │           └── patients.component.html
+        └── / shared
+            ├── constants.ts
+            ├── types.ts
+            ├── / components
+            │    ├── / app-accordion
+            │    │   ├── app-accord.component.ts
+            │    │   ├── app-accord.component.html
+            │    │   └── app-accord.component.scss
+            │    ├── / app-alert
+            │    ├── / app-calendar
+            │    ├── / app-confirm
+            │    ├── / app-editor
+            │    ├── / app-event
+            │    ├── / app-home
+            │    ├── / app-landing
+            │    ├── / app-loading
+            │    ├── / app-login
+            │    └── / app-table
+            ├── / modules
+            │    └── graphql.module.ts
+            └──  / services
+                 ├── app-appointment.service.ts
+                 ├── app-auth-guard.service.ts
+                 ├── app-auth.service.ts
+                 ├── app-graphql.service.ts
+                 ├── app-tabs.service.ts
+                 └── app-timer.service.ts
 
-## Running unit tests
+```
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
 
-## Running end-to-end tests
+___
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+### Libraries
 
-## Further help
+- [Angular Material]("https://material.angular.io")
+- [apollo-angular]("https://www.npmjs.com/package/apollo-angular")
+- [FullCalendar]("https://www.npmjs.com/package/fullcalendar")
+- [ngx-editor]("https://www.npmjs.com/package/ngx-editor")
+  
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+### User Features
+
+
+'*' marks features that trigger email notification. Doctor action sends notification to patient; patient action, or admin's action on patient's behalf, sends out email notification to doctor.
+
+#### User roles
+
+###### admin
+
+- Login using email & password
+- View, update, delete own account
+- View all doctors
+- View all doctor requests
+- View all patients 
+- Delete, activate doctor account request
+- On behalf of patient: create, update, *delete appointments 
+  
+###### doctor
+
+- Login using Google authentication
+- View, update, delete own account
+- View appointment requests (if doctor has no appointments for that time, overlapping appointments are not visible), *accept appointment, *delete appointment request
+- View, *update, *delete accepted appointments
+- View, delete past appointments
+- View, *create, update, delete medical records
+  
+###### patient
+
+- _Currently only demo users via direct login_
+- View, update, delete own account
+- Create, *update, *delete appointments
+- View own appointments requests
+- View own accepted (upcoming) appointments
+- View own past appointments
+- View own medical records
+
