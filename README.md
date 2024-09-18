@@ -141,7 +141,7 @@ ___
   
 ###### patient
 
-- _Currently only demo users via direct login_
+- Login using eID Hub (FTN) bank authentication (_Signicat Sandbox_)
 - View, update, delete own account
 - Create, *update, *delete appointments
 - View own appointments requests

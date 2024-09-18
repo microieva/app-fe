@@ -41,9 +41,7 @@ export class AppLandingComponent implements OnInit {
         private graphQLService: AppGraphQLService,
         private appointmentService: AppAppointmentService,
         private timerService: AppTimerService
-    ){
-        this.isHomeRoute = this.router.url === '/home';
-    }
+    ){}
 
     async ngOnInit() {
         await this.loadMe();
@@ -61,7 +59,6 @@ export class AppLandingComponent implements OnInit {
     }
 
     async loadData(){
-        // if isUserUpdated && NOT admin
         switch (this.userRole) {
             case 'admin':
                 await this.loadAdminStatic();

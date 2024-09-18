@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Location } from '@angular/common';
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
@@ -39,16 +40,29 @@ export class AppComponent implements OnInit{
         private graphQLService: AppGraphQLService,
         private timerService: AppTimerService,
         private appointmentService: AppAppointmentService,
-        private tabsService: AppTabsService
+        private tabsService: AppTabsService,
+        private http: HttpClient
     ) {}
 
     async ngOnInit() {
+        this.activatedRoute.queryParams.subscribe(params => {
+            const code = params['code'];
+            const state = params['state'];
+            const scope = params['scope']
+
+            if (code && state) {
+                this.exchangeCodeForToken(code, state, scope);
+            } else {
+                console.error('Authorization code not found');
+            }
+        });
+
         if (localStorage.getItem('authToken')) {
             await this.loadMe();
             const tokenExpire = localStorage.getItem('tokenExpire');
             
             if (tokenExpire && this.me) {
-                this.router.navigate(['/home'])
+                this.router.navigate(['/home']);
                 this.remainder = this.timerService.startTokenTimer(tokenExpire);
                 this.timerService.tokenCountdown.subscribe(value=> {
                     this.time = value;
@@ -123,6 +137,62 @@ export class AppComponent implements OnInit{
     }
     onGoogleLoginClick() {
         this.dialog.open(LoginComponent, {data: {googleLogin: true}});
+    }
+    onBankLoginClick(){
+        const authEndpoint = 'https://health-center.sandbox.signicat.com/auth/open/connect/authorize' 
+        const clientId = 'sandbox-itchy-wheel-954';
+        const redirectUri = 'http://localhost:4200/'; 
+        const state = generateRandomState(); 
+        const responseType= 'code'
+        const prompt = 'login'
+        const scope = 'openid profile';
+        const acrValues = 'idp:ftn'
+        const clientSecret = 'EJTOPAOXSS2c8bPpMOeJpTe64DvbFdWBS2wH5ytbvT7Tt5Yh'
+        const grantType = "authorization_code"
+    
+        const authUrl = `${authEndpoint}?client_id=${clientId}&client_secret=${clientSecret}&response_type=${responseType}&grant_type=${grantType}&scope=${scope}&state=${state}&prompt=${prompt}&acr_values=${acrValues}&redirect_uri=${redirectUri}`;
+
+        window.location.href = authUrl;
+
+        function generateRandomState(): string {
+            const array = new Uint32Array(10);
+            window.crypto.getRandomValues(array);
+            return Array.from(array, dec => ('0' + dec.toString(10)).substr(-2)).join('');
+          }
+    }
+    exchangeCodeForToken(code: string, state: string, scope: any) {
+
+        const tokenEndpoint = 'https://health-center.sandbox.signicat.com/auth/open/connect/token'; 
+        const clientId = 'sandbox-itchy-wheel-954';
+        const clientSecret = 'EJTOPAOXSS2c8bPpMOeJpTe64DvbFdWBS2wH5ytbvT7Tt5Yh';
+        const redirectUri = 'http://localhost:4200/'; 
+      
+        const headers = new HttpHeaders({
+          'Content-Type': 'application/x-www-form-urlencoded',
+        });
+      
+        const body = new URLSearchParams();
+        body.set('grant_type', 'authorization_code'); 
+        body.set('code', code);
+        body.set('redirect_uri', redirectUri);
+        body.set('client_id', clientId);
+        body.set('client_secret', clientSecret);
+        body.set('scope', scope);
+      
+        this.http.post(tokenEndpoint, body.toString(), { headers }).subscribe(
+            async (response: any) => {
+                if (response) {
+                    await this.authService.loginWithSignicat(response.id_token);
+                }
+                //window.location.reload();
+                await this.ngOnInit();
+                //this.router.navigate(['/home'])
+            },
+            (error) => {
+                console.error('Token exchange failed', error);
+                this.router.navigate(['/']);
+            }
+        );
     }
     
     async logOut() {

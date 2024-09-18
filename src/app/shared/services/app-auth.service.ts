@@ -36,7 +36,6 @@ export class AppAuthService {
                 localStorage.setItem('authToken', token);
                 localStorage.setItem('tokenExpire', tokenExpire);
                 this.router.navigate(['/home']);
-                //window.location.reload();
                 return token;
             }
         } catch (error) {
@@ -64,7 +63,6 @@ export class AppAuthService {
                 localStorage.setItem('tokenExpire', tokenExpire);
                 this.dialog.closeAll();
                 window.location.reload();
-                //this.router.navigate(['/home']);
             }
         } catch (error) {
             const ref = this.dialog.open(AlertComponent, {data: { message:  "AuthService: "+error}});
@@ -73,6 +71,36 @@ export class AppAuthService {
                     this.dialog.closeAll(); // for google login dialog
                 }
             })
+        }
+    }
+
+    async loginWithSignicat(signicatAccessToken: string){
+        const mutation = `mutation ($signicatAccessToken: String!){
+            loginWithSignicat(signicatAccessToken: $signicatAccessToken) {
+                token
+                expiresAt
+            } 
+        }`
+
+        try {
+            const response = await this.graphQLService.mutate(mutation, { signicatAccessToken });
+
+            if (response.data) {
+                const token = response.data.loginWithSignicat.token;
+                const tokenExpire = response.data.loginWithSignicat.expiresAt;
+
+                localStorage.setItem('authToken', token);
+                localStorage.setItem('tokenExpire', tokenExpire);
+                this.router.navigate(['/home']);
+            }
+        } catch (error) {
+            const ref = this.dialog.open(AlertComponent, {data: { message:  "AuthService: "+error}});
+            ref.componentInstance.ok.subscribe(subscription => {
+                if (subscription) {
+                    this.dialog.closeAll(); 
+                }
+            });
+            this.router.navigate(['/'])
         }
     }
 
