@@ -2,6 +2,8 @@
 
 This repository contains Angular front end for a personal portfolio project "Health Center".
 The project has not been deployed yet, and is in last stages of development.
+
+![](./src/assets/1.png)
 ___
 
 
@@ -122,7 +124,7 @@ ___
 
 ###### admin
 
-- Login using email & password
+- Login using email & password (_'admin@email.com'_, _'demo'_)
 - View, update, delete own account
 - View all doctors
 - View all doctor requests
@@ -142,6 +144,7 @@ ___
 ###### patient
 
 - Login using eID Hub (FTN) bank authentication (_Signicat Sandbox_)
+    [FTN demo credentials](https://developer.signicat.com/identity-methods/ftn/demo-ftn/)
 - View, update, delete own account
 - Create, *update, *delete appointments
 - View own appointments requests
