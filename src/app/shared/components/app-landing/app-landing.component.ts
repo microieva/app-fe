@@ -15,7 +15,7 @@ import { Appointment } from "../../../graphql/appointment/appointment";
     styleUrls: ['app-landing.component.scss']
 })
 export class AppLandingComponent implements OnInit {
-    isHomeRoute: boolean = false;
+    isHomeRoute: boolean = true;
     userRole!: string;
     me!: User;
     isUserUpdated: boolean = false;
@@ -72,6 +72,7 @@ export class AppLandingComponent implements OnInit {
                 await this.loadPatientStatic();
                 break;
         }
+        this.dialog.closeAll();
     }
 
     loadNextAppointmentDetails() {

@@ -34,6 +34,7 @@ $custom-theme-theme: mat.define-light-theme((
   --mat-table-background-color: rgb(158,176,197);
   --mat-expansion-container-background-color: rgb(158,176,197);
   --mat-paginator-container-background-color: transparent;
+  --mdc-circular-progress-active-indicator-color:  rgb(175 111 174); 
 }
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; color: rgb(68, 65, 65); }
@@ -41,7 +42,6 @@ li {list-style: none;}
 a {text-decoration: none; color: inherit;}
 .font {
   font-family: "Special Elite", system-ui;
-  //font-size: 22px;
   font-weight: 400;
   font-style: normal;
 }
@@ -69,9 +69,11 @@ app-sidenav {
 mat-form-field {
   margin: 0 0.5rem;
 }
-.mat-mdc-dialog-panel {
-  min-width: 30rem!important;
+
+.mat-mdc-dialog-content {
+  min-width: 30rem;
 }
+
 .mat-mdc-radio-button.mat-accent {
   --mdc-radio-disabled-selected-icon-color: black;
   --mdc-radio-disabled-unselected-icon-color: black;

@@ -15,6 +15,7 @@ import { AlertComponent } from './shared/components/app-alert/app-alert.componen
 import { LoginComponent } from './shared/components/app-login/app-login.componnet';
 import { Appointment } from './graphql/appointment/appointment';
 import { User } from './graphql/user/user';
+import { LoadingComponent } from './shared/components/app-loading/loading.component';
 
 @Component({
     selector: 'app-root',
@@ -178,15 +179,13 @@ export class AppComponent implements OnInit{
         body.set('client_id', clientId);
         body.set('client_secret', clientSecret);
         body.set('scope', scope);
-      
+        this.dialog.open(LoadingComponent);
         this.http.post(tokenEndpoint, body.toString(), { headers }).subscribe(
             async (response: any) => {
                 if (response) {
                     await this.authService.loginWithSignicat(response.id_token);
                 }
-                //window.location.reload();
                 await this.ngOnInit();
-                //this.router.navigate(['/home'])
             },
             (error) => {
                 console.error('Token exchange failed', error);
@@ -196,6 +195,7 @@ export class AppComponent implements OnInit{
     }
     
     async logOut() {
+        this.dialog.open(LoadingComponent);
         this.timerService.cancelTokenTimer();
         this.authService.logOut(); 
 
