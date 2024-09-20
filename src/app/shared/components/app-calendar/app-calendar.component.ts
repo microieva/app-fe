@@ -25,7 +25,6 @@ export class AppCalendarComponent implements OnInit {
     @Input() role!: string;
 
     appointmentSelections = ['All', 'Pending confirmation', 'Upcoming', 'Past', 'Missed requests']
-    eventsPromise!: Promise<EventInput[]>;
     calendarVisible = true;
     calendarOptions!: CalendarOptions;
     currentEvents: EventApi[] = [];
@@ -112,7 +111,7 @@ export class AppCalendarComponent implements OnInit {
                 daysOfWeek: [ 1, 2, 3, 4, 5 ],
                 startTime: '08:00', 
                 endTime: '18:00'
-              }
+            }
         }
     }
 
@@ -215,7 +214,6 @@ export class AppCalendarComponent implements OnInit {
                         title,
                         start: appointment.start,
                         end: appointment.end,
-                        allDay: appointment.allDay,
                         extendedProps: {
                             dbId: appointment.id,
                             doctorId: appointment.doctorId,
