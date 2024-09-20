@@ -15,7 +15,7 @@ import { Appointment } from "../../../graphql/appointment/appointment";
     styleUrls: ['app-landing.component.scss']
 })
 export class AppLandingComponent implements OnInit {
-    isHomeRoute: boolean = false;
+    isHomeRoute: boolean = true;
     userRole!: string;
     me!: User;
     isUserUpdated: boolean = false;
@@ -41,9 +41,7 @@ export class AppLandingComponent implements OnInit {
         private graphQLService: AppGraphQLService,
         private appointmentService: AppAppointmentService,
         private timerService: AppTimerService
-    ){
-        this.isHomeRoute = this.router.url === '/home';
-    }
+    ){}
 
     async ngOnInit() {
         await this.loadMe();
@@ -61,7 +59,6 @@ export class AppLandingComponent implements OnInit {
     }
 
     async loadData(){
-        // if isUserUpdated && NOT admin
         switch (this.userRole) {
             case 'admin':
                 await this.loadAdminStatic();
@@ -75,6 +72,7 @@ export class AppLandingComponent implements OnInit {
                 await this.loadPatientStatic();
                 break;
         }
+        this.dialog.closeAll();
     }
 
     loadNextAppointmentDetails() {

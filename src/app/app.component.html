@@ -13,7 +13,7 @@
         </div>
         <button *ngIf="!me" mat-stroked-button type="button" color="secondary" [matMenuTriggerFor]="menu">{{ 'Log In' }}</button>
             <mat-menu #menu="matMenu" class="menu" style="width:20rem;">
-                <button mat-menu-item (click)="onDirectLoginClick()">
+                <button mat-menu-item (click)="onBankLoginClick()">
                     <div class="flex-row font" style="width: 100%">
                         <h3>Patient</h3>
                         <span style="width: 5rem;"></span>

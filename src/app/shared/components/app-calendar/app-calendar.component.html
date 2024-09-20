@@ -1,4 +1,8 @@
-<div class="flex-column">
+
+<div *ngIf="!appointments" class="loading">
+    <app-loading></app-loading>
+</div>
+<div class="flex-column" *ngIf="appointments">
     <div class="legend">
         <mat-radio-group
             aria-labelledby="example-radio-group-label"
@@ -18,7 +22,6 @@
     </div>
     <full-calendar
         [options]="calendarOptions"
-        [events]="eventsPromise | async"
     >
     </full-calendar>
 </div>

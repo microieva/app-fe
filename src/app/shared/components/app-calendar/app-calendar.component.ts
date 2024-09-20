@@ -25,7 +25,6 @@ export class AppCalendarComponent implements OnInit {
     @Input() role!: string;
 
     appointmentSelections = ['All', 'Pending confirmation', 'Upcoming', 'Past', 'Missed requests']
-    eventsPromise!: Promise<EventInput[]>;
     calendarVisible = true;
     calendarOptions!: CalendarOptions;
     currentEvents: EventApi[] = [];
@@ -112,7 +111,7 @@ export class AppCalendarComponent implements OnInit {
                 daysOfWeek: [ 1, 2, 3, 4, 5 ],
                 startTime: '08:00', 
                 endTime: '18:00'
-              }
+            }
         }
     }
 
@@ -215,7 +214,6 @@ export class AppCalendarComponent implements OnInit {
                         title,
                         start: appointment.start,
                         end: appointment.end,
-                        allDay: appointment.allDay,
                         extendedProps: {
                             dbId: appointment.id,
                             doctorId: appointment.doctorId,
@@ -267,7 +265,6 @@ export class AppCalendarComponent implements OnInit {
                     title: "Missed request",
                     start: appointment.start,
                     end: appointment.end,
-                    allDay: appointment.allDay,
                     extendedProps: {
                         dbId: appointment.id,
                         doctorId: appointment.doctorId
@@ -314,7 +311,6 @@ export class AppCalendarComponent implements OnInit {
                     title: "Pending",
                     start: appointment.start,
                     end: appointment.end,
-                    allDay: appointment.allDay,
                     extendedProps: {
                         dbId: appointment.id,
                         doctorId: appointment.doctorId
@@ -358,7 +354,6 @@ export class AppCalendarComponent implements OnInit {
                     title: "Upcoming",
                     start: appointment.start,
                     end: appointment.end,
-                    allDay: appointment.allDay,
                     extendedProps: {
                         dbId: appointment.id,
                         doctorId: appointment.doctorId
@@ -403,7 +398,6 @@ export class AppCalendarComponent implements OnInit {
                     title: "Past",
                     start: appointment.start,
                     end: appointment.end,
-                    allDay: appointment.allDay,
                     extendedProps: {
                         dbId: appointment.id,
                         title: 'Past'
@@ -500,8 +494,8 @@ export class AppCalendarComponent implements OnInit {
 
     customDayClassNames(arg: DayCellContentArg): string[] {
         const eventCount = this.getNumberOfAppointmentsOnSelectedDay(arg.date)
-        if (this.isDisabledDay(arg.date) || eventCount >5) {
-            return ['disabled-day'];
+        if (this.isDisabledDay(arg.date)) {
+            return [''];
         } 
         return [];
     }
