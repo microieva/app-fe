@@ -142,7 +142,7 @@ export class UserComponent implements OnInit {
     }
 
     checkUserInfo(){
-        return some(this.me, value => value === null);
+        return some(this.me, (value: any) => value === null);
     }
 
     updateUser(){
