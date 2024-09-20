@@ -16,6 +16,9 @@
                 <h3 *ngIf="countRequests === 0">No new account activation requests at the moment</h3> 
                 <span>{{' '}}</span>
             </div>
+            <div *ngIf="!countRequests" class="loading">
+                <app-loading></app-loading>
+            </div>
             <div class="page" #scrollView @slideInOut >
                 <div class="users">
                     <app-table 
@@ -43,6 +46,9 @@
                 <span class="icon material-symbols-outlined">info</span>
                 <h3>Active doctor accounts</h3>
                 <span>{{' '}}</span>
+            </div>
+            <div *ngIf="!countDoctors" class="loading">
+                <app-loading></app-loading>
             </div>
             <div class="page">
                 <div class="users">

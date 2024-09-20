@@ -11,11 +11,11 @@ import { AppTabsService } from './shared/services/app-tabs.service';
 import { AppAuthService } from './shared/services/app-auth.service';
 import { AppGraphQLService } from './shared/services/app-graphql.service';
 import { AppointmentComponent } from './graphql/appointment/appointment.component';
+import { LoadingComponent } from './shared/components/app-loading/loading.component';
 import { AlertComponent } from './shared/components/app-alert/app-alert.component';
 import { LoginComponent } from './shared/components/app-login/app-login.componnet';
 import { Appointment } from './graphql/appointment/appointment';
 import { User } from './graphql/user/user';
-import { LoadingComponent } from './shared/components/app-loading/loading.component';
 
 @Component({
     selector: 'app-root',

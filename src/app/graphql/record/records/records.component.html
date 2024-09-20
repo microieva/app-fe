@@ -16,9 +16,12 @@
                 <h3 *ngIf="countRecords > 0">Saved medical records</h3> 
                 <span>{{' '}}</span>
             </div>
+            <div *ngIf="!dataSource || !countRecords" class="loading">
+                <app-loading></app-loading>
+            </div>
             <div class="page" @slideInOut>
                 <app-table 
-                    *ngIf="dataSource && countRecords > 9"
+                    *ngIf="dataSource && countRecords > 0"
                     [dataSource]="dataSource" 
                     [length]="recordsLength"
                     [userRole]="userRole"
@@ -29,14 +32,6 @@
                     (buttonClick)="onButtonClick($event)"
                 >
                 </app-table>
-                <app-accordion     
-                    *ngIf="recordDataSource && countRecords <10"
-                    [dataSource]="recordDataSource" 
-                    [userRole]="userRole"
-                    (buttonClick)="onButtonClick($event)"
-                    (recordId)="onRecordClick($event, async)"
-                    (reload)="onReload()"
-                ></app-accordion> 
             </div>
         </div>
     </mat-tab>
@@ -51,9 +46,12 @@
                 <h3 *ngIf="countDrafts > 0">Medical records saved as drafts</h3> 
                 <span>{{' '}}</span>
             </div>
+            <div *ngIf="!dataSource" class="loading">
+                <app-loading></app-loading>
+            </div>
             <div class="page">
                 <app-table 
-                    *ngIf="dataSource && countDrafts > 9"
+                    *ngIf="dataSource && countDrafts > 0"
                     [dataSource]="dataSource" 
                     [length]="draftsLength"
                     [userRole]="userRole"
@@ -64,14 +62,6 @@
                     (buttonClick)="onButtonClick($event)"
                 >
                 </app-table>
-                <app-accordion     
-                    *ngIf="draftDataSource && countDrafts <10"
-                    [dataSource]="draftDataSource" 
-                    [userRole]="userRole"
-                    (buttonClick)="onButtonClick($event)"
-                    (recordId)="onRecordClick($event, async)"
-                    (reload)="onReload()"
-                ></app-accordion> 
             </div>
         </div>
     </mat-tab>

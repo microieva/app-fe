@@ -7,10 +7,13 @@
         <button *ngIf="missingInfo" mat-stroked-button (click)="updateUser()">{{ 'Update User Details' }}</button>
         <span *ngIf="!missingInfo">{{ ' '}}</span>
     </div>
-    <div class="page" @slideInOut >
-        <h2>My Account</h2>
+    <div *ngIf="!me" class="loading">
+        <app-loading></app-loading>
+    </div>
+    <div class="page" @slideInOut *ngIf="me">
         <div *ngIf="!id">
-            <div *ngIf="me" class="flex-column">
+            <h2>My Account</h2>
+            <div class="flex-column">
                 <div class="flex-column wrapper">
                     <p class="title">{{ 'Basic Information' }}</p>
                     <div class="flex-row">

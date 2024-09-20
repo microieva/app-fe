@@ -500,8 +500,8 @@ export class AppCalendarComponent implements OnInit {
 
     customDayClassNames(arg: DayCellContentArg): string[] {
         const eventCount = this.getNumberOfAppointmentsOnSelectedDay(arg.date)
-        if (this.isDisabledDay(arg.date) || eventCount >5) {
-            return ['disabled-day'];
+        if (this.isDisabledDay(arg.date)) {
+            return [''];
         } 
         return [];
     }

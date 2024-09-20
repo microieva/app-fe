@@ -202,9 +202,7 @@ export class RecordsComponent implements OnInit {
                 this.recordsLength = response.data.records.length;
                 this.formatDataSource("records");
 
-                if (this.recordsLength > 9) {
-                    this.dataSource = new MatTableDataSource<RecordDataSource>(this.recordDataSource);
-                }
+                this.dataSource = new MatTableDataSource<RecordDataSource>(this.recordDataSource);
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading records: "+error}});
@@ -259,9 +257,7 @@ export class RecordsComponent implements OnInit {
                 this.draftsLength = response.data.drafts.length;
                 this.formatDataSource("drafts");
 
-                if (this.countDrafts > 9) {
-                    this.dataSource = new MatTableDataSource<RecordDataSource>(this.draftDataSource);
-                }
+                this.dataSource = new MatTableDataSource<RecordDataSource>(this.draftDataSource);
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading drafts: "+error}})
