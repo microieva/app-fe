@@ -677,7 +677,6 @@ export class AppointmentsComponent implements OnInit {
 
                     ref.componentInstance.ok.subscribe(subscription => {
                         if (subscription) {
-                            //this.ngOnInit();
                             this.loadPendingAppointments();
                         }
                     });

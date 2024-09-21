@@ -1,7 +1,11 @@
 ### Introduction
 
-This repository contains Angular front end for a personal portfolio project "Health Center".
-The project has not been deployed yet, and is in last stages of development.
+This repository contains Angular front end for a professional portfolio project "Health Center".
+
+This repository is deployed via [Vercel](https://app-fe-gamma.vercel.app/). 
+[See user login credentials](#user-roles).
+[Visit Health Center](https://app-fe-gamma.vercel.app/)
+[See user login credentials](#user-roles).
 
 ![](./src/assets/1.png)
 ___
@@ -151,4 +155,6 @@ ___
 - View own accepted (upcoming) appointments
 - View own past appointments
 - View own medical records
+
+
 
