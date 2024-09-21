@@ -142,7 +142,7 @@ export class AppComponent implements OnInit{
     onBankLoginClick(){
         const authEndpoint = 'https://health-center.sandbox.signicat.com/auth/open/connect/authorize' 
         const clientId = 'sandbox-itchy-wheel-954';
-        const redirectUri = 'http://localhost:4200/'; 
+        const redirectUri = 'https://app-fe-gamma.vercel.app/'; 
         const state = generateRandomState(); 
         const responseType= 'code'
         const prompt = 'login'
@@ -166,7 +166,7 @@ export class AppComponent implements OnInit{
         const tokenEndpoint = 'https://health-center.sandbox.signicat.com/auth/open/connect/token'; 
         const clientId = 'sandbox-itchy-wheel-954';
         const clientSecret = 'EJTOPAOXSS2c8bPpMOeJpTe64DvbFdWBS2wH5ytbvT7Tt5Yh';
-        const redirectUri = 'http://localhost:4200/'; 
+        const redirectUri = 'https://app-fe-gamma.vercel.app/'; 
       
         const headers = new HttpHeaders({
           'Content-Type': 'application/x-www-form-urlencoded',
