@@ -10,41 +10,12 @@
                     <h1 class="sm">Your are in safe hands!</h1>
 
                 </div>
-                <div class="flex-row clickable click" [matMenuTriggerFor]="menu">
+                <div class="flex-row clickable click" (click)="onLogIn()">
                     <h2 class="font">Log in to your account</h2>
                     <h2><span class="material-symbols-outlined">
                     arrow_right
                     </span></h2>
                 </div>
-                <mat-menu #menu="matMenu" class="menu" style="width:20rem; top:0px;" >
-                    <button mat-menu-item (click)="onDirectLoginClick()">
-                        <div class="flex-row font" style="width: 100%">
-                            <h3>Patient</h3>
-                            <span style="width: 5rem;"></span>
-                            <span class="material-symbols-outlined">
-                                personal_injury
-                            </span>
-                        </div>
-                    </button>
-                    <button mat-menu-item (click)="onGoogleLoginClick()">
-                        <div class="flex-row font" style="width: 100%">
-                            <h3>Doctor</h3>
-                            <span style="width: 5rem;"></span>
-                            <span class="material-symbols-outlined">
-                                clinical_notes
-                            </span>
-                        </div>
-                    </button>
-                    <button mat-menu-item (click)="onDirectLoginClick()">
-                        <div class="flex-row font" style="width: 100%">
-                            <h3>Administrator</h3>
-                            <span style="width: 5rem;"></span>
-                            <span class="material-symbols-outlined">
-                                manage_accounts
-                                </span>
-                        </div>
-                    </button>
-                </mat-menu>
             </div>
             <div class="slide-div block font" id="top">
                 <div class="flex-row"><h2>Same day appointments on call</h2><h2><span class="material-icons">

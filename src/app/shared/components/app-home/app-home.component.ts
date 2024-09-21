@@ -1,8 +1,8 @@
 import { trigger, transition, style, animate, state, keyframes } from "@angular/animations";
 import { Component, HostListener, OnInit } from "@angular/core";
 import { FormBuilder, FormControl } from "@angular/forms";
-import { LoginComponent } from "../app-login/app-login.componnet";
 import { MatDialog } from "@angular/material/dialog";
+import { LoginMenuComponent } from "../app-login-menu/app-login-menu.component";
 
 @Component({
     selector: 'app-home',
@@ -75,11 +75,8 @@ export class AppHomeComponent implements OnInit{
         }, 150); // Typing speed
     }
 
-    onDirectLoginClick() {
-        this.dialog.open(LoginComponent, {data: {directLogin: true}});
-    }
-    onGoogleLoginClick() {
-        this.dialog.open(LoginComponent, {data: {googleLogin: true}});
+    onLogIn(){
+        this.dialog.open(LoginMenuComponent);
     }
 }
 

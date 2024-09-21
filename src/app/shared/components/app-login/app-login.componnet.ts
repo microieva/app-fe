@@ -21,10 +21,10 @@ export class LoginComponent implements OnInit, AfterViewInit    {
     form: LoginForm | undefined;
 
     constructor (
-        private dialog: MatDialog,
         private authService: AppAuthService,
         private router: Router,
         private formBuilder: FormBuilder,
+        private dialog: MatDialog,
 
         public dialogRef: MatDialogRef<LoginComponent>,
         @Inject(MAT_DIALOG_DATA) public data: any
@@ -77,7 +77,7 @@ export class LoginComponent implements OnInit, AfterViewInit    {
         }
     }
     cancelDirectLogin(){
-        this.dialog.closeAll();
+       window.location.reload();
     }
 
     async handleCredentialResponse(response: any) {

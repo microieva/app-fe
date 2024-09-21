@@ -11,36 +11,7 @@
         <div *ngIf="time && time !== '00:00'" class="time">
             <p>{{time}}</p>
         </div>
-        <button *ngIf="!me" mat-stroked-button type="button" color="secondary" [matMenuTriggerFor]="menu">{{ 'Log In' }}</button>
-            <mat-menu #menu="matMenu" class="menu" style="width:20rem;">
-                <button mat-menu-item (click)="onBankLoginClick()">
-                    <div class="flex-row font" style="width: 100%">
-                        <h3>Patient</h3>
-                        <span style="width: 5rem;"></span>
-                        <span class="material-symbols-outlined">
-                            personal_injury
-                        </span>
-                    </div>
-                </button>
-                <button mat-menu-item (click)="onGoogleLoginClick()">
-                    <div class="flex-row font" style="width: 100%">
-                        <h3>Doctor</h3>
-                        <span style="width: 5rem;"></span>
-                        <span class="material-symbols-outlined">
-                            clinical_notes
-                        </span>
-                    </div>
-                </button>
-                <button mat-menu-item (click)="onDirectLoginClick()">
-                    <div class="flex-row font" style="width: 100%">
-                        <h3>Administrator</h3>
-                        <span style="width: 5rem;"></span>
-                        <span class="material-symbols-outlined">
-                            manage_accounts
-                            </span>
-                    </div>
-                </button>
-            </mat-menu>
+        <button *ngIf="!me" mat-stroked-button type="button" color="secondary" (click)="onLogIn()">{{ 'Log In' }}</button>
         <button *ngIf="me" mat-stroked-button type="button" color="secondary" (click)="logOut()">{{ 'Log Out' }}</button>
     </mat-toolbar>
     <router-outlet></router-outlet>

@@ -48,10 +48,10 @@ import { LoadingComponent } from './shared/components/app-loading/loading.compon
 import { LoginComponent } from './shared/components/app-login/app-login.componnet';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
-import {MatMenuModule} from '@angular/material/menu';
 import { UsersComponent } from './graphql/user/users/users.component';
 import { PatientsComponent } from './graphql/user/patients/patients.component';
 import { AppLandingComponent } from './shared/components/app-landing/app-landing.component';
+import { LoginMenuComponent } from './shared/components/app-login-menu/app-login-menu.component';
 
 @NgModule({ 
     declarations: [
@@ -74,13 +74,13 @@ import { AppLandingComponent } from './shared/components/app-landing/app-landing
         LoadingComponent,
         AlertComponent,
         LoginComponent,
-        EventComponent
+        EventComponent,
+        LoginMenuComponent
     ],
     bootstrap: [AppComponent], 
     imports: [
         BrowserAnimationsModule,
         NgxEditorModule,
-        MatMenuModule,
         MatCheckboxModule,
         MatButtonModule,
         MatFormFieldModule,
@@ -109,7 +109,7 @@ import { AppLandingComponent } from './shared/components/app-landing/app-landing
         MatExpansionModule,
         MatAccordion,
         MatDividerModule,
-        NgxEditorModule,
+        NgxEditorModule
         
     ], 
     providers: [

@@ -1,0 +1,38 @@
+<mat-dialog-content>
+    <mat-dialog-actions class="flex-column">
+        <div class="menu-item">
+            <div (click)="onBankLoginClick()" class="font item">
+                <h3>Patient</h3>
+                <div style="line-height: 1.5rem;">
+                    <span class="material-symbols-outlined">
+                        personal_injury
+                    </span>
+                </div>  
+            </div>
+            <p>Log in with bank credentials: manage appointments, access medical records</p>
+        </div>
+        <div class="menu-item">
+            <div (click)="onGoogleLoginClick()" class="font item">
+                <h3>Doctor</h3>
+                <div style="line-height: 1.5rem;">
+                    <span class="material-symbols-outlined">
+                        clinical_notes
+                    </span>
+
+                </div>
+            </div>
+            <p>Log in with Google credentials</p>
+        </div>
+        <div class="menu-item">
+            <div  (click)="onDirectLoginClick()" class="font item">
+                <h3>Administrator</h3>
+                <div style="line-height: 1.5rem;">
+                    <span class="material-symbols-outlined">
+                        manage_accounts
+                    </span>
+                </div>
+            </div>
+            <p>Log in with Admin credentials</p>
+        </div>
+    </mat-dialog-actions>
+</mat-dialog-content>
