@@ -517,42 +517,41 @@ export class AppointmentsComponent implements OnInit {
                 break;
         }
     }
-    getHowSoonUpcoming(datetime: any) {
-        const now = DateTime.now();
-        const start = now.toISO()
-
-        const inputDate = DateTime.fromISO(datetime);
-            const diff = inputDate.diff(now, ['years', 'months', 'days', 'hours', 'minutes', 'seconds']);
-            let howSoonStr = 'in ';
+    getHowSoonUpcoming(datetime: string) {
+        const now = DateTime.now().setZone('Europe/Helsinki');
+        const inputDate = DateTime.fromISO(datetime, { zone: 'utc' }).setZone('Europe/Helsinki', {keepLocalTime: true});
     
-            if (diff.years > 0) {
-                howSoonStr += `${diff.years} year${diff.years === 1 ? '' : 's'} `;
-            }
-            if (diff.months > 0) {
-                howSoonStr += `${diff.months} month${diff.months === 1 ? '' : 's'} `;
-            }
-            if (diff.days > 0) {
-                howSoonStr += `${diff.days} day${diff.days === 1 ? '' : 's'} `;
-            }
-            if (diff.days < 1 && diff.hours > 0) {
-                howSoonStr += `${diff.hours} hour${diff.hours === 1 ? '' : 's'} `;
-            }
-            if (diff.days < 1 && diff.minutes > 0) {
-                howSoonStr += `${diff.minutes} minute${diff.minutes === 1 ? '' : 's'} `;
-            }
-        
-            howSoonStr = howSoonStr.trim();
-        
-            if (!howSoonStr || howSoonStr === 'in') {
-                howSoonStr = 'now';
-            }
-        
-            return howSoonStr;
+        const diff = inputDate.diff(now, ['years', 'months', 'days', 'hours', 'minutes', 'seconds']);
+        let howSoonStr = 'in ';
+
+        if (diff.years > 0) {
+            howSoonStr += `${diff.years} year${diff.years === 1 ? '' : 's'} `;
+        }
+        if (diff.months > 0) {
+            howSoonStr += `${diff.months} month${diff.months === 1 ? '' : 's'} `;
+        }
+        if (diff.days > 0) {
+            howSoonStr += `${diff.days} day${diff.days === 1 ? '' : 's'} `;
+        }
+        if (diff.days < 1 && diff.hours > 0) {
+            howSoonStr += `${diff.hours} hour${diff.hours === 1 ? '' : 's'} `;
+        }
+        if (diff.days < 1 && diff.minutes > 0) {
+            howSoonStr += `${diff.minutes} minute${diff.minutes === 1 ? '' : 's'} `;
+        }
+    
+        howSoonStr = howSoonStr.trim();
+    
+        if (!howSoonStr || howSoonStr === 'in') {
+            howSoonStr = 'now';
+        }
+    
+        return howSoonStr;
     }
 
-    getHowLongAgo(datetime: any) {
-        const inputDate = DateTime.fromISO(datetime);
-        const now = DateTime.now();
+    getHowLongAgo(datetime: string) {
+        const now = DateTime.now().setZone('Europe/Helsinki');
+        const inputDate = DateTime.fromISO(datetime, { zone: 'utc' }).setZone('Europe/Helsinki', {keepLocalTime: true});
         const diff = now.diff(inputDate, ['years', 'months', 'days', 'hours', 'minutes', 'seconds']);
         let howLongAgoStr = '';
 
@@ -562,13 +561,13 @@ export class AppointmentsComponent implements OnInit {
         if (diff.months > 0) {
             howLongAgoStr += `${diff.months} month${diff.months === 1 ? '' : 's'} `;
         }
-        if (diff.days > 0) {
+        if (diff.months < 1) {
             howLongAgoStr += `${diff.days} day${diff.days === 1 ? '' : 's'} `;
         }
-        if (diff.days < 1 && diff.hours > 0) {
+        if (diff.months <1 && diff.days < 1 && diff.hours > 0) {
             howLongAgoStr += `${diff.hours} hour${diff.hours === 1 ? '' : 's'} `;
         }
-        if (diff.days < 1 && diff.minutes > 0) {
+        if (diff.months < 1 && diff.days < 1 && diff.hours <1 && diff.minutes > 0) {
             if (diff.minutes <= 5) {
                 howLongAgoStr = 'Just now';
             } else {
@@ -672,7 +671,7 @@ export class AppointmentsComponent implements OnInit {
                 if (response.data.acceptAppointment.success) {
                     const ref = this.dialog.open(ConfirmComponent, {data: {message: "Appointment added to your calendar"}});
 
-                    ref.componentInstance.ok.subscribe(subscription => {
+                    ref.componentInstance.ok.subscribe(async subscription => {
                         if (subscription) {
                             this.loadPendingAppointments();
                         }
