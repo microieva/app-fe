@@ -443,10 +443,10 @@ export class AppointmentsComponent implements OnInit {
         const allButtons = [
             {
                 text: 'Cancel Appointment',
-                disabled: this.isReservedDay
+                disabled: false
             }, {
                 text: 'Accept Appointment',
-                disabled: this.isReservedDay
+                disabled: false
             }, {
                 text: 'View In Calendar',
                 disabled: false
