@@ -73,7 +73,6 @@ export class LoginComponent implements OnInit, AfterViewInit    {
             this.dialogRef.close();
             window.location.reload(); 
         } else {
-            console.log('error token: ', token)
             this.error = "Invalid email or password"
         }
     }
