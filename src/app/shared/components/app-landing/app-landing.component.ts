@@ -126,7 +126,7 @@ export class AppLandingComponent implements OnInit {
                 this.countMissedAppointments = response.data.countMissedAppointments;
             }
         } catch (error) {
-            this.dialog.open(AlertComponent, {data: {message: error}})
+            this.dialog.open(AlertComponent, {data: {message: error}});
         }
     }
 
@@ -148,7 +148,7 @@ export class AppLandingComponent implements OnInit {
                 this.countRecords = response.data.countRecords;
             }
         } catch (error) {
-            this.dialog.open(AlertComponent, {data: {message: error}})
+            this.dialog.open(AlertComponent, {data: {message: error}});
         }
     }
 
@@ -186,7 +186,7 @@ export class AppLandingComponent implements OnInit {
                 }
             }
         } catch (error) {
-            console.log(error)
+            this.dialog.open(AlertComponent, {data: {message: error}});
         }
     }
 

@@ -21,7 +21,6 @@ export class AppAuthService {
 
     async logIn(input: DirectLoginInput) {
         this.dialog.closeAll();
-        this.dialog.open(LoadingComponent);
         const mutation = `mutation ($directLoginInput: LoginInput!) {
             login(directLoginInput: $directLoginInput) {
                 token
@@ -31,7 +30,7 @@ export class AppAuthService {
 
         try {
             const response = await this.graphQLService.mutate(mutation, {directLoginInput: input});
-
+            this.dialog.open(LoadingComponent);
             if (response.data) {
                 const token = response.data.login.token;
                 const tokenExpire = response.data.login.expiresAt;
@@ -39,12 +38,15 @@ export class AppAuthService {
                 localStorage.setItem('authToken', token);
                 localStorage.setItem('tokenExpire', tokenExpire);
                 this.router.navigate(['/home']);
-                //window.location.reload();
                 return token;
             }
         } catch (error) {
-            console.error(error);
-            this.logOut();
+            const ref = this.dialog.open(AlertComponent, {data: {message: error}});
+            ref.componentInstance.ok.subscribe(subscription => {
+                if (subscription) {
+                    this.logOut();
+                }
+            });
         }
     }
 
