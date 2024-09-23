@@ -277,9 +277,9 @@ export class RecordsComponent implements OnInit {
         switch (view) {
             case "records":
                 this.recordDataSource = this.records.map(row => {
-                    const createdAt = DateTime.fromJSDate(new Date(row.createdAt)).toFormat('MMM dd, yyyy');
-                    const updatedAt = DateTime.fromJSDate(new Date(row.updatedAt)).toFormat('MMM dd, yyyy');
-                    const patientDob = DateTime.fromJSDate(new Date(row.appointment.patient.dob)).toFormat('MMM dd, yyyy');
+                    const createdAt = DateTime.fromISO(row.createdAt,  {setZone: true}).toFormat('MMM dd, yyyy');
+                    const updatedAt = DateTime.fromISO(row.updatedAt,  {setZone: true}).toFormat('MMM dd, yyyy');
+                    const patientDob = DateTime.fromISO(row.appointment.patient.dob,  {setZone: true}).toFormat('MMM dd, yyyy');
 
                     return {
                         id: row.id,
@@ -293,9 +293,9 @@ export class RecordsComponent implements OnInit {
                 break;
             case "drafts":
                 this.draftDataSource = this.drafts.map(row => {
-                    const createdAt = DateTime.fromJSDate(new Date(row.createdAt)).toFormat('MMM dd, yyyy');
-                    const updatedAt = DateTime.fromJSDate(new Date(row.updatedAt)).toFormat('MMM dd, yyyy');
-                    const patientDob = DateTime.fromJSDate(new Date(row.appointment.patient.dob)).toFormat('MMM dd, yyyy');
+                    const createdAt = DateTime.fromISO(row.createdAt,  {setZone: true}).toFormat('MMM dd, yyyy');
+                    const updatedAt = DateTime.fromISO(row.updatedAt,  {setZone: true}).toFormat('MMM dd, yyyy');
+                    const patientDob = DateTime.fromISO(row.appointment.patient.dob,  {setZone: true}).toFormat('MMM dd, yyyy');
 
                     return {
                         id: row.id,

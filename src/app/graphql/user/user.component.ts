@@ -100,7 +100,7 @@ export class UserComponent implements OnInit {
         try {
             const response = await this.graphQLService.send(query, {userId: this.userId});
             if (response.data) {
-                this.formattedDate = DateTime.fromJSDate(new Date(response.data.user?.dob)).toFormat('MMM dd, yyyy') 
+                this.formattedDate = DateTime.fromISO(response.data.user?.dob).toFormat('MMM dd, yyyy') 
                 this.user = response.data.user || null;
                 this.request = response.data.request || null;
             }
@@ -129,7 +129,7 @@ export class UserComponent implements OnInit {
         try {
             const response = await this.graphQLService.send(query);
             if (response.data.me) {
-                this.formattedDate = DateTime.fromJSDate(new Date(response.data.me.dob)).toFormat('MMM dd, yyyy') 
+                this.formattedDate = DateTime.fromISO(response.data.me.dob).toFormat('MMM dd, yyyy') 
                 this.me = response.data.me;
 
                 this.buildForm();

@@ -84,8 +84,8 @@ export class RecordComponent implements OnInit {
                 this.record = response.data.record;
                 this.aptId = response.data.record.appointment.id;
                 this.isCreating = false;
-                this.updated = DateTime.fromJSDate(new Date(response.data.record.updatedAt)).toFormat('MMM dd, yyyy'); 
-                this.created = DateTime.fromJSDate(new Date(response.data.record.createdAt)).toFormat('MMM dd, yyyy'); 
+                this.updated = DateTime.fromISO(response.data.record.updatedAt,  {setZone: true}).toFormat('MMM dd, yyyy'); 
+                this.created = DateTime.fromISO(response.data.record.createdAt,  {setZone: true}).toFormat('MMM dd, yyyy'); 
                 if (this.record) {
                     this.patientName = this.record?.appointment.patient.firstName+' '+this.record?.appointment.patient.lastName
                 }

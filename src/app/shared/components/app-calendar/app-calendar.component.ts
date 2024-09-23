@@ -31,7 +31,7 @@ export class AppCalendarComponent implements OnInit {
     appointments: Appointment[] = [];
     allDayAppointments: Appointment[] = [];
     selectedAppointments: string = 'All';
-    events:any[] = []; 
+    events: any = []; 
     patientId: number | undefined;
     monthStart: any;
     monthEnd: any;
@@ -85,6 +85,7 @@ export class AppCalendarComponent implements OnInit {
             },
             plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
             initialView: 'dayGridMonth',
+            timeZone: 'Europe/Helsinki',
             events: this.events,
             views: {
                 dayGrid: {
@@ -134,8 +135,8 @@ export class AppCalendarComponent implements OnInit {
         let newStart;
         let newEnd;
 
-        const startDateTime = DateTime.fromJSDate(arg.event.start).toLocal()
-        const endDateTime = DateTime.fromJSDate(arg.event.end).toLocal()
+        const startDateTime = DateTime.fromISO(arg.event.start).toLocal()
+        const endDateTime = DateTime.fromISO(arg.event.end).toLocal()
 
         newStart = startDateTime.toISO()
         newEnd = endDateTime.toISO();
@@ -194,7 +195,7 @@ export class AppCalendarComponent implements OnInit {
 
                 const now = DateTime.now().toISO({ includeOffset: true });
                 this.events = this.appointments.map((appointment: Appointment) => {
-
+                    
                     const start = DateTime.fromISO(appointment.start).toLocal();
                     const startStr = start.toISO({includeOffset: true});
 
@@ -647,7 +648,7 @@ export class AppCalendarComponent implements OnInit {
             title: clickInfo.event.title,
             id: clickInfo.event.extendedProps['dbId']
         }
-        const event = this.events.find(event=> event.extendedProps.dbId === eventInfo.id)
+        const event = this.events.find((event: any)=> event.extendedProps.dbId === eventInfo.id)
         const samePatient = !this.patientId ? true : event.extendedProps.patientId === this.patientId;
 
         const dialogRef = this.dialog.open(EventComponent, {data: {eventInfo, samePatient}});

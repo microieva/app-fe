@@ -137,8 +137,8 @@ export class PatientsComponent implements OnInit {
     }
     formatDataSource(){
         const data = this.patients && this.patients.map((row: UserDataSource) => {
-            const createdAt = DateTime.fromJSDate(new Date(row.createdAt)).toFormat('MMM dd, yyyy');
-            const updatedAt = DateTime.fromJSDate(new Date(row.updatedAt)).toFormat('MMM dd, yyyy');
+            const createdAt = DateTime.fromISO(row.createdAt,  {setZone: true}).toFormat('MMM dd, yyyy');
+            const updatedAt = DateTime.fromISO(row.updatedAt,  {setZone: true}).toFormat('MMM dd, yyyy');
 
             return {
                 id: row.id,

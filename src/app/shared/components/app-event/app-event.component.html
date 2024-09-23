@@ -1,8 +1,8 @@
 <form>
     <mat-dialog-content #el>
         <div class="flex-row">
-            <h2 class="title-hover" *ngIf="appointmentInfo.title && appointmentInfo.title !== 'View details'" (click)="onLinkClick(appointmentInfo.id)">{{ appointmentInfo.title }}</h2>
-            <h2 class="title-hover" *ngIf="appointmentInfo.title === 'View details'" (click)="onLinkClick(appointmentInfo.id)">{{ 'Appointment' }}</h2>
+            <h2 [ngClass]="userRole !=='admin' && 'title-hover'" *ngIf="appointmentInfo.title && appointmentInfo.title !== 'View details'" (click)="userRole !== 'admin' && onLinkClick(appointmentInfo.id)">{{ appointmentInfo.title }}</h2>
+            <h2 [ngClass]="userRole !=='admin' && 'title-hover'" *ngIf="appointmentInfo.title === 'View details'" (click)="userRole !== 'admin' && onLinkClick(appointmentInfo.id)">{{ 'Appointment' }}</h2>
             <h2 *ngIf="!appointmentInfo.title && userRole !== 'doctor'">{{ "New Appointment" }}</h2>
             <h2 *ngIf="!appointmentInfo.title && userRole === 'doctor'">{{ "Reserve All Day" }}</h2>
             <p class="event-label" *ngIf="appointmentInfo.title">created: <em>{{createdAt}}</em></p>

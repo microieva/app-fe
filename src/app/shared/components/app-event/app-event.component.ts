@@ -90,9 +90,9 @@ export class EventComponent implements OnInit{
             const response = await this.graphQLService.send(query, {patientId});
             if (response.data.justCreatedAppointment) {
                 this.justCreatedId = response.data.justCreatedAppointment.id;
-                this.eventDate = DateTime.fromJSDate(new Date(response.data.justCreatedAppointment.start)).toFormat('MMM dd, yyyy');
-                this.eventStartTime = DateTime.fromJSDate(new Date(response.data.justCreatedAppointment.start)).toFormat('hh:mm a');
-                this.eventEndTime = DateTime.fromJSDate(new Date(response.data.justCreatedAppointment.end)).toFormat('hh:mm a');
+                this.eventDate = DateTime.fromISO(response.data.justCreatedAppointment.start, {setZone: true}).toFormat('MMM dd, yyyy');
+                this.eventStartTime = DateTime.fromISO(response.data.justCreatedAppointment.start,  {setZone: true}).toFormat('hh:mm a');
+                this.eventEndTime = DateTime.fromISO(response.data.justCreatedAppointment.end,  {setZone: true}).toFormat('hh:mm a');
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Appointment failed "+error}})
@@ -198,13 +198,13 @@ export class EventComponent implements OnInit{
             const response = await this.graphQLService.send(query, {appointmentId: id});
             if (response.data.appointment) {
                 const appointment = response.data.appointment;
-                this.createdAt = DateTime.fromJSDate(new Date(appointment.createdAt)).toFormat('MMM dd, yyyy');
+                this.createdAt =  DateTime.fromISO(appointment.createdAt, {setZone: true}).toFormat('MMM dd, yyyy');
                 this.patientName = appointment.patient?.firstName+" "+appointment.patient?.lastName;
-                this.patientDob = appointment.patient?.dob && DateTime.fromJSDate(new Date(appointment.patient.dob)).toFormat('MMM dd, yyyy'); 
+                this.patientDob = appointment.patient?.dob && DateTime.fromISO(appointment.patient.dob, {setZone: true}).toFormat('MMM dd, yyyy'); 
                 this.doctorName = appointment.doctor ? appointment.doctor?.firstName+" "+appointment.doctor?.lastName : null;
-                this.eventDate = DateTime.fromJSDate(new Date(appointment.start)).toFormat('MMM dd, yyyy');
-                this.eventStartTime =  DateTime.fromJSDate(new Date(appointment.start)).toFormat('hh:mm a');
-                this.eventEndTime =DateTime.fromJSDate(new Date(appointment.end)).toFormat('hh:mm a');
+                this.eventDate = DateTime.fromISO(appointment.start, {setZone: true}).toFormat('MMM dd, yyyy');
+                this.eventStartTime =  DateTime.fromISO(appointment.start, {setZone: true}).toFormat('hh:mm a');
+                this.eventEndTime = DateTime.fromISO(appointment.end, {setZone: true}).toFormat('hh:mm a');
                 this.doctorMessage = response.data.appointment.doctorMessage;
                 this.patientMessage = response.data.appointment.patientMessage;
                 this.appointmentId = response.data.appointment.id;

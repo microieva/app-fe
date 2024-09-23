@@ -82,9 +82,9 @@ export class AppointmentComponent implements OnInit {
                 this.appointmentId = this.appointment.id;
                 this.record = response.data.appointment.record;
                 this.recordId = response.data.appointment.record?.id || null;
-                this.formattedDate = DateTime.fromJSDate(new Date(response.data.appointment.patient.dob)).toFormat('MMM dd, yyyy');
-                this.startTime = DateTime.fromJSDate(new Date(response.data.appointment.start)).toFormat('hh:mm a');
-                this.date = DateTime.fromJSDate(new Date(response.data.appointment.start)).toFormat('MMM dd, yyyy');
+                this.formattedDate = DateTime.fromISO(response.data.appointment.patient.dob,  {setZone: true}).toFormat('MMM dd, yyyy');
+                this.startTime = DateTime.fromISO(response.data.appointment.start,  {setZone: true}).toFormat('hh:mm a');
+                this.date = DateTime.fromISO(response.data.appointment.start,  {setZone: true}).toFormat('MMM dd, yyyy');
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading current appointment: "+error}});

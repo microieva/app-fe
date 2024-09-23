@@ -84,7 +84,6 @@ export class AppAppointmentService {
                 return response.data.nowAppointment;
             }
         } catch (error) {
-            //this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading current appointment: "+error}});
             return null;
         }
     }

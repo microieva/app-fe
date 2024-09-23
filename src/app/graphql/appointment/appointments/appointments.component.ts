@@ -111,7 +111,7 @@ export class AppointmentsComponent implements OnInit {
                     this.previousNextId = this.nextId;
                     this.timerService.startAppointmentTimer(subscription.nextAppointment.nextStart);
                 }
-                this.nextAppointmentStartTime = DateTime.fromISO(subscription.nextAppointment.nextStart).toFormat('hh:mm a');
+                this.nextAppointmentStartTime = DateTime.fromISO(subscription.nextAppointment.nextStart, {setZone: true}).toFormat('hh:mm a');
             }
         });
 
@@ -466,8 +466,7 @@ export class AppointmentsComponent implements OnInit {
         switch (view) {
             case "pending":
                 this.pendingDataSource = this.pendingAppointments.map(row => {
-                    const created = DateTime.fromJSDate(new Date(row.createdAt)).toISO();
-                    const howLongAgoStr = this.getHowLongAgo(created);
+                    const howLongAgoStr = this.getHowLongAgo(row.createdAt);
                     this.checkIsReservedDay(row.start);
 
                     return {
@@ -475,43 +474,41 @@ export class AppointmentsComponent implements OnInit {
                         howLongAgoStr: howLongAgoStr,
                         title: this.userRole === 'patient' ? "Pending doctor confirmation" : undefined,
                         buttons: this.userRole === 'doctor' ? allButtons : cancelButton,
-                        date: DateTime.fromJSDate(new Date(row.start)).toFormat('MMM dd, yyyy'),
-                        start: DateTime.fromJSDate(new Date(row.start)).toFormat('hh:mm a'),
-                        end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm a'),
+                        date: DateTime.fromISO(row.start, {setZone: true}).toFormat('MMM dd, yyyy'),
+                        start: DateTime.fromISO(row.start, {setZone: true}).toFormat('hh:mm a'),
+                        end: DateTime.fromISO(row.end, {setZone: true}).toFormat('hh:mm a'),
                         patientName: this.userRole==='doctor' ? `${row.patient.firstName} ${row.patient.lastName}` : undefined
                     } 
                 });
                 break;
             case "upcoming":
                 this.upcomingDataSource = this.upcomingAppointments.map(row => {
-                    const startT = DateTime.fromJSDate(new Date(row.start)).toISO();
-                    const howSoonStr = this.getHowSoonUpcoming(startT);
+                    const howSoonStr = this.getHowSoonUpcoming(row.start);
   
                     return {
                         id: row.id,
                         howSoonStr,
                         title: this.userRole === 'patient' ? "Confirmed appointment" : undefined,
                         buttons: cancelButton,
-                        date: DateTime.fromJSDate(new Date(row.start)).toFormat('MMM dd, yyyy'),
-                        start: DateTime.fromJSDate(new Date(row.start)).toFormat('hh:mm a'),
-                        end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm a'),
+                        date: DateTime.fromISO(row.start, {setZone: true}).toFormat('MMM dd, yyyy'),
+                        start: DateTime.fromISO(row.start, {setZone: true}).toFormat('hh:mm a'),
+                        end: DateTime.fromISO(row.end, {setZone: true}).toFormat('hh:mm a'),
                         patientName: this.userRole==='doctor' ? `${row.patient.firstName} ${row.patient.lastName}`: undefined
                     };
                 });
                 break;
             case "past":
                 this.pastDataSource = this.pastAppointments.map(row => {
-                    const startT = DateTime.fromJSDate(new Date(row.start)).toISO();
-                    const howLongAgoStr = this.getHowLongAgo(startT);
+                    const howLongAgoStr = this.getHowLongAgo(row.start);
 
                     return {
                         id: row.id,
                         pastDate: howLongAgoStr,
                         title: this.userRole === 'patient' ? "View details": undefined,
                         buttons: deleteButton,
-                        date: DateTime.fromJSDate(new Date(row.start)).toFormat('MMM dd, yyyy'),
-                        start: DateTime.fromJSDate(new Date(row.start)).toFormat('hh:mm a'),
-                        end: DateTime.fromJSDate(new Date(row.end)).toFormat('hh:mm a'),
+                        date: DateTime.fromISO(row.start, {setZone: true}).toFormat('MMM dd, yyyy'),
+                        start: DateTime.fromISO(row.start, {setZone: true}).toFormat('hh:mm a'),
+                        end: DateTime.fromISO(row.end, {setZone: true}).toFormat('hh:mm a'),
                         patientName: this.userRole==='doctor' ? `${row.patient.firstName} ${row.patient.lastName}`: undefined
                     };
                 });

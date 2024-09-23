@@ -204,7 +204,7 @@ export class UsersComponent implements OnInit {
             case "requests":
                 if (this.requests) {
                     formatted = this.requests.map((row) => {
-                        const createdAt = DateTime.fromJSDate(new Date(row.createdAt)).toFormat('MMM dd, yyyy');
+                        const createdAt = DateTime.fromISO(row.createdAt,  {setZone: true}).toFormat('MMM dd, yyyy');
 
                         return {
                             id: row.id,
@@ -222,8 +222,8 @@ export class UsersComponent implements OnInit {
             case "doctors":
                 if (this.doctors) {
                     formatted = this.doctors.map((row: UserDataSource) => {
-                        const createdAt = DateTime.fromJSDate(new Date(row.createdAt)).toFormat('MMM dd, yyyy');
-                        const updatedAt = DateTime.fromJSDate(new Date(row.updatedAt)).toFormat('MMM dd, yyyy');
+                        const createdAt = DateTime.fromISO(row.createdAt, {setZone: true}).toFormat('MMM dd, yyyy');
+                        const updatedAt = DateTime.fromISO(row.updatedAt, {setZone: true}).toFormat('MMM dd, yyyy');
     
                         return {
                             id: row.id,
