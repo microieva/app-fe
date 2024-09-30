@@ -154,6 +154,7 @@ export class AppointmentsComponent implements OnInit {
     }
     
     async loadData() {
+        await this.loadStatic();
         switch (this.selectedIndex) {
             case 0:
                 if (this.countPendingAppointments > 0) {
@@ -551,7 +552,7 @@ export class AppointmentsComponent implements OnInit {
 
     getHowLongAgo(datetime: string) {
         const now = DateTime.now().setZone('Europe/Helsinki');
-        const inputDate = DateTime.fromISO(datetime, { zone: 'utc' }).setZone('Europe/Helsinki', {keepLocalTime: true});
+        const inputDate = DateTime.fromISO(datetime, { setZone: true }).setZone('Europe/Helsinki', {keepLocalTime: true});
         const diff = now.diff(inputDate, ['years', 'months', 'days', 'hours', 'minutes', 'seconds']);
         let howLongAgoStr = '';
 
@@ -561,7 +562,7 @@ export class AppointmentsComponent implements OnInit {
         if (diff.months > 0) {
             howLongAgoStr += `${diff.months} month${diff.months === 1 ? '' : 's'} `;
         }
-        if (diff.months < 1) {
+        if (diff.months < 1 && diff.days > 0) {
             howLongAgoStr += `${diff.days} day${diff.days === 1 ? '' : 's'} `;
         }
         if (diff.months <1 && diff.days < 1 && diff.hours > 0) {
@@ -669,7 +670,7 @@ export class AppointmentsComponent implements OnInit {
                 const response = await this.graphQLService.mutate(mutation, {appointmentId: id});
 
                 if (response.data.acceptAppointment.success) {
-                    const ref = this.dialog.open(ConfirmComponent, {data: {message: "Appointment added to your calendar"}});
+                    const ref = this.dialog.open(ConfirmComponent, {data: {message: "Appointment will be added to your calendar"}});
 
                     ref.componentInstance.ok.subscribe(async subscription => {
                         if (subscription) {

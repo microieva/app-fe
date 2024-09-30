@@ -16,7 +16,7 @@
                 <h3 *ngIf="countRequests === 0">No new account activation requests at the moment</h3> 
                 <span>{{' '}}</span>
             </div>
-            <div *ngIf="!countRequests" class="loading">
+            <div *ngIf="!countRequests && countRequests !== 0" class="loading">
                 <app-loading></app-loading>
             </div>
             <div class="page" #scrollView @slideInOut >
@@ -47,7 +47,7 @@
                 <h3>Active doctor accounts</h3>
                 <span>{{' '}}</span>
             </div>
-            <div *ngIf="!countDoctors" class="loading">
+            <div *ngIf="!countDoctors && countDoctors !==0" class="loading">
                 <app-loading></app-loading>
             </div>
             <div class="page">

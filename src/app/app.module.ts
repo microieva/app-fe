@@ -48,7 +48,7 @@ import { LoadingComponent } from './shared/components/app-loading/loading.compon
 import { LoginComponent } from './shared/components/app-login/app-login.componnet';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
-import { UsersComponent } from './graphql/user/users/users.component';
+import { DoctorsComponent } from './graphql/user/doctors/doctors.component';
 import { PatientsComponent } from './graphql/user/patients/patients.component';
 import { AppLandingComponent } from './shared/components/app-landing/app-landing.component';
 import { LoginMenuComponent } from './shared/components/app-login-menu/app-login-menu.component';
@@ -63,7 +63,7 @@ import { LoginMenuComponent } from './shared/components/app-login-menu/app-login
         AppAccordionComponent,
         AppEditorComponent,
         UserComponent,
-        UsersComponent,
+        DoctorsComponent,
         PatientsComponent,
         AppointmentsComponent,
         AppointmentComponent,

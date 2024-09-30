@@ -466,6 +466,7 @@ export class AppCalendarComponent implements OnInit {
                     if (subscription) {
                         this.dialog.closeAll();
                         calendarApi.addEvent(event);
+                        calendarApi.changeView('dayGridMonth');
                     }
                 });
 
@@ -482,7 +483,6 @@ export class AppCalendarComponent implements OnInit {
                             const response = await this.graphQLService.mutate(mutation, { appointmentId: id});
                             if (response.data.deleteAppointment.success) {
                                 this.dialog.closeAll();
-                                calendarApi.changeView('dayGridMonth');
                             }
                         } catch (error) {
                             this.dialog.open(AlertComponent, { data: { message: "Error deleting appointment: "+ error}})

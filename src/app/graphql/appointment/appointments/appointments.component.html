@@ -20,7 +20,7 @@
                 <h3 *ngIf="userRole === 'doctor' && countPendingAppointments === 0">No appointment requests at the moment</h3>
                 <button mat-stroked-button (click)="openCalendar()">{{ 'Open Calendar' }}</button>
             </div>
-            <div *ngIf="!dataSource || !pendingDataSource" class="loading">
+            <div *ngIf="!dataSource && countPendingAppointments !==0" class="loading">
                 <app-loading></app-loading>
             </div>
             <div class="page" @slideInOut>

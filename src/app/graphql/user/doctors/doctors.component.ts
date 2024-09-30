@@ -12,9 +12,9 @@ import { UserDataSource } from "../../../shared/types";
 import { User } from "../user";
 
 @Component({
-    selector: 'app-users',
-    templateUrl: './users.component.html',
-    styleUrls: ['./users.component.scss'],
+    selector: 'app-doctors',
+    templateUrl: './doctors.component.html',
+    styleUrls: ['./doctors.component.scss'],
     animations: [
         trigger('slideInOut', [
             state('in', style({ transform: 'translateY(0)', opacity: 1 })),
@@ -28,7 +28,7 @@ import { User } from "../user";
           ]),
     ]
 })
-export class UsersComponent implements OnInit {
+export class DoctorsComponent implements OnInit {
     selectedIndex: number = 0;
     dataSource: any;
 
