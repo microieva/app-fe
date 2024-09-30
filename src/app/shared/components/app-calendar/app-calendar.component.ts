@@ -606,7 +606,7 @@ export class AppCalendarComponent implements OnInit {
         calendarApi.unselect();    
     }
     
-    handleDayView(arg: any) {
+    handleDayView(arg: DateSelectArg) {
         const isDouble = this.isDouble(arg) 
         const isBusinessHours = this.isBusinessHours(arg);
         const isFuture = this.isFuture(arg);
@@ -619,6 +619,7 @@ export class AppCalendarComponent implements OnInit {
         if (!isBusinessHours && !arg.allDay) this.dialog.open(AlertComponent, {data: {message: "Outside working hours"}});
         calendarApi.unselect(); 
     }
+
     isDouble(arg: any): boolean {
         return this.appointments.some((event) => 
             DateTime.fromISO(event.start).toFormat('hh:mm') === DateTime.fromISO(arg.startStr).toFormat('hh:mm')
@@ -631,16 +632,9 @@ export class AppCalendarComponent implements OnInit {
     }
 
     isBusinessHours(date: any): boolean {
-        if (!date.allday) {
-            const hour = date.start.getHours();
-            const interval = Interval.fromDateTimes(
-                DateTime.fromObject({ hour: 8}),
-                DateTime.fromObject({ hour: 18})
-            );
-            const isBusinessHours = interval.contains(DateTime.fromObject({ hour: Number(hour) }));
-            return isBusinessHours;
-        }
-        return true;
+        const start = DateTime.fromISO(date.startStr);
+        const hour = start.hour
+        return hour >= 8 && hour < 18;
     }
 
     handleEventClick(clickInfo: EventClickArg) {

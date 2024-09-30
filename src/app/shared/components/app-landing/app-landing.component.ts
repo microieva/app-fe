@@ -177,7 +177,7 @@ export class AppLandingComponent implements OnInit {
                 this.countMissedAppointments = response.data.countMissedAppointments;
                 
                 if (response.data.nextAppointment) {
-                    this.nextAppointmentStartTime = DateTime.fromISO(response.data.nextAppointment.nextStart).toFormat('hh:mm a, MMM dd');
+                    this.nextAppointmentStartTime = DateTime.fromISO(response.data.nextAppointment.nextStart, {setZone: true}).toFormat('hh:mm a, MMM dd');
                     this.nextAppointmentName = response.data.nextAppointment.doctor.firstName+' '+response.data.nextAppointment.doctor.lastName;
 
                 } else {
