@@ -46,6 +46,7 @@ export class AppAuthService {
             ref.componentInstance.ok.subscribe(subscription => {
                 if (subscription) {
                     this.logOut();
+                    this.dialog.closeAll();
                 }
             });
         }
