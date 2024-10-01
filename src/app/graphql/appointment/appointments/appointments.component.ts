@@ -468,7 +468,7 @@ export class AppointmentsComponent implements OnInit {
             case "pending":
                 this.pendingDataSource = this.pendingAppointments.map(row => {
                     const howLongAgoStr = this.getHowLongAgo(row.createdAt);
-                    this.checkIsReservedDay(row.start);
+                    //this.checkIsReservedDay(row.start); TO DO FIX
 
                     return {
                         id: row.id,

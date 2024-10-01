@@ -30,9 +30,9 @@ export class AppAppointmentService {
         }`
         this.pollingSubscription = this.apollo
             .watchQuery({
-            query,
-            fetchPolicy: 'network-only',
-            pollInterval: 20 * 60 * 1000  
+                query,
+                fetchPolicy: 'network-only',
+                pollInterval: 20 * 60 * 1000  
             })
             .valueChanges.subscribe(result => {
                 if (result.data) {

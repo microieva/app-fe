@@ -56,6 +56,22 @@ export class AppLandingComponent implements OnInit {
                 this.isUserUpdated = true;
             }
         });
+
+        if (this.userRole === 'doctor') {
+            this.appointmentService.pollNextAppointment();
+            this.appointmentService.appointmentInfo.subscribe(async (subscription) => {
+
+                if (subscription && subscription.nextAppointment) {
+                    this.nextId = subscription.nextAppointment.nextId;
+                    if (this.previousNextId !== this.nextId) {
+                        this.previousNextId = this.nextId;
+                        this.timerService.startAppointmentTimer(subscription.nextAppointment.nextStart);
+                    } 
+                    this.nextAppointmentStartTime = DateTime.fromISO(subscription.nextAppointment.nextStart, {setZone: true}).toFormat('hh:mm a, MMM dd');
+                    this.nextAppointmentName = subscription.nextAppointment.patient.firstName+' '+subscription.nextAppointment.patient.lastName;
+                }
+            });
+        }
     }
 
     async loadData(){
@@ -65,7 +81,6 @@ export class AppLandingComponent implements OnInit {
                 break;
             case 'doctor':
                 await this.loadDoctorStatic();
-                this.loadNextAppointmentDetails();
                 this.nowAppointment = await this.appointmentService.loadNowAppointment();
                 break;
             case 'patient':
@@ -73,21 +88,6 @@ export class AppLandingComponent implements OnInit {
                 break;
         }
         this.dialog.closeAll();
-    }
-
-    loadNextAppointmentDetails() {
-        this.appointmentService.appointmentInfo.subscribe(async (subscription) => {
-
-            if (subscription && subscription.nextAppointment) {
-                this.nextId = subscription.nextAppointment.nextId;
-                if (this.previousNextId !== this.nextId) {
-                    this.previousNextId = this.nextId;
-                    this.timerService.startAppointmentTimer(subscription.nextAppointment.nextStart);
-                }
-                this.nextAppointmentStartTime = DateTime.fromISO(subscription.nextAppointment.nextStart, {setZone: true}).toFormat('hh:mm a, MMM dd');
-                this.nextAppointmentName = subscription.nextAppointment.patient.firstName+' '+subscription.nextAppointment.patient.lastName;
-            }
-        });
     }
 
     async loadMe() {

@@ -8,7 +8,9 @@ export interface ITab {
     id: number
 }
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class AppTabsService {
 
     addTab(title: string, component: any, id: number, tabGroup?: MatTabGroup) {

@@ -71,11 +71,11 @@ export class AppTimerService {
     }
 
     startAppointmentTimer(timeStamp: string) {
-        const now = DateTime.local();
-        const start = DateTime.fromISO(timeStamp); 
+        const now = DateTime.now().setZone('Europe/Helsinki').setLocale('fi-FI');
+        const start = DateTime.fromISO(timeStamp, {setZone: true}); 
         const duration = start.diff(now).as('seconds');
-
         const source = interval(1000);
+
         const counter = source.pipe(
             take(duration + 1), 
             finalize(() => {
@@ -90,7 +90,7 @@ export class AppTimerService {
 
             if (appointmentCountdown === '00:05:00') {
                 const displayTime = `\n Starting at ${DateTime.fromISO(timeStamp).toFormat('hh:mm a')}`
-                this.dialog.open(AlertComponent, {data: { message: `You have an appointment in 5 min, at ${displayTime}`}})
+                this.dialog.open(AlertComponent, {data: { message: `You have an appointment in 5 min. ${displayTime}`}});
             }
             this.nextAppointmentCountdown.emit(appointmentCountdown);
         });
