@@ -58,7 +58,6 @@ export class AppTabsService {
 
     getTabs(): ITab[] {
         const tabs = JSON.parse(localStorage.getItem('tabs') || '[]');
-        console.log('TABS WHEN 0 ? ----> ', tabs)
         if (tabs) {
             const t = tabs.map((tab: {id: number, title: string}) => {
                 return {

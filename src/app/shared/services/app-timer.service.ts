@@ -85,9 +85,7 @@ export class AppTimerService {
         this.appointmentTimerSubscription = counter.subscribe((val) => {
             const remainingSeconds = duration - val;
             const seconds = Duration.fromObject({ seconds: remainingSeconds });
-
             let appointmentCountdown: string = seconds.toFormat('hh:mm:ss'); 
-            console.log('COUNTDOWN: ', appointmentCountdown)
             this.nextAppointmentCountdown.emit(appointmentCountdown);
         });
     
