@@ -93,10 +93,7 @@ export class AppointmentsComponent implements OnInit {
             await this.loadStatic();
             await this.loadData();
         }
-        // if (this.userRole === 'doctor' && this.nextId === this.previousNextId) {
-        //     this.createAppointmentTab();
-        // }
-        this.createAppointmentTab(); 
+
         this.activatedRoute.queryParams.subscribe(async (params)=> {
             const id = params['id']; 
             if (id) this.routedAppointmentId = +id;
@@ -122,34 +119,25 @@ export class AppointmentsComponent implements OnInit {
             const start = this.nextAppointmentStartTime;
 
             if (value === environment.triggerTime) {  
-                this.createAppointmentTab();  
-                    // this.tabs = this.tabsService.getTabs();
-                    // if (this.tabs.length !== 0) {
-                    //     const isCreated = this.tabs.some(tab => tab.id === this.nextId)
-                    //     if (!isCreated) {
-                    //         this.createAppointmentTab();  
-                    //     }
-                    // } 
+                this.tabs = this.tabsService.getTabs();
+                if (this.tabs) {
+                    const isCreated = this.tabs.some(tab => tab.id === this.nextId)
+                    if (!isCreated) {
+                        this.createAppointmentTab();  
+                    }
+                } 
             } 
             if (value === '00:00:00') {
-                const isCreated = this.tabs?.some(tab => tab.id === this.nextId)
-                if (!isCreated) {
-                    this.createAppointmentTab();  
-                }
                 this.appointmentService.pollNextAppointment();
                 if (this.nextAppointmentStartTime !== start) {
-                    this.timerService.startAppointmentTimer(this.nextAppointmentStartTime!);
-                    
-                } else {
-                    console.log('no next appointment')
-                }
+                    this.timerService.startAppointmentTimer(this.nextAppointmentStartTime!);   
+                } 
             }
         });
         
     }
 
     createAppointmentTab(appointmentId?: number) {
-        console.log('inside create: ')
         const id = this.nextId
         const title = this.nextAppointmentStartTime;
         const component = AppointmentComponent;

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Location } from '@angular/common';
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { ActivatedRoute, Router } from '@angular/router';
@@ -16,13 +16,14 @@ import { AlertComponent } from './shared/components/app-alert/app-alert.componen
 import { Appointment } from './graphql/appointment/appointment';
 import { User } from './graphql/user/user';
 import { LoginMenuComponent } from './shared/components/app-login-menu/app-login-menu.component';
+import { environment } from '../environments/environment';
 
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit, AfterViewInit{
+export class AppComponent implements OnInit {
     title = 'Health Center';
 
     me: User | null = null;
@@ -103,8 +104,35 @@ export class AppComponent implements OnInit, AfterViewInit{
                     }
 
                     this.appointmentService.appointmentInfo.subscribe((subscription) => {
+
                         if (subscription && subscription.nextAppointment) {
                             this.timerService.startAppointmentTimer(subscription.nextAppointment.nextStart);
+                            const start = DateTime.fromISO(subscription.nextAppointment.nextStart, { setZone: true }).setZone('Europe/Helsinki', { keepLocalTime: true }); 
+                            this.timerService.nextAppointmentCountdown.subscribe(async value => {
+
+                                if (value === environment.triggerTime) {
+                                    const displayTime = `\n Starting at ${start.toFormat('hh:mm a')}`
+                                    const ref = this.dialog.open(AlertComponent, {data: { message: `You have an appointment in 5 min. ${displayTime}`}});
+                                    
+                                    const tabs = this.tabsService.getTabs();
+                                    if (tabs) {
+                                        const isCreated = tabs.some(tab => tab.id === subscription.nextAppointment.nextId)
+                                        if (!isCreated) {
+                                            this.tabsService.addTab(start.toFormat('hh:mm a'), AppointmentComponent, subscription.nextAppointment.nextId);
+                                        }
+                                    } 
+                                    ref.componentInstance.ok.subscribe(ok => {
+                                        if (ok) {
+                                            this.dialog.closeAll();
+                                            this.router.navigate(['/home/appointments'], {
+                                                relativeTo: this.activatedRoute,
+                                                queryParams: { tab: 3 },
+                                                queryParamsHandling: 'merge' 
+                                            });
+                                        }
+                                    })
+                                }
+                            })
                         }
                     });
                 }
@@ -113,14 +141,6 @@ export class AppComponent implements OnInit, AfterViewInit{
             this.me = null;
             this.userRole = null;
         }
-    }
-
-    ngAfterViewInit(): void {
-        // this.appointmentService.appointmentInfo.subscribe((subscription) => {
-        //     if (subscription && subscription.nextAppointment) {
-        //         this.timerService.startAppointmentTimer(subscription.nextAppointment.nextStart);
-        //     }
-        // });
     }
 
     async loadMe() {
