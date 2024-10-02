@@ -561,7 +561,7 @@ export class AppointmentsComponent implements OnInit {
 
     getHowLongAgo(datetime: string) {
         const now = DateTime.now().setZone('Europe/Helsinki');
-        const inputDate = DateTime.fromISO(datetime, { setZone: true }).setZone('Europe/Helsinki').setLocale('fi-FI');
+        const inputDate = DateTime.fromISO(datetime, { zone: 'utc' }).setZone('Europe/Helsinki', {keepLocalTime: true});
         const diff = now.diff(inputDate, ['years', 'months', 'days', 'hours', 'minutes', 'seconds']);
 
         let howLongAgoStr = '';
@@ -575,10 +575,10 @@ export class AppointmentsComponent implements OnInit {
         if (diff.months < 1 && diff.days > 0) {
             howLongAgoStr += `${diff.days} day${diff.days === 1 ? '' : 's'} `;
         }
-        if (diff.months <1 && diff.days < 1 && diff.hours > 0) {
+        if (diff.months <1 && diff.days < 2 && diff.hours > 0) {
             howLongAgoStr += `${diff.hours} hour${diff.hours === 1 ? '' : 's'} `;
         }
-        if (diff.months < 1 && diff.days < 1 && diff.hours <1 && diff.minutes > 0) {
+        if (diff.months < 1 && diff.days < 1 && diff.hours <2 && diff.minutes > 0) {
             if (diff.minutes <= 5) {
                 howLongAgoStr = 'Just now';
             } else {
