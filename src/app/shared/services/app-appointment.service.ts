@@ -17,6 +17,7 @@ export class AppAppointmentService {
     ) {}
 
     async pollNextAppointment() {
+        console.log('----- poll -------')
         const query = gql`query { 
             nextAppointment {
                 nextId

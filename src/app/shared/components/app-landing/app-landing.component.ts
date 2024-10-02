@@ -65,7 +65,6 @@ export class AppLandingComponent implements OnInit {
                     this.nextId = subscription.nextAppointment.nextId;
                     if (this.previousNextId !== this.nextId) {
                         this.previousNextId = this.nextId;
-                        this.timerService.startAppointmentTimer(subscription.nextAppointment.nextStart);
                     } 
                     this.nextAppointmentStartTime = DateTime.fromISO(subscription.nextAppointment.nextStart, {setZone: true}).toFormat('hh:mm a, MMM dd');
                     this.nextAppointmentName = subscription.nextAppointment.patient.firstName+' '+subscription.nextAppointment.patient.lastName;

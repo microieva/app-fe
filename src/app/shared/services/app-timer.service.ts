@@ -3,6 +3,9 @@ import { MatDialog } from "@angular/material/dialog";
 import { Subscription, finalize, interval, take } from "rxjs";
 import { DateTime, Duration } from "luxon";
 import { AlertComponent } from "../components/app-alert/app-alert.component";
+import { ActivatedRoute, Router } from "@angular/router";
+import {environment} from '../../../environments/environment';
+import { AppTabsService } from "./app-tabs.service";
 
 @Injectable({
     providedIn: 'root'
@@ -19,7 +22,10 @@ export class AppTimerService {
     appointmentTimerSubscription!: Subscription;
 
     constructor(
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private router: Router,
+        private activatedRoute: ActivatedRoute,
+        private tabsService: AppTabsService
     ) {}
 
     startTokenTimer(timeStamp: string) {
@@ -71,26 +77,41 @@ export class AppTimerService {
     }
 
     startAppointmentTimer(timeStamp: string) {
+        if (this.appointmentTimerSubscription) {
+            this.appointmentTimerSubscription.unsubscribe();
+        }
+
         const now = DateTime.now().setZone('Europe/Helsinki').setLocale('fi-FI');
-        const start = DateTime.fromISO(timeStamp, {setZone: true}); 
+        const start = DateTime.fromISO(timeStamp, { setZone: true }).setZone('Europe/Helsinki', { keepLocalTime: true });    
         const duration = start.diff(now).as('seconds');
         const source = interval(1000);
 
         const counter = source.pipe(
-            take(duration + 1), 
-            finalize(() => {
-                console.log('FINALIZE')
-            }) 
-        );
+            take(duration + 1) 
+            // finalize(() => {
+            //     //this.appointmentService.pollNextAppointment();
+            //     console.log('FINALIZE')
+            // }
+        ) 
+        //);
     
         this.appointmentTimerSubscription = counter.subscribe((val) => {
             const remainingSeconds = duration - val;
             const seconds = Duration.fromObject({ seconds: remainingSeconds });
             let appointmentCountdown: string = seconds.toFormat('hh:mm:ss'); 
-
-            if (appointmentCountdown === '00:05:00') {
-                const displayTime = `\n Starting at ${DateTime.fromISO(timeStamp).toFormat('hh:mm a')}`
-                this.dialog.open(AlertComponent, {data: { message: `You have an appointment in 5 min. ${displayTime}`}});
+            console.log('COUNTDOWN: ', appointmentCountdown)
+            if (appointmentCountdown === environment.triggerTime) {
+                const displayTime = `\n Starting at ${start.toFormat('hh:mm a')}`
+                const ref = this.dialog.open(AlertComponent, {data: { message: `You have an appointment in 5 min. ${displayTime}`}});
+                ref.componentInstance.ok.subscribe(ok => {
+                    if (ok) {
+                        this.router.navigate(['/home/appointments'], {
+                            relativeTo: this.activatedRoute,
+                            queryParams: { tab: 3 },
+                            queryParamsHandling: 'merge' 
+                        });
+                    }
+                })
             }
             this.nextAppointmentCountdown.emit(appointmentCountdown);
         });

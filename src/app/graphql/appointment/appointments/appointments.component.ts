@@ -15,6 +15,7 @@ import { ConfirmComponent } from "../../../shared/components/app-confirm/app-con
 import { EventComponent } from "../../../shared/components/app-event/app-event.component";
 import { AppointmentDataSource } from "../../../shared/types";
 import { Appointment } from "../appointment";
+import {environment} from '../../../../environments/environment';
 
 @Component({
     selector: 'app-appointments',
@@ -92,7 +93,10 @@ export class AppointmentsComponent implements OnInit {
             await this.loadStatic();
             await this.loadData();
         }
-        
+        // if (this.userRole === 'doctor' && this.nextId === this.previousNextId) {
+        //     this.createAppointmentTab();
+        // }
+        this.createAppointmentTab(); 
         this.activatedRoute.queryParams.subscribe(async (params)=> {
             const id = params['id']; 
             if (id) this.routedAppointmentId = +id;
@@ -109,32 +113,49 @@ export class AppointmentsComponent implements OnInit {
 
                 if (this.previousNextId !== this.nextId) {
                     this.previousNextId = this.nextId;
-                    this.timerService.startAppointmentTimer(subscription.nextAppointment.nextStart);
                 }
                 this.nextAppointmentStartTime = DateTime.fromISO(subscription.nextAppointment.nextStart, {setZone: true}).toFormat('hh:mm a');
             }
         });
 
         this.timerService.nextAppointmentCountdown.subscribe(async value => {
-            if (value === '00:05:00') {  
-                this.createAppointmentTab();
+            const start = this.nextAppointmentStartTime;
+
+            if (value === environment.triggerTime) {  
+                this.createAppointmentTab();  
+                    // this.tabs = this.tabsService.getTabs();
+                    // if (this.tabs.length !== 0) {
+                    //     const isCreated = this.tabs.some(tab => tab.id === this.nextId)
+                    //     if (!isCreated) {
+                    //         this.createAppointmentTab();  
+                    //     }
+                    // } 
             } 
+            if (value === '00:00:00') {
+                const isCreated = this.tabs?.some(tab => tab.id === this.nextId)
+                if (!isCreated) {
+                    this.createAppointmentTab();  
+                }
+                this.appointmentService.pollNextAppointment();
+                if (this.nextAppointmentStartTime !== start) {
+                    this.timerService.startAppointmentTimer(this.nextAppointmentStartTime!);
+                    
+                } else {
+                    console.log('no next appointment')
+                }
+            }
         });
+        
     }
+
     createAppointmentTab(appointmentId?: number) {
+        console.log('inside create: ')
         const id = this.nextId
         const title = this.nextAppointmentStartTime;
         const component = AppointmentComponent;
 
         if (id && title && !appointmentId) {
             this.tabsService.addTab(title, component, id, this.tabGroup);
-
-            this.tabs = this.tabsService.getTabs();
-            this.router.navigate([], {
-                relativeTo: this.activatedRoute,
-                queryParams: { tab: 3},
-                queryParamsHandling: 'merge' 
-            });
         }
 
         if (appointmentId) {
@@ -552,8 +573,9 @@ export class AppointmentsComponent implements OnInit {
 
     getHowLongAgo(datetime: string) {
         const now = DateTime.now().setZone('Europe/Helsinki');
-        const inputDate = DateTime.fromISO(datetime, { setZone: true }).setZone('Europe/Helsinki', {keepLocalTime: true});
+        const inputDate = DateTime.fromISO(datetime, { setZone: true }).setZone('Europe/Helsinki').setLocale('fi-FI');
         const diff = now.diff(inputDate, ['years', 'months', 'days', 'hours', 'minutes', 'seconds']);
+
         let howLongAgoStr = '';
 
         if (diff.years > 0) {
@@ -575,7 +597,7 @@ export class AppointmentsComponent implements OnInit {
                 howLongAgoStr += `${diff.minutes} minute${diff.minutes === 1 ? '' : 's'} `;
             }
         }
-        if (diff.days <1 && diff.minutes === 0 ) {
+        if (diff.days <1 && diff.hours <1 && diff.minutes === 0 ) {
             howLongAgoStr = 'Just now';
         }
 
@@ -606,6 +628,7 @@ export class AppointmentsComponent implements OnInit {
                     const response = await this.graphQLService.mutate(mutation, {appointmentId: id});
                     if (response.data.deleteAppointment.success) {
                         this.dialog.closeAll();
+                        this.appointmentService.pollNextAppointment();
                         this.ngOnInit();
                     }
                 } catch (error) {
@@ -675,6 +698,7 @@ export class AppointmentsComponent implements OnInit {
                     ref.componentInstance.ok.subscribe(async subscription => {
                         if (subscription) {
                             this.loadPendingAppointments();
+                            this.appointmentService.pollNextAppointment();
                         }
                     });
                 }

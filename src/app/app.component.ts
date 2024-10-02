@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { Location } from '@angular/common';
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { ActivatedRoute, Router } from '@angular/router';
@@ -22,7 +22,7 @@ import { LoginMenuComponent } from './shared/components/app-login-menu/app-login
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit{
+export class AppComponent implements OnInit, AfterViewInit{
     title = 'Health Center';
 
     me: User | null = null;
@@ -53,9 +53,7 @@ export class AppComponent implements OnInit{
 
             if (code && state) {
                 this.exchangeCodeForToken(code, state, scope);
-            } else {
-                console.error('Authorization code not found');
-            }
+            } 
         });
 
         if (localStorage.getItem('authToken')) {
@@ -78,10 +76,13 @@ export class AppComponent implements OnInit{
                 this.timerService.ok.subscribe(value => {
                     if (value) this.router.navigate(['/'])
                 });
+
                 if (this.me.userRole === 'doctor') {
                     await this.appointmentService.pollNextAppointment();
+
                     const nowAppointment = await this.appointmentService.loadNowAppointment();
                     let isTabAdded: boolean = false;
+
                     if (nowAppointment) {
                         const patientName = nowAppointment.patient.firstName+" "+nowAppointment.patient.lastName;
                         const start = DateTime.fromISO(nowAppointment.start,  {setZone: true}).toFormat('hh:mm a');
@@ -100,12 +101,26 @@ export class AppComponent implements OnInit{
                             this.nowAppointment = nowAppointment;
                         } 
                     }
+
+                    this.appointmentService.appointmentInfo.subscribe((subscription) => {
+                        if (subscription && subscription.nextAppointment) {
+                            this.timerService.startAppointmentTimer(subscription.nextAppointment.nextStart);
+                        }
+                    });
                 }
             }
         } else {
             this.me = null;
             this.userRole = null;
         }
+    }
+
+    ngAfterViewInit(): void {
+        // this.appointmentService.appointmentInfo.subscribe((subscription) => {
+        //     if (subscription && subscription.nextAppointment) {
+        //         this.timerService.startAppointmentTimer(subscription.nextAppointment.nextStart);
+        //     }
+        // });
     }
 
     async loadMe() {
