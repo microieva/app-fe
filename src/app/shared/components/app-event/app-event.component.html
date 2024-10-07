@@ -1,4 +1,4 @@
-<form>
+<form class="app-event">
     <mat-dialog-content #el>
         <div class="flex-row">
             <h2 [ngClass]="userRole !=='admin' && 'title-hover'" *ngIf="appointmentInfo.title && appointmentInfo.title !== 'View details'" (click)="userRole !== 'admin' && onLinkClick(appointmentInfo.id)">{{ appointmentInfo.title }}</h2>
@@ -95,7 +95,7 @@
         </div>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-        <button mat-button type="submit" [mat-dialog-close]="true" cdkFocusInitial (click)="onSubmit()" *ngIf="!appointmentInfo.title">{{'Confirm'}}</button>
+        <button id="submit-btn" mat-button type="submit" [mat-dialog-close]="true" cdkFocusInitial (click)="onSubmit()" *ngIf="!appointmentInfo.title">{{'Confirm'}}</button>
         <button mat-button type="button" (click)="onDelete()" [disabled]="appointmentInfo.title && !samePatient">
             <span *ngIf="appointmentInfo.title || userRole === 'admin'">{{'Delete'}}</span>
             <span *ngIf="!appointmentInfo.title">{{'Cancel'}}</span>

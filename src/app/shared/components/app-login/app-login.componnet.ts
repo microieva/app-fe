@@ -60,10 +60,8 @@ export class LoginComponent implements OnInit, AfterViewInit    {
         if (buttonElement) {
             // @ts-ignore
             google.accounts.id.renderButton(buttonElement, { theme: 'outline', size: 'large' });
-        } else {
-            console.error('Parent element not found');
-        }
-      }
+        } 
+    }
     
     async submit() {
         const input = this.form?.value;

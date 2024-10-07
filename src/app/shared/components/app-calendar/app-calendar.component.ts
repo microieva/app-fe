@@ -1,13 +1,14 @@
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { CalendarOptions, EventInput,DateSelectArg, EventClickArg, EventApi, DayCellContentArg, EventDropArg, DatesSetArg } from '@fullcalendar/core';
+import { CalendarOptions, DateSelectArg, EventClickArg, EventApi, DayCellContentArg, EventDropArg, DatesSetArg } from '@fullcalendar/core';
 import { ActivatedRoute, Router } from "@angular/router";
 import { MatDialog } from "@angular/material/dialog";
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
-import { DateTime, Interval } from "luxon";
+import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../services/app-graphql.service";
+import { AppDialogService } from "../../services/app-dialog.service";
 import { AlertComponent } from "../app-alert/app-alert.component";
 import { EventComponent } from "../app-event/app-event.component";
 import { ConfirmComponent } from "../app-confirm/app-confirm.component";
@@ -22,6 +23,7 @@ import { AppointmentInput } from "../../../graphql/appointment/appointment.input
 })
 export class AppCalendarComponent implements OnInit {
     @Output() appointment = new EventEmitter<AppointmentInput>();
+    @Output() snackbar = new EventEmitter<any>();
     @Input() role!: string;
 
     appointmentSelections = ['All', 'Pending confirmation', 'Upcoming', 'Past', 'Missed requests']
@@ -40,7 +42,8 @@ export class AppCalendarComponent implements OnInit {
         private dialog: MatDialog,
         private graphQLService: AppGraphQLService,
         private router: Router,
-        private activatedRoute: ActivatedRoute
+        private activatedRoute: ActivatedRoute,
+        private dialogService: AppDialogService
     ){}
   
     async ngOnInit() {
@@ -460,6 +463,9 @@ export class AppCalendarComponent implements OnInit {
                 });
                 
                 const dialogRef = this.dialog.open(EventComponent, {data: { eventInfo }});
+                dialogRef.afterOpened().subscribe(() => {
+                    this.dialogService.notifyDialogOpened();
+                });
 
                 dialogRef.componentInstance.submit.subscribe(subscription => {
 
@@ -650,7 +656,7 @@ export class AppCalendarComponent implements OnInit {
         dialogRef.componentInstance.delete.subscribe(id => {
 
             if (id) {
-                const ref = this.dialog.open(ConfirmComponent, {data: {message: 'This appointment will be deleted from the system'}});
+                const ref = this.dialog.open(ConfirmComponent, {data: {message: 'This appointment booking will be cancelled'}});
                 ref.componentInstance.ok.subscribe(async (value)=> {
                     if (value) {
                         

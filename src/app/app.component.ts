@@ -1,29 +1,33 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { Location } from '@angular/common';
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
 import { DateTime } from 'luxon';
+import { environment } from '../environments/environment';
 import { AppTimerService } from './shared/services/app-timer.service';
+import { AppSnackbarService } from './shared/services/app-snackbar.service';
+import { AppNotificationService } from './shared/services/app-notification.service';
 import { AppAppointmentService } from './shared/services/app-appointment.service';
 import { AppTabsService } from './shared/services/app-tabs.service';
 import { AppAuthService } from './shared/services/app-auth.service';
 import { AppGraphQLService } from './shared/services/app-graphql.service';
+import { AppDialogService } from './shared/services/app-dialog.service';
 import { AppointmentComponent } from './graphql/appointment/appointment.component';
 import { LoadingComponent } from './shared/components/app-loading/loading.component';
 import { AlertComponent } from './shared/components/app-alert/app-alert.component';
+import { LoginMenuComponent } from './shared/components/app-login-menu/app-login-menu.component';
+import { AppSnackbarContainerComponent } from './shared/components/app-snackbar/app-snackbar.component';
 import { Appointment } from './graphql/appointment/appointment';
 import { User } from './graphql/user/user';
-import { LoginMenuComponent } from './shared/components/app-login-menu/app-login-menu.component';
-import { environment } from '../environments/environment';
 
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
     title = 'Health Center';
 
     me: User | null = null;
@@ -33,17 +37,29 @@ export class AppComponent implements OnInit {
     time!: string | null;
     userRole: string | null = null;
 
+    snackbarMessage: string | undefined;
+    snackbarAppointmentId: number | undefined;
+    snackbarReceiverId: number | undefined;
+
+    buttonClickListener!: () => void;
+
+    @ViewChild('snackbarContainer') snackbarContainer!: AppSnackbarContainerComponent;
+
     constructor (
         private dialog: MatDialog,
         private location: Location,
         private router: Router,
+        private renderer: Renderer2,
         private activatedRoute: ActivatedRoute,
         private authService: AppAuthService,
         private graphQLService: AppGraphQLService,
         private timerService: AppTimerService,
         private appointmentService: AppAppointmentService,
         private tabsService: AppTabsService,
-        private http: HttpClient
+        private http: HttpClient,
+        private notificationService: AppNotificationService,
+        private snackbarService: AppSnackbarService,
+        private dialogService: AppDialogService
     ) {}
 
     async ngOnInit() {
@@ -141,11 +157,68 @@ export class AppComponent implements OnInit {
             this.me = null;
             this.userRole = null;
         }
+        
+        this.notificationService.receiveNotification().subscribe((subscription: any)=> {
+            if (subscription && subscription.receiverId) {
+                if (this.me?.id === JSON.parse(subscription.receiverId)) {
+                    this.snackbarMessage = subscription.message;
+                    this.snackbarAppointmentId = subscription.appointmentId;
+                    this.snackbarReceiverId = subscription.receiverId;
+                    this.snackbarService.show(subscription.message, subscription.appointmentId, subscription.doctorRequestId);
+                }
+            } else if (subscription && !subscription.receiverId && subscription.appointmentId) {
+                this.snackbarMessage = subscription.message;
+                this.snackbarAppointmentId = subscription.appointmentId;
+                this.snackbarReceiverId = subscription.receiverId;
+            }
+        });
+
+        this.dialogService.dialogOpened$.subscribe(() => {
+            const eventComponent = document.querySelector('.app-event');
+            const confirmComponent = document.querySelector('app-confirm');
+
+            if (eventComponent) {
+                const actionButton = eventComponent.querySelector('#submit-btn');
+                if (actionButton) {
+                    this.buttonClickListener = this.renderer.listen(
+                        actionButton,
+                        'click',
+                        () => { 
+                            if (this.snackbarMessage && this.snackbarAppointmentId && this.userRole === 'doctor' && !this.snackbarReceiverId)
+                            this.snackbarService.show(this.snackbarMessage,this.snackbarAppointmentId, null);
+                        }
+                    );
+                }
+            }
+            if (confirmComponent) {
+                const actionButton = confirmComponent.querySelector('#confirm-btn');
+                if (actionButton) {
+                    this.buttonClickListener = this.renderer.listen(
+                        actionButton,
+                        'click',
+                        () => { 
+                            if (this.snackbarMessage && this.me?.id === this.snackbarReceiverId)
+                            this.snackbarService.show(this.snackbarMessage, null, null);
+                        }
+                    );
+                }
+            }
+        });
+    }
+    ngOnDestroy() {
+        if (this.buttonClickListener) {
+            this.buttonClickListener();
+        }
+    }
+
+    ngAfterViewInit() {
+        this.snackbarService.setContainer(this.snackbarContainer);
     }
 
     async loadMe() {
         const query = `query {
             me {
+                id
                 userRole
                 updatedAt
                 firstName

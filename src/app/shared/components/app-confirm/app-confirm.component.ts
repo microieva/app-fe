@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, Input, Output } from "@angular/core";
+import { Component, EventEmitter, Inject, Input, OnInit, Output } from "@angular/core";
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from "@angular/material/dialog";
 
 @Component({
@@ -6,8 +6,9 @@ import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from "@angular/material/dial
     templateUrl: './app-confirm.component.html',
     styleUrls: ['app-confirm.component.scss']
 })
-export class ConfirmComponent {
+export class ConfirmComponent implements OnInit{
     title= "Are you sure?"
+    addClass: boolean = false;
     @Output() ok = new EventEmitter<boolean>(false);
 
     message: string;
@@ -20,6 +21,13 @@ export class ConfirmComponent {
     ) {
         this.message = data.message;
     }
+
+    ngOnInit(): void {
+        if (this.message === "This appointment booking will be cancelled") {
+            this.addClass = true;
+        }
+    }
+
     onOkClick(){
         this.ok.emit(true);
     }

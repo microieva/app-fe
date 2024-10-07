@@ -19,6 +19,7 @@ export class EventComponent implements OnInit{
     id!: number;
     userRole!: string;
     isOpened: boolean = false;
+    isConfirmed: boolean = false;
     samePatient: boolean = false;
     
     createdAt: string | undefined;
@@ -29,7 +30,7 @@ export class EventComponent implements OnInit{
     eventStartTime:  string | undefined;
     eventEndTime:  string | undefined;
     
-    @Output() submit = new EventEmitter<{input: string}>();
+    @Output() submit = new EventEmitter<{input: string, showSnackbar: boolean}>();
     @Output() delete = new EventEmitter<number>();
     @Output() message = new EventEmitter<string>();
     @Output() deleteMessage = new EventEmitter<number>();
@@ -75,7 +76,7 @@ export class EventComponent implements OnInit{
 
         this.form = this.formBuilder.group({
             input: this.formBuilder.control<string>(' ')
-        })
+        });
     }
     async loadJustCreatedAppointment(patientId: number){
         const query = `query ($patientId: Int!) {
@@ -216,7 +217,11 @@ export class EventComponent implements OnInit{
     }
 
     onSubmit(){
-        this.submit.emit(this.form.value);
+        const value = {
+            input: this.form.value,
+            showSnackbar: true
+        } // TO DO delete boolean from emit value
+        this.submit.emit(value);
     }
     async onDelete(){
         if (this.appointmentInfo.id) {

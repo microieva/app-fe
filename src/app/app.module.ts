@@ -52,6 +52,11 @@ import { DoctorsComponent } from './graphql/user/doctors/doctors.component';
 import { PatientsComponent } from './graphql/user/patients/patients.component';
 import { AppLandingComponent } from './shared/components/app-landing/app-landing.component';
 import { LoginMenuComponent } from './shared/components/app-login-menu/app-login-menu.component';
+import { AppNotificationService } from './shared/services/app-notification.service';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { AppSnackbarService } from './shared/services/app-snackbar.service';
+import { AppSnackbarContainerComponent } from './shared/components/app-snackbar/app-snackbar.component';
+import { AppDialogService } from './shared/services/app-dialog.service';
 
 @NgModule({ 
     declarations: [
@@ -62,6 +67,7 @@ import { LoginMenuComponent } from './shared/components/app-login-menu/app-login
         AppTableComponent,
         AppAccordionComponent,
         AppEditorComponent,
+        AppSnackbarContainerComponent,
         UserComponent,
         DoctorsComponent,
         PatientsComponent,
@@ -109,13 +115,16 @@ import { LoginMenuComponent } from './shared/components/app-login-menu/app-login
         MatExpansionModule,
         MatAccordion,
         MatDividerModule,
-        NgxEditorModule
-        
+        NgxEditorModule,
+        MatSnackBarModule
     ], 
     providers: [
         AppTimerService,
         AppAppointmentService,
         AppTabsService,
+        AppNotificationService,
+        AppSnackbarService,
+        AppDialogService,
         provideNativeDateAdapter(),
         provideHttpClient(withInterceptorsFromDi()), 
         provideAnimationsAsync(),

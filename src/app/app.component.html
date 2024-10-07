@@ -14,6 +14,7 @@
         <button *ngIf="!me" mat-stroked-button type="button" color="secondary" (click)="onLogIn()">{{ 'Log In' }}</button>
         <button *ngIf="me" mat-stroked-button type="button" color="secondary" (click)="logOut()">{{ 'Log Out' }}</button>
     </mat-toolbar>
+    <app-snackbar #snackbarContainer></app-snackbar>
     <router-outlet></router-outlet>
 </div>
 

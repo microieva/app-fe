@@ -5,6 +5,7 @@ import { MatTableDataSource } from "@angular/material/table";
 import { MatTabGroup } from "@angular/material/tabs";
 import { MatDialog } from "@angular/material/dialog";
 import { DateTime } from "luxon";
+import { environment } from '../../../../environments/environment';
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
 import { AppAppointmentService } from "../../../shared/services/app-appointment.service";
 import { AppTimerService } from "../../../shared/services/app-timer.service";
@@ -15,7 +16,7 @@ import { ConfirmComponent } from "../../../shared/components/app-confirm/app-con
 import { EventComponent } from "../../../shared/components/app-event/app-event.component";
 import { AppointmentDataSource } from "../../../shared/types";
 import { Appointment } from "../appointment";
-import {environment} from '../../../../environments/environment';
+import { AppDialogService } from "../../../shared/services/app-dialog.service";
 
 @Component({
     selector: 'app-appointments',
@@ -82,7 +83,8 @@ export class AppointmentsComponent implements OnInit {
         private activatedRoute: ActivatedRoute,
         private appointmentService: AppAppointmentService,
         private timerService: AppTimerService,
-        public tabsService: AppTabsService
+        public tabsService: AppTabsService,
+        private dialogService: AppDialogService
     ){}
     
     async ngOnInit() {
@@ -561,7 +563,7 @@ export class AppointmentsComponent implements OnInit {
 
     getHowLongAgo(datetime: string) {
         const now = DateTime.now().setZone('Europe/Helsinki');
-        const inputDate = DateTime.fromISO(datetime, { zone: 'utc' }).setZone('Europe/Helsinki', {keepLocalTime: true});
+        const inputDate = DateTime.fromISO(datetime, { zone: 'utc' }).setZone('Europe/Helsinki', {keepLocalTime: false});
         const diff = now.diff(inputDate, ['years', 'months', 'days', 'hours', 'minutes', 'seconds']);
 
         let howLongAgoStr = '';
@@ -602,8 +604,10 @@ export class AppointmentsComponent implements OnInit {
     }
 
     deleteAppointment(id: number) {
-        const dialogRef = this.dialog.open(ConfirmComponent, {data: {message: "Deleting permanently"}})
-        
+        const dialogRef = this.dialog.open(ConfirmComponent, {data: {message: "This appointment booking will be cancelled"}})
+        dialogRef.afterOpened().subscribe(() => {
+            this.dialogService.notifyDialogOpened();
+        });
         dialogRef.componentInstance.ok.subscribe(async (value)=> {
             if (value) {
                 try {
@@ -677,22 +681,20 @@ export class AppointmentsComponent implements OnInit {
                     message
                 }
             }`
-            try {   
-                const response = await this.graphQLService.mutate(mutation, {appointmentId: id});
-
-                if (response.data.acceptAppointment.success) {
-                    const ref = this.dialog.open(ConfirmComponent, {data: {message: "Appointment will be added to your calendar"}});
-
-                    ref.componentInstance.ok.subscribe(async subscription => {
-                        if (subscription) {
+            const ref = this.dialog.open(ConfirmComponent, {data: {message: "Appointment will be added to your calendar"}});
+            ref.componentInstance.ok.subscribe(async subscription => {
+                if (subscription) {
+                    try {   
+                        const response = await this.graphQLService.mutate(mutation, {appointmentId: id});
+                        if (response.data.acceptAppointment.success) {
                             this.loadPendingAppointments();
                             this.appointmentService.pollNextAppointment();
                         }
-                    });
+                    } catch (error) {
+                        this.dialog.open(AlertComponent, {data: {message: `Unexpected error: ${error}`}});
+                    }
                 }
-            } catch (error) {
-                this.dialog.open(AlertComponent, {data: {message: `Unexpected error: ${error}`}})
-            }
+            })
         }
-    } 
+    }
 }

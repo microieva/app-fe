@@ -6,6 +6,7 @@ import { AppGraphQLService } from "../../../shared/services/app-graphql.service"
 import { AlertComponent } from "../../../shared/components/app-alert/app-alert.component";
 import { AppointmentInput } from "../appointment.input";
 import { User } from "../../user/user";
+import { AppSnackbarService } from "../../../shared/services/app-snackbar.service";
 
 @Component({
     selector: 'calendar-component',
@@ -21,7 +22,8 @@ export class CalendarComponent implements OnInit{
         private graphQLService: AppGraphQLService,
         private dialog: MatDialog,
         private activatedRoute: ActivatedRoute,
-        private location: Location
+        private location: Location,
+        private snackbarService: AppSnackbarService
     ){}
 
     async ngOnInit() {
