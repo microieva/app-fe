@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -9,7 +10,7 @@ export class AppNotificationService {
     private socket: Socket;
 
     constructor() {
-        this.socket = io('http://localhost:4001'); 
+        this.socket = io(environment.socketUrl); 
     }
 
     sendNotification(message: string) {
