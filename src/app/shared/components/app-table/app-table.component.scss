@@ -59,7 +59,6 @@ button {
 .non-click {
     margin:auto;
     cursor: default;
-    //pointer-events: none;
 }
 
 //-------------------expandable
@@ -75,4 +74,19 @@ button {
   .expandable-element-detail-row-expanded {
     height: auto;
   }
+
+.online-dot {
+    height: 8px;
+    width: 8px;
+    border-radius: 50%;
+    background-color: rgb(44 135 44);
+    margin-left: 0.5rem;
+}
+.offline-dot {
+    height: 8px;
+    width: 8px;
+    border-radius: 50%;
+    background-color: rgb(145 146 157);
+    margin-left: 0.5rem;
+}
   

@@ -8,7 +8,7 @@ import { DateTime } from 'luxon';
 import { environment } from '../environments/environment';
 import { AppTimerService } from './shared/services/app-timer.service';
 import { AppSnackbarService } from './shared/services/app-snackbar.service';
-import { AppNotificationService } from './shared/services/app-notification.service';
+import { AppSocketService } from './shared/services/app-socket.service';
 import { AppAppointmentService } from './shared/services/app-appointment.service';
 import { AppTabsService } from './shared/services/app-tabs.service';
 import { AppAuthService } from './shared/services/app-auth.service';
@@ -57,7 +57,7 @@ export class AppComponent implements OnInit, OnDestroy {
         private appointmentService: AppAppointmentService,
         private tabsService: AppTabsService,
         private http: HttpClient,
-        private notificationService: AppNotificationService,
+        private socketService: AppSocketService,
         private snackbarService: AppSnackbarService,
         private dialogService: AppDialogService
     ) {}
@@ -78,7 +78,8 @@ export class AppComponent implements OnInit, OnDestroy {
             const tokenExpire = localStorage.getItem('tokenExpire');
             
             if (tokenExpire && this.me) {
-                this.router.navigate(['/home'])
+                this.router.navigate(['/home']);
+                this.socketService.registerUser(this.me);
                 this.remainder = this.timerService.startTokenTimer(tokenExpire);
                 this.timerService.tokenCountdown.subscribe(value=> {
                     this.time = value;
@@ -151,6 +152,16 @@ export class AppComponent implements OnInit, OnDestroy {
                             })
                         }
                     });
+                    this.socketService.newAppointmentRequest().subscribe((info: any)=> {
+                        if (info) {
+                            this.snackbarService.show(info.message, info.appointmentId, null, null, null); 
+                        }
+                    });
+                    this.socketService.deletedAppointmentInfo().subscribe((info: any)=> {
+                        if (info && this.me?.id === info.doctorId) {
+                            this.snackbarService.show(info.message, null, null, null, null); 
+                        }
+                    });
                 }
             }
         } else {
@@ -158,15 +169,20 @@ export class AppComponent implements OnInit, OnDestroy {
             this.userRole = null;
         }
         
-        this.notificationService.receiveNotification().subscribe((subscription: any)=> {
+        this.socketService.receiveNotification().subscribe((subscription: any)=> {
+            
             if (subscription && subscription.receiverId) {
                 if (this.me?.id === JSON.parse(subscription.receiverId)) {
-                    this.snackbarMessage = subscription.message;
-                    this.snackbarAppointmentId = subscription.appointmentId;
-                    this.snackbarReceiverId = subscription.receiverId;
-                    this.snackbarService.show(subscription.message, subscription.appointmentId, subscription.doctorRequestId);
+                    if (subscription.chatId) {
+                        this.snackbarService.show(subscription.message, null, null, subscription.chatId, subscription.sender);
+                    } else {
+                        this.snackbarMessage = subscription.message;
+                        this.snackbarAppointmentId = subscription.appointmentId;
+                        this.snackbarReceiverId = subscription.receiverId;
+                        this.snackbarService.show(subscription.message, subscription.appointmentId, subscription.doctorRequestId, null, null);
+                    }
                 }
-            } else if (subscription && !subscription.receiverId && subscription.appointmentId) {
+            } else if (subscription && subscription.message === "New appointment request") {
                 this.snackbarMessage = subscription.message;
                 this.snackbarAppointmentId = subscription.appointmentId;
                 this.snackbarReceiverId = subscription.receiverId;
@@ -174,7 +190,7 @@ export class AppComponent implements OnInit, OnDestroy {
         });
 
         this.dialogService.dialogOpened$.subscribe(() => {
-            const eventComponent = document.querySelector('.app-event');
+            const eventComponent = document.querySelector('app-event');
             const confirmComponent = document.querySelector('app-confirm');
 
             if (eventComponent) {
@@ -184,8 +200,12 @@ export class AppComponent implements OnInit, OnDestroy {
                         actionButton,
                         'click',
                         () => { 
-                            if (this.snackbarMessage && this.snackbarAppointmentId && this.userRole === 'doctor' && !this.snackbarReceiverId)
-                            this.snackbarService.show(this.snackbarMessage,this.snackbarAppointmentId, null);
+                            if (this.snackbarMessage === "New appointment request") {
+                                this.socketService.notifyDoctors({
+                                    message: this.snackbarMessage,
+                                    appointmentId: this.snackbarAppointmentId
+                                });
+                            }
                         }
                     );
                 }
@@ -197,14 +217,17 @@ export class AppComponent implements OnInit, OnDestroy {
                         actionButton,
                         'click',
                         () => { 
-                            if (this.snackbarMessage && this.me?.id === this.snackbarReceiverId)
-                            this.snackbarService.show(this.snackbarMessage, null, null);
+                            this.socketService.notifyDoctor({
+                                message: this.snackbarMessage,
+                                doctorId: this.snackbarReceiverId
+                            });
                         }
                     );
                 }
             }
         });
     }
+
     ngOnDestroy() {
         if (this.buttonClickListener) {
             this.buttonClickListener();
@@ -219,6 +242,7 @@ export class AppComponent implements OnInit, OnDestroy {
         const query = `query {
             me {
                 id
+                email
                 userRole
                 updatedAt
                 firstName

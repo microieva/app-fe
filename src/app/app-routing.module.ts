@@ -9,6 +9,7 @@ import { DoctorsComponent } from './graphql/user/doctors/doctors.component';
 import { PatientsComponent } from './graphql/user/patients/patients.component';
 import { AppHomeComponent } from './shared/components/app-home/app-home.component';
 import { AppLandingComponent } from './shared/components/app-landing/app-landing.component';
+import { MessagesComponent } from './graphql/chat/messages/messages.component';
 
 
 const routes: Routes = [
@@ -21,6 +22,7 @@ const routes: Routes = [
         { path: 'appointments/calendar', component: CalendarComponent },
         { path: 'records', component: RecordsComponent },
         { path: 'patients', component: PatientsComponent },
+        { path: 'messages', component: MessagesComponent }
     ]},
     { path: '**', redirectTo: '', pathMatch: 'full' }
 ]

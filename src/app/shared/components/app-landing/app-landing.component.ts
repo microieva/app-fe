@@ -28,6 +28,7 @@ export class AppLandingComponent implements OnInit {
     countUpcomingAppointments: number = 0;
     countPendingAppointments: number = 0;
     countRecords: number = 0;
+    countOnlineDoctors: number = 0;
 
     nextId: number | null = null;
     previousNextId: number | null = null;
@@ -114,6 +115,7 @@ export class AppLandingComponent implements OnInit {
             countDoctors
             countPatients
             countMissedAppointments
+            countOnlineDoctors
         }`
         try {
             const response = await this.graphQLService.send(query);
@@ -123,6 +125,7 @@ export class AppLandingComponent implements OnInit {
                 this.countDoctors = response.data.countDoctors;
                 this.countPatients = response.data.countPatients;
                 this.countMissedAppointments = response.data.countMissedAppointments;
+                this.countOnlineDoctors = response.data.countOnlineDoctors;
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: error}});

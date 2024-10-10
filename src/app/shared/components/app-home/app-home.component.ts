@@ -68,8 +68,8 @@ export class AppHomeComponent implements OnInit{
             } else {
                 clearInterval(interval);
                 setTimeout(() => {
-                this.displayedText = '';
-                this.startTypingAnimation();
+                    this.displayedText = '';
+                    this.startTypingAnimation();
                 }, 1000); // pause before restart
             }
         }, 150); // Typing speed

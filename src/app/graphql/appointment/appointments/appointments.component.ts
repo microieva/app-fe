@@ -8,6 +8,7 @@ import { DateTime } from "luxon";
 import { environment } from '../../../../environments/environment';
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
 import { AppAppointmentService } from "../../../shared/services/app-appointment.service";
+import { AppDialogService } from "../../../shared/services/app-dialog.service";
 import { AppTimerService } from "../../../shared/services/app-timer.service";
 import { AppointmentComponent } from "../appointment.component";
 import { AppTabsService } from "../../../shared/services/app-tabs.service";
@@ -16,7 +17,6 @@ import { ConfirmComponent } from "../../../shared/components/app-confirm/app-con
 import { EventComponent } from "../../../shared/components/app-event/app-event.component";
 import { AppointmentDataSource } from "../../../shared/types";
 import { Appointment } from "../appointment";
-import { AppDialogService } from "../../../shared/services/app-dialog.service";
 
 @Component({
     selector: 'app-appointments',
@@ -165,22 +165,15 @@ export class AppointmentsComponent implements OnInit {
     }
     
     async loadData() {
-        await this.loadStatic();
         switch (this.selectedIndex) {
             case 0:
-                if (this.countPendingAppointments > 0) {
-                    await this.loadPendingAppointments();
-                }
+                await this.loadPendingAppointments();
                 return;
             case 1:
-                if (this.countUpcomingAppointments > 0) {
-                    await this.loadUpcomingAppointments();
-                }
+                await this.loadUpcomingAppointments();
                 return;
             case 2:
-                if (this.countPastAppointments > 0) {
-                    await this.loadPastAppointments();
-                }
+                await this.loadPastAppointments();
                 return;
             default:
                 return;
@@ -620,8 +613,10 @@ export class AppointmentsComponent implements OnInit {
                     const response = await this.graphQLService.mutate(mutation, {appointmentId: id});
                     if (response.data.deleteAppointment.success) {
                         this.dialog.closeAll();
-                        this.appointmentService.pollNextAppointment();
-                        this.ngOnInit();
+                        if (this.userRole === 'doctor') {
+                            this.appointmentService.pollNextAppointment();
+                        }
+                        await this.loadData();
                     }
                 } catch (error) {
                     this.dialog.open(AlertComponent, {data: {message: "Unexpected error while deleting appointment: "+error}})

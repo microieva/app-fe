@@ -52,11 +52,15 @@ import { DoctorsComponent } from './graphql/user/doctors/doctors.component';
 import { PatientsComponent } from './graphql/user/patients/patients.component';
 import { AppLandingComponent } from './shared/components/app-landing/app-landing.component';
 import { LoginMenuComponent } from './shared/components/app-login-menu/app-login-menu.component';
-import { AppNotificationService } from './shared/services/app-notification.service';
+import { AppSocketService } from './shared/services/app-socket.service';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { AppSnackbarService } from './shared/services/app-snackbar.service';
 import { AppSnackbarContainerComponent } from './shared/components/app-snackbar/app-snackbar.component';
 import { AppDialogService } from './shared/services/app-dialog.service';
+import { MessagesComponent } from './graphql/chat/messages/messages.component';
+import { ChatComponent } from './graphql/chat/chat.component';
+import { TextFieldModule } from '@angular/cdk/text-field';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @NgModule({ 
     declarations: [
@@ -73,6 +77,7 @@ import { AppDialogService } from './shared/services/app-dialog.service';
         PatientsComponent,
         AppointmentsComponent,
         AppointmentComponent,
+        MessagesComponent,
         CalendarComponent,
         RecordsComponent,
         RecordComponent,
@@ -81,7 +86,8 @@ import { AppDialogService } from './shared/services/app-dialog.service';
         AlertComponent,
         LoginComponent,
         EventComponent,
-        LoginMenuComponent
+        LoginMenuComponent,
+        ChatComponent
     ],
     bootstrap: [AppComponent], 
     imports: [
@@ -116,13 +122,15 @@ import { AppDialogService } from './shared/services/app-dialog.service';
         MatAccordion,
         MatDividerModule,
         NgxEditorModule,
-        MatSnackBarModule
+        MatSnackBarModule,
+        TextFieldModule,
+        MatTooltipModule
     ], 
     providers: [
         AppTimerService,
         AppAppointmentService,
         AppTabsService,
-        AppNotificationService,
+        AppSocketService,
         AppSnackbarService,
         AppDialogService,
         provideNativeDateAdapter(),

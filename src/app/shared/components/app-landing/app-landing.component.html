@@ -29,6 +29,11 @@
                     <span>{{ 'Patients' }}</span>
                 </div>
             </a>
+            <a mat-list-item [routerLink]="['/home','messages']" routerLinkActive="activeLink"  *ngIf="userRole !== 'patient'">
+                <div class="flex">
+                    <span>{{ 'Messages' }}</span>
+                </div>
+            </a>
         </mat-nav-list>
     </mat-sidenav>
     <mat-sidenav-content class="content">  

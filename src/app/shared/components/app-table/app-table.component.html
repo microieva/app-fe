@@ -1,6 +1,6 @@
 
     <mat-form-field *ngIf="userRole !== 'patient'">
-        <mat-label>Search by patient name</mat-label>
+        <mat-label>Search by name</mat-label>
         <input matInput (keyup)="onSearch($event)" placeholder="..." #input>
     </mat-form-field>
 
@@ -58,6 +58,14 @@
             <td mat-cell *matCellDef="let element"> {{element.firstName}} {{element.lastName}}</td>
         </ng-container>
 
+        <ng-container matColumnDef="online">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:20rem;">Online</th>
+            <td mat-cell *matCellDef="let element">
+                <div *ngIf="element.online" class="online-dot"></div>
+                <div *ngIf="!element.online" class="offline-dot"></div>
+            </td>
+        </ng-container>
+
         <ng-container matColumnDef="email">
             <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:20rem;">Email</th>
             <td mat-cell *matCellDef="let element"> {{element.email}} </td>
@@ -66,6 +74,7 @@
         <ng-container matColumnDef="expandedDetail">
             <td mat-cell *matCellDef="let element" [attr.colspan]="columnsToDisplayWithExpand.length">
                 <div 
+                    *ngIf="element.online === undefined"
                     class="expandable-element-detail"
                     [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'"
                     #expandedElementRef 
@@ -132,7 +141,7 @@
         <tr 
             mat-row 
             *matRowDef="let element; columns: displayedColumns;" 
-            (click)="(expandedElement = expandedElement === element ? null : element); $event.stopPropagation(); onRowClick()"
+            (click)="element.online === undefined && (expandedElement = expandedElement === element ? null : element); $event.stopPropagation(); onRowClick(element.id)"
             [ngStyle]="{backgroundColor: (markAppointmentId && markAppointmentId === element.id) ? 'aqua': ''}"
         ></tr>
         

@@ -1,0 +1,50 @@
+.page {
+    border: 1px solid gray;
+    border-radius: 5px;
+    height: calc(85vh - 10rem);
+    margin-top: 4rem;
+}
+mat-form-field {
+    margin: 0;
+    width: 100%;
+}
+.flex-column {
+    flex-direction: column-reverse;
+}
+.messages-wrapper {
+    margin: 2rem 0.5rem;
+    overflow: scroll;
+}
+.message-wrapper {
+    max-width: 50%;
+    width: max-content;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.flex-end {
+    align-self: flex-end;
+}
+.message {
+    padding: 0.5rem;
+    border-radius: 10px;
+    margin: 5px 0;
+}
+.incoming {
+    background-color: rgb(175 111 174 / 40%);   
+    align-self: flex-end;    
+}
+.outgoing {
+    background-color: transparent;
+    border: 1px solid rgb(111, 143, 175, 40%);
+    float: inline-end;
+}
+.material-icons:hover {
+    cursor: pointer;
+}
+.timestamp {
+    margin: auto 0.5rem auto 0.5rem;
+    color: dimgray;
+    font-size: smaller;
+    min-width:max-content;
+}

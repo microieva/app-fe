@@ -34,6 +34,7 @@ export class AppTableComponent implements OnInit, AfterViewInit {
     @Output() recordClick = new EventEmitter<number>();
     @Output() userClick = new EventEmitter<number>();
     @Output() buttonClick = new EventEmitter<{id: number, text: string}>();
+    @Output() receiverId = new EventEmitter<number>();
 
     @Input() dataSource!: MatTableDataSource<AppDataSource>;
     @Input() length: number = 0;
@@ -80,10 +81,13 @@ export class AppTableComponent implements OnInit, AfterViewInit {
     }
     
     ngOnInit() {
+        //console.log('DATA SOURCE: ', this.dataSource)
         if (this.dataSource) {
             const firstElement = this.dataSource.data[0];
-    
-            if ('email' in firstElement) { // type UserDataSource
+
+            if ('email' in firstElement && 'online' in firstElement) {
+                this.displayedColumns = ['online', 'name', 'email'];
+            } else if ('email' in firstElement) { // type UserDataSource
                 this.displayedColumns = ['name', 'email', 'created'];
             } else if ('date' in firstElement && this.userRole === 'patient') {
                 this.displayedColumns =['id', 'status', 'time'] // type AppointmentDataSource - patient view
@@ -91,7 +95,7 @@ export class AppTableComponent implements OnInit, AfterViewInit {
                     this.displayedColumns = ['id', 'patientName', 'time']  // type AppointmentDataSource - doctor / admin view
             } else if ('title' in firstElement && 'createdAt' in firstElement) {
                 this.displayedColumns = ['title', 'created']; 
-            }
+            } 
             
             this.columnsToDisplayWithExpand = [...this.displayedColumns, 'expandedDetail'];  
         }
@@ -143,7 +147,10 @@ export class AppTableComponent implements OnInit, AfterViewInit {
     onButtonClick(id: number, text: string){
         this.buttonClick.emit({id, text});
     }
-    onRowClick(){
+    onRowClick(chatReceiverId: number | undefined){
         this.markAppointmentId = null;
+        if (chatReceiverId) {
+            this.receiverId.emit(chatReceiverId);
+        }
     }
 }

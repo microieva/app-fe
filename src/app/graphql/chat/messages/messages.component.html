@@ -1,0 +1,55 @@
+<mat-tab-group 
+    #tabGroup
+    mat-stretch-tabs="false" 
+    mat-align-tabs="start" 
+    class="content" 
+    (selectedIndexChange)="onTabChange($event)"
+    [(selectedIndex)]="selectedIndex"
+>
+    <mat-tab label="online">
+        <ng-template mat-tab-label>
+            <span class="tab-label" *ngIf="userRole === 'admin'">Currently Online</span>
+            <span class="tab-label" *ngIf="userRole === 'doctor'">Administrator | Frontdesk</span>
+        </ng-template>
+        <div *ngIf="userRole === 'admin'">
+            <div class="flex-row wrapper info">
+                <span class="icon material-symbols-outlined">info</span>
+                <h3 *ngIf="!onlineDoctors || onlineDoctors?.length === 0">Currently no doctors online</h3> 
+                <span>{{ ' '}}</span>
+            </div>
+            <div *ngIf="!onlineDoctors && onlineDoctors.length !==0" class="loading">
+                <app-loading></app-loading>
+            </div>
+            <div class="page" @slideInOut>
+                <div class="doctors" *ngIf="userRole ==='admin'">
+                    <app-table 
+                        *ngIf="dataSource"
+                        [dataSource]="dataSource" 
+                        [length]="doctorsLength"
+                        [userRole]="userRole"
+                        (pageChange)="onPageChange($event)"
+                        (sortChange)="onSortChange($event)"
+                        (filterValue)="onFilterValueChange($event, async)"
+                        (buttonClick)="onButtonClick($event)"
+                        (receiverId)="onOpenChat($event)"
+                    >
+                    </app-table>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="userRole === 'doctor' && chatId">
+            <app-chat [receiverId]="receiverId" [senderId]="me.id" [chatId]="chatId"></app-chat>
+        </div>
+    </mat-tab>
+    <mat-tab 
+        *ngFor="let chat of chats"
+    >
+        <ng-template mat-tab-label>
+            <span class="tab-label">{{ chat.title }}</span>
+            <span class="material-icons" matTooltip="Close" (click)="onChatClose(chat.id)">close</span>
+        </ng-template>
+        <ng-template matTabContent>
+            <app-chat [receiverId]="receiverId" [senderId]="me.id" [chatId]="chat.id" [userRole]="'admin'" (close)="onChatClose($event)"></app-chat>
+        </ng-template>
+    </mat-tab>
+</mat-tab-group>

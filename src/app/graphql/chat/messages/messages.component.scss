@@ -1,0 +1,13 @@
+.material-icons{
+    color: dimgray;
+    float: right;
+    position: absolute;
+    right: -62px;
+    &:hover {
+        color: rgb(68, 65, 65);
+        cursor: pointer;
+    }
+}
+.page {
+    margin-top: 6rem;
+}

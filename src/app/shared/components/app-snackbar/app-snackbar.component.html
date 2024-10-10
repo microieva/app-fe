@@ -1,8 +1,14 @@
 <div class="snackbar-container">
     <ng-container *ngFor="let snackbar of snackbars">
         <div class="snackbar flex-row">
-            {{ snackbar.message }}
-            <button *ngIf="snackbar.appointmentId || snackbar.doctorRequestId" mat-stroked-button (click)="handleSnackbarOpen(snackbar)">Open</button>
+            <div *ngIf="!snackbar.chatId">
+                {{ snackbar.message }}
+            </div>
+            <div *ngIf="snackbar.chatId && snackbar.sender" class="flex-column">
+                <em>{{ snackbar.sender }}</em>
+                <p>{{ snackbar.message }}</p>
+            </div>
+            <button *ngIf="snackbar.appointmentId || snackbar.doctorRequestId || snackbar.chatId" mat-stroked-button (click)="handleSnackbarOpen(snackbar)">Open</button>
         </div>
     </ng-container>
 </div>

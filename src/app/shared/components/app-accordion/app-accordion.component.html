@@ -1,8 +1,6 @@
 <mat-accordion>
     <mat-expansion-panel 
         hideToggle 
-        (opened)="panelOpenState.set(true)" 
-        (closed)="panelOpenState.set(false)" 
         *ngFor="let element of dataSource"
         [ngStyle]="{backgroundColor: (markAppointmentId !== undefined && markAppointmentId === element.id) ? 'aqua': ''}"
         (click)="resetRoute()"

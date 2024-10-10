@@ -1,0 +1,37 @@
+<div class="flex-row wrapper info">
+    <span class="icon material-symbols-outlined">info</span>
+    <h3 *ngIf="online">Online</h3> 
+    <h3 *ngIf="!online">Offline</h3>
+    <button *ngIf="userRole === 'admin'" mat-stroked-button (click)="onChatClose()">{{ 'Close' }}</button>
+    <span *ngIf="userRole !== 'admin'">{{ ' ' }}</span>
+</div>
+<div class="page flex-column">
+    <form class="form-wrapper" [formGroup]="form" (ngSubmit)="onSendMessage()">
+        <mat-form-field>
+            <textarea 
+                name="message" 
+                matInput 
+                formControlName="message" 
+                maxlength="700" 
+                (keyup.enter)="onSendMessage(); $event.preventDefault();"
+            ></textarea>
+            <mat-hint align="start">{{form.value.message?.length || 0}} / 700</mat-hint>
+        </mat-form-field>
+        <div class="icons flex-row" style="float: right;">
+            <div (click)="onDeleteMessage()">
+                <span class="material-icons" matTooltip="Delete" style="color:rgb(175 111 174 / 90%);">close</span>
+            </div>
+            <div (click)="onSendMessage()" style="margin-left: 0.5rem;"  type="submit">
+                <span class="material-icons" matTooltip="Send" style="color: green">check</span>
+            </div>
+        </div>
+    </form>
+    <div class="messages-wrapper flex-column">
+        <div *ngFor="let message of messages">
+            <div class="message-wrapper" [ngStyle]="senderId !== message.sender.id ? {'flex-direction':'row-reverse'} : {'float': 'right'}">
+                <div class="message" [ngClass]="senderId !== message.sender.id ? 'incoming' : 'outgoing'">{{message.content}}</div>
+                <div class="timestamp"><p>{{message.createdAt}}</p></div>
+            </div>
+        </div>
+    </div>
+</div>
