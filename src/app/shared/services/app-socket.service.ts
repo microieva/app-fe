@@ -12,6 +12,7 @@ export class AppSocketService {
 
     constructor() {
         this.socket = io(environment.socketUrl, {
+            withCredentials: true,
             transports: ['websocket'],
             extraHeaders: {
               'Content-Type': 'application/json',  
