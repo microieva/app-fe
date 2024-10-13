@@ -17,7 +17,7 @@
                 <h3 *ngIf="!onlineDoctors || onlineDoctors?.length === 0">Currently no doctors online</h3> 
                 <span>{{ ' '}}</span>
             </div>
-            <div *ngIf="!onlineDoctors && onlineDoctors.length !==0" class="loading">
+            <div *ngIf="!dataSource" class="loading">
                 <app-loading></app-loading>
             </div>
             <div class="page" @slideInOut>
