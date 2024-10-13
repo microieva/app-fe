@@ -11,7 +11,13 @@ export class AppSocketService {
     private socket: Socket;
 
     constructor() {
-        this.socket = io(environment.socketUrl); 
+        this.socket = io(environment.socketUrl, {
+            transports: ['websocket'],
+            extraHeaders: {
+              'Content-Type': 'application/json',  
+              'x-apollo-operation-name': 'HealthCenter',  // Custom header required by Apollo
+            }
+        }); 
     }
     registerUser(user: User) {
         if (this.socket && this.socket.connected) {
