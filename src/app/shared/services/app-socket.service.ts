@@ -16,7 +16,7 @@ export class AppSocketService {
             transports: ['websocket'],
             extraHeaders: {
               'Content-Type': 'application/json',  
-              'x-apollo-operation-name': 'HealthCenter',  // Custom header required by Apollo
+              'x-apollo-operation-name': 'HealthCenter',  
             }
         }); 
     }
