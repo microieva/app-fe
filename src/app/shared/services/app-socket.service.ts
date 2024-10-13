@@ -7,7 +7,7 @@ import { User } from '../../graphql/user/user';
 @Injectable({
   providedIn: 'root',
 })
-export class AppSocketService implements OnInit {
+export class AppSocketService {
     private socket: Socket;
 
     constructor() {
@@ -21,18 +21,6 @@ export class AppSocketService implements OnInit {
         }); 
     }
 
-    ngOnInit(): void {
-        this.socket.on("connect_error", (err: any) => {
-            // the reason of the error, for example "xhr poll error"
-            console.log('ERROR MSG: ', err.message);
-          
-            // some additional description, for example the status code of the initial HTTP response
-            console.log('ERROR DESCRIPTION: ', err.description);
-          
-            // some additional context, for example the XMLHttpRequest object
-            console.log('ERROR CONTEXT: ', err.context);
-          });
-    }
     registerUser(user: User) {
         if (this.socket && this.socket.connected) {
             this.socket.emit('registerUser', user);
