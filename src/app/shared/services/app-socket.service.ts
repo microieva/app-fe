@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 import { environment } from '../../../environments/environment';
@@ -7,7 +7,7 @@ import { User } from '../../graphql/user/user';
 @Injectable({
   providedIn: 'root',
 })
-export class AppSocketService {
+export class AppSocketService implements OnInit {
     private socket: Socket;
 
     constructor() {
@@ -19,6 +19,19 @@ export class AppSocketService {
               'x-apollo-operation-name': 'HealthCenter',  
             }
         }); 
+    }
+
+    ngOnInit(): void {
+        this.socket.on("connect_error", (err: any) => {
+            // the reason of the error, for example "xhr poll error"
+            console.log('ERROR MSG: ', err.message);
+          
+            // some additional description, for example the status code of the initial HTTP response
+            console.log('ERROR DESCRIPTION: ', err.description);
+          
+            // some additional context, for example the XMLHttpRequest object
+            console.log('ERROR CONTEXT: ', err.context);
+          });
     }
     registerUser(user: User) {
         if (this.socket && this.socket.connected) {
