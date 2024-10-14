@@ -81,7 +81,6 @@ export class AppTableComponent implements OnInit, AfterViewInit {
     }
     
     ngOnInit() {
-        //console.log('DATA SOURCE: ', this.dataSource)
         if (this.dataSource) {
             const firstElement = this.dataSource.data[0];
 

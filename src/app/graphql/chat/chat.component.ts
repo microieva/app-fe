@@ -1,11 +1,12 @@
 import { trigger, state, style, transition, animate } from "@angular/animations";
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
-import { AppGraphQLService } from "../../shared/services/app-graphql.service";
-import { AlertComponent } from "../../shared/components/app-alert/app-alert.component";
 import { MatDialog } from "@angular/material/dialog";
+import { ActivatedRoute } from "@angular/router";
 import { DateTime } from "luxon";
+import { AppGraphQLService } from "../../shared/services/app-graphql.service";
 import { AppSocketService } from "../../shared/services/app-socket.service";
+import { AlertComponent } from "../../shared/components/app-alert/app-alert.component";
 
 @Component({
     selector: 'app-chat',
@@ -28,7 +29,7 @@ export class ChatComponent implements OnInit {
 
     @Input() chatId!: number;
     @Input() senderId!: number;
-    @Input() receiverId!: number;
+    @Input() receiverId: number | undefined;
     @Input() userRole: 'admin' | undefined;
     @Output() close = new EventEmitter<number>();
 
@@ -41,24 +42,30 @@ export class ChatComponent implements OnInit {
     constructor(
         private graphQLService: AppGraphQLService,
         private dialog: MatDialog,
-        private socketService: AppSocketService
+        private socketService: AppSocketService,
+        private activatedRoute: ActivatedRoute
     ){}
-    async ngOnInit(){
+    async ngOnInit(){    
+        this.activatedRoute.queryParams.subscribe(params => {
+            const id = params['id']; 
+            if (id) this.receiverId = +id;
+        });
 
+        this.socketService.requestOneUserStatus(this.receiverId!);
         await this.loadMessages();
         this.socketService.receiveNotification().subscribe(async (subscription: any)=> {
             if (subscription && subscription.chatId) {
                 await this.loadMessages();
             }
         })
-        this.socketService.getOneUserStatus(this.receiverId).subscribe(isOnline => {
+        this.socketService.getOneUserStatus(this.receiverId!).subscribe(isOnline => {
             if (isOnline.userId && isOnline.userId === this.receiverId) {
                 this.online = isOnline.online;
             } else {
                 this.online = isOnline;
             }
         }); 
-        this.socketService.requestOneUserStatus(this.receiverId);
+          
     }
 
     async loadMessages(){
@@ -80,7 +87,7 @@ export class ChatComponent implements OnInit {
             if (response.data) {
                 this.messages = response.data.messages;
                 this.messages = this.messages.map(msg => {
-                    const time = DateTime.fromISO(msg.createdAt).plus({hours: 3}).toFormat('hh:mm a, MMM dd')
+                    const time = DateTime.fromISO(msg.createdAt).toFormat('hh:mm a, MMM dd')
                     return {
                         ...msg,
                         createdAt: time

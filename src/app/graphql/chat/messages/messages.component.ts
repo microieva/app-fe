@@ -71,11 +71,14 @@ export class MessagesComponent implements OnInit {
             });
           
             this.socketService.requestOnlineUsers();
-
         } else { 
             this.receiverId = environment.adminId;
             this.chatId = await this.loadChatId();
         }
+        this.activatedRoute.queryParams.subscribe(params => {
+            const tab = params['tab'];
+            this.selectedIndex = tab ? +tab : 0; 
+        });
     }
     
     async loadDoctors(){
@@ -143,16 +146,22 @@ export class MessagesComponent implements OnInit {
                     online: false
                 }
             });
-
         }
     }
     
     onTabChange(value: any){
         this.selectedIndex = value;
 
+        this.chats = this.tabsService.getChatTabs();
+        const chat = this.chats[value-1]
+        const receiverId = this.doctors.find(doctor => {
+            const receiverName = doctor.firstName+' '+doctor.lastName;
+            return chat && chat.title === receiverName
+        })?.id;
         this.router.navigate([], {
-          relativeTo: this.activatedRoute,
-          queryParams: { tab: value }
+            relativeTo: this.activatedRoute,
+            queryParams: { tab: value, id: receiverId },
+            queryParamsHandling: 'merge' 
         });
     }
 
@@ -160,8 +169,8 @@ export class MessagesComponent implements OnInit {
         this.receiverId = receiverId;
         const chatReceiver = this.dataSource?.data.find(row => row.id === receiverId);
         this.createChatTab(chatReceiver);
-        this.router.navigate([], {queryParams: { tab: 1}}); // doesnt work !!!
     }
+
     onChatClose(id: number){
         this.tabsService.closeChatTab(id);
         this.chats = this.tabsService.getChatTabs();
@@ -177,9 +186,22 @@ export class MessagesComponent implements OnInit {
             const component = ChatComponent;    
             this.tabsService.addChatTab(title, component, id, this.tabGroup);
 
+            this.chats = this.tabsService.getChatTabs();
+            this.router.navigate([], {
+                relativeTo: this.activatedRoute,
+                queryParams: { tab: 1 },
+                queryParamsHandling: 'merge' 
+            });
+        } else {
+            this.chats = this.tabsService.getChatTabs();
+            const chat = this.chats.find((chat: any) => chat.title === receiverName);
+            const index = this.chats.indexOf(chat);
+            this.router.navigate([], {
+                relativeTo: this.activatedRoute,
+                queryParams: { tab: index+1 },
+                queryParamsHandling: 'merge' 
+            });
         }
-
-        this.chats = this.tabsService.getChatTabs();
     }
 
     async loadChatId(receiverId?: number): Promise<number | undefined>{

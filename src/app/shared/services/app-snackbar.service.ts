@@ -15,9 +15,10 @@ export class AppSnackbarService {
     }
 
     show(message: string, appointmentId: number | null, doctorRequestId: number | null, chatId: number | null, sender :string | null) {
-        if (chatId && !this.router.url.includes('messages')) {
+        const isOnMessagesPage = this.router.url.includes('messages');
+        if (chatId && !isOnMessagesPage) {
             this.container?.addSnackbar(message, appointmentId, doctorRequestId, chatId, sender);
-        } else {
+        } else if (!chatId){
             this.container?.addSnackbar(message, appointmentId, doctorRequestId, chatId, sender);
         }
     }

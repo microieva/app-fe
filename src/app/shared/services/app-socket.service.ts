@@ -1,4 +1,4 @@
-import { Injectable, OnInit } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 import { environment } from '../../../environments/environment';
@@ -34,8 +34,6 @@ export class AppSocketService {
             this.socket.on('onlineUsers', (onlineUsers: any[]) => {
                 observer.next(onlineUsers);
             });
-
-            return () => this.socket.off('onlineUsers');
         });
     }
 
@@ -45,8 +43,6 @@ export class AppSocketService {
             this.socket.on('online', (online) => {
                 observer.next(online);
             });
-
-            return () => this.socket.off('online');
         });
     }
 
@@ -67,10 +63,6 @@ export class AppSocketService {
             this.socket.on('receiveNotification', (message: string) => {
                 observer.next(message);
             });
-
-            return () => {
-                this.socket.off('receiveNotification');
-            };
         });
     }
 
@@ -83,10 +75,6 @@ export class AppSocketService {
             this.socket.on('newAppointmentRequest', (info: any) => {
                 observer.next(info);
             });
-
-            return () => {
-                this.socket.off('newAppointmentRequest');
-            };
         });
     }
 
@@ -100,9 +88,9 @@ export class AppSocketService {
                 observer.next(info);
             });
 
-            return () => {
-                this.socket.off('deletedAppointmentInfo');
-            };
+            // return () => {
+            //     this.socket.off('deletedAppointmentInfo');
+            // };
         });
     }
 }
