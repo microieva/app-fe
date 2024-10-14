@@ -33,7 +33,6 @@ export class MessagesComponent implements OnInit {
     selectedIndex: number = 0;
     userRole!: string;
     me!: Partial<User>;
-    countOnlineDoctors: number = 0;
     dataSource: MatTableDataSource<any> | null = null;
     onlineDoctors: any[] | undefined;
     chatId: number | undefined = 0;

@@ -4,7 +4,6 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../services/app-graphql.service";
 import { AppAppointmentService } from "../../services/app-appointment.service";
-import { AppTimerService } from "../../services/app-timer.service";
 import { AlertComponent } from "../app-alert/app-alert.component";
 import { User } from "../../../graphql/user/user";
 import { Appointment } from "../../../graphql/appointment/appointment";
@@ -28,7 +27,6 @@ export class AppLandingComponent implements OnInit {
     countUpcomingAppointments: number = 0;
     countPendingAppointments: number = 0;
     countRecords: number = 0;
-    countOnlineDoctors: number = 0;
 
     nextId: number | null = null;
     previousNextId: number | null = null;
@@ -40,8 +38,7 @@ export class AppLandingComponent implements OnInit {
         private dialog: MatDialog,
         private router: Router,
         private graphQLService: AppGraphQLService,
-        private appointmentService: AppAppointmentService,
-        private timerService: AppTimerService
+        private appointmentService: AppAppointmentService
     ){}
 
     async ngOnInit() {
@@ -115,7 +112,6 @@ export class AppLandingComponent implements OnInit {
             countDoctors
             countPatients
             countMissedAppointments
-            countOnlineDoctors
         }`
         try {
             const response = await this.graphQLService.send(query);
@@ -125,7 +121,6 @@ export class AppLandingComponent implements OnInit {
                 this.countDoctors = response.data.countDoctors;
                 this.countPatients = response.data.countPatients;
                 this.countMissedAppointments = response.data.countMissedAppointments;
-                this.countOnlineDoctors = response.data.countOnlineDoctors;
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: error}});
