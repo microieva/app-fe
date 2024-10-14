@@ -61,9 +61,7 @@ export class ChatComponent implements OnInit {
         this.socketService.getOneUserStatus(this.receiverId!).subscribe(isOnline => {
             if (isOnline.userId && isOnline.userId === this.receiverId) {
                 this.online = isOnline.online;
-            } else {
-                this.online = isOnline;
-            }
+            } 
         }); 
           
     }

@@ -143,6 +143,7 @@
             *matRowDef="let element; columns: displayedColumns;" 
             (click)="element.online === undefined && (expandedElement = expandedElement === element ? null : element); $event.stopPropagation(); onRowClick(element.id)"
             [ngStyle]="{backgroundColor: (markAppointmentId && markAppointmentId === element.id) ? 'aqua': ''}"
+            [ngClass]="{'blinking': isBlinkingChatId && isBlinkingChatId === element.id}"
         ></tr>
         
         <tr mat-row *matRowDef="let element; columns: ['expandedDetail'];" class="expandable-element-detail-row"

@@ -6,6 +6,7 @@ import { animate, state, style, transition, trigger } from "@angular/animations"
 import { Subject, debounceTime } from "rxjs";
 import { AppTimerService } from "../../services/app-timer.service";
 import { AppDataSource } from "../../types";
+import { AppSocketService } from "../../services/app-socket.service";
 
 @Component({
     selector: 'app-table',
@@ -41,6 +42,7 @@ export class AppTableComponent implements OnInit, AfterViewInit {
     @Input() reset: boolean = false;
     @Input() userRole!: string;
     @Input() markAppointmentId: number | null = null;
+    isBlinkingChatId: number | null = null;
 
     @ViewChild(MatPaginator, {read: true}) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
@@ -70,7 +72,8 @@ export class AppTableComponent implements OnInit, AfterViewInit {
     }
 
     constructor(
-        public timerService: AppTimerService
+        public timerService: AppTimerService,
+        private socketService: AppSocketService
     ){
         this.searchSubject.pipe(
             debounceTime(300)
@@ -81,6 +84,12 @@ export class AppTableComponent implements OnInit, AfterViewInit {
     }
     
     ngOnInit() {
+        this.socketService.receiveNotification().subscribe((subscription: any)=> {
+            if (subscription && subscription.chatId) {
+                this.isBlinkingChatId = subscription.chatId;
+            }
+        });
+        
         if (this.dataSource) {
             const firstElement = this.dataSource.data[0];
 
@@ -148,6 +157,7 @@ export class AppTableComponent implements OnInit, AfterViewInit {
     }
     onRowClick(chatReceiverId: number | undefined){
         this.markAppointmentId = null;
+        this.isBlinkingChatId = null;
         if (chatReceiverId) {
             this.receiverId.emit(chatReceiverId);
         }

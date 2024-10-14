@@ -36,6 +36,7 @@ export class MessagesComponent implements OnInit {
     dataSource: MatTableDataSource<any> | null = null;
     onlineDoctors: any[] | undefined;
     chatId: number | undefined = 0;
+    isBlinkingChatId: number | undefined;
     receiverId: number | undefined;
     doctors: User[] = [];
     doctorsLength: number = 0;
@@ -169,6 +170,7 @@ export class MessagesComponent implements OnInit {
         this.receiverId = receiverId;
         const chatReceiver = this.dataSource?.data.find(row => row.id === receiverId);
         this.createChatTab(chatReceiver);
+        this.isBlinkingChatId = undefined;
     }
 
     onChatClose(id: number){
