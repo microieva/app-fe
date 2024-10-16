@@ -18,12 +18,39 @@ export class AppSocketService {
               'x-apollo-operation-name': 'HealthCenter',  
             }
         }); 
+        this.socket.on('disconnect', () => {
+            console.warn('Socket disconnected, attempting to reconnect...');
+            this.reconnectSocket();
+        });
+    }
+    private reconnectSocket(): Promise<void> {
+        return new Promise((resolve, reject) => {
+            if (!this.socket.connected) {
+                this.socket.connect();  
+
+                this.socket.on('connect', () => {
+                    console.log('Reconnected successfully');
+                    resolve();
+                });
+
+                // Handle reconnection failure
+                this.socket.on('connect_error', (error) => {
+                    console.error('Reconnection failed', error);
+                    reject(error);
+                });
+            } else {
+                resolve(); 
+            }
+        });
     }
     registerUser(user: User) {
         if (this.socket && this.socket.connected) {
             this.socket.emit('registerUser', user);
         } else {
             console.error('Socket not connected');
+            this.reconnectSocket().then(() => {
+                this.socket.emit('registerUser', user);
+            });
         }
     }
 
