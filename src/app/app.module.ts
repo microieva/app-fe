@@ -21,7 +21,7 @@ import {MatTabsModule} from '@angular/material/tabs';
 import {MatTableModule} from '@angular/material/table';
 import {MatAccordion, MatExpansionModule} from '@angular/material/expansion';
 import {MatRadioModule} from '@angular/material/radio';
-import { MAT_DATE_FORMATS, MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
+import { MAT_DATE_FORMATS, MAT_DATE_LOCALE, MatCommonModule, provideNativeDateAdapter } from '@angular/material/core';
 import { AppHomeComponent } from './shared/components/app-home/app-home.component';
 import { MatDialogContent, MatDialogModule } from '@angular/material/dialog';
 import { UserComponent } from './graphql/user/user.component';
@@ -61,6 +61,7 @@ import { MessagesComponent } from './graphql/chat/messages/messages.component';
 import { ChatComponent } from './graphql/chat/chat.component';
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { CommonModule } from '@angular/common';
 
 @NgModule({ 
     declarations: [
@@ -91,6 +92,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     ],
     bootstrap: [AppComponent], 
     imports: [
+        MatCommonModule,
         BrowserAnimationsModule,
         NgxEditorModule,
         MatCheckboxModule,

@@ -31,6 +31,7 @@
             </a>
             <a mat-list-item [routerLink]="['/home','messages']" routerLinkActive="activeLink"  *ngIf="userRole !== 'patient'">
                 <div class="flex">
+                    <!-- TO DO: *ngIf="isUserUpdated" -->
                     <span>{{ 'Messages' }}</span>
                 </div>
             </a>

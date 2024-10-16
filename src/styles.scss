@@ -92,7 +92,7 @@ mat-form-field {
   --mat-radio-disabled-label-color: rgba(0, 0, 0, 0.38);
 }
 .mat-mdc-tab.mdc-tab {
-  min-width: 16rem;
+  width: 16rem;
   &--active {background-color: rgb(139,149,161);}
 }
 .tab-label{

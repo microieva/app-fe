@@ -71,5 +71,6 @@ export interface UserDataSource {
     dob?: string
     email: string
     isRequest?: boolean;
+    online?:boolean;
 }
 export type AppDataSource = AppointmentDataSource | RecordDataSource | UserDataSource;

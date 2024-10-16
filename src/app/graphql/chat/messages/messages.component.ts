@@ -1,4 +1,4 @@
-import { Component, OnInit, QueryList, ViewChild, ViewChildren, ViewContainerRef } from "@angular/core";
+import { Component, ElementRef, OnInit, QueryList, Renderer2, ViewChild, ViewChildren, ViewContainerRef } from "@angular/core";
 import { MatTableDataSource } from "@angular/material/table";
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -11,6 +11,7 @@ import { AppTabsService } from "../../../shared/services/app-tabs.service";
 import { AlertComponent } from "../../../shared/components/app-alert/app-alert.component";
 import { ChatComponent } from "../chat.component";
 import { User } from "../../user/user";
+import { UserDataSource } from "../../../shared/types";
 
 @Component({
     selector: 'app-messages',
@@ -36,7 +37,7 @@ export class MessagesComponent implements OnInit {
     dataSource: MatTableDataSource<any> | null = null;
     onlineDoctors: any[] | undefined;
     chatId: number | undefined = 0;
-    isBlinkingChatId: number | undefined;
+    senders: string[] = [];
     receiverId: number | undefined;
     doctors: User[] = [];
     doctorsLength: number = 0;
@@ -57,7 +58,9 @@ export class MessagesComponent implements OnInit {
         private activatedRoute: ActivatedRoute,
         private socketService: AppSocketService,
         private tabsService: AppTabsService,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private renderer: Renderer2, 
+        private el: ElementRef
     ){}
 
     async ngOnInit() {
@@ -69,6 +72,11 @@ export class MessagesComponent implements OnInit {
                 this.onlineDoctors = users.filter(user => user.userRole === 'doctor') || [];
                 await this.loadDoctors();
                 this.formatDataSource();
+            });
+            this.socketService.receiveNotification().subscribe((subscription: any)=> {
+                if (subscription && subscription.chatId) {
+                    this.senders.push(subscription.sender);
+                }
             });
           
             this.socketService.requestOnlineUsers();
@@ -124,7 +132,7 @@ export class MessagesComponent implements OnInit {
                 this.doctorsLength = response.data.doctors.length;
                 const formatted = this.formatDataSource()
 
-                this.dataSource = new MatTableDataSource<any>(formatted);
+                this.dataSource = new MatTableDataSource<UserDataSource>(formatted);
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading requests: "+error}})
@@ -159,6 +167,7 @@ export class MessagesComponent implements OnInit {
             const receiverName = doctor.firstName+' '+doctor.lastName;
             return chat && chat.title === receiverName
         })?.id;
+        this.senders = this.senders.filter((name: string) => name !== chat.sender);
         this.router.navigate([], {
             relativeTo: this.activatedRoute,
             queryParams: { tab: value, id: receiverId },
@@ -170,7 +179,7 @@ export class MessagesComponent implements OnInit {
         this.receiverId = receiverId;
         const chatReceiver = this.dataSource?.data.find(row => row.id === receiverId);
         this.createChatTab(chatReceiver);
-        this.isBlinkingChatId = undefined;
+        //this.isBlinkingChatId = undefined;
     }
 
     onChatClose(id: number){
@@ -236,5 +245,10 @@ export class MessagesComponent implements OnInit {
             console.error(error);
             this.router.navigate(['/home'])
         }
+    }
+
+    isNewSender(senderName: string){
+        return false;
+        //return this.senders.some((name: string) => name === senderName);
     }
 }

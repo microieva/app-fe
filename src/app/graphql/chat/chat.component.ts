@@ -2,11 +2,13 @@ import { trigger, state, style, transition, animate } from "@angular/animations"
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { MatDialog } from "@angular/material/dialog";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../shared/services/app-graphql.service";
 import { AppSocketService } from "../../shared/services/app-socket.service";
 import { AlertComponent } from "../../shared/components/app-alert/app-alert.component";
+import { ConfirmComponent } from "../../shared/components/app-confirm/app-confirm.component";
+import { AppTabsService } from "../../shared/services/app-tabs.service";
 
 @Component({
     selector: 'app-chat',
@@ -43,7 +45,9 @@ export class ChatComponent implements OnInit {
         private graphQLService: AppGraphQLService,
         private dialog: MatDialog,
         private socketService: AppSocketService,
-        private activatedRoute: ActivatedRoute
+        private activatedRoute: ActivatedRoute,
+        private tabsService: AppTabsService,
+        private router: Router
     ){}
     async ngOnInit(){    
         this.activatedRoute.queryParams.subscribe(params => {
@@ -140,5 +144,32 @@ export class ChatComponent implements OnInit {
     }
     onChatClose(){
         this.close.emit(this.chatId)
+    }
+    onChatDelete(){
+        const ref = this.dialog.open(ConfirmComponent, {data: {message: "Deleting all messages"}});
+        ref.componentInstance.ok.subscribe(async ok => {
+            if (ok) {
+                await this.deleteChatForParticipant();
+            }
+        })
+    }
+    async deleteChatForParticipant() {
+        const mutation = `mutation ($chatId: Int!) {
+            deleteChatForParticipant (chatId: $chatId) {
+                success
+                message
+            }
+        }`
+
+        try {
+            const response = await this.graphQLService.mutate(mutation, {chatId: this.chatId});
+            if (response.data) {
+                this.tabsService.closeChatTab(this.chatId);
+                this.router.navigate(['/home/messages']);
+                this.ngOnInit();
+            }
+        } catch (error) {
+            this.dialog.open(AlertComponent, {data: {message: error}});
+        }
     }
 }

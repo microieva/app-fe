@@ -2,8 +2,10 @@
     <span class="icon material-symbols-outlined">info</span>
     <h3 *ngIf="online">Online</h3> 
     <h3 *ngIf="!online">Offline</h3>
-    <button *ngIf="userRole === 'admin'" mat-stroked-button (click)="onChatClose()">{{ 'Close' }}</button>
-    <span *ngIf="userRole !== 'admin'">{{ ' ' }}</span>
+    <button mat-stroked-button (click)="onChatDelete()">
+        <span *ngIf="userRole!=='admin'">{{ 'Clear' }}</span>
+        <span *ngIf="userRole === 'admin'">{{ 'Delete Chat' }}</span>
+    </button>
 </div>
 <div class="page flex-column">
     <form class="form-wrapper" [formGroup]="form" (ngSubmit)="onSendMessage()">

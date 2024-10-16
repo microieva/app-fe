@@ -5,7 +5,7 @@ import { MatSort } from "@angular/material/sort";
 import { animate, state, style, transition, trigger } from "@angular/animations";
 import { Subject, debounceTime } from "rxjs";
 import { AppTimerService } from "../../services/app-timer.service";
-import { AppDataSource } from "../../types";
+import { AppDataSource, UserDataSource } from "../../types";
 import { AppSocketService } from "../../services/app-socket.service";
 
 @Component({
@@ -42,7 +42,8 @@ export class AppTableComponent implements OnInit, AfterViewInit {
     @Input() reset: boolean = false;
     @Input() userRole!: string;
     @Input() markAppointmentId: number | null = null;
-    isBlinkingChatId: number | null = null;
+    //@Input() senders: string[] = [];
+    senders: any[] =[];
 
     @ViewChild(MatPaginator, {read: true}) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
@@ -83,13 +84,7 @@ export class AppTableComponent implements OnInit, AfterViewInit {
         
     }
     
-    ngOnInit() {
-        this.socketService.receiveNotification().subscribe((subscription: any)=> {
-            if (subscription && subscription.chatId) {
-                this.isBlinkingChatId = subscription.chatId;
-            }
-        });
-        
+    ngOnInit() {       
         if (this.dataSource) {
             const firstElement = this.dataSource.data[0];
 
@@ -107,6 +102,14 @@ export class AppTableComponent implements OnInit, AfterViewInit {
             
             this.columnsToDisplayWithExpand = [...this.displayedColumns, 'expandedDetail'];  
         }
+        this.socketService.receiveNotification().subscribe((subscription: any)=> {
+            if (subscription && subscription.chatId) {
+                if (!this.senders.find(sender => sender === subscription.sender)) {
+                    this.senders.push(subscription.sender);
+                }
+                //this.isBlinkingChatName = subscription.sender;
+            }
+        });
     }
     ngAfterViewInit(): void {   
         if (this.paginator && this.dataSource) {
@@ -155,11 +158,18 @@ export class AppTableComponent implements OnInit, AfterViewInit {
     onButtonClick(id: number, text: string){
         this.buttonClick.emit({id, text});
     }
-    onRowClick(chatReceiverId: number | undefined){
+    onRowClick(id: number){
         this.markAppointmentId = null;
-        this.isBlinkingChatId = null;
-        if (chatReceiverId) {
-            this.receiverId.emit(chatReceiverId);
+        if (id) {
+            const newSender = this.dataSource.data.find(sender => sender.id === id) as UserDataSource;
+            if (newSender && newSender.online !== undefined) {
+                this.senders = this.senders.filter(sender => sender !== `${newSender.firstName} ${newSender.lastName}`);
+            }
+            this.receiverId.emit(id);
         }
     }
+    isNewSender(element: any): boolean {
+        return this.senders.some(sender => sender === `${element.firstName} ${element.lastName}`);
+    }
+      
 }
