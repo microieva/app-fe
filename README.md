@@ -1,6 +1,8 @@
 ### Introduction
 
-This repository contains Angular front end for a professional portfolio project "Health Center".
+This repository contains Angular front end for a professional portfolio project "Health Center". 
+
+"Health Center" application supports three user roles with different features for each scope: patient access provides features centuring around maintaining appointments and accessing medical records; for doctors, besides handling appointment bookings and creating medical records, the application provides calendar notifications about upcoming appointments as well as real-time notifications on incoming messages in the chat with admin or, patients creating new appointment request, or, patients canceling confirmed appointment; admin user role besides the chat, provides functionalities related to managing appointments on patient's behalf and activating doctors accounts.
 
 This repository is deployed via [Vercel](https://app-fe-gamma.vercel.app/). 
 [See user login credentials](#user-roles).
@@ -117,6 +119,7 @@ ___
 - [apollo-angular]("https://www.npmjs.com/package/apollo-angular")
 - [FullCalendar]("https://www.npmjs.com/package/fullcalendar")
 - [ngx-editor]("https://www.npmjs.com/package/ngx-editor")
+- [socket.io-client]("https://www.npmjs.com/package/socket.io-client")
   
 
 ### User Features
@@ -135,6 +138,7 @@ ___
 - View all patients 
 - Delete, activate doctor account request
 - On behalf of patient: create, update, *delete appointments 
+- Contact doctors via live chat
   
 ###### doctor
 
@@ -144,6 +148,7 @@ ___
 - View, *update, *delete accepted appointments
 - View, delete past appointments
 - View, *create, update, delete medical records
+- Contact admin via live chat
   
 ###### patient
 

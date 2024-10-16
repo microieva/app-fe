@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, QueryList, Renderer2, ViewChild, ViewChildren, ViewContainerRef } from "@angular/core";
+import { Component, OnInit, QueryList, ViewChild, ViewChildren, ViewContainerRef } from "@angular/core";
 import { MatTableDataSource } from "@angular/material/table";
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -58,9 +58,7 @@ export class MessagesComponent implements OnInit {
         private activatedRoute: ActivatedRoute,
         private socketService: AppSocketService,
         private tabsService: AppTabsService,
-        private dialog: MatDialog,
-        private renderer: Renderer2, 
-        private el: ElementRef
+        private dialog: MatDialog
     ){}
 
     async ngOnInit() {
@@ -179,7 +177,6 @@ export class MessagesComponent implements OnInit {
         this.receiverId = receiverId;
         const chatReceiver = this.dataSource?.data.find(row => row.id === receiverId);
         this.createChatTab(chatReceiver);
-        //this.isBlinkingChatId = undefined;
     }
 
     onChatClose(id: number){
