@@ -9,7 +9,6 @@ import { User } from '../../graphql/user/user';
 })
 export class AppSocketService {
     private socket: Socket;
-
     constructor() {
         this.socket = io(environment.socketUrl, {
             withCredentials: true,
@@ -20,7 +19,6 @@ export class AppSocketService {
             }
         }); 
     }
-
     registerUser(user: User) {
         if (this.socket && this.socket.connected) {
             this.socket.emit('registerUser', user);
