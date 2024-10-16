@@ -1,12 +1,12 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnInit, Output, ViewChild } from "@angular/core";
+import { animate, state, style, transition, trigger } from "@angular/animations";
 import { MatTableDataSource } from "@angular/material/table";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
-import { animate, state, style, transition, trigger } from "@angular/animations";
 import { Subject, debounceTime } from "rxjs";
 import { AppTimerService } from "../../services/app-timer.service";
-import { AppDataSource, UserDataSource } from "../../types";
 import { AppSocketService } from "../../services/app-socket.service";
+import { AppDataSource, UserDataSource } from "../../types";
 
 @Component({
     selector: 'app-table',
@@ -42,7 +42,6 @@ export class AppTableComponent implements OnInit, AfterViewInit {
     @Input() reset: boolean = false;
     @Input() userRole!: string;
     @Input() markAppointmentId: number | null = null;
-    //@Input() senders: string[] = [];
     senders: any[] =[];
 
     @ViewChild(MatPaginator, {read: true}) paginator!: MatPaginator;
@@ -107,7 +106,6 @@ export class AppTableComponent implements OnInit, AfterViewInit {
                 if (!this.senders.find(sender => sender === subscription.sender)) {
                     this.senders.push(subscription.sender);
                 }
-                //this.isBlinkingChatName = subscription.sender;
             }
         });
     }

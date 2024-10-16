@@ -33,7 +33,6 @@ export class AppSocketService {
                     resolve();
                 });
 
-                // Handle reconnection failure
                 this.socket.on('connect_error', (error) => {
                     console.error('Reconnection failed', error);
                     reject(error);
@@ -112,10 +111,6 @@ export class AppSocketService {
             this.socket.on('deletedAppointmentInfo', (info: any) => {
                 observer.next(info);
             });
-
-            // return () => {
-            //     this.socket.off('deletedAppointmentInfo');
-            // };
         });
     }
 }

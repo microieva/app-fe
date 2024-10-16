@@ -5,10 +5,10 @@ import { MatDialog } from "@angular/material/dialog";
 import { ActivatedRoute, Router } from "@angular/router";
 import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../shared/services/app-graphql.service";
+import { AppTabsService } from "../../shared/services/app-tabs.service";
 import { AppSocketService } from "../../shared/services/app-socket.service";
 import { AlertComponent } from "../../shared/components/app-alert/app-alert.component";
 import { ConfirmComponent } from "../../shared/components/app-confirm/app-confirm.component";
-import { AppTabsService } from "../../shared/services/app-tabs.service";
 
 @Component({
     selector: 'app-chat',
