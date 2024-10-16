@@ -7,7 +7,7 @@ This repository contains Angular front end for a professional portfolio project 
 This repository is deployed via [Vercel](https://app-fe-gamma.vercel.app/). 
 [See user login credentials](#user-roles).
 [Visit Health Center](https://app-fe-gamma.vercel.app/)
-[See user login credentials](#user-roles).
+
 
 ![](./src/assets/1.png)
 ___
@@ -115,11 +115,11 @@ ___
 
 ### Libraries
 
-- [Angular Material]("https://material.angular.io")
-- [apollo-angular]("https://www.npmjs.com/package/apollo-angular")
-- [FullCalendar]("https://www.npmjs.com/package/fullcalendar")
-- [ngx-editor]("https://www.npmjs.com/package/ngx-editor")
-- [socket.io-client]("https://www.npmjs.com/package/socket.io-client")
+- [Angular Material](https://material.angular.io)
+- [apollo-angular](https://www.npmjs.com/package/apollo-angular)
+- [FullCalendar](https://www.npmjs.com/package/fullcalendar)
+- [ngx-editor](https://www.npmjs.com/package/ngx-editor)
+- [socket.io-client](https://www.npmjs.com/package/socket.io-client)
   
 
 ### User Features
