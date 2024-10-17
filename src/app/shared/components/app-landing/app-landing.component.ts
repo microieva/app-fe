@@ -131,7 +131,6 @@ export class AppLandingComponent implements OnInit {
     }
 
     async loadDoctorStatic(){
-        console.log('load doctor static')
         const query = `query { 
             countPendingAppointments
             countUpcomingAppointments

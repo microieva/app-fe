@@ -86,18 +86,19 @@ export class AppTableComponent implements OnInit, AfterViewInit {
     ngOnInit() {       
         if (this.dataSource) {
             const firstElement = this.dataSource.data[0];
-
-            if ('online' in firstElement) {
-                this.displayedColumns = ['online', 'name', 'email'];
-            } else if ('email' in firstElement) { // type UserDataSource
-                this.displayedColumns = ['name', 'email', 'created'];
-            } else if ('date' in firstElement && this.userRole === 'patient') {
-                this.displayedColumns =['id', 'status', 'time'] // type AppointmentDataSource - patient view
-            } else if ('date' in firstElement && this.userRole === 'doctor') { 
-                    this.displayedColumns = ['id', 'patientName', 'time']  // type AppointmentDataSource - doctor / admin view
-            } else if ('title' in firstElement && 'createdAt' in firstElement) {
-                this.displayedColumns = ['title', 'created']; 
-            } 
+            if (firstElement) {
+                if ('online' in firstElement) {
+                    this.displayedColumns = ['online', 'name', 'email'];
+                } else if ('email' in firstElement) { // type UserDataSource
+                    this.displayedColumns = ['name', 'email', 'created'];
+                } else if ('date' in firstElement && this.userRole === 'patient') {
+                    this.displayedColumns =['id', 'status', 'time'] // type AppointmentDataSource - patient view
+                } else if ('date' in firstElement && this.userRole === 'doctor') { 
+                        this.displayedColumns = ['id', 'patientName', 'time']  // type AppointmentDataSource - doctor / admin view
+                } else if ('title' in firstElement && 'createdAt' in firstElement) {
+                    this.displayedColumns = ['title', 'created']; 
+                } 
+            }
             
             this.columnsToDisplayWithExpand = [...this.displayedColumns, 'expandedDetail'];  
         }
