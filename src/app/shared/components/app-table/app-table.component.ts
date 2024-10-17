@@ -87,7 +87,7 @@ export class AppTableComponent implements OnInit, AfterViewInit {
         if (this.dataSource) {
             const firstElement = this.dataSource.data[0];
 
-            if ('email' in firstElement && 'online' in firstElement) {
+            if ('online' in firstElement) {
                 this.displayedColumns = ['online', 'name', 'email'];
             } else if ('email' in firstElement) { // type UserDataSource
                 this.displayedColumns = ['name', 'email', 'created'];

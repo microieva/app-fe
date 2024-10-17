@@ -29,9 +29,8 @@
                     <span>{{ 'Patients' }}</span>
                 </div>
             </a>
-            <a mat-list-item [routerLink]="['/home','messages']" routerLinkActive="activeLink"  *ngIf="userRole !== 'patient'">
+            <a mat-list-item [routerLink]="['/home','messages']" routerLinkActive="activeLink"  *ngIf="userRole !== 'patient' && isUserUpdated">
                 <div class="flex">
-                    <!-- TO DO: *ngIf="isUserUpdated" -->
                     <span>{{ 'Messages' }}</span>
                 </div>
             </a>
