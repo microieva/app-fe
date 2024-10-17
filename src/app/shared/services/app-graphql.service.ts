@@ -10,10 +10,10 @@ export class AppGraphQLService {
 
     async send(query: string, variables?: Object): Promise<any> {
         const result = this.apollo.watchQuery({
-        query: gql`${query}`,
-        variables,
-        fetchPolicy: 'network-only',
-        pollInterval: 3000,
+            query: gql`${query}`,
+            variables,
+            fetchPolicy: 'network-only',
+            pollInterval: 3000
         }).valueChanges;
 
         return firstValueFrom(result);
@@ -21,9 +21,9 @@ export class AppGraphQLService {
 
     async mutate(mutation: string, variables: Object): Promise<any> {
         const result = this.apollo.mutate({
-        mutation: gql`${mutation}`,
-        variables,
-        fetchPolicy: 'network-only',
+            mutation: gql`${mutation}`,
+            variables,
+            fetchPolicy: 'network-only'
         });
 
         return firstValueFrom(result);

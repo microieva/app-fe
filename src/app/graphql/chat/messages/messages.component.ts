@@ -248,4 +248,30 @@ export class MessagesComponent implements OnInit {
         return false;
         //return this.senders.some((name: string) => name === senderName);
     }
+
+    async onPageChange(value: any) {
+        this.pageIndex = value.pageIndex;
+        this.pageLimit = value.pageLimit;
+        await this.loadDoctors();
+    }
+
+    async onSortChange(value: any) {
+        switch (value.active) {
+            case 'email':
+                this.sortActive = 'email';
+                break;
+            case 'name':
+                this.sortActive = 'firstName';
+                break;
+        }        
+
+        if (value.direction)
+        this.sortDirection = value.direction.toUpperCase();
+        await this.loadDoctors();
+    }
+
+    async onFilterValueChange(value: any){
+        this.filterInput = value;
+        await this.loadDoctors();
+    }
 }

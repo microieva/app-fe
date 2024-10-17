@@ -44,9 +44,12 @@ export class AppLandingComponent implements OnInit {
     async ngOnInit() {
         await this.loadMe();
         await this.loadData();
-
-        this.router.events.subscribe(() => {
+        
+        this.router.events.subscribe(async () => {
             this.isHomeRoute = this.router.url === '/home';
+            if (this.isHomeRoute) {  
+                await this.loadData();
+            }
         });
 
         this.activatedRoute.queryParams.subscribe(async params => {
@@ -128,6 +131,7 @@ export class AppLandingComponent implements OnInit {
     }
 
     async loadDoctorStatic(){
+        console.log('load doctor static')
         const query = `query { 
             countPendingAppointments
             countUpcomingAppointments

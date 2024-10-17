@@ -628,15 +628,25 @@ export class AppointmentsComponent implements OnInit {
     onButtonClick({ id, text }: {id: number, text: string}) {
         switch (text) {
             case 'Cancel Appointment':
-                this.deleteAppointment(id);
+                if (this.dataSource?.data.length === 1) {
+                    this.deleteAppointment(id);
+                    this.pageIndex--;
+                } else {
+                    this.deleteAppointment(id);
+                }
                 break;
             case 'Delete Appointment':
-                this.deleteAppointment(id);
+                if (this.dataSource?.data.length === 1) {
+                    this.deleteAppointment(id);
+                    this.pageIndex--;
+                } else {
+                    this.deleteAppointment(id);
+                }
                 break;
             case 'Accept Appointment':
-                if (this.dataSource!.data.length === 1) {
+                if (this.dataSource?.data.length === 1) {
                     this.acceptAppointment(id);
-                    this.pageIndex-=-1;
+                    this.pageIndex--;
                 } else {
                     this.acceptAppointment(id);
                 }
