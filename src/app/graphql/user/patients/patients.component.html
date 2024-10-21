@@ -7,15 +7,24 @@
     <app-loading></app-loading>
 </div>
 <div class="page" @slideInOut>
-    <app-table
-        *ngIf="dataSource && countPatients>0"
-        [dataSource]="dataSource" 
-        [length]="length"
-        [userRole]="userRole"
-        (pageChange)="onPageChange($event)"
-        (sortChange)="onSortChange($event)"
-        (filterValue)="onFilterValueChange($event, async)"
-        (userClick)="onPatientClick($event, async)"
-    >
-    </app-table>
+    <div>
+        <h2 class="font">Registered patients:</h2>
+        <p *ngIf="countPatients === 1">Currently there is {{countPatients}} patient registered in this health center.</p>
+        <p *ngIf="countPatients > 1">Currently there are {{countPatients}} patients registered in this Health Center.</p>
+    </div>
+    <div class="table-wrapper">
+        <app-table
+            *ngIf="dataSource && displayedColumns && countPatients>0"
+            [dataSource]="dataSource" 
+            [displayedColumns]="displayedColumns"
+            [length]="length"
+            [userRole]="userRole"
+            (pageChange)="onPageChange($event)"
+            (sortChange)="onSortChange($event)"
+            (filterValue)="onFilterValueChange($event, async)"
+            (rowClick)="onPatientClick($event, async)"
+        >
+        </app-table>
+
+    </div>
 </div>

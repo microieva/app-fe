@@ -34,6 +34,7 @@ export class EventComponent implements OnInit{
     @Output() delete = new EventEmitter<number>();
     @Output() message = new EventEmitter<string>();
     @Output() deleteMessage = new EventEmitter<number>();
+    @Output() acceptAppointment = new EventEmitter<number>();
     @Output() isOpeningTab = new EventEmitter<number>();
 
     @ViewChild('el') el: ElementRef | undefined;
@@ -267,6 +268,9 @@ export class EventComponent implements OnInit{
                 if (subscription) this.dialog.closeAll();
             })
         }
+    }
+    onAcceptAppointment(id: number){
+        this.acceptAppointment.emit(id);
     }
 
 }

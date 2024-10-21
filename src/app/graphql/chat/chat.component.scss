@@ -3,6 +3,8 @@
     border-radius: 5px;
     height: calc(85vh - 10rem);
     margin-top: 4rem;
+    width: 60%;
+    background-color: rgb(215 222 230);
 }
 mat-form-field {
     margin: 0;
@@ -29,13 +31,14 @@ mat-form-field {
     padding: 0.5rem;
     border-radius: 10px;
     margin: 5px 0;
+    z-index: 1;
 }
 .incoming {
     background-color: rgb(175 111 174 / 40%);   
     align-self: flex-end;    
 }
 .outgoing {
-    background-color: transparent;
+    background-color: rgb(215 222 230);
     border: 1px solid rgb(111, 143, 175, 40%);
     float: inline-end;
 }
@@ -47,4 +50,13 @@ mat-form-field {
     color: dimgray;
     font-size: smaller;
     min-width:max-content;
+}
+#bg-icon {
+    position: absolute;
+    font-size: 34rem;
+    right: 65px;
+    top: 85px;
+    transform: rotate(21deg);
+    color: darkgray;
+    opacity: 0.3;
 }

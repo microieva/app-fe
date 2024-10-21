@@ -1,16 +1,15 @@
 .block {
-    margin-top:8rem;
     font-size: smaller;
-    padding-top: 4rem;
     background-color: transparent;
     border: none;
     display: flex;
     flex-direction: column;
     align-items: baseline;
+    z-index: 1;
     .flex-row {
         width: 100%;
     }
-    h2, h4 {
+    h2, h4{
         border: 1px solid  rgb(68, 65, 65);
         padding: 0.5rem 1.5rem;
         width: 50%;
@@ -21,10 +20,17 @@
             font-size: 14px;
             padding: 2px 0;
         }
+        .material-symbols-outlined {
+            font-size: larger;
+        }
     }
 }
 * {
     color: rgb(53, 52, 52); 
+}
+.page {
+    width: 75%;
+    margin-top: 8rem;
 }
 
 .content {
@@ -42,6 +48,7 @@ button {
 }
 .title {
     color: rgb(139,149,161);
+    margin-bottom:0;
 }
 
 mat-sidenav {
@@ -50,6 +57,7 @@ mat-sidenav {
 mat-nav-list{
     a {
         border-radius:0;
+        border-bottom: 1px solid rgb(130, 128, 128);
     }
 }
 button {
@@ -79,3 +87,53 @@ a:hover .icon {
     border-radius: 50%;
     padding: 3px;
 }
+.next-appointment {
+    margin: 0.2rem;
+    margin-bottom: 3rem;
+    background-color: rgb(215 222 230);
+}
+.time-wrapper {
+    h3, p, em {color: rgb(111 121 133);}
+    h1 {
+        margin: 0.2rem;
+        color: rgb(115 72 114 / 70%);
+    }
+}
+#patient-details {
+    align-self: baseline;
+    width: 52%;
+    font-size: smaller;
+    margin-right: -1rem;
+    z-index: 1;
+    h2 {line-height: 20px;}
+    span {line-height: 15px;}
+    h2, span {    
+        color: rgb(92 92 92);
+        border-color: rgb(92 92 92);
+
+    }
+}
+#bg-icon {
+    position: absolute;
+    font-size: 34rem;
+    right: 65px;
+    top: 31px;
+    transform: rotate(21deg);
+    color: darkgray;
+    opacity: 0.3;
+}
+#last-login {
+    h2,span {    
+        color: rgb(139 0 136 / 70%);
+        border-color: rgb(139 0 136 / 70%);
+
+    }
+}
+.clickable {
+    height: 31px;
+    margin-top: 5px;
+}
+.disabled {
+    pointer-events: none;
+}
+

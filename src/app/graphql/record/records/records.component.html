@@ -20,18 +20,31 @@
                 <app-loading></app-loading>
             </div>
             <div class="page" @slideInOut>
-                <app-table 
-                    *ngIf="dataSource && countRecords > 0"
-                    [dataSource]="dataSource" 
-                    [length]="recordsLength"
-                    [userRole]="userRole"
-                    (pageChange)="onPageChange($event)"
-                    (sortChange)="onSortChange($event)"
-                    (filterValue)="onFilterValueChange($event, async)"
-                    (recordClick)="onRecordClick($event, async)"
-                    (buttonClick)="onButtonClick($event)"
-                >
-                </app-table>
+                <div *ngIf="userRole==='patient' && countRecords > 0">
+                    <h2 class="font">Medical records:</h2>
+                    <p *ngIf="countRecords===1">Currently you have {{countRecords}} medical record.</p>
+                    <p *ngIf="countRecords>1">Currently you have {{countRecords}} medical records.</p>
+                </div>
+                <div *ngIf="userRole==='doctor' && countRecs> 0">
+                    <h2 class="font">Medical records:</h2>
+                    <p *ngIf="countRecs===1">Currently you have {{countRecs}} medical record.</p>
+                    <p *ngIf="countRecs>1">Currently you have {{countRecs}} medical records.</p>
+                </div>
+                <div class="table-wrapper">
+                    <app-table 
+                        #appTable
+                        *ngIf="dataSource && displayedColumns && countRecords > 0"
+                        [dataSource]="dataSource" 
+                        [displayedColumns]="displayedColumns" 
+                        [length]="recordsLength"
+                        [userRole]="userRole"
+                        (pageChange)="onPageChange($event)"
+                        (sortChange)="onSortChange($event)"
+                        (filterValue)="onFilterValueChange($event, async)"
+                        (rowClick)="onRecordClick($event, async)"
+                    >
+                    </app-table>
+                </div>
             </div>
         </div>
     </mat-tab>
@@ -50,18 +63,27 @@
                 <app-loading></app-loading>
             </div>
             <div class="page">
-                <app-table 
-                    *ngIf="dataSource && countDrafts > 0"
-                    [dataSource]="dataSource" 
-                    [length]="draftsLength"
-                    [userRole]="userRole"
-                    (pageChange)="onPageChange($event)"
-                    (sortChange)="onSortChange($event)"
-                    (filterValue)="onFilterValueChange($event, async)"
-                    (recordClick)="onRecordClick($event, async)"
-                    (buttonClick)="onButtonClick($event)"
-                >
-                </app-table>
+                <div *ngIf="userRole==='doctor' && countDrafts> 0">
+                    <h2 class="font">Drafts:</h2>
+                    <p *ngIf="countDrafts===1">Currently you have {{countDrafts}} medical record saved as draft.</p>
+                    <p *ngIf="countDrafts>1">Currently you have {{countDrafts}} medical records saved as drafts.</p>
+                </div>
+                <div class="table-wrapper">
+                    <app-table
+                        #appTable 
+                        *ngIf="dataSource && displayedColumns && countDrafts> 0"
+                        [dataSource]="dataSource" 
+                        [displayedColumns]="displayedColumns" 
+                        [length]="draftsLength"
+                        [userRole]="userRole"
+                        (pageChange)="onPageChange($event)"
+                        (sortChange)="onSortChange($event)"
+                        (filterValue)="onFilterValueChange($event, async)"
+                        (rowClick)="onRecordClick($event, async)"
+                    >
+                    </app-table>
+
+                </div>
             </div>
         </div>
     </mat-tab>

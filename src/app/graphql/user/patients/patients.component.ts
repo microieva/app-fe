@@ -28,6 +28,7 @@ import { User } from "../user";
 })
 export class PatientsComponent implements OnInit {
     dataSource: MatTableDataSource<UserDataSource> | null = null;
+    displayedColumns: Array<{ columnDef: string, header: string }> = [];
     userRole: string = 'admin'
     length: number = 0;
     patients: User[] = [];
@@ -83,8 +84,9 @@ export class PatientsComponent implements OnInit {
         this.filterInput = value;
         await this.loadData();
     }
-    onPatientClick(id: number) {
-        this.dialog.open(UserComponent, {data: {userId: id}});
+    onPatientClick(value:{id: number, title?:string}) {
+        const userId = value.id;
+        this.dialog.open(UserComponent, {data: {userId}});
     }
 
     async loadData(){
@@ -106,6 +108,7 @@ export class PatientsComponent implements OnInit {
                 slice {
                     ... on User {
                         id
+                        dob
                         email
                         firstName
                         lastName
@@ -136,19 +139,25 @@ export class PatientsComponent implements OnInit {
 
     }
     formatDataSource(){
-        const data = this.patients && this.patients.map((row: UserDataSource) => {
+        const data = this.patients && this.patients.map((row) => {
             const createdAt = DateTime.fromISO(row.createdAt,  {setZone: true}).toFormat('MMM dd, yyyy');
             const updatedAt = DateTime.fromISO(row.updatedAt,  {setZone: true}).toFormat('MMM dd, yyyy');
+            const dob = DateTime.fromISO(row.dob).toFormat('MMM dd, yyyy');
 
             return {
                 id: row.id,
                 createdAt,
                 email: row.email,
-                firstName: row.firstName,
-                lastName: row.lastName,
+                name: row.firstName+' '+row.lastName,
+                dob,
                 updatedAt: updatedAt.includes('1970') ? '-' : updatedAt    
             } 
         });
         this.dataSource = new MatTableDataSource<UserDataSource>(data);
+        this.displayedColumns = [ 
+            {header: 'Name', columnDef: 'name'},
+            {header: 'Date of birth', columnDef: 'dob'},
+            {header: 'Email', columnDef: 'email'}
+        ]
     }
 }

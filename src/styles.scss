@@ -31,8 +31,7 @@ $custom-theme-theme: mat.define-light-theme((
 
 
 :root {
-  --mat-table-background-color: rgb(158,176,197);
-  --mat-expansion-container-background-color: rgb(158,176,197);
+  --mat-table-background-color: rgb(215,222,230);
   --mat-paginator-container-background-color: transparent;
   --mdc-circular-progress-active-indicator-color:  rgb(175 111 174); 
 }
@@ -56,7 +55,7 @@ app-sidenav {
 .page { 
   padding: 2rem;
   padding-top: 0;
-  min-width: 60%;
+  max-width: 90%;
   width: 70%;
   margin: auto;
 }
@@ -104,6 +103,10 @@ mat-form-field {
   --mat-tab-header-active-ripple-color: rgb(68, 65, 65);
   --mat-tab-header-inactive-ripple-color: rgb(68, 65, 65);
   --mat-tab-header-active-hover-indicator-color:rgb(68, 65, 65);
+}
+.mat-mdc-tab-body-wrapper {
+  background-color: rgb(214, 222, 230);
+  height: 100vh;
 }
 .fc {
   --fc-event-bg-color: rgb(175 111 174 / 40%); //  COLOR FOR DETAIL
@@ -241,16 +244,19 @@ em {
 .btn-block {
   color: rgb(68, 65, 65);
   border: 1px solid rgb(111, 143, 175, 40%);
-  margin: auto;
-  margin-top: 6rem;
+  margin: 4rem auto;
   border-radius: 5px;
   padding: 6rem;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+  &.flat {
+    padding: 2rem 6rem;
+  }
   button {
       background-color: rgb(175 111 174 / 40%);
+      width: max-content;
   }
   div {
       width: 55%;
@@ -258,6 +264,13 @@ em {
   em {
       color: rgb(111 121 133);
       font-size: smaller;
+  }
+}
+.next-appointment {
+  padding: 1.5rem;
+  border: 1px solid  rgb(68, 65, 65);
+  & h2 {
+    border: none;
   }
 }
 
@@ -283,6 +296,8 @@ em {
 .spacer {
   flex: 1 1 auto;
 }
-
+.table-wrapper {
+  margin-top: 4rem;
+}
 
 

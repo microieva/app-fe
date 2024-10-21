@@ -306,11 +306,5 @@ export class AppComponent implements OnInit, OnDestroy {
         this.dialog.open(LoadingComponent);
         this.timerService.cancelTokenTimer();
         this.authService.logOut(); 
-
-        this.router.navigate(['/'])
-            .then(() => {
-                this.location.replaceState('/');
-                window.location.reload();
-            });
     }
 }

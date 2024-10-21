@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, OnInit, Output, QueryList, ViewChild, ViewChildren, ViewContainerRef, signal } from "@angular/core";
+import { Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, QueryList, ViewChild, ViewChildren, ViewContainerRef, signal } from "@angular/core";
 import { trigger, state, style, transition, animate } from "@angular/animations";
 import { ActivatedRoute, Router } from "@angular/router";
 import { MatTableDataSource } from "@angular/material/table";
@@ -17,6 +17,7 @@ import { ConfirmComponent } from "../../../shared/components/app-confirm/app-con
 import { EventComponent } from "../../../shared/components/app-event/app-event.component";
 import { AppointmentDataSource } from "../../../shared/types";
 import { Appointment } from "../appointment";
+import { AppTableComponent } from "../../../shared/components/app-table/app-table.component";
 
 @Component({
     selector: 'app-appointments',
@@ -64,16 +65,18 @@ export class AppointmentsComponent implements OnInit {
     pastAppointments: Appointment[] = [];
     isReservedDay: boolean = false;
     dataSource: MatTableDataSource<AppointmentDataSource> | null = null;
+    displayedColumns: Array<{ columnDef: string, header: string }> = [];
 
     @Output() activeTab = new EventEmitter<string>();
     @ViewChild('scrollView') scrollView!: ElementRef;
+    @ViewChild('appTable') appTable!: AppTableComponent;
     readonly panelOpenState = signal(false);
 
     userRole!: string;
     pageIndex: number = 0;
     pageLimit: number = 10;
     sortDirection: string | null = null;
-    sortActive: string | null = 'start';
+    sortActive: string | null= null;
     filterInput: string | null = null;
 
     constructor(
@@ -213,10 +216,19 @@ export class AppointmentsComponent implements OnInit {
     }
     async onTabChange(value: any) {
         this.selectedIndex = value;
+        
+        this.sortDirection = null;
+        this.sortActive = 'start';
+        this.filterInput = null;
+        this.pageIndex = 0;
+
+        if (this.appTable) {
+            this.appTable.clearInputField();
+        }
 
         this.router.navigate([], {
-          relativeTo: this.activatedRoute,
-          queryParams: { tab: value }
+            relativeTo: this.activatedRoute,
+            queryParams: { tab: value }
         });
         await this.loadData();
     }
@@ -227,6 +239,7 @@ export class AppointmentsComponent implements OnInit {
         await this.loadData();
     }
     async onSortChange(value: any) {
+
         switch (value.active) {
             case 'howLongAgoStr':
                 this.sortActive = 'createdAt';
@@ -237,9 +250,14 @@ export class AppointmentsComponent implements OnInit {
             case 'pastDate':
                 this.sortActive = 'end';
                 break;
-            case 'patientName':
             case 'name':
                 this.sortActive = 'firstName';
+                break;
+            case 'draft':
+                this.sortActive = 'draft';
+                break;
+            case 'record':
+                this.sortActive = 'record';
                 break;
         }        
 
@@ -281,7 +299,9 @@ export class AppointmentsComponent implements OnInit {
                         patientId
                         doctorId
                         createdAt
-                        allDay     
+                        allDay  
+                        patientMessage
+                        doctorMessage   
                         patient {
                             firstName
                             lastName
@@ -289,11 +309,6 @@ export class AppointmentsComponent implements OnInit {
                         doctor {
                             firstName
                             lastName
-                        }
-                        record {
-                            id
-                            title
-                            text
                         }
                     }    
                 }
@@ -346,10 +361,22 @@ export class AppointmentsComponent implements OnInit {
                         patientId
                         doctorId
                         createdAt
-                        allDay     
+                        allDay  
+                        patientMessage
+                        doctorMessage    
                         patient {
                             firstName
                             lastName
+                        }
+                        doctor {
+                            firstName
+                            lastName
+                        }
+                        record {
+                            id
+                            title
+                            text
+                            draft
                         }
                     }    
                 }
@@ -402,10 +429,22 @@ export class AppointmentsComponent implements OnInit {
                         patientId
                         doctorId
                         createdAt
-                        allDay     
+                        allDay  
+                        patientMessage
+                        doctorMessage    
                         patient {
                             firstName
                             lastName
+                        }
+                        doctor {
+                            firstName
+                            lastName
+                        }
+                        record {
+                            id
+                            title
+                            text
+                            draft
                         }
                     }    
                 }
@@ -468,27 +507,63 @@ export class AppointmentsComponent implements OnInit {
                 disabled: false
             }
         ]
+        let date: string;
         switch (view) {
             case "pending":
                 this.pendingDataSource = this.pendingAppointments.map(row => {
                     const howLongAgoStr = this.getHowLongAgo(row.createdAt);
+                    const startDate = DateTime.fromISO(row.start, { setZone: true });
+                    const today = DateTime.now().setZone(startDate.zone);
+                    const tomorrow = today.plus({ days: 1 });
+
+                    if (startDate.hasSame(today, 'day')) {
+                        date = 'Today';
+                    } else if (startDate.hasSame(tomorrow, 'day')) {
+                        date = 'Tomorrow';
+                    } else {
+                        date = startDate.toFormat('MMM dd, yyyy'); 
+                    }
                     //this.checkIsReservedDay(row.start); TO DO FIX
 
                     return {
                         id: row.id,
                         howLongAgoStr: howLongAgoStr,
-                        title: this.userRole === 'patient' ? "Pending doctor confirmation" : undefined,
+                        title: this.userRole === 'patient' ? "Pending doctor confirmation" : "",
                         buttons: this.userRole === 'doctor' ? allButtons : cancelButton,
                         date: DateTime.fromISO(row.start, {setZone: true}).toFormat('MMM dd, yyyy'),
-                        start: DateTime.fromISO(row.start, {setZone: true}).toFormat('hh:mm a'),
+                        start: date+`, ${DateTime.fromISO(row.start, {setZone: true}).toFormat('hh:mm a')}`,
                         end: DateTime.fromISO(row.end, {setZone: true}).toFormat('hh:mm a'),
-                        patientName: this.userRole==='doctor' ? `${row.patient.firstName} ${row.patient.lastName}` : undefined
+                        name: this.userRole==='doctor' ? `${row.patient.firstName} ${row.patient.lastName}` : undefined,
+                        message: this.userRole==='doctor' ? row.patientMessage : row.doctorMessage
                     } 
                 });
+                if (this.userRole === 'patient') {
+                    this.displayedColumns = [ 
+                        {header: 'Appointment time', columnDef: 'start'},
+                        {header: 'Request created', columnDef: 'howLongAgoStr'}
+                    ]
+                } else {
+                    this.displayedColumns = [ 
+                        {header: 'Appointment time', columnDef: 'start'},
+                        {header: `Patient's name`, columnDef: 'name'},
+                        {header: 'Request created', columnDef: 'howLongAgoStr'}
+                    ]
+                }
                 break;
             case "upcoming":
                 this.upcomingDataSource = this.upcomingAppointments.map(row => {
                     const howSoonStr = this.getHowSoonUpcoming(row.start);
+                    const startDate = DateTime.fromISO(row.start, { setZone: true });
+                    const today = DateTime.now().setZone(startDate.zone);
+                    const tomorrow = today.plus({ days: 1 });
+
+                    if (startDate.hasSame(today, 'day')) {
+                        date = 'Today';
+                    } else if (startDate.hasSame(tomorrow, 'day')) {
+                        date = 'Tomorrow';
+                    } else {
+                        date = startDate.toFormat('MMM dd, yyyy');
+                    }
   
                     return {
                         id: row.id,
@@ -496,15 +571,36 @@ export class AppointmentsComponent implements OnInit {
                         title: this.userRole === 'patient' ? "Confirmed appointment" : undefined,
                         buttons: cancelButton,
                         date: DateTime.fromISO(row.start, {setZone: true}).toFormat('MMM dd, yyyy'),
-                        start: DateTime.fromISO(row.start, {setZone: true}).toFormat('hh:mm a'),
+                        start: date+`, ${DateTime.fromISO(row.start, {setZone: true}).toFormat('hh:mm a')}`,
                         end: DateTime.fromISO(row.end, {setZone: true}).toFormat('hh:mm a'),
-                        patientName: this.userRole==='doctor' ? `${row.patient.firstName} ${row.patient.lastName}`: undefined
+                        name: this.userRole==='doctor' ? `${row.patient.firstName} ${row.patient.lastName}` : `${row.doctor?.firstName} ${row.doctor?.lastName}`,
+                        message: this.userRole==='doctor' ? row.patientMessage : row.doctorMessage,
+                        draft: this.userRole==='doctor' && row.record ? row.record.draft : undefined,
+                        record: this.userRole==='patient' && row.record && !row.record.draft ? true : undefined,
                     };
                 });
+
+                this.displayedColumns = [ 
+                    {header: 'Appointment time', columnDef: 'start'},
+                    {header: this.userRole==='doctor' ? `Patient's name`:`Doctor's name`, columnDef: 'name'},
+                    {header: 'Starts', columnDef: 'howSoonStr'},
+                    {header: 'Record', columnDef: this.userRole==='doctor' ? 'draft': 'record'}
+                ]
                 break;
             case "past":
                 this.pastDataSource = this.pastAppointments.map(row => {
                     const howLongAgoStr = this.getHowLongAgo(row.start);
+                    const startDate = DateTime.fromISO(row.start, { setZone: true });
+                    const today = DateTime.now().setZone(startDate.zone);
+                    const yesterday = today.minus({ days: 1 });
+                    
+                    if (startDate.hasSame(today, 'day')) {
+                      date = 'Today';
+                    } else if (startDate.hasSame(yesterday, 'day')) {
+                      date = 'Yesterday';
+                    } else {
+                      date = startDate.toFormat('MMM dd, yyyy'); 
+                    }  
 
                     return {
                         id: row.id,
@@ -512,11 +608,21 @@ export class AppointmentsComponent implements OnInit {
                         title: this.userRole === 'patient' ? "View details": undefined,
                         buttons: deleteButton,
                         date: DateTime.fromISO(row.start, {setZone: true}).toFormat('MMM dd, yyyy'),
-                        start: DateTime.fromISO(row.start, {setZone: true}).toFormat('hh:mm a'),
+                        start: date+`, ${DateTime.fromISO(row.start, {setZone: true}).toFormat('hh:mm a')}`,
                         end: DateTime.fromISO(row.end, {setZone: true}).toFormat('hh:mm a'),
-                        patientName: this.userRole==='doctor' ? `${row.patient.firstName} ${row.patient.lastName}`: undefined
+                        name: this.userRole==='doctor' ? `${row.patient.firstName} ${row.patient.lastName}` : `${row.doctor?.firstName} ${row.doctor?.lastName}`,
+                        message: this.userRole==='doctor' ? row.patientMessage : row.doctorMessage,
+                        draft: this.userRole==='doctor' && row.record ? row.record.draft : undefined,
+                        record: this.userRole==='patient' && row.record ? !row.record.draft : undefined,
                     };
                 });
+
+                this.displayedColumns = [ 
+                    {header: 'Appointment time', columnDef: 'start'},
+                    {header: this.userRole==='doctor' ? `Patient's name`:`Doctor's name`, columnDef: 'name'},
+                    {header: 'Ended', columnDef: 'pastDate'},
+                    {header: 'Record', columnDef: this.userRole==='doctor' ? 'draft': 'record'}
+                ]
                 break;
             default:
                 break;
@@ -669,6 +775,9 @@ export class AppointmentsComponent implements OnInit {
                 this.deleteAppointment(id);
             }
         })
+        dialogRef.componentInstance.acceptAppointment.subscribe(id => {
+            if (id) this.acceptAppointment(id);
+        })
         dialogRef.componentInstance.isOpeningTab.subscribe(subscription => {
             if (subscription) {
                 this.createAppointmentTab(subscription);
@@ -694,6 +803,7 @@ export class AppointmentsComponent implements OnInit {
                         if (response.data.acceptAppointment.success) {
                             this.loadPendingAppointments();
                             this.appointmentService.pollNextAppointment();
+                            this.dialog.closeAll();
                         }
                     } catch (error) {
                         this.dialog.open(AlertComponent, {data: {message: `Unexpected error: ${error}`}});

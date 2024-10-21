@@ -12,6 +12,7 @@ import { AlertComponent } from "../../../shared/components/app-alert/app-alert.c
 import { ChatComponent } from "../chat.component";
 import { User } from "../../user/user";
 import { UserDataSource } from "../../../shared/types";
+import { DateTime } from "luxon";
 
 @Component({
     selector: 'app-messages',
@@ -35,6 +36,8 @@ export class MessagesComponent implements OnInit {
     userRole!: string;
     me!: Partial<User>;
     dataSource: MatTableDataSource<any> | null = null;
+    displayedColumns: Array<{ columnDef: string, header: string }> = [];
+    formatted: UserDataSource[] | undefined;
     onlineDoctors: any[] | undefined;
     chatId: number | undefined = 0;
     senders: string[] = [];
@@ -112,6 +115,7 @@ export class MessagesComponent implements OnInit {
                         lastName
                         createdAt
                         updatedAt
+                        lastLogOutAt
                     }
                 }
             }
@@ -128,9 +132,15 @@ export class MessagesComponent implements OnInit {
             if (response.data.doctors) {
                 this.doctors = response.data.doctors.slice;
                 this.doctorsLength = response.data.doctors.length;
-                const formatted = this.formatDataSource()
+                this.formatDataSource()
 
-                this.dataSource = new MatTableDataSource<UserDataSource>(formatted);
+                this.dataSource = new MatTableDataSource<UserDataSource>(this.formatted);
+                this.displayedColumns = [ 
+                    {header: 'Online', columnDef: 'online'},
+                    {header: 'Name', columnDef: 'name'},
+                    {header: 'Last online', columnDef: 'lastLogOutAt'},
+
+                ]
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading requests: "+error}})
@@ -138,19 +148,23 @@ export class MessagesComponent implements OnInit {
     }
     formatDataSource() {
         if (this.onlineDoctors && this.onlineDoctors.length > 0) {
-            const formatted = this.doctors.map((doctor) => {
+            this.formatted = this.doctors.map((doctor) => {
                 const isOnline = this.onlineDoctors?.some(onlineDoctor => doctor.id === onlineDoctor.id);
                 return {
                     ...doctor,
-                    online: isOnline || false 
+                    name: doctor.firstName+' '+doctor.lastName,
+                    online: isOnline || false, 
+                    lastLogOutAt:  DateTime.fromISO(doctor.lastLogOutAt, {setZone: true}).toFormat('hh:mm a, MMM dd (cccc), yyyy')
                 };
             });
-            return formatted;
         } else {
-            return this.doctors.map(doctor => {
+            this.formatted = this.doctors.map(doctor => {
                 return {
                     ...doctor,
-                    online: false
+                    online: false,
+                    name: doctor.firstName+' '+doctor.lastName,
+                    lastLogOutAt:  DateTime.fromISO(doctor.lastLogOutAt, {setZone: true}).toFormat('hh:mm a, MMM dd (cccc), yyyy')
+                
                 }
             });
         }
@@ -173,9 +187,9 @@ export class MessagesComponent implements OnInit {
         });
     }
 
-    onOpenChat(receiverId: number) {
-        this.receiverId = receiverId;
-        const chatReceiver = this.dataSource?.data.find(row => row.id === receiverId);
+    onOpenChat(value:{id: number, title?:string}) {
+        this.receiverId = value.id;
+        const chatReceiver = this.dataSource?.data.find(row => row.id === this.receiverId);
         this.createChatTab(chatReceiver);
     }
 
@@ -257,9 +271,6 @@ export class MessagesComponent implements OnInit {
 
     async onSortChange(value: any) {
         switch (value.active) {
-            case 'email':
-                this.sortActive = 'email';
-                break;
             case 'name':
                 this.sortActive = 'firstName';
                 break;

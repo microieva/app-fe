@@ -12,7 +12,16 @@
     </div>
     <div class="page" @slideInOut *ngIf="me">
         <div *ngIf="!id">
-            <h2>My Account</h2>
+            <span *ngIf="me.userRole==='patient'" class="material-symbols-outlined" id="bg-icon">
+                account_box
+            </span>
+            <span *ngIf="me.userRole==='doctor'" class="material-symbols-outlined" id="bg-icon">
+                badge
+            </span>
+            <span *ngIf="me.userRole==='admin'" class="material-symbols-outlined" id="bg-icon">
+                id_card
+            </span>
+            <h1 class="font">My Account</h1>
             <div class="flex-column">
                 <div class="flex-column wrapper">
                     <p class="title">{{ 'Basic Information' }}</p>

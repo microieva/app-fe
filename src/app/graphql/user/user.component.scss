@@ -10,7 +10,18 @@ em {
 .page {
     position: relative;
     will-change: transform;
+    width: 60%;
+    margin-top: 8rem;
 }
 .font {
     margin-top: 5px;
 }
+#bg-icon {
+    position: absolute;
+    font-size: 34rem;
+    right: -205px;
+    top: -100px;
+    transform: rotate(21deg);
+    color: darkgray;
+    opacity: 0.3;
+  }
