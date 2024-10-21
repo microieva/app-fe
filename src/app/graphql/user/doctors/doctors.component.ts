@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ViewChild } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { ActivatedRoute, Router } from "@angular/router";
 import { trigger, state, style, transition, animate } from "@angular/animations";
@@ -7,6 +7,7 @@ import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
 import { AlertComponent } from "../../../shared/components/app-alert/app-alert.component";
 import { ConfirmComponent } from "../../../shared/components/app-confirm/app-confirm.component";
+import { AppTableComponent } from "../../../shared/components/app-table/app-table.component";
 import { UserComponent } from "../user.component";
 import { UserDataSource } from "../../../shared/types";
 import { User } from "../user";
@@ -30,21 +31,26 @@ import { User } from "../user";
 })
 export class DoctorsComponent implements OnInit {
     selectedIndex: number = 0;
-    dataSource: any;
+    dataSource: MatTableDataSource<UserDataSource> | null = null;
+    displayedColumns: Array<{ columnDef: string, header: string }> = [];
 
-    requests: User[] | undefined;
+    requests: User[] = [];
     requestsLength: number = 0;
-    doctors: User[] | undefined;
+    doctors: User[] = [];
     doctorsLength: number = 0;
 
     countRequests: number = 0;
     countDoctors: number = 0;
+    requestsDataSource: UserDataSource[] | undefined;
+    doctorsDataSource: UserDataSource[] | undefined;
 
     pageIndex: number = 0;
     pageLimit: number = 10;
     sortDirection: string | null = null;
     sortActive: string = 'firstName';
     filterInput: string | null = null;
+
+    @ViewChild('appTable') appTable!: AppTableComponent;
 
     constructor(
         private activatedRoute: ActivatedRoute,
@@ -55,6 +61,7 @@ export class DoctorsComponent implements OnInit {
 
     async ngOnInit() {
         await this.loadStatic();
+        await this.loadData();
         this.activatedRoute.queryParams.subscribe(async params => {
             const tab = params['tab'];
             this.selectedIndex = tab ? +tab : 0;
@@ -75,14 +82,10 @@ export class DoctorsComponent implements OnInit {
     async loadData() {
         switch (this.selectedIndex) {
             case 0:
-                if (this.countRequests>0) {
-                    await this.loadRequests();
-                }
+                await this.loadRequests();
                 break;
             case 1:
-                if (this.countDoctors>0) {
-                    await this.loadDoctors();
-                }
+                await this.loadDoctors();
                 break;
             default:
                 break;
@@ -129,9 +132,12 @@ export class DoctorsComponent implements OnInit {
             if (response.data) {
                 this.requests = response.data.requests.slice;
                 this.requestsLength = response.data.requests.length;
-                const formatted = this.formatDataSource("requests");
+                this.formatDataSource("requests");
 
-                this.dataSource = new MatTableDataSource<UserDataSource>(formatted);
+                if (this.requestsDataSource) {
+                    this.dataSource = new MatTableDataSource<UserDataSource>(this.requestsDataSource);
+                }
+
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading requests: "+error}})
@@ -178,9 +184,12 @@ export class DoctorsComponent implements OnInit {
             if (response.data) {
                 this.doctors = response.data.doctors.slice;
                 this.doctorsLength = response.data.doctors.length;
-                const formatted = this.formatDataSource("doctors")
+                this.formatDataSource("doctors")
 
-                this.dataSource = new MatTableDataSource<UserDataSource>(formatted);
+                if (this.doctorsDataSource) {
+                    this.dataSource = new MatTableDataSource<UserDataSource>(this.doctorsDataSource);  
+                }
+
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading requests: "+error}})
@@ -198,57 +207,72 @@ export class DoctorsComponent implements OnInit {
                 disabled: false
             }
         ]
-        let formatted: UserDataSource[] = [];
 
         switch (view) {
             case "requests":
-                if (this.requests) {
-                    formatted = this.requests.map((row) => {
-                        const createdAt = DateTime.fromISO(row.createdAt,  {setZone: true}).toFormat('MMM dd, yyyy');
+                this.requestsDataSource = this.requests.map((row) => {
+                    const createdAt = DateTime.fromISO(row.createdAt,  {setZone: true}).toFormat('MMM dd, yyyy');
 
-                        return {
-                            id: row.id,
-                            createdAt,
-                            email: row.email,
-                            firstName: row.firstName,
-                            lastName: row.lastName,
-                            buttons: requestsButtons,
-                            updatedAt: '-',
-                            isRequest: true
-                        } 
-                    });
-                }
+                    return {
+                        id: row.id,
+                        createdAt,
+                        email: row.email,
+                        name: row.firstName+' '+row.lastName,
+                        actions: requestsButtons,
+                        updatedAt: '-',
+                        isRequest: true
+                    } 
+                });
+
+                this.displayedColumns = [ 
+                    {header: 'Name', columnDef: 'name'},
+                    {header: 'Email', columnDef: 'email'},
+                    {header: 'Request created', columnDef: 'createdAt'},
+                    {header: 'Actions', columnDef: 'actions'}
+                ]
                 break;
             case "doctors":
-                if (this.doctors) {
-                    formatted = this.doctors.map((row: UserDataSource) => {
-                        const createdAt = DateTime.fromISO(row.createdAt, {setZone: true}).toFormat('MMM dd, yyyy');
-                        const updatedAt = DateTime.fromISO(row.updatedAt, {setZone: true}).toFormat('MMM dd, yyyy');
-    
-                        return {
-                            id: row.id,
-                            createdAt,
-                            email: row.email,
-                            firstName: row.firstName,
-                            lastName: row.lastName,
-                            updatedAt: updatedAt.includes('1970') ? '-' : updatedAt,
-                            isRequest: false   
-                        } 
-                    });
-                }
+                this.doctorsDataSource = this.doctors.map((row) => {
+                    const createdAt = DateTime.fromISO(row.createdAt, {setZone: true}).toFormat('MMM dd, yyyy');
+                    const updatedAt = DateTime.fromISO(row.updatedAt, {setZone: true}).toFormat('MMM dd, yyyy');
+
+                    return {
+                        id: row.id,
+                        createdAt,
+                        email: row.email,
+                        name: row.firstName+' '+row.lastName,
+                        updatedAt: updatedAt.includes('1970') ? '-' : updatedAt,
+                        isRequest: false   
+                    } 
+                });
+                this.displayedColumns = [ 
+                    {header: 'Name', columnDef: 'name'},
+                    {header: 'Email', columnDef: 'email'},
+                    {header: 'Account activated', columnDef: 'createdAt'}
+                ]
                 break;
             default:
                 break;
         }
-        return formatted;
     }
 
-    onTabChange(value: any) {
+    async onTabChange(value: any) {
         this.selectedIndex = value;
 
+        this.pageIndex = 0;
+        this.sortDirection = null;
+        this.sortActive = 'firstName';
+        this.filterInput = null;
+        this.displayedColumns = [];
+        if (this.appTable) {
+            this.appTable.clearInputField();
+        }
+
+        await this.loadData();
+
         this.router.navigate([], {
-          relativeTo: this.activatedRoute,
-          queryParams: { tab: value }
+            relativeTo: this.activatedRoute,
+            queryParams: { tab: value }
         });
     }
 
@@ -281,12 +305,13 @@ export class DoctorsComponent implements OnInit {
         await this.loadData();
     }
 
-    async onUserClick(id: number){
-        const dialogRef = this.dialog.open(UserComponent, {data: {userId: id}});
+    async onUserClick(value:{id: number, title?:string}){
+        const userId = value.id;
+        const dialogRef = this.dialog.open(UserComponent, {data: {userId}});
 
         dialogRef.componentInstance.isDeletingUser.subscribe(async subscription => {
             if (subscription) {
-                await this.deleteUser(id);
+                await this.deleteUser(userId);
             }
         })
     }
@@ -371,6 +396,16 @@ export class DoctorsComponent implements OnInit {
             this.dialog.open(AlertComponent, {data: {message: "User account deleted"}});
         } catch (error) {
             this.dialog.open(AlertComponent, { data: {message: "Error deleting user: "+ error}});
+        }
+    }
+    async onActionClick(value: {text: string, id: number}) {
+        switch (value.text) {
+            case 'Activate Account':
+                await this.activateAccount(value.id);
+                break;
+            case 'Cancel Request':
+                this.deleteDoctorRequest(value.id);
+                break;
         }
     }
 }

@@ -1,13 +1,14 @@
 import { DateTime } from "luxon";
-import { Component, OnInit, signal } from "@angular/core";
+import { Component, OnInit, signal, ViewChild } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { MatTableDataSource } from "@angular/material/table";
 import { MatDialog } from "@angular/material/dialog";
 import { trigger, state, style, transition, animate } from "@angular/animations";
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
-import { RecordDataSource } from "../../../shared/types";
 import { RecordComponent } from "../record.component";
 import { AlertComponent } from "../../../shared/components/app-alert/app-alert.component";
+import { AppTableComponent } from "../../../shared/components/app-table/app-table.component";
+import { RecordDataSource } from "../../../shared/types";
 import { Record } from "../record";
 
 @Component({
@@ -30,11 +31,13 @@ import { Record } from "../record";
 export class RecordsComponent implements OnInit {
     selectedIndex!: number;
     dataSource: MatTableDataSource<RecordDataSource> | null = null;
+    displayedColumns: Array<{ columnDef: string, header: string }> = [];
     readonly panelOpenState = signal(false);
     records: Record[] = [];
     drafts: Record[] = [];
     draftsLength: number = 0;
     recordsLength: number = 0;
+    countRecs: number = 0;
 
     recordDataSource: RecordDataSource[] | undefined;
     draftDataSource: RecordDataSource[] | undefined;
@@ -48,6 +51,8 @@ export class RecordsComponent implements OnInit {
     sortDirection: string | null = null;
     sortActive: string | null = 'createdAt';
     filterInput: string | null = null;
+
+    @ViewChild('appTable') appTable!: AppTableComponent;
 
     constructor(
         private graphQLService: AppGraphQLService,
@@ -64,6 +69,9 @@ export class RecordsComponent implements OnInit {
             this.selectedIndex = tab ? +tab : 0;
             await this.loadData();
         });   
+        if (this.userRole === 'doctor') {
+            this.countRecs = this.countRecords-this.countDrafts;
+        }
     }
 
     async loadStatic(){
@@ -112,11 +120,21 @@ export class RecordsComponent implements OnInit {
     async onTabChange(value: any) {
         this.selectedIndex = value;
 
-        this.router.navigate([], {
-          relativeTo: this.activatedRoute,
-          queryParams: { tab: value }
-        });
+        this.pageIndex = 0;
+        this.sortDirection = null;
+        this.sortActive = 'createdAt';
+        this.filterInput = null;
+        this.displayedColumns = [];
+        if (this.appTable) {
+            this.appTable.clearInputField();
+        }
+        
         await this.loadData();
+
+        this.router.navigate([], {
+            relativeTo: this.activatedRoute,
+            queryParams: { tab: value }
+        });
     }
     async onPageChange(value: any) {
         this.pageIndex = value.pageIndex;
@@ -124,12 +142,12 @@ export class RecordsComponent implements OnInit {
         await this.loadData();
     }
     async onSortChange(value: any) {
-        if (value.active === 'howLongAgoStr') {
-            this.sortActive = 'createdAt';
-        } else if (value.active === 'howSoonStr') {
-            this.sortActive = 'start'
-        } else if (value.active === 'pastDate'){
-            this.sortActive = 'end';
+        if (value.active === 'title') {
+            this.sortActive = 'title';
+        } else if (value.active === 'name') {
+            this.sortActive = 'firstName'
+        } else if (value.active === 'updatedAt'){
+            this.sortActive = 'updatedAt';
         }
         if (value.direction)
         this.sortDirection = value.direction.toUpperCase();
@@ -182,6 +200,10 @@ export class RecordsComponent implements OnInit {
                                 lastName
                                 dob
                             }
+                            doctor {
+                                firstName
+                                lastName
+                            }
                         }
                     }
                 }
@@ -202,7 +224,11 @@ export class RecordsComponent implements OnInit {
                 this.recordsLength = response.data.records.length;
                 this.formatDataSource("records");
 
-                this.dataSource = new MatTableDataSource<RecordDataSource>(this.recordDataSource);
+                if (this.recordDataSource && this.displayedColumns) {
+
+                    this.dataSource = new MatTableDataSource<RecordDataSource>(this.recordDataSource);
+                }
+
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading records: "+error}});
@@ -257,55 +283,116 @@ export class RecordsComponent implements OnInit {
                 this.draftsLength = response.data.drafts.length;
                 this.formatDataSource("drafts");
 
-                this.dataSource = new MatTableDataSource<RecordDataSource>(this.draftDataSource);
+                if (this.draftDataSource && this.displayedColumns) {
+                    this.dataSource = new MatTableDataSource<RecordDataSource>(this.draftDataSource);
+                }
+
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading drafts: "+error}})
         }
     }
-    onRecordClick(recordId: any){
+    onRecordClick(value: {id: number, title?:string}){
+        const recordId = value.id;
         const dialogRef = this.dialog.open(RecordComponent, {data: {recordId, width: "45rem"}});
         dialogRef.componentInstance.reload.subscribe(subscription => {
             if (subscription) this.loadData();
         })
     }
-    onButtonClick(value: any) {
 
-    }
     formatDataSource(view: string) {
-
+        let createdAt: string;
+        let updatedAt: string;
         switch (view) {
             case "records":
                 this.recordDataSource = this.records.map(row => {
-                    const createdAt = DateTime.fromISO(row.createdAt,  {setZone: true}).toFormat('MMM dd, yyyy');
-                    const updatedAt = DateTime.fromISO(row.updatedAt,  {setZone: true}).toFormat('MMM dd, yyyy');
                     const patientDob = DateTime.fromISO(row.appointment.patient.dob,  {setZone: true}).toFormat('MMM dd, yyyy');
+                    
+                    const createdDate = DateTime.fromISO(row.createdAt, { setZone: true });
+                    const updatedDate = DateTime.fromISO(row.updatedAt, { setZone: true });
+                    const today = DateTime.now().setZone(createdDate.zone);
+                    const yesterday = today.minus({ days: 1 });
+                    
+                    if (createdDate.hasSame(today, 'day')) {
+                        createdAt = 'Today';
+                    } else if (createdDate.hasSame(yesterday, 'day')) {
+                        createdAt = 'Yesterday';
+                    } else {
+                        createdAt = createdDate.toFormat('MMM dd, yyyy'); 
+                    } 
+
+                    if (updatedDate.hasSame(today, 'day')) {
+                        updatedAt = 'Today';
+                    } else if (createdDate.hasSame(yesterday, 'day')) {
+                        updatedAt = 'Yesterday';
+                    } else {
+                        updatedAt = createdDate.toFormat('MMM dd, yyyy'); 
+                    } 
 
                     return {
                         id: row.id,
-                        createdAt,
+                        createdAt: createdAt+`, ${createdDate.toFormat('hh:mm a')}`,
                         title: row.title,
-                        updatedAt,  
-                        patientName: row.appointment.patient.firstName+" "+row.appointment.patient.lastName,
+                        updatedAt: updatedAt+`, ${updatedDate.toFormat('hh:mm a')}`,
+                        name: this.userRole === 'doctor' ? row.appointment.patient.firstName+" "+row.appointment.patient.lastName : row.appointment.doctor?.firstName+" "+row.appointment.doctor?.lastName,
                         patientDob
                     } 
                 });
+                if (this.userRole === 'doctor') {
+                    this.displayedColumns = [ 
+                        {header: 'Title', columnDef: 'title'},
+                        {header: `Patient's name`, columnDef: 'name'},
+                        {header: 'First created', columnDef: 'createdAt'},
+                        {header: 'Final save', columnDef: 'updatedAt'}
+                    ]
+
+                } else {
+                    this.displayedColumns = [ 
+                        {header: 'Title', columnDef: 'title'},
+                        {header: `Doctor's name`, columnDef: 'name'},
+                        {header: 'Date', columnDef: 'updatedAt'}
+                    ]
+                }
                 break;
             case "drafts":
                 this.draftDataSource = this.drafts.map(row => {
-                    const createdAt = DateTime.fromISO(row.createdAt,  {setZone: true}).toFormat('MMM dd, yyyy');
-                    const updatedAt = DateTime.fromISO(row.updatedAt,  {setZone: true}).toFormat('MMM dd, yyyy');
                     const patientDob = DateTime.fromISO(row.appointment.patient.dob,  {setZone: true}).toFormat('MMM dd, yyyy');
+                       
+                    const createdDate = DateTime.fromISO(row.createdAt, { setZone: true });
+                    const updatedDate = DateTime.fromISO(row.updatedAt, { setZone: true });
+                    const today = DateTime.now().setZone(createdDate.zone);
+                    const yesterday = today.minus({ days: 1 });
+                    
+                    if (createdDate.hasSame(today, 'day')) {
+                        createdAt = 'Today';
+                    } else if (createdDate.hasSame(yesterday, 'day')) {
+                        createdAt = 'Yesterday';
+                    } else {
+                        createdAt = createdDate.toFormat('MMM dd, yyyy'); 
+                    } 
 
+                    if (updatedDate.hasSame(today, 'day')) {
+                        updatedAt = 'Today';
+                    } else if (createdDate.hasSame(yesterday, 'day')) {
+                        updatedAt = 'Yesterday';
+                    } else {
+                        updatedAt = createdDate.toFormat('MMM dd, yyyy'); 
+                    } 
                     return {
                         id: row.id,
-                        createdAt,
+                        createdAt: createdAt+`, ${createdDate.toFormat('hh:mm a')}`,
                         title: row.title,
-                        updatedAt,
-                        patientName: row.appointment.patient.firstName+" "+row.appointment.patient.lastName,
+                        updatedAt: updatedAt+`, ${updatedDate.toFormat('hh:mm a')}`,
+                        name: row.appointment.patient.firstName+" "+row.appointment.patient.lastName,
                         patientDob   
                     } 
                 });
+                this.displayedColumns = [ 
+                    {header: 'Title', columnDef: 'title'},
+                    {header: `Patient's name`, columnDef: 'name'},
+                    {header: 'First created', columnDef: 'createdAt'},
+                    {header: 'Last updated', columnDef: 'updatedAt'}
+                ]
                 break;
             default:
                 break;

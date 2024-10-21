@@ -11,12 +11,14 @@ export class AppTimerService {
     @Output() logout = new EventEmitter<boolean>(false);
     @Output() tokenCountdown = new EventEmitter<string>();
     @Output() nextAppointmentCountdown = new EventEmitter<string>();
+    @Output() clock = new EventEmitter<string>();
     @Output() howSoonCountdown = new EventEmitter<string>();
     @Output() howLongAgoCountdown = new EventEmitter<string>();
     @Output() ok = new EventEmitter<boolean>(false);
 
     tokenTimerSubscription!: Subscription;
     appointmentTimerSubscription!: Subscription;
+    clockSubscription: Subscription | null = null;
 
     constructor(
         private dialog: MatDialog
@@ -91,6 +93,25 @@ export class AppTimerService {
     
         return this.appointmentTimerSubscription;
     }  
+
+    startClock(timeStamp: string): Subscription {
+        if (this.clockSubscription) {
+          this.clockSubscription.unsubscribe();
+        }
+    
+        const startTime = DateTime.fromISO(timeStamp, { setZone: true }).setZone('Europe/Helsinki', { keepLocalTime: true });
+        const source = interval(1000); 
+    
+        this.clockSubscription = source.subscribe(() => {
+            const now = DateTime.now().setZone('Europe/Helsinki').setLocale('fi-FI'); 
+            const forwardDuration = now.diff(startTime).as('seconds'); 
+        
+            const currentFormattedTime = startTime.plus({ seconds: forwardDuration }).toFormat('hh:mm a');
+            this.clock.emit(currentFormattedTime);
+        });
+    
+        return this.clockSubscription;
+      }
     
     cancelTokenTimer() {
         this.tokenTimerSubscription.unsubscribe();
@@ -98,5 +119,11 @@ export class AppTimerService {
     cancelAppointmentTimer(){
         this.appointmentTimerSubscription.unsubscribe();
     }
+    stopClock(): void {
+        if (this.clockSubscription) {
+          this.clockSubscription.unsubscribe();
+          this.clockSubscription = null;
+        }
+      }
 }
 

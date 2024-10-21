@@ -31,6 +31,7 @@ export class RecordComponent implements OnInit {
     recId: number | undefined;
     id: number | undefined;
     width: string | undefined;
+    noDelete: boolean = false;
 
     constructor(
         private dialog: MatDialog,
@@ -43,6 +44,7 @@ export class RecordComponent implements OnInit {
             this.recId = this.data.recordId;
             this.aptId = this.data.appointmentId;
             this.width = this.data.width;
+            this.noDelete = this.data.noDelete;
         }
     }
 
@@ -130,7 +132,7 @@ export class RecordComponent implements OnInit {
         this.reload.emit(true);
     }
     close(){
-        this.dialog.closeAll();
+        this.dialogRef.close();
     }
     async onSave(input: any){
         const recordInput = {

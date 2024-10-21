@@ -6,6 +6,7 @@ import { AppGraphQLService } from './app-graphql.service';
 import { AlertComponent } from '../components/app-alert/app-alert.component';
 import { LoadingComponent } from '../components/app-loading/loading.component';
 import { DirectLoginInput } from '../types';
+import { Location } from '@angular/common';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +17,8 @@ export class AppAuthService {
         private apollo: Apollo,
         private graphQLService: AppGraphQLService,
         private dialog: MatDialog,
-        private router: Router
+        private router: Router,
+        private location: Location
     ) {}
 
     async logIn(input: DirectLoginInput) {
@@ -38,7 +40,6 @@ export class AppAuthService {
 
                 localStorage.setItem('authToken', token);
                 localStorage.setItem('tokenExpire', tokenExpire);
-                this.router.navigate(['/home']);
                 return token;
             }
         } catch (error) {
@@ -113,9 +114,11 @@ export class AppAuthService {
         }
     }
 
-    logOut() {
+    async logOut() {
         this.apollo.client.clearStore(); 
         localStorage.clear(); 
+        window.location.reload();
+        await this.graphQLService.mutate(`mutation { logOut {success}}`, {});
     }
 
     isLoggedIn(): boolean {

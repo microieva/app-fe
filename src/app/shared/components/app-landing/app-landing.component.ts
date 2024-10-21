@@ -7,6 +7,9 @@ import { AppAppointmentService } from "../../services/app-appointment.service";
 import { AlertComponent } from "../app-alert/app-alert.component";
 import { User } from "../../../graphql/user/user";
 import { Appointment } from "../../../graphql/appointment/appointment";
+import { getTodayWeekdayTime, getNextAppointmentWeekdayStart, getLastLogOutStr } from "../../utils";
+import { AppTableComponent } from "../app-table/app-table.component";
+import { AppTimerService } from "../../services/app-timer.service";
 
 @Component({
     selector: 'app-landing',
@@ -17,6 +20,7 @@ export class AppLandingComponent implements OnInit {
     isHomeRoute: boolean = true;
     userRole!: string;
     me!: User;
+    lastLogOut!: string;
     isUserUpdated: boolean = false;
     nowAppointment: Appointment | null = null;
 
@@ -27,18 +31,27 @@ export class AppLandingComponent implements OnInit {
     countUpcomingAppointments: number = 0;
     countPendingAppointments: number = 0;
     countRecords: number = 0;
+    countTodayAppointments: number = 0;
+    countTotalHoursToday: string | undefined;
 
     nextId: number | null = null;
     previousNextId: number | null = null;
     nextAppointmentStartTime: string | undefined;
     nextAppointmentName: string | undefined;
+    nextAppointmentPatientDob: string | undefined;
+    previousAppointmentDate: string | undefined;
+    nextStart: { dayName: string, time: string, date: string} | undefined;
+    today: { weekday: string, time: string, date: string} | undefined;
+    clock: string | undefined;
+    recordIds: number[] = [];
 
     constructor(
         private activatedRoute: ActivatedRoute,
         private dialog: MatDialog,
         private router: Router,
         private graphQLService: AppGraphQLService,
-        private appointmentService: AppAppointmentService
+        private appointmentService: AppAppointmentService,
+        private timerService: AppTimerService
     ){}
 
     async ngOnInit() {
@@ -58,6 +71,15 @@ export class AppLandingComponent implements OnInit {
             }
         });
 
+        if (this.userRole === 'admin') {
+            this.today = getTodayWeekdayTime();
+            const now = DateTime.now().setZone('Europe/Helsinki').toISO();
+            this.timerService.startClock(now!);
+            this.timerService.clock.subscribe(value=> {
+                this.clock = value;
+            });
+        }
+
         if (this.userRole === 'doctor') {
             this.appointmentService.pollNextAppointment();
             this.appointmentService.appointmentInfo.subscribe(async (subscription) => {
@@ -67,9 +89,15 @@ export class AppLandingComponent implements OnInit {
                     if (this.previousNextId !== this.nextId) {
                         this.previousNextId = this.nextId;
                     } 
-                    this.nextAppointmentStartTime = DateTime.fromISO(subscription.nextAppointment.nextStart, {setZone: true}).toFormat('hh:mm a, MMM dd');
+                    const nextStart = subscription.nextAppointment.nextStart;
+                    this.nextAppointmentStartTime = ''
+                    this.nextStart = getNextAppointmentWeekdayStart(nextStart);
                     this.nextAppointmentName = subscription.nextAppointment.patient.firstName+' '+subscription.nextAppointment.patient.lastName;
-                }
+                    this.nextAppointmentPatientDob = DateTime.fromISO(subscription.nextAppointment.patient.dob).toFormat('MMM dd, yyyy');
+                    this.previousAppointmentDate = DateTime.fromISO(subscription.nextAppointment.previousAppointmentDate).toFormat('MMM dd, yyyy') || '-';
+                    this.recordIds = subscription.nextAppointment.recordIds;
+
+                } 
             });
         }
     }
@@ -82,6 +110,7 @@ export class AppLandingComponent implements OnInit {
             case 'doctor':
                 await this.loadDoctorStatic();
                 this.nowAppointment = await this.appointmentService.loadNowAppointment();
+                this.appointmentService.pollNextAppointment();
                 break;
             case 'patient':
                 await this.loadPatientStatic();
@@ -95,6 +124,7 @@ export class AppLandingComponent implements OnInit {
             me { 
                 userRole 
                 streetAddress
+                lastLogOutAt
             }
         }`
         try {
@@ -102,6 +132,7 @@ export class AppLandingComponent implements OnInit {
             if (response.data) {
                 this.me = response.data.me;
                 this.userRole = response.data.me.userRole;
+                this.lastLogOut = getLastLogOutStr(this.me.lastLogOutAt);
                 this.isUserUpdated = response.data.me.streetAddress ? true : false;
             }
         } catch (error) {
@@ -137,6 +168,8 @@ export class AppLandingComponent implements OnInit {
             countPatients
             countMissedAppointments
             countRecords
+            countTodayAppointments
+            countTotalHoursToday
         }`
         try {
             const response = await this.graphQLService.send(query);
@@ -146,6 +179,8 @@ export class AppLandingComponent implements OnInit {
                 this.countPatients = response.data.countPatients;
                 this.countMissedAppointments = response.data.countMissedAppointments;
                 this.countRecords = response.data.countRecords;
+                this.countTotalHoursToday = response.data.countTotalHoursToday;
+                this.countTodayAppointments = response.data.countTodayAppointments;
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: error}});
@@ -161,6 +196,9 @@ export class AppLandingComponent implements OnInit {
             nextAppointment {
                 nextId
                 nextStart
+                nextEnd
+                previousAppointmentDate
+                recordIds
                 doctor {
                     firstName
                     lastName
@@ -175,15 +213,18 @@ export class AppLandingComponent implements OnInit {
                 this.countUpcomingAppointments = response.data.countUpcomingAppointments;
                 this.countRecords = response.data.countRecords;
                 this.countMissedAppointments = response.data.countMissedAppointments;
-                
+
                 if (response.data.nextAppointment) {
+                    const previous = response.data.nextAppointment.previousAppointmentDate;
+                    this.previousAppointmentDate = previous ? DateTime.fromISO(previous).toFormat('MMM dd, yyyy') : '-';
+                    const nextStart = response.data.nextAppointment.nextStart;
+                    this.nextStart = nextStart && getNextAppointmentWeekdayStart(nextStart);
+                    this.nextId = response.data.nextAppointment.nextId;
+                    this.recordIds = response.data.nextAppointment.recordIds;
                     this.nextAppointmentStartTime = DateTime.fromISO(response.data.nextAppointment.nextStart, {setZone: true}).toFormat('hh:mm a, MMM dd');
                     this.nextAppointmentName = response.data.nextAppointment.doctor.firstName+' '+response.data.nextAppointment.doctor.lastName;
 
-                } else {
-                    this.nextAppointmentName = undefined;
-                    this.nextAppointmentStartTime = undefined;
-                }
+                } 
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: error}});
@@ -199,5 +240,8 @@ export class AppLandingComponent implements OnInit {
             });
         }
         this.nowAppointment = null;
+    }
+    onOpenRecords(){
+        const ref = this.dialog.open(AppTableComponent, {data: {recordIds: this.recordIds, userRole: this.userRole}})
     }
 }

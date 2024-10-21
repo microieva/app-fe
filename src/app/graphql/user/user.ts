@@ -13,4 +13,5 @@ export interface User {
     postCode: string
     updatedAt: string
     createdAt: string
+    lastLogOutAt: string
 }

@@ -1,162 +1,77 @@
 
-    <mat-form-field *ngIf="userRole !== 'patient'">
+    
+<div [ngClass]="recordIds && 'dialog-table'">
+    <div *ngIf="recordIds">
+        <h2 *ngIf="userRole==='doctor'" class="font">Patient's medical records:</h2>
+        <h2 *ngIf="userRole==='patient'" class="font">My medical records:</h2>
+        <p ></p>
+    </div>
+    <mat-form-field *ngIf="!recordIds">
         <mat-label>Search by name</mat-label>
         <input matInput (keyup)="onSearch($event)" placeholder="..." #input>
     </mat-form-field>
 
     <table 
-        #scrollView
         mat-table 
         multiTemplateDataRows 
         [dataSource]="dataSource" 
         class="mat-elevation-z8" 
         matSort 
         (matSortChange)="onSortChange($event)"
+        
     >
-        <ng-container matColumnDef="id">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:12rem;"> Queue No. </th>
-            <td mat-cell *matCellDef="let element">{{element.id}}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:20rem;">
-                <span>Status</span>
-            </th>
-            
-            <td mat-cell *matCellDef="let element"> {{element.title}} </td>
-        </ng-container>
-
-        <ng-container matColumnDef="time">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:20rem;">Appointment Time</th>
+        <ng-container *ngFor="let column of displayedColumns" [matColumnDef]="column.columnDef" >
+            <th mat-header-cell *matHeaderCellDef mat-sort-header disableClear class="font">{{ column.header }}</th>
             <td mat-cell *matCellDef="let element">
-                <em *ngIf="element.howLongAgoStr && userRole==='patient'">{{element.howLongAgoStr}}</em>
-                <span *ngIf="element.howLongAgoStr && userRole==='doctor'">created: <em>{{element.howLongAgoStr}}</em></span>
-                <em *ngIf="element.howSoonStr">{{element.howSoonStr}}</em>
-                <em *ngIf="element.pastDate">{{element.pastDate}}</em>
-            </td>
-        </ng-container>
-
-        <ng-container matColumnDef="title">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:20rem;">Title</th>
-            <td mat-cell *matCellDef="let element"> {{element.title}} </td>
-        </ng-container>
-
-        <ng-container matColumnDef="patientName">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:20rem;">Patient Name</th>
-            <td mat-cell *matCellDef="let element"> {{element.patientName}} </td>
-        </ng-container>
-
-        <ng-container matColumnDef="created">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:20rem;">Created</th>
-            <td mat-cell *matCellDef="let element">
-                <em *ngIf="element.createdAt">{{element.createdAt}}</em>
-            </td>
-        </ng-container>
-
-        <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:20rem;">Name</th>
-            <td mat-cell *matCellDef="let element"> {{element.firstName}} {{element.lastName}}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="online">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:20rem;">Online</th>
-            <td mat-cell *matCellDef="let element">
-                <div *ngIf="element.online" class="online-dot"></div>
-                <div *ngIf="!element.online" class="offline-dot"></div>
-            </td>
-        </ng-container>
-
-        <ng-container matColumnDef="email">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header style="width:20rem;">Email</th>
-            <td mat-cell *matCellDef="let element"> {{element.email}} </td>
-        </ng-container>
-
-        <ng-container matColumnDef="expandedDetail">
-            <td mat-cell *matCellDef="let element" [attr.colspan]="columnsToDisplayWithExpand.length">
-                <div 
-                    *ngIf="element.online === undefined"
-                    class="expandable-element-detail"
-                    [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'"
-                    #expandedElementRef 
-                >
-                   <div 
-                        [ngClass]="element.isRequest ? 'non-click': 'clickable'"
-                        class="flex-column wrapper" 
-                        (click)="
-                            !element.date && element.patientName && onRecordClick(element.id)
-                            ||
-                            !element.date && element.email && !element.isRequest && onUserClick(element.id)
-                            ||
-                            element.date && onAppointmentClick(element.id, element.title); 
-                            $event.stopPropagation()
-                        "
-                    >
-                    <p class="title" *ngIf="element.date">{{ 'Appointment Details' }}</p>
-                    <p class="title" *ngIf="!element.date && element.patientName">{{ 'Medical Record Details' }}</p>
-                    <p class="title" *ngIf="!element.date && element.firstName">{{ 'User Details' }}</p>
-                    <div class="flex-row">
-                        <div class="details flex-row" *ngIf="element.date">
-                            <div class="flex-column">
-                                <p>{{ 'Date' }}</p>
-                                <h3>{{element.date}}</h3>
-                            </div>
-                            <div class="flex-column">
-                                <p>{{ 'Start Time' }}</p>
-                                <h3>{{element.start}}</h3>
-                            </div>
-                            <div class="flex-column">
-                                <p>{{ 'End Time' }}</p>
-                                <h3>{{element.end}}</h3>
-                            </div>
-                        </div>
-                        <div class="details flex-row" *ngIf="!element.date && (element.patientName || element.firstName)" style="width: 100%; margin-top:1rem;">
-                            <div class="flex-column">
-                                <p>{{ 'Created' }}</p>
-                                <h3>{{element.createdAt}}</h3>
-                            </div>
-                            <div class="flex-column">
-                                <p>{{ 'Last Updated' }}</p>
-                                <h3 *ngIf="element.updatedAt">{{element.updatedAt}}</h3>
-                                <h3 *ngIf="!element.updatedAt">-</h3>
-                            </div>
-                        </div>
-                        <div class="actions flex-column" *ngIf="element.buttons">   
-                            <button 
-                                *ngFor="let button of element.buttons"
-                                style="margin-right:1rem;background-color:rgb(151,170,192)" 
-                                mat-stroked-button 
-                                (click)="onButtonClick(element.id, button.text); $event.stopPropagation()"
-                                [disabled]="button.disabled"
-                            >
-                                {{ button.text }}
-                            </button>
-                        </div>        
+                <ng-container *ngIf="column.columnDef === 'online'">
+                    <div [ngClass]="{ 'online-dot': element.online, 'offline-dot': !element.online }"></div>
+                </ng-container>
+                <ng-container *ngIf="column.columnDef === 'name'" class="name-with-msg">
+                    <span *ngIf="element.message" class="material-symbols-outlined" matTooltip="Added message">mail</span>
+                </ng-container>
+                <ng-container *ngIf="column.columnDef === 'actions'">
+                    <div *ngFor="let action of element.actions">
+                        <span matTooltip="Activate account" style="margin-right: 20px;" class="material-symbols-outlined" *ngIf="action.text === 'Activate Account'" (click)="onActionClick(action.text, column.id)">bookmark_check</span>
+                        <span matTooltip="Cancel request" class="material-symbols-outlined" *ngIf="action.text === 'Cancel Request'" (click)="onActionClick(action.text, column.id)">close</span>
                     </div>
-                </div>
-              </div>
+                </ng-container>
+                <ng-container *ngIf="column.columnDef === 'draft'">
+                    <div *ngIf="element.draft !== undefined">
+                        <span *ngIf="element.draft" class="material-symbols-outlined" matTooltip="Saved as draft">draft</span>
+                        <span *ngIf="element.draft === false" class="material-symbols-outlined" matTooltip="Saved as record">task</span>
+                    </div>
+                    <div *ngIf="element.draft === undefined" matTooltip="No record">
+                        <span>-</span>
+                    </div>
+                </ng-container>
+                <ng-container *ngIf="column.columnDef === 'record'">
+                    <div *ngIf="element.record !== undefined">
+                        <span *ngIf="element.record" class="material-symbols-outlined" matTooltip="Record added">task</span>
+                    </div>
+                    <div *ngIf="element.record === undefined" matTooltip="No record">-</div>
+                </ng-container>
+        
+                <!-- Default rendering for other columns -->
+                <ng-container *ngIf="column.columnDef !== 'online' && column.columnDef !== 'message' && column.columnDef !== 'draft'  && column.columnDef !== 'record'  && column.columnDef !== 'actions'">
+                    <span *ngIf="element[column.columnDef] === ''">-</span>
+                    <span *ngIf="element[column.columnDef] !== ''">{{ element[column.columnDef] }}</span>
+                </ng-container>
+                
+                
             </td>
-          </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        </ng-container>        
+        
+        <tr mat-header-row *matHeaderRowDef="columnNames"></tr>
         <tr 
             mat-row 
-            *matRowDef="let element; columns: displayedColumns;" 
-            (click)="
-                element.online === undefined && 
-                    (expandedElement = expandedElement === element ? null : element); 
-                $event.stopPropagation(); 
-                onRowClick(element.id)
-            "
-            [ngStyle]="{backgroundColor: (markAppointmentId && markAppointmentId === element.id) ? 'aqua': ''}"
-            [ngClass]="{'blinking': isNewSender(element)}"
-        ></tr>
-        
-        <tr mat-row *matRowDef="let element; columns: ['expandedDetail'];" class="expandable-element-detail-row"
-            [class.expandable-element-detail-row-expanded]="element == expandedElement">
+            *matRowDef="let row; columns: columnNames"
+            (click)="onRowClick(row.id, row.title || undefined)"
+            [ngStyle]="{backgroundColor: (markAppointmentId && markAppointmentId === row.id) ? 'aqua': ''}"
+            [ngClass]="{'blinking': isNewSender(row)}">
         </tr>
         <tr class="mat-row" *matNoDataRow>
             <td class="mat-cell" colspan="4">No data matching current search parameters</td>
-        </tr>
+        </tr> 
     </table>
 
     <mat-paginator    
@@ -167,3 +82,4 @@
         [pageSizeOptions]="[10, 20, 50, 100]"
         (page)="onPageChange($event)">
     </mat-paginator>
+</div>

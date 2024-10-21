@@ -1,3 +1,4 @@
+import { Record } from "../record/record"
 import { User } from "../user/user"
 
 export interface Appointment {
@@ -13,4 +14,5 @@ export interface Appointment {
     doctor?: User
     patientMessage: string
     doctorMessage: string
+    record?: Record
 }

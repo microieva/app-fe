@@ -1,5 +1,4 @@
 table {
-    border-radius: 5px;
     button {
         background-color: rgb(139,149,161);
         height: 1.8rem;
@@ -7,9 +6,7 @@ table {
         font-size: 10px;
         text-wrap:nowrap;
     }
-    border: 1px solid rgb(111, 143, 175, 40%);
     box-shadow: none;
-    //box-shadow: 0px 5px 5px -3px rgba(111, 143, 175, 0.2), 0px 8px 10px 1px rgba(111, 143, 175, 0.14), 0px 3px 14px 2px rgba(111, 143, 175, 0.12);
 }
 mat-form-field {
     width: 100%;
@@ -20,7 +17,7 @@ mat-form-field {
 }
 .mat-mdc-row:hover {
     cursor: pointer;
-    background-color: rgb(152,168,189)
+    background-color:rgb(204 212 219);
     
 }
 .mat-label{
@@ -61,20 +58,6 @@ button {
     cursor: default;
 }
 
-//-------------------expandable
-.expandable-element-detail {
-    overflow: hidden;
-    display: flex;
-  }
-  
-  .expandable-element-detail-row {
-    height: 0;
-  }
-  
-  .expandable-element-detail-row-expanded {
-    height: auto;
-  }
-
 .online-dot {
     height: 8px;
     width: 8px;
@@ -106,5 +89,36 @@ button {
     animation: blink 1s infinite; 
 }
   
-  
+.mat-column-name {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    align-items: center;
+    line-height: 4rem;
+    span {
+        margin-right: 10px;
+    }
+}
+.material-symbols-outlined{
+    color: rgb(119, 134, 154);
+}
+.dialog-table {
+    padding: 2rem;
+    width: 45rem;
+}
+.mat-column-actions {
+    display:flex;
+    flex-direction: row;
+    button {
+        margin-right: 15px;
+    }
+}
+.mat-mdc-header-row {
+    background: rgb(204 212 219);
+    .mat-mdc-header-cell {
+        --mat-table-row-item-outline-color: rgb(78, 84, 90);
+        font-weight: 800;
+        line-height: 4rem;
+    }
+}
   

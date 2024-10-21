@@ -31,7 +31,6 @@ import { AppointmentsComponent } from './graphql/appointment/appointments/appoin
 import { CalendarComponent } from './graphql/appointment/calendar/calendar.component';
 import { AppCalendarComponent } from './shared/components/app-calendar/app-calendar.component';
 import { AppTableComponent } from './shared/components/app-table/app-table.component';
-import { AppAccordionComponent } from './shared/components/app-accordion/app-accordion.component';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { AppAppointmentService } from './shared/services/app-appointment.service';
@@ -70,7 +69,6 @@ import { CommonModule } from '@angular/common';
         AppLandingComponent,
         AppCalendarComponent,
         AppTableComponent,
-        AppAccordionComponent,
         AppEditorComponent,
         AppSnackbarContainerComponent,
         UserComponent,

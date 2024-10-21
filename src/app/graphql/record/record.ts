@@ -6,5 +6,6 @@ export interface Record {
     text: string
     createdAt: string
     updatedAt: string
+    draft: boolean
     appointment: Appointment
 }

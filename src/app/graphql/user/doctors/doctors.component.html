@@ -20,17 +20,23 @@
                 <app-loading></app-loading>
             </div>
             <div class="page" #scrollView @slideInOut >
-                <div class="users">
+                <div>
+                    <h2 class="font">Account activation requests:</h2>
+                    <p *ngIf="countRequests === 1">Currently there is {{countRequests}} doctor account activation request.</p>
+                    <p *ngIf="countRequests > 1">Currently there are {{countRequests}} doctor account activation requests.</p>
+                </div>
+                <div class="table-wrapper">
                     <app-table 
-                        *ngIf="dataSource && countRequests>0"
+                        #appTable
+                        *ngIf="dataSource && displayedColumns && countRequests>0"
                         [dataSource]="dataSource" 
+                        [displayedColumns]="displayedColumns"
                         [length]="requestsLength"
                         [userRole]="userRole"
                         (pageChange)="onPageChange($event)"
                         (sortChange)="onSortChange($event)"
                         (filterValue)="onFilterValueChange($event, async)"
-                        (userClick)="onUserClick($event, async)"
-                        (buttonClick)="onButtonClick($event)"
+                        (action)="onActionClick($event)"
                     >
                     </app-table>
                 </div>
@@ -51,17 +57,23 @@
                 <app-loading></app-loading>
             </div>
             <div class="page">
-                <div class="users">
+                <div>
+                    <h2 class="font">Doctors:</h2>
+                    <p *ngIf="countDoctors === 1">Currently there is {{countDoctors}} doctor in this health center.</p>
+                    <p *ngIf="countDoctors > 1">Currently there are {{countDoctors}} active doctor accounts.</p>
+                </div>
+                <div class="table-wrapper">
                     <app-table 
-                        *ngIf="dataSource && countDoctors>0"
+                        #appTable
+                        *ngIf="dataSource && displayedColumns && countDoctors > 0"
                         [dataSource]="dataSource" 
+                        [displayedColumns]="displayedColumns"
                         [length]="doctorsLength"
                         [userRole]="userRole"
                         (pageChange)="onPageChange($event)"
                         (sortChange)="onSortChange($event)"
                         (filterValue)="onFilterValueChange($event, async)"
-                        (userClick)="onUserClick($event, async)"
-                        (buttonClick)="onButtonClick($event)"
+                        (rowClick)="onUserClick($event, async)"
                     >
                     </app-table>
                 </div>

@@ -33,6 +33,7 @@
                     {{ 'Edit Record' }}
                 </button>
                 <button 
+                    *ngIf="!noDelete"
                     mat-stroked-button 
                     (click)="deleteRecord()" 
                     style="background-color: #99A9BD;"

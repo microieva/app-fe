@@ -19,7 +19,7 @@
                 </div>
             </a>
             <a mat-list-item [routerLink]="['/home','users']" *ngIf="userRole === 'admin'" routerLinkActive="activeLink">
-                <div class="flex" (click)="onDoctorsClick()">
+                <div class="flex" >
                     <span>{{ 'Doctors' }}</span>
                     <span [ngStyle]="{visibility: countDoctorRequests>0 ? 'visible':'hidden'}" class="icon material-symbols-outlined">info</span>
                 </div>
@@ -38,37 +38,153 @@
     </mat-sidenav>
     <mat-sidenav-content class="content">  
         <div class="page" *ngIf="isHomeRoute">
-            <div class="block" *ngIf="userRole ==='admin'">
-                <div class="flex-row"><h2 class="font">New doctor account activation requests </h2><h2><span>{{countDoctorRequests}}</span></h2></div>
-                <div class="flex-row"><h2 class="font">Missed appointment requests</h2><h2><span>{{countMissedAppointments}}</span></h2></div>
-                <div class="flex-row"><h2 class="font">Registered doctors</h2><h2><span>{{countDoctors}}</span></h2></div>
-                <div class="flex-row"><h2 class="font">Registered patients</h2><h2><span>{{countPatients}}</span></h2></div>
-            </div>
-        
-            <div class="block" *ngIf="userRole ==='doctor'">
-                <div class="flex-row" *ngIf="nextAppointmentStartTime"><h2 class="font">Next appointment, <em>patient</em></h2><h2><span>{{nextAppointmentStartTime}}<em>, {{nextAppointmentName}}</em></span></h2></div>
-                <div class="flex-row"><h2 class="font">Pending appointment requests </h2><h2><span>{{countPendingAppointments}}</span></h2></div>
-                <div class="flex-row"><h2 class="font">Accepted appointments </h2><h2><span>{{countUpcomingAppointments}}</span></h2></div>  
-                <div class="flex-row"><h2 class="font">Patients</h2><h2><span>{{countPatients}}</span></h2></div>
-                <div class="flex-row"><h2 class="font">Missed appointment requests</h2><h2><span>{{countMissedAppointments}}</span></h2></div>
-            </div>
-        
-            <div class="block" 
-                *ngIf="userRole ==='patient' && me.streetAddress">
-                <div class="flex-row" *ngIf="nextAppointmentStartTime"><h2 class="font">Next appointment, <em>doctor</em></h2><h2><span>{{nextAppointmentStartTime}}<em>, Dr {{nextAppointmentName}}</em></span></h2></div>
-                <div class="flex-row"><h2 class="font">Pending appointment requests </h2><h2><span>{{countPendingAppointments}}</span></h2></div>
-                <div class="flex-row"><h2 class="font">Upcoming appointments </h2><h2><span>{{countUpcomingAppointments}}</span></h2></div>     
-                <div class="flex-row"><h2 class="font">Missed appointment requests</h2><h2><span>{{countMissedAppointments}}</span></h2></div>
-                <div class="flex-row"><h2 class="font">Medical records </h2><h2><span>{{countRecords}}</span></h2></div>      
-            </div>
-        
-            <div class="btn-block"  style="margin-top: 12rem;" *ngIf="userRole ==='patient' && !me.streetAddress">
-                <div style="margin-bottom: 2rem;">
-                    <h3>Welcome!</h3>
-                    <p class="title" style="font-size: 2rem;">Complete setting up your account</p>
-                    <em>Please fill out your contact details to use Health Center services. By adding the information you agree to our Terms of Service and allow us handling your personal details. We guarantee no third parties have access to the details you provide. All personal information is saved only in our internal database. Requested contact details will be used for contacting and billing.</em>
+            <div *ngIf="userRole ==='admin'">
+                <div class="flat next-appointment">
+                    <span class="material-symbols-outlined" id="bg-icon">
+                        event
+                    </span>
+                    <div class="flex-row">
+                        <div class="flex-column">
+                            <p class="title">Today is:</p>
+                            <div class="time-wrapper" style="font-size: 3.5rem;">
+                                <h3>{{today.weekday}},</h3>
+                                <p style="font-size:smaller;"><em>{{today.date}}</em></p>
+                                <h1>{{clock}}</h1>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <button mat-stroked-button style="width:14rem;"><a [routerLink]="['/home/user']">{{'Update Information'}}</a></button>
+                <div class="block" >
+                    <div class="flex-row"><h2 class="font">New doctor account activation requests </h2><h2><span>{{countDoctorRequests}}</span></h2></div>
+                    <div class="flex-row"><h2 class="font">Missed appointment requests</h2><h2><span>{{countMissedAppointments}}</span></h2></div>
+                    <div class="flex-row"><h2 class="font">Registered doctors</h2><h2><span>{{countDoctors}}</span></h2></div>
+                    <div class="flex-row"><h2 class="font">Registered patients</h2><h2><span>{{countPatients}}</span></h2></div>
+                    <div class="flex-row" id="last-login"><h2 class="font">Last log out:</h2><h2><span>{{lastLogOut}}</span></h2></div>
+                </div>
+
+            </div>
+            <div *ngIf="userRole ==='doctor'" [ngStyle]="{'margin-top': !nextId ? '16rem':'inherit'}">
+                <span class="material-symbols-outlined" id="bg-icon">
+                    calendar_clock
+                </span>
+                <div class="flat next-appointment">
+                    <h1 class="font">Next appointment:</h1>
+
+                    <div class="flex-row">
+                        <div class="flex-column" *ngIf="nextStart">
+                            <p class="title">Appoinment time</p>
+                            <div class="time-wrapper" style="font-size: 3.5rem;">
+                                <h3>{{nextStart.dayName}},</h3>
+                                <h1>{{nextStart.time}}</h1>
+                                <p style="font-size:smaller;"><em>{{nextStart.date}}</em></p>
+                            </div>
+                        </div>
+                        <div class="flex-column" id="patient-details">
+                            <p class="title">Patient's information</p>
+                            <div class="block">
+                                <div class="flex-row">
+                                    <h2 class="font">Name</h2>
+                                    <h2><span>{{nextAppointmentName}}</span></h2>
+                                </div>
+                                <div class="flex-row">
+                                    <h2 class="font">Date of birth</h2>
+                                    <h2><span>{{nextAppointmentPatientDob}}</span></h2>
+                                </div>
+                                <div class="flex-row">
+                                    <h2 class="font">Previous appointment</h2>
+                                    <h2><span>{{previousAppointmentDate}}</span></h2>
+                                </div>
+                                <div class="flex-row" [ngClass]="recordIds.length> 0 && 'clickable'" (click)="onOpenRecords()" >
+                                    <h2 class="font">Medical records</h2>
+                                    <h2>
+                                        <span *ngIf="recordIds.length > 0" class="material-symbols-outlined" matTooltip="Open patient's medical records">
+                                            open_in_new
+                                        </span>
+                                        <span *ngIf="recordIds.length === 0">
+                                            -
+                                        </span>
+                                    </h2>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="block" >
+                    <div class="flex-row"><h2 class="font">Appointments today</h2><h2><span>{{countTodayAppointments}}</span></h2></div>
+                    <div class="flex-row"><h2 class="font">Total hours today</h2><h2><span>{{countTotalHoursToday}}</span></h2></div>
+                    
+                    <div class="flex-row"><h2 class="font">Pending appointment requests </h2><h2><span>{{countPendingAppointments}}</span></h2></div>
+                    <div class="flex-row"><h2 class="font">Accepted appointments </h2><h2><span>{{countUpcomingAppointments}}</span></h2></div>  
+                    <div class="flex-row"><h2 class="font">Missed appointment requests</h2><h2><span>{{countMissedAppointments}}</span></h2></div>
+                    <div class="flex-row " id="last-login"><h2 class="font">Last log out:</h2><h2><span>{{lastLogOut}}</span></h2></div>
+                 </div>
+
+            </div>
+            <div *ngIf="userRole ==='patient'" [ngStyle]="{'margin-top': !nextId ? '16rem':'inherit'}">
+                <span class="material-symbols-outlined" id="bg-icon">
+                    calendar_clock
+                </span>
+                <div class="flat next-appointment" *ngIf="nextId">
+                    <h1 class="font">Next appointment:</h1>
+
+                    <div class="flex-row">
+                        <div class="flex-column" *ngIf="nextStart">
+                            <p class="title">Appoinment time</p>
+                            <div class="time-wrapper" style="font-size: 3.5rem;">
+                                <h3>{{nextStart.dayName}},</h3>
+                                <h1>{{nextStart.time}}</h1>
+                                <p style="font-size:smaller;"><em>{{nextStart.date}}</em></p>
+                            </div>
+                        </div>
+                        <div class="flex-column" id="patient-details">
+                            <p class="title">Doctor's information</p>
+                            <div class="block">
+                                <div class="flex-row">
+                                    <h2 class="font">Name</h2>
+                                    <h2><span>{{nextAppointmentName}}</span></h2>
+                                </div>
+                                <div class="flex-row">
+                                    <h2 class="font">Previous appointment</h2>
+                                    <h2><span>{{previousAppointmentDate}}</span></h2>
+                                </div>
+                                <div 
+                                    class="flex-row" 
+                                    [ngClass]="recordIds.length > 0 && 'clickable'" 
+                                    (click)="recordIds.length>0 && onOpenRecords()" 
+                                >
+                                    <h2 class="font">Medical records</h2>
+                                    <h2>
+                                        <span *ngIf="recordIds.length > 0" class="material-symbols-outlined" matTooltip="Open patient's medical records">
+                                            open_in_new
+                                        </span>
+                                        <span *ngIf="recordIds.length === 0">
+                                            -
+                                        </span>
+                                    </h2>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="block">
+                    
+                    <div class="flex-row"><h2 class="font">Pending appointment requests </h2><h2><span>{{countPendingAppointments}}</span></h2></div>
+                    <div class="flex-row"><h2 class="font">Upcoming appointments </h2><h2><span>{{countUpcomingAppointments}}</span></h2></div>     
+                    <div class="flex-row"><h2 class="font">Missed appointment requests</h2><h2><span>{{countMissedAppointments}}</span></h2></div>
+                    <div class="flex-row"><h2 class="font">Medical records </h2><h2><span>{{countRecords}}</span></h2></div>      
+                    <div class="flex-row" id="last-login"><h2 class="font">Last log out:</h2><h2><span>{{lastLogOut}}</span></h2></div>
+                  </div>
+            
+                <div class="btn-block"  style="margin-top: 12rem;" *ngIf="!me.streetAddress">
+                    <div style="margin-bottom: 2rem;">
+                        <h3>Welcome!</h3>
+                        <p class="title" style="font-size: 2rem;">Complete setting up your account</p>
+                        <em>Please fill out your contact details to use Health Center services. By adding the information you agree to our Terms of Service and allow us handling your personal details. We guarantee no third parties have access to the details you provide. All personal information is saved only in our internal database. Requested contact details will be used for contacting and billing.</em>
+                    </div>
+                    <button mat-stroked-button style="width:14rem;"><a [routerLink]="['/home/user']">{{'Update Information'}}</a></button>
+                </div>
             </div>
         </div> 
         <router-outlet></router-outlet>

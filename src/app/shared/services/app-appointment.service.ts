@@ -22,9 +22,12 @@ export class AppAppointmentService {
                 nextId
                 nextStart
                 nextEnd
+                previousAppointmentDate
+                recordIds
                 patient {
                     firstName
                     lastName
+                    dob
                 }
             }
         }`

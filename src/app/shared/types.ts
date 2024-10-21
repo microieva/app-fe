@@ -54,22 +54,26 @@ export interface AppointmentDataSource {
     date: string
     start: string
     end: string
-    patientName?: string
+    name?: string // pending appointments have no doctor 
+    message: string
+    draft?: boolean
+    record?: boolean
 }
 export interface RecordDataSource {
     id: number
     title: string
     createdAt: string
     updatedAt: string
+    name: string
 }
 export interface UserDataSource {
     id: number
     createdAt: string
     updatedAt: string
-    firstName: string
-    lastName: string
+    name: string
     dob?: string
     email: string
+    lastLogOutAt?: string
     isRequest?: boolean;
     online?:boolean;
 }
