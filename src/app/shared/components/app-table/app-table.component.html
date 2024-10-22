@@ -50,12 +50,16 @@
                     </div>
                     <div *ngIf="element.record === undefined" matTooltip="No record">-</div>
                 </ng-container>
-        
-                <!-- Default rendering for other columns -->
+
                 <ng-container *ngIf="column.columnDef !== 'online' && column.columnDef !== 'message' && column.columnDef !== 'draft'  && column.columnDef !== 'record'  && column.columnDef !== 'actions'">
-                    <span *ngIf="element[column.columnDef] === ''">-</span>
-                    <span *ngIf="element[column.columnDef] !== ''">{{ element[column.columnDef] }}</span>
+                    <ng-container *ngIf="element[column.columnDef] === '' || element[column.columnDef] === 'Invalid DateTime'; else value">
+                        <span>-</span>
+                    </ng-container>
+                    <ng-template #value>
+                        <span>{{ element[column.columnDef] }}</span>
+                    </ng-template>
                 </ng-container>
+                  
                 
                 
             </td>

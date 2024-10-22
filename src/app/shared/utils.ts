@@ -51,7 +51,7 @@ export const getNextAppointmentWeekdayStart = (nextStart: any): { dayName: strin
 }
 
 export const getLastLogOutStr = (timestamp: string): string => {
-    const date = DateTime.fromISO(timestamp, { setZone: true });
+    const date = DateTime.fromISO(timestamp, { setZone: true }).setZone('Europe/Helsinki');
     const today = DateTime.now().setZone(date.zone);
     const yesterday = today.minus({ days: 1 });
 
