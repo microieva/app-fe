@@ -104,7 +104,11 @@ button {
 }
 .dialog-table {
     padding: 2rem;
-    width: 45rem;
+    width: 65rem;
+    height: 45rem;
+    table {
+        background-color: transparent;
+    }
 }
 .mat-column-actions {
     display:flex;

@@ -1,12 +1,10 @@
 
     
-<div [ngClass]="recordIds && 'dialog-table'">
-    <div *ngIf="recordIds">
-        <h2 *ngIf="userRole==='doctor'" class="font">Patient's medical records:</h2>
-        <h2 *ngIf="userRole==='patient'" class="font">My medical records:</h2>
-        <p ></p>
+<div [ngClass]="injectedData && 'dialog-table'">
+    <div *ngIf="injectedData" style="margin-bottom: 4rem">
+        <h2 class="font">Patient's medical records {{injectedData.length}}:</h2>
     </div>
-    <mat-form-field *ngIf="!recordIds">
+    <mat-form-field>
         <mat-label>Search by name</mat-label>
         <input matInput (keyup)="onSearch($event)" placeholder="..." #input>
     </mat-form-field>
@@ -18,7 +16,6 @@
         class="mat-elevation-z8" 
         matSort 
         (matSortChange)="onSortChange($event)"
-        
     >
         <ng-container *ngFor="let column of displayedColumns" [matColumnDef]="column.columnDef" >
             <th mat-header-cell *matHeaderCellDef mat-sort-header disableClear class="font">{{ column.header }}</th>
