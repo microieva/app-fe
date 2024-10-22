@@ -1,6 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { ActivatedRoute, Router } from "@angular/router";
+import { animate, state, style, transition, trigger } from "@angular/animations";
 import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../services/app-graphql.service";
 import { AppAppointmentService } from "../../services/app-appointment.service";
@@ -14,10 +15,20 @@ import { User } from "../../../graphql/user/user";
 @Component({
     selector: 'app-landing',
     templateUrl: './app-landing.component.html',
-    styleUrls: ['app-landing.component.scss']
+    styleUrls: ['app-landing.component.scss'],
+    animations: [
+        trigger('slideInOut', [
+            state('in', style({ transform: 'translateY(0)', opacity: 1 })),
+            transition(':enter', [
+                style({ transform: 'translateY(80%)', opacity: 0.1 }),
+                animate('600ms cubic-bezier(0.25, 0.8, 0.25, 1)', style({ transform: 'translateY(0)', opacity: 1 }))
+            ])
+        ])
+    ]
 })
 export class AppLandingComponent implements OnInit {
     isHomeRoute: boolean = true;
+    isLoading: boolean = true;
     userRole!: string;
     me!: User;
     lastLogOut!: string;
@@ -78,6 +89,7 @@ export class AppLandingComponent implements OnInit {
             this.timerService.clock.subscribe(value=> {
                 this.clock = value;
             });
+            this.isLoading = false;
         }
 
         if (this.userRole === 'doctor') {
@@ -97,7 +109,7 @@ export class AppLandingComponent implements OnInit {
                     const str = DateTime.fromISO(subscription.nextAppointment.previousAppointmentDate).toFormat('MMM dd, yyyy'); 
                     this.previousAppointmentDate = str !== 'Invalid DateTime' ? str : '-';
                     this.recordIds = subscription.nextAppointment.recordIds;
-
+                    this.isLoading = false;
                 } 
             });
         }
@@ -225,7 +237,7 @@ export class AppLandingComponent implements OnInit {
                     this.recordIds = response.data.nextAppointment.recordIds;
                     this.nextAppointmentStartTime = DateTime.fromISO(response.data.nextAppointment.nextStart, {setZone: true}).toFormat('hh:mm a, MMM dd');
                     this.nextAppointmentName = response.data.nextAppointment.doctor.firstName+' '+response.data.nextAppointment.doctor.lastName;
-                    console.log('recordIds: ', this.recordIds)
+                    this.isLoading = false;
                 } 
             }
         } catch (error) {
