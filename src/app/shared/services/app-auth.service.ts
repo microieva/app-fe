@@ -115,10 +115,10 @@ export class AppAuthService {
     }
 
     async logOut() {
+        await this.graphQLService.mutate(`mutation { logOut }`, {});
         this.apollo.client.clearStore(); 
         localStorage.clear(); 
         window.location.reload();
-        await this.graphQLService.mutate(`mutation { logOut {success}}`, {});
     }
 
     isLoggedIn(): boolean {

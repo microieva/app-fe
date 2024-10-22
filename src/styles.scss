@@ -106,7 +106,7 @@ mat-form-field {
 }
 .mat-mdc-tab-body-wrapper {
   background-color: rgb(214, 222, 230);
-  height: 100vh;
+  height: calc(100vh - 2rem);
 }
 .fc {
   --fc-event-bg-color: rgb(175 111 174 / 40%); //  COLOR FOR DETAIL
