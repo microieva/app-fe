@@ -4,12 +4,12 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../services/app-graphql.service";
 import { AppAppointmentService } from "../../services/app-appointment.service";
-import { AlertComponent } from "../app-alert/app-alert.component";
-import { User } from "../../../graphql/user/user";
-import { Appointment } from "../../../graphql/appointment/appointment";
-import { getTodayWeekdayTime, getNextAppointmentWeekdayStart, getLastLogOutStr } from "../../utils";
-import { AppTableComponent } from "../app-table/app-table.component";
 import { AppTimerService } from "../../services/app-timer.service";
+import { getTodayWeekdayTime, getNextAppointmentWeekdayStart, getLastLogOutStr } from "../../utils";
+import { AlertComponent } from "../app-alert/app-alert.component";
+import { AppTableComponent } from "../app-table/app-table.component";
+import { Appointment } from "../../../graphql/appointment/appointment";
+import { User } from "../../../graphql/user/user";
 
 @Component({
     selector: 'app-landing',
@@ -94,7 +94,8 @@ export class AppLandingComponent implements OnInit {
                     this.nextStart = getNextAppointmentWeekdayStart(nextStart);
                     this.nextAppointmentName = subscription.nextAppointment.patient.firstName+' '+subscription.nextAppointment.patient.lastName;
                     this.nextAppointmentPatientDob = DateTime.fromISO(subscription.nextAppointment.patient.dob).toFormat('MMM dd, yyyy');
-                    this.previousAppointmentDate = DateTime.fromISO(subscription.nextAppointment.previousAppointmentDate).toFormat('MMM dd, yyyy') || '-';
+                    const str = DateTime.fromISO(subscription.nextAppointment.previousAppointmentDate).toFormat('MMM dd, yyyy'); 
+                    this.previousAppointmentDate = str !== 'Invalid DateTime' ? str : '-';
                     this.recordIds = subscription.nextAppointment.recordIds;
 
                 } 
@@ -132,7 +133,8 @@ export class AppLandingComponent implements OnInit {
             if (response.data) {
                 this.me = response.data.me;
                 this.userRole = response.data.me.userRole;
-                this.lastLogOut = getLastLogOutStr(this.me.lastLogOutAt);
+                const str = getLastLogOutStr(this.me.lastLogOutAt);
+                this.lastLogOut = str !== 'Invalid DateTime' ? str : '-'
                 this.isUserUpdated = response.data.me.streetAddress ? true : false;
             }
         } catch (error) {
@@ -223,7 +225,7 @@ export class AppLandingComponent implements OnInit {
                     this.recordIds = response.data.nextAppointment.recordIds;
                     this.nextAppointmentStartTime = DateTime.fromISO(response.data.nextAppointment.nextStart, {setZone: true}).toFormat('hh:mm a, MMM dd');
                     this.nextAppointmentName = response.data.nextAppointment.doctor.firstName+' '+response.data.nextAppointment.doctor.lastName;
-
+                    console.log('recordIds: ', this.recordIds)
                 } 
             }
         } catch (error) {
@@ -242,6 +244,6 @@ export class AppLandingComponent implements OnInit {
         this.nowAppointment = null;
     }
     onOpenRecords(){
-        const ref = this.dialog.open(AppTableComponent, {data: {recordIds: this.recordIds, userRole: this.userRole}})
+        this.dialog.open(AppTableComponent, {data: {recordIds: this.recordIds, userRole: this.userRole}});
     }
 }

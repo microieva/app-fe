@@ -33,7 +33,7 @@
                 <div class="table-wrapper">
                     <app-table 
                         #appTable
-                        *ngIf="dataSource && displayedColumns && countRecords > 0"
+                        *ngIf="dataSource && displayedColumns && (userRole ==='doctor' && countRecs>0 || userRole==='patient' && countRecords>0)"
                         [dataSource]="dataSource" 
                         [displayedColumns]="displayedColumns" 
                         [length]="recordsLength"

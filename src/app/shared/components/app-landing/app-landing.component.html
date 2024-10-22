@@ -63,6 +63,8 @@
                 </div>
 
             </div>
+
+
             <div *ngIf="userRole ==='doctor'" [ngStyle]="{'margin-top': !nextId ? '16rem':'inherit'}">
                 <span class="material-symbols-outlined" id="bg-icon">
                     calendar_clock
@@ -94,7 +96,7 @@
                                     <h2 class="font">Previous appointment</h2>
                                     <h2><span>{{previousAppointmentDate}}</span></h2>
                                 </div>
-                                <div class="flex-row" [ngClass]="recordIds.length> 0 && 'clickable'" (click)="onOpenRecords()" >
+                                <div class="flex-row" [ngClass]="recordIds.length> 0 && 'clickable'" (click)="recordIds.length> 0 && onOpenRecords()" >
                                     <h2 class="font">Medical records</h2>
                                     <h2>
                                         <span *ngIf="recordIds.length > 0" class="material-symbols-outlined" matTooltip="Open patient's medical records">
@@ -121,6 +123,8 @@
                  </div>
 
             </div>
+
+
             <div *ngIf="userRole ==='patient'" [ngStyle]="{'margin-top': !nextId ? '16rem':'inherit'}">
                 <span class="material-symbols-outlined" id="bg-icon">
                     calendar_clock
@@ -138,24 +142,20 @@
                             </div>
                         </div>
                         <div class="flex-column" id="patient-details">
-                            <p class="title">Doctor's information</p>
+                            <p class="title">Appointment information</p>
                             <div class="block">
                                 <div class="flex-row">
-                                    <h2 class="font">Name</h2>
+                                    <h2 class="font">Doctor's name</h2>
                                     <h2><span>{{nextAppointmentName}}</span></h2>
                                 </div>
                                 <div class="flex-row">
                                     <h2 class="font">Previous appointment</h2>
                                     <h2><span>{{previousAppointmentDate}}</span></h2>
                                 </div>
-                                <div 
-                                    class="flex-row" 
-                                    [ngClass]="recordIds.length > 0 && 'clickable'" 
-                                    (click)="recordIds.length>0 && onOpenRecords()" 
-                                >
+                                <div class="flex-row" [ngClass]="recordIds.length> 0 && 'clickable'" (click)="recordIds.length> 0 && onOpenRecords()" >
                                     <h2 class="font">Medical records</h2>
                                     <h2>
-                                        <span *ngIf="recordIds.length > 0" class="material-symbols-outlined" matTooltip="Open patient's medical records">
+                                        <span *ngIf="recordIds.length > 0" class="material-symbols-outlined" matTooltip="Open my medical records">
                                             open_in_new
                                         </span>
                                         <span *ngIf="recordIds.length === 0">

@@ -1,18 +1,18 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Inject, Input, OnInit, Optional, Output, SimpleChanges, ViewChild } from "@angular/core";
 import { animate, state, style, transition, trigger } from "@angular/animations";
 import { MatTableDataSource } from "@angular/material/table";
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
 import { Subject, debounceTime } from "rxjs";
+import { DateTime } from "luxon";
 import { AppTimerService } from "../../services/app-timer.service";
 import { AppSocketService } from "../../services/app-socket.service";
-import { AppDataSource, RecordDataSource, UserDataSource } from "../../types";
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { AppGraphQLService } from "../../services/app-graphql.service";
+import { RecordComponent } from "../../../graphql/record/record.component";
 import { AlertComponent } from "../app-alert/app-alert.component";
 import { Record } from "../../../graphql/record/record";
-import { DateTime } from "luxon";
-import { RecordComponent } from "../../../graphql/record/record.component";
+import { AppDataSource, UserDataSource } from "../../types";
 
 @Component({
     selector: 'app-table',
@@ -45,6 +45,7 @@ export class AppTableComponent implements OnInit, AfterViewInit {
     @Input() markAppointmentId: number | null = null;
     senders: any[] =[];
     recordIds: number[] | undefined;
+    injectedData: any[] | undefined;
 
     @ViewChild(MatPaginator, {read: true}) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
@@ -155,7 +156,7 @@ export class AppTableComponent implements OnInit, AfterViewInit {
     }
 
     formatDataSourceAndColumns(records: any[]) {
-        const data = records.map((record: Record) => {
+        this.injectedData = records.map((record: Record) => {
             let createdAt: string;
             let updatedAt: string;
             const patientDob = DateTime.fromISO(record.appointment.patient.dob,  {setZone: true}).toFormat('MMM dd, yyyy');    
@@ -185,7 +186,7 @@ export class AppTableComponent implements OnInit, AfterViewInit {
                 createdAt: createdAt+`, ${createdDate.toFormat('hh:mm a')}`,
                 title: record.title,
                 updatedAt: updatedAt+`, ${updatedDate.toFormat('hh:mm a')}`,
-                name: this.userRole === 'doctor' ? record.appointment.patient.firstName+" "+record.appointment.patient.lastName : record.appointment.doctor?.firstName+" "+record.appointment.doctor?.lastName,
+                name: record.appointment.doctor?.firstName+" "+record.appointment.doctor?.lastName,
                 patientDob
             } 
         });
@@ -193,7 +194,7 @@ export class AppTableComponent implements OnInit, AfterViewInit {
         if (this.userRole === 'doctor') {
             this.displayedColumns = [ 
                 {header: 'Title', columnDef: 'title'},
-                {header: `Patient's name`, columnDef: 'name'},
+                {header: `Doctor's name`, columnDef: 'name'},
                 {header: 'First created', columnDef: 'createdAt'},
                 {header: 'Final save', columnDef: 'updatedAt'}
             ]
@@ -205,7 +206,7 @@ export class AppTableComponent implements OnInit, AfterViewInit {
                 {header: 'Date', columnDef: 'updatedAt'}
             ]
         }
-        this.dataSource = new MatTableDataSource<any>(data);
+        this.dataSource = new MatTableDataSource<any>(this.injectedData);
         this.ngOnInit();
     }
     
