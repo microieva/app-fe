@@ -103,7 +103,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
                     if (nowAppointment) {
                         const patientName = nowAppointment.patient.firstName+" "+nowAppointment.patient.lastName;
-                        const start = DateTime.fromISO(nowAppointment.start,  {setZone: true}).toFormat('hh:mm a');
+                        const start = DateTime.fromISO(nowAppointment.start,  {setZone: true}).toFormat('HH:mm a');
                         isTabAdded = JSON.parse(localStorage.getItem('tabs') || '[]').find((tab: any)=> tab.id === nowAppointment?.id);
                         let isTabCreated: boolean;
                         
@@ -128,14 +128,14 @@ export class AppComponent implements OnInit, OnDestroy {
                             this.timerService.nextAppointmentCountdown.subscribe(async value => {
 
                                 if (value === environment.triggerTime) {
-                                    const displayTime = `\n Starting at ${start.toFormat('hh:mm a')}`
+                                    const displayTime = `\n Starting at ${start.toFormat('HH:mm a')}`
                                     const ref = this.dialog.open(AlertComponent, {data: { message: `You have an appointment in 5 min. ${displayTime}`}});
                                     
                                     const tabs = this.tabsService.getTabs();
                                     if (tabs) {
                                         const isCreated = tabs.some(tab => tab.id === subscription.nextAppointment.nextId)
                                         if (!isCreated) {
-                                            this.tabsService.addTab(start.toFormat('hh:mm a'), AppointmentComponent, subscription.nextAppointment.nextId);
+                                            this.tabsService.addTab(start.toFormat('HH:mm a'), AppointmentComponent, subscription.nextAppointment.nextId);
                                         }
                                     } 
                                     ref.componentInstance.ok.subscribe(ok => {

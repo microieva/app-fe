@@ -27,7 +27,7 @@ import { AppDataSource, UserDataSource } from "../../types";
     ],
 })
 export class AppTableComponent implements OnInit, AfterViewInit {
-
+    isLoading: boolean = false;
     private searchSubject = new Subject<string>();
 
     @Output() pageChange = new EventEmitter<{pageIndex: number, pageLimit: number}>();
@@ -89,6 +89,7 @@ export class AppTableComponent implements OnInit, AfterViewInit {
             this.userRole = this.data.userRole;
         }
         if (this.recordIds) {
+            this.isLoading = true;
             this.loadMedicalRecords(this.recordIds)
         }
     }
@@ -148,6 +149,7 @@ export class AppTableComponent implements OnInit, AfterViewInit {
                 const records = response.data.medicalRecordsFromIds.slice;
                 this.length = response.data.medicalRecordsFromIds.length;
                 this.formatDataSourceAndColumns(records);
+                this.isLoading = false;
             }
         } catch(error) {
             this.dialog.open(AlertComponent, {data: {message: error}});
@@ -183,9 +185,9 @@ export class AppTableComponent implements OnInit, AfterViewInit {
 
             return {
                 id: record.id,
-                createdAt: createdAt+`, ${createdDate.toFormat('hh:mm a')}`,
+                createdAt: createdAt+`, ${createdDate.toFormat('HH:mm a')}`,
                 title: record.title,
-                updatedAt: updatedAt+`, ${updatedDate.toFormat('hh:mm a')}`,
+                updatedAt: updatedAt+`, ${updatedDate.toFormat('HH:mm a')}`,
                 name: record.appointment.doctor?.firstName+" "+record.appointment.doctor?.lastName,
                 patientDob
             } 

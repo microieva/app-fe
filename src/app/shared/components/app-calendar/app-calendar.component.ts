@@ -451,8 +451,8 @@ export class AppCalendarComponent implements OnInit {
                 });
             } else {
                 const eventInfo = {
-                    start: DateTime.fromISO(arg.startStr).toFormat('hh:mm a'),
-                    end: DateTime.fromISO(arg.endStr).toFormat('hh:mm a'),
+                    start: DateTime.fromISO(arg.startStr).toFormat('HH:mm a'),
+                    end: DateTime.fromISO(arg.endStr).toFormat('HH:mm a'),
                     date: DateTime.fromJSDate(new Date(arg.start)).toFormat('MMM dd, yyyy')
                 }
                 this.appointment.emit({
@@ -628,7 +628,7 @@ export class AppCalendarComponent implements OnInit {
 
     isDouble(arg: any): boolean {
         return this.appointments.some((event) => 
-            DateTime.fromISO(event.start).toFormat('hh:mm') === DateTime.fromISO(arg.startStr).toFormat('hh:mm')
+            DateTime.fromISO(event.start).toFormat('HH:mm') === DateTime.fromISO(arg.startStr).toFormat('HH:mm')
         );
     }
 

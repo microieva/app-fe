@@ -89,7 +89,7 @@ export class ChatComponent implements OnInit {
             if (response.data) {
                 this.messages = response.data.messages;
                 this.messages = this.messages.map(msg => {
-                    const time = DateTime.fromISO(msg.createdAt).toFormat('hh:mm a, MMM dd')
+                    const time = DateTime.fromISO(msg.createdAt).toFormat('HH:mm a, MMM dd')
                     return {
                         ...msg,
                         createdAt: time

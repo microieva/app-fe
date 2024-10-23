@@ -79,7 +79,8 @@ export class AppLandingComponent implements OnInit {
         this.activatedRoute.queryParams.subscribe(async params => {
             if(params['updated']) {
                 this.isUserUpdated = true;
-                await this.loadData();
+                this.isLoading = false;
+                //await this.loadData();
             }
         });
 
@@ -112,10 +113,11 @@ export class AppLandingComponent implements OnInit {
                     this.recordIds = subscription.nextAppointment.recordIds;
                     this.isLoading = false;
                 } 
-            });
-            if (this.countRecords === 0) {
+            });       
+        }
 
-            }
+        if (this.userRole === 'patient' && this.isUserUpdated) {
+            this.isLoading = false;
         }
     }
 
@@ -239,7 +241,7 @@ export class AppLandingComponent implements OnInit {
                     this.nextStart = nextStart && getNextAppointmentWeekdayStart(nextStart);
                     this.nextId = response.data.nextAppointment.nextId;
                     this.recordIds = response.data.nextAppointment.recordIds;
-                    this.nextAppointmentStartTime = DateTime.fromISO(response.data.nextAppointment.nextStart, {setZone: true}).toFormat('hh:mm a, MMM dd');
+                    this.nextAppointmentStartTime = DateTime.fromISO(response.data.nextAppointment.nextStart, {setZone: true}).toFormat('HH:mm a, MMM dd');
                     this.nextAppointmentName = response.data.nextAppointment.doctor.firstName+' '+response.data.nextAppointment.doctor.lastName;
                     this.isLoading = false;
                 } 

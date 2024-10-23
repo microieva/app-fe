@@ -328,9 +328,9 @@ export class RecordsComponent implements OnInit {
 
                     return {
                         id: row.id,
-                        createdAt: createdAt+`, ${createdDate.toFormat('hh:mm a')}`,
+                        createdAt: createdAt+`, ${createdDate.toFormat('HH:mm a')}`,
                         title: row.title,
-                        updatedAt: updatedAt+`, ${updatedDate.toFormat('hh:mm a')}`,
+                        updatedAt: updatedAt+`, ${updatedDate.toFormat('HH:mm a')}`,
                         name: this.userRole === 'doctor' ? row.appointment.patient.firstName+" "+row.appointment.patient.lastName : row.appointment.doctor?.firstName+" "+row.appointment.doctor?.lastName,
                         patientDob
                     } 
@@ -377,9 +377,9 @@ export class RecordsComponent implements OnInit {
                     } 
                     return {
                         id: row.id,
-                        createdAt: createdAt+`, ${createdDate.toFormat('hh:mm a')}`,
+                        createdAt: createdAt+`, ${createdDate.toFormat('HH:mm a')}`,
                         title: row.title,
-                        updatedAt: updatedAt+`, ${updatedDate.toFormat('hh:mm a')}`,
+                        updatedAt: updatedAt+`, ${updatedDate.toFormat('HH:mm a')}`,
                         name: row.appointment.patient.firstName+" "+row.appointment.patient.lastName,
                         patientDob   
                     } 
