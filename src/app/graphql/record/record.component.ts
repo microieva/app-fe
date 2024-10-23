@@ -5,6 +5,7 @@ import { AppGraphQLService } from "../../shared/services/app-graphql.service";
 import { AlertComponent } from "../../shared/components/app-alert/app-alert.component";
 import { ConfirmComponent } from "../../shared/components/app-confirm/app-confirm.component";
 import { Record } from "./record"; 
+import { Router } from "@angular/router";
 
 @Component({
     selector: 'app-record',
@@ -36,6 +37,7 @@ export class RecordComponent implements OnInit {
     constructor(
         private dialog: MatDialog,
         private graphQLService: AppGraphQLService,
+        private router: Router,
 
         @Optional() public dialogRef: MatDialogRef<RecordComponent>,
         @Optional() @Inject(MAT_DIALOG_DATA) public data: any
@@ -142,7 +144,7 @@ export class RecordComponent implements OnInit {
             appointmentId: this.appointmentId,
             draft: input.draft
         }
-
+        
         const mutation = `mutation ($recordInput: RecordInput!){
             saveRecord(recordInput: $recordInput) {
                 success
@@ -150,12 +152,12 @@ export class RecordComponent implements OnInit {
             }
         }`
         try {
-            const response = await this.graphQLService.mutate(mutation, { recordInput })
-            if (response.data.saveRecord.success) {
+            const response = await this.graphQLService.mutate(mutation, { recordInput });
+            if (response.data.saveRecord) {
                 await this.loadRecord();
-                this.reload.emit(true);
                 this.isEditting = false;
-            }    
+                this.reload.emit(true);
+            }   
         } catch (error) {
             this.dialog.open(AlertComponent, {data: { message: "Unexpected error saving medical record: "+error}})
         }

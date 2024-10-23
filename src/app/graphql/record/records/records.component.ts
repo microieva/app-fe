@@ -37,13 +37,12 @@ export class RecordsComponent implements OnInit {
     drafts: Record[] = [];
     draftsLength: number = 0;
     recordsLength: number = 0;
-    countRecs: number = 0;
-
+    
     recordDataSource: RecordDataSource[] | undefined;
     draftDataSource: RecordDataSource[] | undefined;
-
-    countRecords: number = 0;
-    countDrafts: number = 0;
+    
+    countRecords: number | undefined;
+    countDrafts: number | undefined;
 
     userRole!: string;
     pageIndex: number = 0;
@@ -51,6 +50,7 @@ export class RecordsComponent implements OnInit {
     sortDirection: string | null = null;
     sortActive: string | null = 'createdAt';
     filterInput: string | null = null;
+    isLoading: boolean = true;
 
     @ViewChild('appTable') appTable!: AppTableComponent;
 
@@ -69,9 +69,6 @@ export class RecordsComponent implements OnInit {
             this.selectedIndex = tab ? +tab : 0;
             await this.loadData();
         });   
-        if (this.userRole === 'doctor') {
-            this.countRecs = this.countRecords-this.countDrafts;
-        }
     }
 
     async loadStatic(){
@@ -90,10 +87,10 @@ export class RecordsComponent implements OnInit {
         try {
             const response = await this.graphQLService.send(query);
             if (response.data) {
+                this.countRecords = response.data.countRecords;
                 if (this.userRole === 'doctor') {
                     this.countDrafts = response.data.countDrafts;
                 }
-                this.countRecords = response.data.countRecords;
             }
         } catch (error) {
             console.error(error);
@@ -125,6 +122,7 @@ export class RecordsComponent implements OnInit {
         this.sortActive = 'createdAt';
         this.filterInput = null;
         this.displayedColumns = [];
+
         if (this.appTable) {
             this.appTable.clearInputField();
         }
@@ -225,10 +223,9 @@ export class RecordsComponent implements OnInit {
                 this.formatDataSource("records");
 
                 if (this.recordDataSource && this.displayedColumns) {
-
                     this.dataSource = new MatTableDataSource<RecordDataSource>(this.recordDataSource);
                 }
-
+                this.isLoading = false;
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading records: "+error}});
@@ -286,7 +283,7 @@ export class RecordsComponent implements OnInit {
                 if (this.draftDataSource && this.displayedColumns) {
                     this.dataSource = new MatTableDataSource<RecordDataSource>(this.draftDataSource);
                 }
-
+                this.isLoading = false;
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading drafts: "+error}})
@@ -295,8 +292,8 @@ export class RecordsComponent implements OnInit {
     onRecordClick(value: {id: number, title?:string}){
         const recordId = value.id;
         const dialogRef = this.dialog.open(RecordComponent, {data: {recordId, width: "45rem"}});
-        dialogRef.componentInstance.reload.subscribe(subscription => {
-            if (subscription) this.loadData();
+        dialogRef.componentInstance.reload.subscribe(async subscription => {
+            if (subscription) await this.loadStatic();
         })
     }
 

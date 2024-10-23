@@ -12,28 +12,28 @@
         <div>
             <div class="flex-row wrapper info">
                 <span class="icon material-symbols-outlined">info</span>
-                <h3 *ngIf="countRecords === 0">No saved records</h3> 
-                <h3 *ngIf="countRecords > 0">Saved medical records</h3> 
+                <h3 *ngIf="countRecords && countRecords === 0">No saved records</h3> 
+                <h3 *ngIf="countRecords && countRecords > 0">Saved medical records</h3> 
                 <span>{{' '}}</span>
             </div>
-            <div *ngIf="!dataSource || !countRecords" class="loading">
+            <div *ngIf="isLoading" class="loading">
                 <app-loading></app-loading>
             </div>
-            <div class="page" @slideInOut>
-                <div *ngIf="userRole==='patient' && countRecords > 0">
+            <div class="page" @slideInOut *ngIf="!isLoading">
+                <div *ngIf="userRole==='patient'">
                     <h2 class="font">Medical records:</h2>
                     <p *ngIf="countRecords===1">Currently you have {{countRecords}} medical record.</p>
                     <p *ngIf="countRecords>1">Currently you have {{countRecords}} medical records.</p>
                 </div>
-                <div *ngIf="userRole==='doctor' && countRecs> 0">
+                <div *ngIf="userRole==='doctor'">
                     <h2 class="font">Medical records:</h2>
-                    <p *ngIf="countRecs===1">Currently you have {{countRecs}} medical record.</p>
-                    <p *ngIf="countRecs>1">Currently you have {{countRecs}} medical records.</p>
+                    <p *ngIf="countRecords - countDrafts===1">Currently you have {{countRecords - countDrafts}} medical record.</p>
+                    <p *ngIf="countRecords - countDrafts>1">Currently you have {{countRecords - countDrafts}} medical records.</p>
                 </div>
                 <div class="table-wrapper">
                     <app-table 
                         #appTable
-                        *ngIf="dataSource && displayedColumns && (userRole ==='doctor' && countRecs>0 || userRole==='patient' && countRecords>0)"
+                        *ngIf="dataSource && displayedColumns"
                         [dataSource]="dataSource" 
                         [displayedColumns]="displayedColumns" 
                         [length]="recordsLength"
@@ -48,7 +48,7 @@
             </div>
         </div>
     </mat-tab>
-    <mat-tab *ngIf="userRole === 'doctor' && countDrafts > 0">
+    <mat-tab *ngIf="userRole === 'doctor' && countDrafts && countDrafts > 0">
         <ng-template mat-tab-label>
             <span class="tab-label" >Drafts</span>
         </ng-template>

@@ -24,33 +24,44 @@
                 <app-loading></app-loading>
             </div>
             <div class="page" @slideInOut>
-                <div class="btn-block" *ngIf="userRole === 'patient' && countPendingAppointments === 0">
-                    <div>
-                        <h3>You are in safe hands!</h3>
-                        <p class="title" style="font-size: 2rem;">Make an appointment for a consultation</p>
-                        <em>Appointment confirmation will be sent by email. Make sure you have provided your correct email address. You can always find your account details on <a [routerLink]="['/user']">My Account page</a>.</em>
+                <div *ngIf="userRole === 'patient'">
+                    <div class="btn-block" *ngIf="countPendingAppointments === 0">
+                        <div>
+                            <h3>You are in safe hands!</h3>
+                            <p class="title" style="font-size: 2rem;">Make an appointment for a consultation</p>
+                            <em>Appointment confirmation will be sent by email. Make sure you have provided your correct email address. You can always find your account details on <a [routerLink]="['/user']">My Account page</a>.</em>
+                        </div>
+                        <button mat-stroked-button (click)="openCalendar()">{{ 'Make an Appointment' }}</button>
                     </div>
-                    <button mat-stroked-button (click)="openCalendar()">{{ 'Make an Appointment' }}</button>
+    
+                    <div *ngIf="countPendingAppointments > 0">  
+                        <div style="margin-bottom: 8rem;">
+                            <h2 class="font">Book appointment:</h2>
+                            <p>Appointment confirmation will be sent by email. Make sure you have provided your correct email address. You can always find your account details on <a [routerLink]="['/home/user']">My Account</a> page.</p>
+                            <button style="margin-top: 2rem;background-color: rgb(175 111 174 / 40%);" mat-stroked-button (click)="openCalendar()">{{ 'Book New Appointment' }}</button>
+                        </div> 
+                        <div>
+                            <h2 class="font">Appointment requests ({{countPendingAppointments}}):</h2>
+                            <p>Currently you have {{countPendingAppointments}} appointment requests waiting for doctor's confirmation. Once a doctor accepts your appointment request, you will receive confirmation to your email address.</p>
+                        </div>
+                    </div>
+
+                </div>
+                <div *ngIf="userRole === 'doctor'">
+                    <div *ngIf="countPendingAppointments === 0">  
+                        <div>
+                            TO DO: no appointments
+                        </div>
+                    </div>
+
+                    <div *ngIf="countPendingAppointments > 0">  
+                        <div>
+                            <h2 class="font">Appointment requests ({{countPendingAppointments}}):</h2>
+                            <p>Currently there are {{countPendingAppointments}} appointment requests waiting for confirmation. Please prioritize soonest requests.</p>
+                        </div>
+                    </div>
                 </div>
 
-                <div *ngIf="userRole === 'patient' && countPendingAppointments > 0">  
-                    <div style="margin-bottom: 8rem;">
-                        <h2 class="font">Book appointment:</h2>
-                        <p>Appointment confirmation will be sent by email. Make sure you have provided your correct email address. You can always find your account details on <a [routerLink]="['/home/user']">My Account</a> page.</p>
-                        <button style="margin-top: 2rem;background-color: rgb(175 111 174 / 40%);" mat-stroked-button (click)="openCalendar()">{{ 'Book New Appointment' }}</button>
-                    </div> 
-                    <div>
-                        <h2 class="font">Appointment requests ({{countPendingAppointments}}):</h2>
-                        <p>Currently you have {{countPendingAppointments}} appointment requests waiting for doctor's confirmation. Once a doctor accepts your appointment request, you will receive confirmation to your email address.</p>
-                    </div>
-                </div>
-
-                <div *ngIf="userRole === 'doctor' && countPendingAppointments > 0">  
-                    <div>
-                        <h2 class="font">Appointment requests ({{countPendingAppointments}}):</h2>
-                        <p>Currently there are {{countPendingAppointments}} appointment requests waiting for confirmation. Please prioritize soonest requests.</p>
-                    </div>
-                </div>
                 
                 <div class="table-wrapper">
                     <app-table 

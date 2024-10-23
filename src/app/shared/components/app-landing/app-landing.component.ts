@@ -79,6 +79,7 @@ export class AppLandingComponent implements OnInit {
         this.activatedRoute.queryParams.subscribe(async params => {
             if(params['updated']) {
                 this.isUserUpdated = true;
+                await this.loadData();
             }
         });
 
@@ -112,6 +113,9 @@ export class AppLandingComponent implements OnInit {
                     this.isLoading = false;
                 } 
             });
+            if (this.countRecords === 0) {
+
+            }
         }
     }
 

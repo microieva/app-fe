@@ -35,6 +35,7 @@ export class AppEditorComponent implements OnInit, OnDestroy {
         "background-color": "orange"
     }
     text = '';
+    editorText!: string;
 
     @Input() record: Record | undefined;
     @Input() appointmentId: number | undefined;
@@ -54,6 +55,7 @@ export class AppEditorComponent implements OnInit, OnDestroy {
         this.form?.get('title')?.valueChanges.subscribe(value => {
             this.disabled = value.length < 1;
         });
+        this.editorText = this.record && this.record.text || this.text
     }
     
     buildForm(){
@@ -69,7 +71,7 @@ export class AppEditorComponent implements OnInit, OnDestroy {
 
     async save(draft: boolean) {
         const input: any = {
-            title: this.form?.value.title!,
+            title: this.form?.value.title || '',
             text: this.text,
             draft
         }
