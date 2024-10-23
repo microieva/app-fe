@@ -91,7 +91,6 @@ export class AppLandingComponent implements OnInit {
             this.timerService.clock.subscribe(value=> {
                 this.clock = value;
             });
-            this.isLoading = false;
         }
 
         if (this.userRole === 'doctor') {
@@ -111,14 +110,11 @@ export class AppLandingComponent implements OnInit {
                     const str = DateTime.fromISO(subscription.nextAppointment.previousAppointmentDate).toFormat('MMM dd, yyyy'); 
                     this.previousAppointmentDate = str !== 'Invalid DateTime' ? str : '-';
                     this.recordIds = subscription.nextAppointment.recordIds;
-                    this.isLoading = false;
+                   
                 } 
             });       
         }
-
-        if (this.userRole === 'patient' && this.isUserUpdated) {
-            this.isLoading = false;
-        }
+        this.isLoading = false;
     }
 
     async loadData(){
