@@ -13,7 +13,7 @@
                     <span [ngStyle]="{visibility: !isUserUpdated || isNowAppointment ? 'visible':'hidden'}" class="icon material-symbols-outlined">info</span>
                 </div>
             </a>
-            <a mat-list-item [routerLink]="['/home','records']" *ngIf="userRole !== 'admin' && countRecords>0" routerLinkActive="activeLink">
+            <a mat-list-item [routerLink]="['/home','records']" *ngIf="userRole === 'patient' && countRecords>0 || userRole==='doctor'" routerLinkActive="activeLink">
                 <div class="flex">
                     <span>{{ 'Medical Records' }}</span>
                 </div>

@@ -7,7 +7,7 @@
         <ngx-editor-menu [editor]="editor" [toolbar]="toolbar" class="NgxEditor__MenuBar"> </ngx-editor-menu>
         <ngx-editor 
             [editor]="editor" 
-            [(ngModel)]="record && record.text || text" 
+            [(ngModel)]="editorText" 
             [ngModelOptions]="{standalone: true}" 
             [disabled]="false" 
             [placeholder]="'Type here...'"

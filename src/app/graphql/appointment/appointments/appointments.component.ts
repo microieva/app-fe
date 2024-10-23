@@ -722,7 +722,7 @@ export class AppointmentsComponent implements OnInit {
                         if (this.userRole === 'doctor') {
                             this.appointmentService.pollNextAppointment();
                         }
-                        await this.loadData();
+                        await this.ngOnInit();
                     }
                 } catch (error) {
                     this.dialog.open(AlertComponent, {data: {message: "Unexpected error while deleting appointment: "+error}})
@@ -801,7 +801,7 @@ export class AppointmentsComponent implements OnInit {
                     try {   
                         const response = await this.graphQLService.mutate(mutation, {appointmentId: id});
                         if (response.data.acceptAppointment.success) {
-                            this.loadPendingAppointments();
+                            this.ngOnInit();
                             this.appointmentService.pollNextAppointment();
                             this.dialog.closeAll();
                         }
