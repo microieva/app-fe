@@ -93,8 +93,8 @@ export class EventComponent implements OnInit{
             if (response.data.justCreatedAppointment) {
                 this.justCreatedId = response.data.justCreatedAppointment.id;
                 this.eventDate = DateTime.fromISO(response.data.justCreatedAppointment.start, {setZone: true}).toFormat('MMM dd, yyyy');
-                this.eventStartTime = DateTime.fromISO(response.data.justCreatedAppointment.start,  {setZone: true}).toFormat('hh:mm a');
-                this.eventEndTime = DateTime.fromISO(response.data.justCreatedAppointment.end,  {setZone: true}).toFormat('hh:mm a');
+                this.eventStartTime = DateTime.fromISO(response.data.justCreatedAppointment.start,  {setZone: true}).toFormat('HH:mm a');
+                this.eventEndTime = DateTime.fromISO(response.data.justCreatedAppointment.end,  {setZone: true}).toFormat('HH:mm a');
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Appointment failed "+error}})
@@ -205,8 +205,8 @@ export class EventComponent implements OnInit{
                 this.patientDob = appointment.patient?.dob && DateTime.fromISO(appointment.patient.dob, {setZone: true}).toFormat('MMM dd, yyyy'); 
                 this.doctorName = appointment.doctor ? appointment.doctor?.firstName+" "+appointment.doctor?.lastName : null;
                 this.eventDate = DateTime.fromISO(appointment.start, {setZone: true}).toFormat('MMM dd, yyyy');
-                this.eventStartTime =  DateTime.fromISO(appointment.start, {setZone: true}).toFormat('hh:mm a');
-                this.eventEndTime = DateTime.fromISO(appointment.end, {setZone: true}).toFormat('hh:mm a');
+                this.eventStartTime =  DateTime.fromISO(appointment.start, {setZone: true}).toFormat('HH:mm a');
+                this.eventEndTime = DateTime.fromISO(appointment.end, {setZone: true}).toFormat('HH:mm a');
                 this.doctorMessage = response.data.appointment.doctorMessage;
                 this.patientMessage = response.data.appointment.patientMessage;
                 this.appointmentId = response.data.appointment.id;

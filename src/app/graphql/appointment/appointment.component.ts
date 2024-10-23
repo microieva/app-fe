@@ -82,7 +82,7 @@ export class AppointmentComponent implements OnInit {
                 this.record = response.data.appointment.record;
                 this.recordId = response.data.appointment.record?.id || null;
                 this.formattedDate = DateTime.fromISO(response.data.appointment.patient.dob,  {setZone: true}).toFormat('MMM dd, yyyy');
-                this.startTime = DateTime.fromISO(response.data.appointment.start,  {setZone: true}).toFormat('hh:mm a');
+                this.startTime = DateTime.fromISO(response.data.appointment.start,  {setZone: true}).toFormat('HH:mm a');
                 this.date = DateTime.fromISO(response.data.appointment.start,  {setZone: true}).toFormat('MMM dd, yyyy');
             }
         } catch (error) {

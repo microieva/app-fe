@@ -154,7 +154,7 @@ export class MessagesComponent implements OnInit {
                     ...doctor,
                     name: doctor.firstName+' '+doctor.lastName,
                     online: isOnline || false, 
-                    lastLogOutAt:  DateTime.fromISO(doctor.lastLogOutAt, {setZone: true}).toFormat('hh:mm a, MMM dd (cccc), yyyy')
+                    lastLogOutAt:  DateTime.fromISO(doctor.lastLogOutAt, {setZone: true}).toFormat('HH:mm a, MMM dd (cccc), yyyy')
                 };
             });
         } else {
@@ -163,8 +163,7 @@ export class MessagesComponent implements OnInit {
                     ...doctor,
                     online: false,
                     name: doctor.firstName+' '+doctor.lastName,
-                    lastLogOutAt:  DateTime.fromISO(doctor.lastLogOutAt, {setZone: true}).toFormat('hh:mm a, MMM dd (cccc), yyyy')
-                
+                    lastLogOutAt:  DateTime.fromISO(doctor.lastLogOutAt, {setZone: true}).toFormat('HH:mm a, MMM dd (cccc), yyyy')
                 }
             });
         }

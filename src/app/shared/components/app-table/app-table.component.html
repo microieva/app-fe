@@ -1,15 +1,19 @@
 
     
 <div [ngClass]="injectedData && 'dialog-table'">
-    <div *ngIf="injectedData" style="margin-bottom: 4rem">
-        <h2 class="font">Patient's medical records {{injectedData.length}}:</h2>
+    <div *ngIf="isLoading" class="loading">
+        <app-loading></app-loading>
     </div>
-    <mat-form-field>
+    <div *ngIf="injectedData && !isLoading" style="margin-bottom: 4rem">
+        <h2 class="font">Patient's medical records ({{injectedData.length}}):</h2>
+    </div>
+    <mat-form-field  *ngIf="!isLoading">
         <mat-label>Search by name</mat-label>
         <input matInput (keyup)="onSearch($event)" placeholder="..." #input>
     </mat-form-field>
 
     <table 
+        *ngIf="!isLoading"
         mat-table 
         multiTemplateDataRows 
         [dataSource]="dataSource" 
@@ -75,7 +79,8 @@
         </tr> 
     </table>
 
-    <mat-paginator    
+    <mat-paginator  
+        *ngIf="!isLoading"  
         #paginator
         [length]="length"
         [pageIndex]="pageIndex"

@@ -106,7 +106,7 @@ export class AppTimerService {
             const now = DateTime.now().setZone('Europe/Helsinki').setLocale('fi-FI'); 
             const forwardDuration = now.diff(startTime).as('seconds'); 
         
-            const currentFormattedTime = startTime.plus({ seconds: forwardDuration }).toFormat('hh:mm a');
+            const currentFormattedTime = startTime.plus({ seconds: forwardDuration }).toFormat('HH:mm:ss a');
             this.clock.emit(currentFormattedTime);
         });
     

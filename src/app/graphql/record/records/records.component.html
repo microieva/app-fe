@@ -12,7 +12,7 @@
         <div>
             <div class="flex-row wrapper info">
                 <span class="icon material-symbols-outlined">info</span>
-                <h3 *ngIf="countRecords && countRecords === 0">No saved records</h3> 
+                <h3 *ngIf="countRecords === 0">No saved records</h3> 
                 <h3 *ngIf="countRecords && countRecords > 0">Saved medical records</h3> 
                 <span>{{' '}}</span>
             </div>
@@ -25,15 +25,22 @@
                     <p *ngIf="countRecords===1">Currently you have {{countRecords}} medical record.</p>
                     <p *ngIf="countRecords>1">Currently you have {{countRecords}} medical records.</p>
                 </div>
-                <div *ngIf="userRole==='doctor'">
+                <div *ngIf="userRole==='doctor' && countRecords;">
                     <h2 class="font">Medical records:</h2>
                     <p *ngIf="countRecords - countDrafts===1">Currently you have {{countRecords - countDrafts}} medical record.</p>
                     <p *ngIf="countRecords - countDrafts>1">Currently you have {{countRecords - countDrafts}} medical records.</p>
                 </div>
+                    <div *ngIf="countRecords === 0" class="btn-block">
+                        <span class="material-symbols-outlined" id="bg-icon">
+                            folder_open
+                        </span>
+                        <h1>No medical records</h1>
+                    </div>
+
                 <div class="table-wrapper">
                     <app-table 
                         #appTable
-                        *ngIf="dataSource && displayedColumns"
+                        *ngIf="dataSource && displayedColumns && countRecords"
                         [dataSource]="dataSource" 
                         [displayedColumns]="displayedColumns" 
                         [length]="recordsLength"

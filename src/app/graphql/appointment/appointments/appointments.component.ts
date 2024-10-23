@@ -116,7 +116,7 @@ export class AppointmentsComponent implements OnInit {
                 if (this.previousNextId !== this.nextId) {
                     this.previousNextId = this.nextId;
                 }
-                this.nextAppointmentStartTime = DateTime.fromISO(subscription.nextAppointment.nextStart, {setZone: true}).toFormat('hh:mm a');
+                this.nextAppointmentStartTime = DateTime.fromISO(subscription.nextAppointment.nextStart, {setZone: true}).toFormat('HH:mm a');
             }
         });
 
@@ -531,8 +531,8 @@ export class AppointmentsComponent implements OnInit {
                         title: this.userRole === 'patient' ? "Pending doctor confirmation" : "",
                         buttons: this.userRole === 'doctor' ? allButtons : cancelButton,
                         date: DateTime.fromISO(row.start, {setZone: true}).toFormat('MMM dd, yyyy'),
-                        start: date+`, ${DateTime.fromISO(row.start, {setZone: true}).toFormat('hh:mm a')}`,
-                        end: DateTime.fromISO(row.end, {setZone: true}).toFormat('hh:mm a'),
+                        start: date+`, ${DateTime.fromISO(row.start, {setZone: true}).toFormat('HH:mm a')}`,
+                        end: DateTime.fromISO(row.end, {setZone: true}).toFormat('HH:mm a'),
                         name: this.userRole==='doctor' ? `${row.patient.firstName} ${row.patient.lastName}` : undefined,
                         message: this.userRole==='doctor' ? row.patientMessage : row.doctorMessage
                     } 
@@ -571,8 +571,8 @@ export class AppointmentsComponent implements OnInit {
                         title: this.userRole === 'patient' ? "Confirmed appointment" : undefined,
                         buttons: cancelButton,
                         date: DateTime.fromISO(row.start, {setZone: true}).toFormat('MMM dd, yyyy'),
-                        start: date+`, ${DateTime.fromISO(row.start, {setZone: true}).toFormat('hh:mm a')}`,
-                        end: DateTime.fromISO(row.end, {setZone: true}).toFormat('hh:mm a'),
+                        start: date+`, ${DateTime.fromISO(row.start, {setZone: true}).toFormat('HH:mm a')}`,
+                        end: DateTime.fromISO(row.end, {setZone: true}).toFormat('HH:mm a'),
                         name: this.userRole==='doctor' ? `${row.patient.firstName} ${row.patient.lastName}` : `${row.doctor?.firstName} ${row.doctor?.lastName}`,
                         message: this.userRole==='doctor' ? row.patientMessage : row.doctorMessage,
                         draft: this.userRole==='doctor' && row.record ? row.record.draft : undefined,
@@ -608,8 +608,8 @@ export class AppointmentsComponent implements OnInit {
                         title: this.userRole === 'patient' ? "View details": undefined,
                         buttons: deleteButton,
                         date: DateTime.fromISO(row.start, {setZone: true}).toFormat('MMM dd, yyyy'),
-                        start: date+`, ${DateTime.fromISO(row.start, {setZone: true}).toFormat('hh:mm a')}`,
-                        end: DateTime.fromISO(row.end, {setZone: true}).toFormat('hh:mm a'),
+                        start: date+`, ${DateTime.fromISO(row.start, {setZone: true}).toFormat('HH:mm a')}`,
+                        end: DateTime.fromISO(row.end, {setZone: true}).toFormat('HH:mm a'),
                         name: this.userRole==='doctor' ? `${row.patient.firstName} ${row.patient.lastName}` : `${row.doctor?.firstName} ${row.doctor?.lastName}`,
                         message: this.userRole==='doctor' ? row.patientMessage : row.doctorMessage,
                         draft: this.userRole==='doctor' && row.record ? row.record.draft : undefined,
