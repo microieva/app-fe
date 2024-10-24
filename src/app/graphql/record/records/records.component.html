@@ -37,7 +37,7 @@
                     <h1>No medical records</h1>
                 </div>
 
-                <div class="table-wrapper" *ngIf="countRecods">
+                <div class="table-wrapper" *ngIf="countRecords>0">
                     <app-table 
                         #appTable
                         *ngIf="dataSource && displayedColumns"
