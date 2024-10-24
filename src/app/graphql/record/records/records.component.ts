@@ -69,7 +69,7 @@ export class RecordsComponent implements OnInit {
             const tab = params['tab'];
             this.selectedIndex = tab ? +tab : 0;
             await this.loadData();
-        });   
+        }); 
     }
 
     async loadStatic(){
