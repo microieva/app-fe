@@ -294,7 +294,7 @@ export class RecordsComponent implements OnInit {
         const recordId = value.id;
         const dialogRef = this.dialog.open(RecordComponent, {data: {recordId, width: "45rem"}});
         dialogRef.componentInstance.reload.subscribe(async subscription => {
-            if (subscription) await this.loadStatic();
+            if (subscription) await this.ngOnInit();
         })
     }
 
