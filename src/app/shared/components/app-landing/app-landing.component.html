@@ -78,14 +78,14 @@
 
 
             <div *ngIf="userRole ==='doctor'" [ngStyle]="{'margin-top': !nextId ? '16rem':'inherit'}">
-                <span *ngIf="nextStart" class="material-symbols-outlined" id="bg-icon">
+                <span class="material-symbols-outlined" id="bg-icon">
                     calendar_clock
                 </span>
-                <div class="flat next-appointment">
+                <div class="flat next-appointment" *ngIf="nextId">
                     <h1 class="font">Next appointment:</h1>
 
                     <div class="flex-row">
-                        <div class="flex-column" *ngIf="nextStart">
+                        <div class="flex-column">
                             <p class="title">Appoinment time</p>
                             <div class="time-wrapper" style="font-size: 3.5rem;">
                                 <h3>{{nextStart.dayName}},</h3>
