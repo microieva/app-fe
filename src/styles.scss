@@ -46,7 +46,7 @@ a {text-decoration: none; color: inherit;}
 }
 .content {
   min-height: calc(100vh - 4rem);
-  background-color:rgba(163, 177, 192, 0.454);
+  background-color: rgb(214, 222, 230);
 }
 app-sidenav {
   width: 18rem;
@@ -104,9 +104,11 @@ mat-form-field {
   --mat-tab-header-inactive-ripple-color: rgb(68, 65, 65);
   --mat-tab-header-active-hover-indicator-color:rgb(68, 65, 65);
 }
+.mat-mdc-tab-label-container {
+  background-color:rgba(163, 177, 192, 0.454);
+}
 .mat-mdc-tab-body-wrapper {
   background-color: rgb(214, 222, 230);
-  height: 90vh;
 }
 .fc {
   --fc-event-bg-color: rgb(175 111 174 / 40%); //  COLOR FOR DETAIL

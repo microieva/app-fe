@@ -20,27 +20,27 @@
                 <app-loading></app-loading>
             </div>
             <div class="page" @slideInOut *ngIf="!isLoading">
-                <div *ngIf="userRole==='patient'">
+                <div *ngIf="userRole==='patient' && countRecords > 0; else noRecords">
                     <h2 class="font">Medical records:</h2>
                     <p *ngIf="countRecords===1">Currently you have {{countRecords}} medical record.</p>
                     <p *ngIf="countRecords>1">Currently you have {{countRecords}} medical records.</p>
                 </div>
-                <div *ngIf="userRole==='doctor' && countRecords;">
+                <div *ngIf="userRole==='doctor' && countRecords - countDrafts > 0; else noRecords">
                     <h2 class="font">Medical records:</h2>
                     <p *ngIf="countRecords - countDrafts===1">Currently you have {{countRecords - countDrafts}} medical record.</p>
                     <p *ngIf="countRecords - countDrafts>1">Currently you have {{countRecords - countDrafts}} medical records.</p>
                 </div>
-                    <div *ngIf="countRecords === 0" class="btn-block">
-                        <span class="material-symbols-outlined" id="bg-icon">
-                            folder_open
-                        </span>
-                        <h1>No medical records</h1>
-                    </div>
+                <div #noRecords class="btn-block">
+                    <span class="material-symbols-outlined" id="bg-icon">
+                        folder_open
+                    </span>
+                    <h1>No medical records</h1>
+                </div>
 
-                <div class="table-wrapper">
+                <div class="table-wrapper" *ngIf="countRecods">
                     <app-table 
                         #appTable
-                        *ngIf="dataSource && displayedColumns && countRecords"
+                        *ngIf="dataSource && displayedColumns"
                         [dataSource]="dataSource" 
                         [displayedColumns]="displayedColumns" 
                         [length]="recordsLength"
