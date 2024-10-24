@@ -25,9 +25,12 @@
 
 footer {
     background-color: #F5F5F5;
+    height: 25rem;
 }
 .footer {
     padding-top: 4rem;
+    width: 65%;
+    margin: 0 auto;
 }
 
 .footer-bottom {
@@ -54,14 +57,16 @@ footer {
     }
 }
 .bg {
-    font-size: 5rem;
+    font-size: 6rem;
     color: #6c7682
 }
 .sm {
     float: right;
-    color: rgba(188, 90, 186, 0.9); 
+    //color: rgba(188, 90, 186, 0.9); 
+    color: rgb(245,245,245);
     font-weight: 600;
     margin-top:0;
+    font-size: 2.5rem;
 }
 .txt {
     margin-bottom: 4rem;
@@ -76,12 +81,13 @@ footer {
     display: flex;
     flex-direction: column;
     align-items: baseline;
-    color: #F5F5F5;
+    //color: #F5F5F5;
+    color:  rgb(245,245,245);
     .flex-row {
         width: 100%;
     }
     h2 {
-        border: 1px solid #F5F5F5;
+        border: 1px solid rgb(245,245,245);
         padding: 0.5rem 1.5rem;
         width: 50%;
         margin: 0.2rem;
@@ -200,7 +206,7 @@ h1 {
 .click {
     font-family: "Special Elite", system-ui;
     position: absolute;
-    bottom: -100px;
+    bottom: -80px;
     height: 2.5rem;
     width: 100%;
     h2 {
