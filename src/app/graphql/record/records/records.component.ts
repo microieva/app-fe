@@ -51,6 +51,7 @@ export class RecordsComponent implements OnInit {
     sortActive: string | null = 'createdAt';
     filterInput: string | null = null;
     isLoading: boolean = true;
+    showTable: boolean = false;
 
     @ViewChild('appTable') appTable!: AppTableComponent;
 

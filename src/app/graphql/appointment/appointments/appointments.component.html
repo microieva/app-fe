@@ -48,17 +48,17 @@
 
                 </div>
                 <div *ngIf="userRole === 'doctor'">
-                    <div *ngIf="countPendingAppointments === 0">  
-                        <div>
-                            TO DO: no appointments
-                        </div>
-                    </div>
-
-                    <div *ngIf="countPendingAppointments > 0">  
+                    <div *ngIf="countPendingAppointments > 0; else noAppointments">  
                         <div>
                             <h2 class="font">Appointment requests ({{countPendingAppointments}}):</h2>
                             <p>Currently there are {{countPendingAppointments}} appointment requests waiting for confirmation. Please prioritize soonest requests.</p>
                         </div>
+                    </div>
+                    <div #noAppointments class="btn-block">
+                        <span class="material-symbols-outlined" id="bg-icon">
+                            folder_open
+                        </span>
+                        <h1>No appointment requests</h1>
                     </div>
                 </div>
 
@@ -99,27 +99,28 @@
                 <h3 *ngIf="userRole === 'patient' && countUpcomingAppointments === 0">Here will be displayed your upcoming appointments after doctor's confirmation</h3>
                 <button mat-stroked-button (click)="openCalendar()">{{ 'Open Calendar' }}</button>
             </div>
+
             <div class="page">
-                <div class="btn-block column" *ngIf="countUpcomingAppointments === 0">
-                    <div>
-                        <h3><em>No upcoming appointments at the moment</em></h3>
-                        <h3 *ngIf="userRole === 'patient'"><em>Appointment requests confirmed within 24 hours!</em></h3>   
-                    </div>
-                </div>
-                <div *ngIf="userRole === 'patient' && countUpcomingAppointments > 0">   
+                <div *ngIf="userRole === 'patient' && countUpcomingAppointments > 0; else noAppointments">   
                     <div >
                         <h2 class="font">Confirmed appointments:</h2>
                         <p *ngIf="countUpcomingAppointments===1">Currently you have {{countUpcomingAppointments}} upcoming appointment.</p>
                         <p *ngIf="countUpcomingAppointments>1">Currently you have {{countUpcomingAppointments}} upcoming appointments.</p>
                     </div>
                 </div>
-                <div *ngIf="userRole === 'doctor' && countUpcomingAppointments > 0">  
+                <div *ngIf="userRole === 'doctor' && countUpcomingAppointments > 0; else noAppointments">  
                     <div>
                         <h2 class="font">Next appointments:</h2>
                         <p *ngIf="countUpcomingAppointments === 1">Currently there is {{countUpcomingAppointments}} upcoming appointment in your calendar.</p>
                         <p *ngIf="countUpcomingAppointments > 1">Currently there are {{countUpcomingAppointments}} upcoming appointments in your calendar.</p>
                    
                     </div>
+                </div>
+                <div #noAppointments class="btn-block">
+                    <span class="material-symbols-outlined" id="bg-icon">
+                        folder_open
+                    </span>
+                    <h1>No appointments</h1>
                 </div>
                 <div class="table-wrapper">
                     <app-table 
@@ -154,20 +155,23 @@
         </div>
         <div>
             <div class="page">
-                <div class="btn-block" *ngIf="countPastAppointments === 0">
-                    <h3><em>No previous appointments</em></h3>
-                </div>
-                <div *ngIf="userRole === 'patient' && countPastAppointments > 0">   
+                <div *ngIf="userRole === 'patient' && countPastAppointments > 0; else noAppointments">   
                     <div >
                         <h2 class="font">Previous appointments:</h2>
                         <p *ngIf="countPastAppointments===1">You had {{countPastAppointments}} appointment.</p>
                         <p *ngIf="countPastAppointments>1">Previously you had {{countPastAppointments}} appointments.</p>
                     </div>
                 </div>
-                <div *ngIf="userRole === 'doctor' && countPastAppointments > 0">  
+                <div *ngIf="userRole === 'doctor' && countPastAppointments > 0; else noAppointments">  
                     <div>
                         <h2 class="font">Previous appointments:</h2>
                     </div>
+                </div>
+                <div #noAppointments class="btn-block">
+                    <span class="material-symbols-outlined" id="bg-icon">
+                        folder_open
+                    </span>
+                    <h1>No appointments</h1>
                 </div>
                 <div class="table-wrapper">
                     <app-table 
