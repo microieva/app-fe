@@ -110,6 +110,9 @@ mat-form-field {
 .mat-mdc-tab-body-wrapper {
   background-color: rgb(214, 222, 230);
 }
+.mat-mdc-form-field-infix{
+  display: flex;
+}
 .fc {
   --fc-event-bg-color: rgb(175 111 174 / 40%); //  COLOR FOR DETAIL
   --fc-event-border-color: rgb(111, 143, 175, 40%);
@@ -300,6 +303,15 @@ em {
 }
 .table-wrapper {
   margin-top: 4rem;
+}
+.icon-btn {
+  position: relative;
+  p {
+      font-weight: 900;
+      position:absolute;
+      left:25px;
+      top:0;
+  }
 }
 
 

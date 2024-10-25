@@ -1,16 +1,19 @@
 
     
+<div *ngIf="injectedData && !isLoading" style="margin:2rem 2rem 0 2rem;">
+    <app-search 
+        
+        [useAdvanced]="true"
+        (advancedSearchValue)="onAdvancedSearch($event)"
+        (inputValue)="onFilterValueChange($event)"
+        (reset)="onSearchReset($event)"
+    >    
+    </app-search>
+</div>
 <div [ngClass]="injectedData && 'dialog-table'">
     <div *ngIf="isLoading" class="loading">
         <app-loading></app-loading>
     </div>
-    <div *ngIf="injectedData && !isLoading" style="margin-bottom: 4rem">
-        <h2 class="font">Patient's medical records ({{injectedData.length}}):</h2>
-    </div>
-    <mat-form-field  *ngIf="!isLoading">
-        <mat-label>Search by name</mat-label>
-        <input matInput (keyup)="onSearch($event)" placeholder="..." #input>
-    </mat-form-field>
 
     <table 
         *ngIf="!isLoading"

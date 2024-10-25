@@ -13,6 +13,11 @@
         <p *ngIf="countPatients > 1">Currently there are {{countPatients}} patients registered in this Health Center.</p>
     </div>
     <div class="table-wrapper">
+        <app-search
+            [useAdvanced]="false"
+            (inputValue)="onFilterValueChange($event)"
+            (reset)="onSearchReset($event)"
+        ></app-search>
         <app-table
             *ngIf="dataSource && displayedColumns && countPatients>0"
             [dataSource]="dataSource" 
@@ -21,7 +26,6 @@
             [userRole]="userRole"
             (pageChange)="onPageChange($event)"
             (sortChange)="onSortChange($event)"
-            (filterValue)="onFilterValueChange($event, async)"
             (rowClick)="onPatientClick($event, async)"
         >
         </app-table>
