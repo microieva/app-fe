@@ -24,6 +24,9 @@
             font-size: larger;
         }
     }
+    .font {
+        font-size: 18px;
+    }
 }
 * {
     color: rgb(53, 52, 52); 
@@ -48,7 +51,7 @@ button {
 }
 .title {
     color: rgb(139,149,161);
-    margin-bottom:0;
+    margin-bottom:1rem;
 }
 
 mat-sidenav {
@@ -102,15 +105,13 @@ a:hover .icon {
 #patient-details {
     align-self: baseline;
     width: 52%;
-    font-size: smaller;
+    font-size: 18px;
     margin-right: -1rem;
     z-index: 1;
     h2 {line-height: 20px;}
     span {line-height: 15px;}
     h2, span {    
-        color: rgb(92 92 92);
-        border-color: rgb(92 92 92);
-
+        border-color: rgb(68, 65, 65);
     }
 }
 #bg-icon {
