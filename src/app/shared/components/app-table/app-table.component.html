@@ -1,8 +1,7 @@
 
     
 <div *ngIf="injectedData && !isLoading" style="margin:2rem 2rem 0 2rem;">
-    <app-search 
-        
+    <app-search    
         [useAdvanced]="true"
         (advancedSearchValue)="onAdvancedSearch($event)"
         (inputValue)="onFilterValueChange($event)"
