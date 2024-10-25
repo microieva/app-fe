@@ -50,8 +50,6 @@ export class DoctorsComponent implements OnInit {
     sortActive: string = 'firstName';
     filterInput: string | null = null;
 
-    @ViewChild('appTable') appTable!: AppTableComponent;
-
     constructor(
         private activatedRoute: ActivatedRoute,
         private dialog: MatDialog,
@@ -264,9 +262,6 @@ export class DoctorsComponent implements OnInit {
         this.sortActive = 'firstName';
         this.filterInput = null;
         this.displayedColumns = [];
-        if (this.appTable) {
-            this.appTable.clearInputField();
-        }
 
         await this.loadData();
 
@@ -408,4 +403,7 @@ export class DoctorsComponent implements OnInit {
                 break;
         }
     }
+    onSearch(value: any){}
+
+    onSearchReset(value: boolean){}
 }

@@ -78,3 +78,15 @@ export interface UserDataSource {
     online?:boolean;
 }
 export type AppDataSource = AppointmentDataSource | RecordDataSource | UserDataSource;
+
+export type AppSearchInput = {
+    searchInput: string
+    advancedSearchInput: AdvancedSearchInput
+}
+
+export interface AdvancedSearchInput {
+    rangeStart: string
+    rangeEnd: string
+    titleLike: string
+    textLike: string
+}

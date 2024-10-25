@@ -20,35 +20,20 @@
                 <app-loading></app-loading>
             </div>
             <div class="page" @slideInOut *ngIf="!isLoading">
-                <div *ngIf="userRole==='patient'">
-                    <div *ngIf="countRecords === 0" class="btn-block">
-                        <span class="material-symbols-outlined" id="bg-icon">
-                            folder_open
-                        </span>
-                        <h1>No medical records</h1>
-                    </div>
-                    <div *ngIf="countRecords > 0">
-                        <h2 class="font">Medical records:</h2>
-                        <p *ngIf="countRecords===1">Currently you have {{countRecords}} medical record.</p>
-                        <p *ngIf="countRecords>1">Currently you have {{countRecords}} medical records.</p>
-                    </div>
-                </div>
-                <div *ngIf="userRole==='doctor'">
-                    <div *ngIf="countRecords > 0">
-                        <h2 class="font">Medical records:</h2>
-                        <p *ngIf="countRecords===1">Currently you have {{countRecords}} medical record.</p>
-                        <p *ngIf="countRecords>1">Currently you have {{countRecords}} medical records.</p>
-                    </div>
-                    <div *ngIf="countRecords === 0" class="btn-block">
-                        <span class="material-symbols-outlined" id="bg-icon">
-                            folder_open
-                        </span>
-                        <h1>No medical records</h1>
-                    </div>
+                <div *ngIf="countRecords === 0" class="btn-block">
+                    <span class="material-symbols-outlined" id="bg-icon">
+                        folder_open
+                    </span>
+                    <h1>No medical records</h1>
                 </div>
                 <div class="table-wrapper">
+                    <app-search
+                        [useAdvanced]="true"
+                        (advancedSearchValue)="onSearch($event)"
+                        (inputValue)="onFilterValueChange($event, async)"
+                        (reset)="onSearchReset($event)"
+                    ></app-search>
                     <app-table 
-                        #appTable
                         *ngIf="dataSource && displayedColumns && countRecords>0"
                         [dataSource]="dataSource" 
                         [displayedColumns]="displayedColumns" 
@@ -56,7 +41,6 @@
                         [userRole]="userRole"
                         (pageChange)="onPageChange($event)"
                         (sortChange)="onSortChange($event)"
-                        (filterValue)="onFilterValueChange($event, async)"
                         (rowClick)="onRecordClick($event, async)"
                     >
                     </app-table>
@@ -79,14 +63,14 @@
                 <app-loading></app-loading>
             </div>
             <div class="page">
-                <div *ngIf="userRole==='doctor' && countDrafts> 0">
-                    <h2 class="font">Drafts:</h2>
-                    <p *ngIf="countDrafts===1">Currently you have {{countDrafts}} medical record saved as draft.</p>
-                    <p *ngIf="countDrafts>1">Currently you have {{countDrafts}} medical records saved as drafts.</p>
-                </div>
                 <div class="table-wrapper">
+                    <app-search
+                        [useAdvanced]="true"
+                        (advancedSearchValue)="onSearch($event)"
+                        (inputValue)="onFilterValueChange($event, async)"
+                        (reset)="onSearchReset($event)"
+                    ></app-search>
                     <app-table
-                        #appTable 
                         *ngIf="dataSource && displayedColumns && countDrafts> 0"
                         [dataSource]="dataSource" 
                         [displayedColumns]="displayedColumns" 
@@ -94,7 +78,6 @@
                         [userRole]="userRole"
                         (pageChange)="onPageChange($event)"
                         (sortChange)="onSortChange($event)"
-                        (filterValue)="onFilterValueChange($event, async)"
                         (rowClick)="onRecordClick($event, async)"
                     >
                     </app-table>

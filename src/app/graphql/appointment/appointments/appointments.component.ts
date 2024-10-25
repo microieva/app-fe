@@ -69,7 +69,7 @@ export class AppointmentsComponent implements OnInit {
 
     @Output() activeTab = new EventEmitter<string>();
     @ViewChild('scrollView') scrollView!: ElementRef;
-    @ViewChild('appTable') appTable!: AppTableComponent;
+
     readonly panelOpenState = signal(false);
 
     userRole!: string;
@@ -221,10 +221,6 @@ export class AppointmentsComponent implements OnInit {
         this.sortActive = 'start';
         this.filterInput = null;
         this.pageIndex = 0;
-
-        if (this.appTable) {
-            this.appTable.clearInputField();
-        }
 
         this.router.navigate([], {
             relativeTo: this.activatedRoute,
@@ -812,4 +808,7 @@ export class AppointmentsComponent implements OnInit {
             })
         }
     }
+    onSearch(value: any){}
+
+    onSearchReset(value: boolean){}
 }

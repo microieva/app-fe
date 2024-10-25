@@ -63,8 +63,13 @@
                     </div>   
                 </div>
                 <div class="table-wrapper">
+                    <app-search
+                        *ngIf="userRole==='doctor'"
+                        [useAdvanced]="false"
+                        (inputValue)="onFilterValueChange($event)"
+                        (reset)="onSearchReset($event)"
+                    ></app-search>
                     <app-table 
-                        #appTable
                         *ngIf="dataSource && displayedColumns && countPendingAppointments > 0"
                         [dataSource]="dataSource" 
                         [displayedColumns]="displayedColumns" 
@@ -129,8 +134,12 @@
                 </div>
                
                 <div class="table-wrapper">
+                    <app-search
+                        [useAdvanced]="false"
+                        (inputValue)="onFilterValueChange($event)"
+                        (reset)="onSearchReset($event)"
+                    ></app-search>
                     <app-table 
-                        #appTable
                         *ngIf="dataSource && displayedColumns && countUpcomingAppointments > 0"
                         [dataSource]="dataSource" 
                         [displayedColumns]="displayedColumns" 
@@ -186,8 +195,12 @@
                     </div>
                 </div>
                 <div class="table-wrapper">
+                    <app-search
+                        [useAdvanced]="false"
+                        (inputValue)="onFilterValueChange($event)"
+                        (reset)="onSearchReset($event)"
+                    ></app-search>
                     <app-table 
-                        #appTable
                         *ngIf="dataSource && displayedColumns && countPastAppointments > 0"
                         [dataSource]="dataSource" 
                         [displayedColumns]="displayedColumns" 

@@ -4,7 +4,6 @@ import { MatTableDataSource } from "@angular/material/table";
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
-import { Subject, debounceTime } from "rxjs";
 import { DateTime } from "luxon";
 import { AppTimerService } from "../../services/app-timer.service";
 import { AppSocketService } from "../../services/app-socket.service";
@@ -12,7 +11,7 @@ import { AppGraphQLService } from "../../services/app-graphql.service";
 import { RecordComponent } from "../../../graphql/record/record.component";
 import { AlertComponent } from "../app-alert/app-alert.component";
 import { Record } from "../../../graphql/record/record";
-import { AppDataSource, UserDataSource } from "../../types";
+import { AdvancedSearchInput, AppDataSource, UserDataSource } from "../../types";
 
 @Component({
     selector: 'app-table',
@@ -28,11 +27,10 @@ import { AppDataSource, UserDataSource } from "../../types";
 })
 export class AppTableComponent implements OnInit, AfterViewInit {
     isLoading: boolean = false;
-    private searchSubject = new Subject<string>();
 
     @Output() pageChange = new EventEmitter<{pageIndex: number, pageLimit: number}>();
     @Output() sortChange = new EventEmitter<{active: string, direction: string}>();
-    @Output() filterValue = new EventEmitter<string>();
+    //@Output() filterValue = new EventEmitter<string>();
     @Output() rowClick= new EventEmitter<{id: number, title?: string}>();
     @Output() action= new EventEmitter<{id: number, text: string}>();
 
@@ -53,7 +51,8 @@ export class AppTableComponent implements OnInit, AfterViewInit {
 
     pageLimit: number = 10;
     pageIndex: number = 0;
-    filter: string = ''
+    advancedSearchInput: AdvancedSearchInput | null = null;
+    filterValue: string | null = null;
 
     howSoonStr: string | undefined;
     columnNames: string[] = [];
@@ -76,32 +75,26 @@ export class AppTableComponent implements OnInit, AfterViewInit {
 
         @Optional() public dialogRef: MatDialogRef<AppTableComponent>,
         @Optional() @Inject(MAT_DIALOG_DATA) public data: { recordIds: number[], userRole: string}  
-    ){
-        this.searchSubject
-            .pipe(
-                debounceTime(300)
-            ).subscribe(searchTerm => {
-                this.filterValue.emit(searchTerm); 
-            }); 
-        
+    ){        
         if (this.data) {
             this.recordIds = this.data.recordIds;
             this.userRole = this.data.userRole;
         }
         if (this.recordIds) {
             this.isLoading = true;
-            this.loadMedicalRecords(this.recordIds)
+            this.loadMedicalRecords()
         }
     }
 
-    async loadMedicalRecords(ids: number[]){
+    async loadMedicalRecords(){
         const query = `query (
                 $ids: [Int!]!
                 $pageIndex: Int!, 
                 $pageLimit: Int!, 
                 $sortDirection: String, 
                 $sortActive: String,
-                $filterInput: String
+                $filterInput: String,
+                $advancedSearchInput: AdvancedSearchInput
             ) {
             medicalRecordsFromIds (
                 ids: $ids
@@ -109,7 +102,8 @@ export class AppTableComponent implements OnInit, AfterViewInit {
                 pageLimit: $pageLimit,
                 sortDirection: $sortDirection,
                 sortActive: $sortActive,
-                filterInput: $filterInput
+                filterInput: $filterInput,
+                advancedSearchInput: $advancedSearchInput
             ) {
                 slice {
                     ... on Record {
@@ -141,7 +135,9 @@ export class AppTableComponent implements OnInit, AfterViewInit {
             pageLimit: this.pageLimit,
             sortDirection: 'DESC',
             sortActive: 'createdAt',
-            ids
+            ids: this.recordIds,
+            filterInput: this.filterValue,
+            advancedSearchInput: this.advancedSearchInput
         }
         try {
             const response = await this.graphQLService.send(query, variables);
@@ -259,16 +255,6 @@ export class AppTableComponent implements OnInit, AfterViewInit {
         });
         this.dataSource._updateChangeSubscription(); 
     }
-    
-
-    onSearch(event: KeyboardEvent) {
-        const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
-
-        if (this.dataSource) {
-            this.dataSource.filter = filterValue;
-            this.searchSubject.next(filterValue);
-        }
-    }
 
     onPageChange(event: any) {
         this.pageIndex = event.pageIndex;
@@ -293,12 +279,23 @@ export class AppTableComponent implements OnInit, AfterViewInit {
     isNewSender(element: any): boolean {
         return this.senders.some(sender => sender === `${element.firstName} ${element.lastName}`);
     }
-    clearInputField() {
-        if (this.input) {
-          this.input.nativeElement.value = '';
-        }
-    }
     onActionClick(text: string, id: number) {
         this.action.emit({text, id});
+    }
+    onAdvancedSearch(value: any){
+        this.filterValue = value.searchInput;
+        this.advancedSearchInput = value.advancedSearchInput;
+        this.loadMedicalRecords();
+    }
+    onFilterValueChange(input: string){
+        this.filterValue = input;
+        this.loadMedicalRecords();
+    }
+    onSearchReset(isResetting: boolean) {
+        if (isResetting) {
+            this.filterValue = null;
+            this.advancedSearchInput = null;
+            this.loadMedicalRecords();
+        }
     }
 }

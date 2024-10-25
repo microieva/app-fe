@@ -26,8 +26,12 @@
                     <p *ngIf="countRequests > 1">Currently there are {{countRequests}} doctor account activation requests.</p>
                 </div>
                 <div class="table-wrapper">
+                    <app-search
+                        [useAdvanced]="false"
+                        (inputValue)="onFilterValueChange($event)"
+                        (reset)="onSearchReset($event)"
+                    ></app-search>
                     <app-table 
-                        #appTable
                         *ngIf="dataSource && displayedColumns && countRequests>0"
                         [dataSource]="dataSource" 
                         [displayedColumns]="displayedColumns"
@@ -63,8 +67,12 @@
                     <p *ngIf="countDoctors > 1">Currently there are {{countDoctors}} active doctor accounts.</p>
                 </div>
                 <div class="table-wrapper">
+                    <app-search
+                        [useAdvanced]="false"
+                        (inputValue)="onFilterValueChange($event)"
+                        (reset)="onSearchReset($event)"
+                    ></app-search>
                     <app-table 
-                        #appTable
                         *ngIf="dataSource && displayedColumns && countDoctors > 0"
                         [dataSource]="dataSource" 
                         [displayedColumns]="displayedColumns"
@@ -72,7 +80,6 @@
                         [userRole]="userRole"
                         (pageChange)="onPageChange($event)"
                         (sortChange)="onSortChange($event)"
-                        (filterValue)="onFilterValueChange($event, async)"
                         (rowClick)="onUserClick($event, async)"
                     >
                     </app-table>

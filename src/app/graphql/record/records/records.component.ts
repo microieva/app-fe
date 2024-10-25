@@ -8,7 +8,7 @@ import { AppGraphQLService } from "../../../shared/services/app-graphql.service"
 import { RecordComponent } from "../record.component";
 import { AlertComponent } from "../../../shared/components/app-alert/app-alert.component";
 import { AppTableComponent } from "../../../shared/components/app-table/app-table.component";
-import { RecordDataSource } from "../../../shared/types";
+import { AdvancedSearchInput, AppSearchInput, RecordDataSource } from "../../../shared/types";
 import { Record } from "../record";
 
 @Component({
@@ -50,10 +50,9 @@ export class RecordsComponent implements OnInit {
     sortDirection: string | null = null;
     sortActive: string | null = 'createdAt';
     filterInput: string | null = null;
+    advancedSearchInput: AdvancedSearchInput | null = null;
     isLoading: boolean = true;
     showTable: boolean = false;
-
-    @ViewChild('appTable') appTable!: AppTableComponent;
 
     constructor(
         private graphQLService: AppGraphQLService,
@@ -123,10 +122,6 @@ export class RecordsComponent implements OnInit {
         this.sortActive = 'createdAt';
         this.filterInput = null;
         this.displayedColumns = [];
-
-        if (this.appTable) {
-            this.appTable.clearInputField();
-        }
         
         await this.loadData();
 
@@ -152,7 +147,7 @@ export class RecordsComponent implements OnInit {
         this.sortDirection = value.direction.toUpperCase();
         await this.loadData();
     }
-    async onFilterValueChange(value: any){
+    async onFilterValueChange(value: string){
         this.filterInput = value;
         await this.loadData();
     }
@@ -176,14 +171,16 @@ export class RecordsComponent implements OnInit {
             $pageLimit: Int!, 
             $sortDirection: String, 
             $sortActive: String,
-            $filterInput: String
+            $filterInput: String,
+            $advancedSearchInput: AdvancedSearchInput
         ){ 
             records (
                 pageIndex: $pageIndex, 
                 pageLimit: $pageLimit,
                 sortDirection: $sortDirection,
                 sortActive: $sortActive,
-                filterInput: $filterInput
+                filterInput: $filterInput,
+                advancedSearchInput: $advancedSearchInput
             ){
                 length
                 slice {
@@ -213,7 +210,8 @@ export class RecordsComponent implements OnInit {
             pageLimit: this.pageLimit,
             sortActive: this.sortActive,
             sortDirection: this.sortDirection || 'DESC',
-            filterInput: this.filterInput
+            filterInput: this.filterInput,
+            advancedSearchInput: this.advancedSearchInput
         }
 
         try {
@@ -238,14 +236,16 @@ export class RecordsComponent implements OnInit {
             $pageLimit: Int!, 
             $sortDirection: String, 
             $sortActive: String,
-            $filterInput: String
+            $filterInput: String,
+            $advancedSearchInput: AdvancedSearchInput
         ){ 
             drafts (
                 pageIndex: $pageIndex, 
                 pageLimit: $pageLimit,
                 sortDirection: $sortDirection,
                 sortActive: $sortActive,
-                filterInput: $filterInput
+                filterInput: $filterInput,
+                advancedSearchInput: $advancedSearchInput
             ){
                 length
                 slice {
@@ -271,7 +271,8 @@ export class RecordsComponent implements OnInit {
             pageLimit: this.pageLimit,
             sortActive: this.sortActive,
             sortDirection: this.sortDirection || 'DESC',
-            filterInput: this.filterInput
+            filterInput: this.filterInput,
+            advancedSearchInput: this.advancedSearchInput
         }
 
         try {
@@ -398,5 +399,21 @@ export class RecordsComponent implements OnInit {
     }
     async onReload(){
         await this.loadData();
+    }
+
+    async onSearch(value: AppSearchInput) {
+        this.filterInput = value.searchInput;   
+        this.advancedSearchInput = value.advancedSearchInput;
+        await this.loadData();
+    }
+    async onSearchReset(isResetting: boolean) {
+        if (isResetting) {
+            this.pageIndex = 0;
+            this.sortDirection = null;
+            this.sortActive = 'createdAt';
+            this.filterInput = null;
+            this.advancedSearchInput = null;
+            await this.loadData();
+        };
     }
 }

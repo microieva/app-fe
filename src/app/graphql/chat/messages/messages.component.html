@@ -24,6 +24,11 @@
             <div class="page" @slideInOut>
                 <div class="doctors" *ngIf="userRole ==='admin'">
                     <div class="table-wrapper">
+                        <app-search
+                            [useAdvanced]="false"
+                            (inputValue)="onFilterValueChange($event)"
+                            (reset)="onSearchReset($event)"
+                        ></app-search>
                         <app-table 
                             *ngIf="dataSource && displayedColumns"
                             [dataSource]="dataSource" 
@@ -32,7 +37,6 @@
                             [userRole]="userRole"
                             (pageChange)="onPageChange($event)"
                             (sortChange)="onSortChange($event)"
-                            (filterValue)="onFilterValueChange($event, async)"
                             (rowClick)="onOpenChat($event)"
                         >
                         </app-table>

@@ -60,7 +60,7 @@ import { MessagesComponent } from './graphql/chat/messages/messages.component';
 import { ChatComponent } from './graphql/chat/chat.component';
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { CommonModule } from '@angular/common';
+import { AppSearchComponent } from './shared/components/app-search/app-search.component';
 
 @NgModule({ 
     declarations: [
@@ -69,6 +69,7 @@ import { CommonModule } from '@angular/common';
         AppLandingComponent,
         AppCalendarComponent,
         AppTableComponent,
+        AppSearchComponent,
         AppEditorComponent,
         AppSnackbarContainerComponent,
         UserComponent,
