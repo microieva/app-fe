@@ -142,11 +142,11 @@
                     calendar_clock
                 </span>
                 <div class="flat next-appointment" *ngIf="nextId">
-                    <h1 class="font">Next appointment:</h1>
+                    <h1 class="font" style="margin-top:0;">Next appointment:</h1>
 
                     <div class="flex-row">
                         <div class="flex-column" *ngIf="nextStart">
-                            <p class="title">Appoinment time</p>
+                            <p class="title" style="font-size:medium;">Appoinment time</p>
                             <div class="time-wrapper" style="font-size: 3.5rem;">
                                 <h3>{{nextStart.dayName}},</h3>
                                 <h1>{{nextStart.time}}</h1>
