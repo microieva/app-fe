@@ -55,7 +55,7 @@ export interface AppointmentDataSource {
     start: string
     end: string
     name?: string // pending appointments have no doctor 
-    message: string
+    message?: string
     draft?: boolean
     record?: boolean
 }
