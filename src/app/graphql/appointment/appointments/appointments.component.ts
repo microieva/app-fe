@@ -519,7 +519,6 @@ export class AppointmentsComponent implements OnInit {
                     } else {
                         date = startDate.toFormat('MMM dd, yyyy'); 
                     }
-                    //this.checkIsReservedDay(row.start); TO DO FIX
 
                     return {
                         id: row.id,
@@ -530,7 +529,7 @@ export class AppointmentsComponent implements OnInit {
                         start: date+`, ${DateTime.fromISO(row.start, {setZone: true}).toFormat('HH:mm a')}`,
                         end: DateTime.fromISO(row.end, {setZone: true}).toFormat('HH:mm a'),
                         name: this.userRole==='doctor' ? `${row.patient.firstName} ${row.patient.lastName}` : undefined,
-                        message: this.userRole==='doctor' ? row.patientMessage : row.doctorMessage
+                        message: this.userRole==='doctor' ? row.patientMessage : undefined
                     } 
                 });
                 if (this.userRole === 'patient') {
