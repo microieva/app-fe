@@ -15,7 +15,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTreeModule } from '@angular/material/tree';
 import { MatSidenavContainer, MatSidenavContent, MatSidenavModule } from '@angular/material/sidenav';
-import { MatListModule } from '@angular/material/list';
+import { MatListModule, MatNavList } from '@angular/material/list';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatTableModule} from '@angular/material/table';
@@ -103,7 +103,9 @@ import { AppSearchComponent } from './shared/components/app-search/app-search.co
         MatSidenavModule,
         MatSidenavContent,
         MatSidenavContainer,
+        MatSidenavModule,
         MatListModule,
+        MatNavList,
         MatDialogModule,
         MatDialogContent,
         MatDatepickerModule,
@@ -140,7 +142,7 @@ import { AppSearchComponent } from './shared/components/app-search/app-search.co
         { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' }},
         { provide: MAT_DATE_FORMATS, useValue: LUXON_DATE_FORMATS },
         { provide: MAT_DATE_LOCALE, useValue: 'fi-FI' } 
-    ],
+    ]
 })
 
 export class AppModule { }

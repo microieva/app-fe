@@ -1,0 +1,23 @@
+{
+  "reporter": [
+    "text",
+    "html"
+  ],
+  "extension": [
+    ".js",
+    ".ts"
+  ],
+  "exclude": [
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "**/node_modules/**"
+  ],
+  "all": true,
+  "include": [
+    "src/**/*.ts"
+  ],
+  "sourceMap": true,
+  "instrument": true
+}
+
+  

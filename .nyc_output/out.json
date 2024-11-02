@@ -1,0 +1,488 @@
+{
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/test.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/test.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/apollo.config.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/apollo.config.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/app-routing.module.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/app-routing.module.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/app.component.spec.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/app.component.spec.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/app.component.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/app.component.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/app.module.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/app.module.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/environments/environment.prod.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/environments/environment.prod.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/environments/environment.test.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/environments/environment.test.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/environments/environment.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/environments/environment.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/types/window.d.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/types/window.d.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/constants.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/constants.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/types.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/types.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/utils.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/utils.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/validators.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/validators.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/graphql/appointment/appointment.component.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/graphql/appointment/appointment.component.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/graphql/appointment/appointment.input.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/graphql/appointment/appointment.input.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/graphql/appointment/appointment.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/graphql/appointment/appointment.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/graphql/chat/chat.component.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/graphql/chat/chat.component.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/graphql/record/record.component.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/graphql/record/record.component.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/graphql/record/record.input.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/graphql/record/record.input.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/graphql/record/record.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/graphql/record/record.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/graphql/user/doctor-request.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/graphql/user/doctor-request.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/graphql/user/user.component.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/graphql/user/user.component.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/graphql/user/user.input.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/graphql/user/user.input.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/graphql/user/user.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/graphql/user/user.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/modules/graphql.module.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/modules/graphql.module.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/services/app-appointment.service.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/services/app-appointment.service.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/services/app-auth-guard.service.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/services/app-auth-guard.service.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/services/app-auth.service.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/services/app-auth.service.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/services/app-dialog.service.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/services/app-dialog.service.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/services/app-graphql.service.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/services/app-graphql.service.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/services/app-snackbar.service.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/services/app-snackbar.service.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/services/app-socket.service.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/services/app-socket.service.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/services/app-tabs.service.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/services/app-tabs.service.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/services/app-timer.service.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/services/app-timer.service.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/graphql/appointment/appointments/appointments.component.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/graphql/appointment/appointments/appointments.component.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/graphql/appointment/calendar/calendar.component.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/graphql/appointment/calendar/calendar.component.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/graphql/chat/messages/messages.component.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/graphql/chat/messages/messages.component.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/graphql/record/records/records.component.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/graphql/record/records/records.component.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/graphql/user/doctors/doctors.component.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/graphql/user/doctors/doctors.component.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/graphql/user/patients/patients.component.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/graphql/user/patients/patients.component.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/components/app-alert/app-alert.component.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/components/app-alert/app-alert.component.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/components/app-calendar/app-calendar.component.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/components/app-calendar/app-calendar.component.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/components/app-confirm/app-confirm.component.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/components/app-confirm/app-confirm.component.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/components/app-editor/app-editor.component.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/components/app-editor/app-editor.component.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/components/app-event/app-event.component.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/components/app-event/app-event.component.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/components/app-home/app-home.component.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/components/app-home/app-home.component.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/components/app-landing/app-landing.component.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/components/app-landing/app-landing.component.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/components/app-loading/loading.component.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/components/app-loading/loading.component.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/components/app-login/app-login.componnet.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/components/app-login/app-login.componnet.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/components/app-login-menu/app-login-menu.component.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/components/app-login-menu/app-login-menu.component.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/components/app-search/app-search.component.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/components/app-search/app-search.component.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/components/app-snackbar/app-snackbar.component.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/components/app-snackbar/app-snackbar.component.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  },
+  "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/components/app-table/app-table.component.ts": {
+    "path": "/Users/ievavyliaudaite/Desktop/ieva/portfolio/app-fe/src/app/shared/components/app-table/app-table.component.ts",
+    "statementMap": {},
+    "fnMap": {},
+    "branchMap": {},
+    "s": {},
+    "f": {},
+    "b": {}
+  }
+}

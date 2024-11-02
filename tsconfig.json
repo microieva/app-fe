@@ -1,7 +1,17 @@
-/* To learn more about this file see: https://angular.io/config/tsconfig. */
+
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "plugins": [
+      {
+        "name": "@angular/compiler-cli/linker/babel"
+      }
+    ],
+    "typeRoots": [
+      "./node_modules/@types",
+      "cypress/support"
+    ],
+    "types": ["cypress"],
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
@@ -24,6 +34,12 @@
       "dom"
     ]
   },
+  "include": [
+    "cypress/**/*.ts",
+    "cypress/support/*.d.ts",
+    "src/**/*.ts",
+    "src/types/**/*.d.ts"  
+  ],
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,

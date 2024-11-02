@@ -22,11 +22,15 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:application",
+          "builder": "@angular-builders/custom-webpack:browser",
           "options": {
+            "aot": true,
+            "customWebpackConfig": {
+              "path": "./webpack.config.js"
+            },
+            "main": "src/main.ts",
             "outputPath": "dist/app-fe",
             "index": "src/index.html",
-            "browser": "src/main.ts",
             "polyfills": [
               "zone.js"
             ],

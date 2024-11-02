@@ -1,35 +1,36 @@
 <mat-sidenav-container>
     <mat-sidenav [opened]="true" mode="side" class="sidenav">
         <mat-nav-list style="padding:0;">
-            <a mat-list-item [routerLink]="['/home', 'user']" *ngIf="userRole" routerLinkActive="activeLink">
+
+            <a mat-list-item [routerLink]="['/home/user']" *ngIf="userRole" routerLinkActive="activeLink">
                 <div class="flex">
                     <span>{{ 'My Account' }}</span>
                     <span [ngStyle]="{visibility: !isUserUpdated ? 'visible':'hidden'}" class="icon material-symbols-outlined">info</span>
                 </div>
             </a>
-            <a mat-list-item (click)="onAppointmentsClick()" [routerLink]="['/home','appointments']" *ngIf="userRole !== 'admin' && isUserUpdated" routerLinkActive="activeLink">
+            <a class="nav-item" mat-list-item (click)="onAppointmentsClick()" [routerLink]="['/home/appointments']" *ngIf="userRole !== 'admin' && isUserUpdated" routerLinkActive="activeLink">
                 <div class="flex" >
                     <span>{{ 'Appointments' }}</span>
                     <span [ngStyle]="{visibility: !isUserUpdated || isNowAppointment ? 'visible':'hidden'}" class="icon material-symbols-outlined">info</span>
                 </div>
             </a>
-            <a mat-list-item [routerLink]="['/home','records']" *ngIf="userRole === 'patient' && countRecords>0 || userRole==='doctor'" routerLinkActive="activeLink">
+            <a class="nav-item" mat-list-item [routerLink]="['/home/records']" *ngIf="userRole === 'patient' && countRecords>0 || userRole==='doctor'" routerLinkActive="activeLink">
                 <div class="flex">
                     <span>{{ 'Medical Records' }}</span>
                 </div>
             </a>
-            <a mat-list-item [routerLink]="['/home','users']" *ngIf="userRole === 'admin'" routerLinkActive="activeLink">
+            <a class="nav-item" mat-list-item [routerLink]="['/home/users']" *ngIf="userRole === 'admin'" routerLinkActive="activeLink">
                 <div class="flex" >
                     <span>{{ 'Doctors' }}</span>
                     <span [ngStyle]="{visibility: countDoctorRequests>0 ? 'visible':'hidden'}" class="icon material-symbols-outlined">info</span>
                 </div>
             </a>
-            <a mat-list-item [routerLink]="['/home','patients']" *ngIf="userRole === 'admin'" routerLinkActive="activeLink">
+            <a class="nav-item" mat-list-item [routerLink]="['/home/patients']" *ngIf="userRole === 'admin'" routerLinkActive="activeLink">
                 <div class="flex">
                     <span>{{ 'Patients' }}</span>
                 </div>
             </a>
-            <a mat-list-item [routerLink]="['/home','messages']" routerLinkActive="activeLink"  *ngIf="userRole !== 'patient' && isUserUpdated">
+            <a class="nav-item" mat-list-item [routerLink]="['/home/messages']" routerLinkActive="activeLink"  *ngIf="userRole !== 'patient' && isUserUpdated">
                 <div class="flex">
                     <span>{{ 'Messages' }}</span>
                 </div>

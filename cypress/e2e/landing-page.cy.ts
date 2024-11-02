@@ -1,7 +1,25 @@
-describe('Home page spec', () => {
+import { DirectLoginInput } from "../../src/app/shared/types";
+
+describe('Landing page spec', () => {
     beforeEach(() => {
       cy.visit('https://app-fe-gamma.vercel.app')
+      // const authService: Cypress.AppAuthService = cy.getAngularService<Cypress.AppAuthService>('AppAuthService')
+      // const loginInput: DirectLoginInput = { email: 'admin@email.com', password: 'demo' };
+      // cy.spy(authService, 'logIn').as('loginSpy');
+      // authService.logIn(loginInput);
     })
+
+     it('can get angular library', () => {
+        cy.window()
+          .then(win => {
+            console.log('got app window object', win)
+            return win
+          })
+          .its('angular', {timeout: 1000})
+          .then(angular => {
+            console.log('got angular object', angular)
+          })
+      })
   
     it('should have the correct title', () => {
       cy.title().should('eq', 'Health Center')
@@ -48,36 +66,36 @@ describe('Home page spec', () => {
         })
       })
 
-      it('should successfully login admin and redirect to /home', () => {
+    it('should successfully login admin and redirect to /home', () => {
 
-        cy.get('mat-toolbar').within(() => {
-            cy.get('button').should('be.visible').click()
-        });
+      cy.get('mat-toolbar').within(() => {
+          cy.get('button').should('be.visible').click();
+      });
+  
+      cy.get('mat-dialog-container', { timeout: 10000 })
+          .should('be.visible')
+          .within(() => {
+              cy.contains('.menu-item h3', 'Administrator').should('be.visible').click();
+          });
+
+      cy.get('mat-dialog-container', { timeout: 10000 }).eq(1).should('be.visible').within(() => {
+          cy.get('form', { timeout: 5000 }).should('be.visible'); 
+          cy.get('input[name="email"]').should('be.visible').type('admin@email.com');
+          cy.get('input[name="password"]').should('be.visible').type('demo');
+  
+          cy.get('button')
+              .first()
+              .should('be.visible')
+              .and('contain', 'Submit')
+              .click();
+      });
       
-        cy.get('mat-dialog-container', { timeout: 10000 })
-            .should('be.visible')
-            .within(() => {
-                cy.contains('.menu-item h3', 'Administrator')
-                    .should('be.visible')
-                    .click()
-            });
-
-        cy.get('mat-dialog-container', { timeout: 10000 }).eq(1).should('be.visible').within(() => {
-            cy.get('form', { timeout: 5000 }).should('be.visible'); 
-            cy.get('input[name="email"]').should('be.visible').type('admin@email.com');
-            cy.get('input[name="password"]').should('be.visible').type('demo');
-
-            cy.get('button')
-                .first()
-                .should('be.visible')
-                .and('contain', 'Submit')
-                .click()     
-        });
-        
-        cy.get('.loading').should('be.visible');
-        cy.get('.loading', { timeout: 10000 }).should('not.exist');
-        cy.url().should('include', '/home'); 
-    })
-      
+      cy.get('.loading').should('be.visible');
+      cy.get('.loading', { timeout: 10000 }).should('not.exist');
+      cy.url().should('include', '/home');
+  
+      cy.get('@loginSpy').should('have.been.called');
+  });
+  
 })
   
