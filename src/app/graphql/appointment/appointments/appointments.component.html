@@ -64,7 +64,7 @@
                 </div>
                 <div class="table-wrapper">
                     <app-search
-                        *ngIf="userRole==='doctor'"
+                        *ngIf="userRole==='doctor' && dataSource && displayedColumns && countPendingAppointments > 0"
                         [useAdvanced]="false"
                         (inputValue)="onFilterValueChange($event)"
                         (reset)="onSearchReset($event)"
@@ -135,6 +135,7 @@
                
                 <div class="table-wrapper">
                     <app-search
+                        *ngIf="dataSource && displayedColumns && countUpcomingAppointments > 0"
                         [useAdvanced]="false"
                         (inputValue)="onFilterValueChange($event)"
                         (reset)="onSearchReset($event)"
@@ -192,10 +193,13 @@
                     </div>
                     <div *ngIf="countPastAppointments>0">
                         <h2 class="font">Previous appointments:</h2>
+                        <p *ngIf="countPastAppointments===1">{{countPastAppointments}} appointment in the archive.</p>
+                        <p *ngIf="countPastAppointments>1">{{countPastAppointments}} appointments in the archive.</p>
                     </div>
                 </div>
                 <div class="table-wrapper">
                     <app-search
+                        *ngIf="dataSource && displayedColumns && countPastAppointments > 0"
                         [useAdvanced]="false"
                         (inputValue)="onFilterValueChange($event)"
                         (reset)="onSearchReset($event)"
