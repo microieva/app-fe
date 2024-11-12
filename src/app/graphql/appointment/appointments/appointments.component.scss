@@ -3,6 +3,7 @@
 }
 .page {
     max-width: 75%;
+    min-height: calc(100vh - 16rem);
 }
 mat-panel-description {
     justify-content: flex-end;
@@ -24,7 +25,7 @@ mat-panel-description {
     align-items: start;
 }
 .btn-block {
-    margin: 4rem 0;
+    margin-top: 8rem;
     position:relative;
     h1 {
         color:rgb(151, 148, 148);
@@ -36,12 +37,13 @@ a {
 
 #bg-icon {
     position: absolute;
-   font-size: 34rem;
-   right: 65px;
-   top: 71px;
-   transform: rotate(21deg);
-   color: darkgray;
-   opacity: 0.2;
+    font-size: 34rem;
+    right: 65px;
+    top: 71px;
+    transform: rotate(21deg);
+    color: darkgray;
+    opacity: 0.2;
+
 }
 
 
