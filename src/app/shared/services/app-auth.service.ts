@@ -18,7 +18,7 @@ export class AppAuthService {
         private dialog: MatDialog,
         private router: Router
     ) { 
-        window.angular['AppAuthService'] = this;
+       if (window['angular']) window.angular['AppAuthService'] = this;
     }
 
     async logIn(input: DirectLoginInput) {

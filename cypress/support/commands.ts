@@ -88,8 +88,11 @@ Cypress.Commands.add('getAngularService', <T>(serviceName: string): Cypress.Chai
 
             const checkForAngular = () => {
                 attempts++;
+                console.log('WIN FROM getAngularService: ', win)
                 if (win.angular) {
-                    const service: AppService = win.angular.get(serviceName);
+                    const injector = win.angular.injector;
+                    const service: AppService = injector.get(serviceName);
+                    //const service: AppService = win.angular.serviceName
                     if (service) {
                         resolve(service);
                     } else {

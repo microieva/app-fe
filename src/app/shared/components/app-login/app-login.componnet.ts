@@ -31,6 +31,7 @@ export class LoginComponent implements OnInit, AfterViewInit    {
     ) {
         this.directLogin = this.data.directLogin;
         this.googleLogin = this.data.googleLogin;
+        if (window['angular']) window.angular['AppAuthService'] = authService;
     }
 
     ngOnInit() {

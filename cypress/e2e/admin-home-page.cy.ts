@@ -1,9 +1,7 @@
-import { environment } from "../../src/environments/environment.prod";
-
 describe('Admin Home page spec', () => {
     beforeEach(() => {
-        cy.login('admin@email.com', 'demo', environment.url);
-        cy.visit('https://app-fe-gamma.vercel.app/home');
+        cy.login('admin@email.com', 'demo', 'http://localhost:4000/graphql');
+        cy.visit('/home');
     });
 
     it('should display the main header', () => {
@@ -20,34 +18,29 @@ describe('Admin Home page spec', () => {
             cy.get('.time').should('be.visible', {settimeout: 10000})
         });
     })
-
     it('should display sidenav with 4 items and correct route links', () => {
         const expectedLinks = [
-            { text: 'My Account', route: '/home/user' },
-            { text: 'Doctors', route: '/home/users' },
-            { text: 'Patients', route: '/home/patients' },
-            { text: 'Messages', route: '/home/messages' },
+            { text: 'My Account', route: '/home/user', showIcon: true },
+            { text: 'Doctors', route: '/home/doctors', showIcon: false },
+            { text: 'Patients', route: '/home/patients', showIcon: false },
+            { text: 'Messages', route: '/home/messages', showIcon: false },
         ];
-
-        cy.get('mat-sidenav mat-nav-list a[mat-list-item]').then(($items) => {
-            console.log('Found items:', $items);
-        });
-        
     
-        cy.get('mat-sidenav mat-nav-list a[mat-list-item]', { timeout: 10000 })
+        // Check that we have 4 items in the sidenav
+        cy.get('mat-sidenav mat-nav-list a[mat-list-item]')
             .should('have.length', 4)
             .each(($item, index) => {
-                const { text, route } = expectedLinks[index];
-                cy.get(`[routerLink="${route}"]`).click()
-                cy.wrap($item).within(() => {
-                    cy.contains('span', text).should('be.visible');
-                    
-                });
+                const { text, route, showIcon } = expectedLinks[index];
     
-                cy.url().should('include', route);
+                // First, check the structure and visibility of inner elements
+                cy.wrap($item).get('span').should('contain', text).and('be.visible')
 
-                cy.visit('https://app-fe-gamma.vercel.app/home');
+                cy.url().should('include', route);
+    
+                // Go back to the home page for the next iteration
+                cy.visit('http://localhost:4200/home');
             });
-        });
+    });
+    
     
 });

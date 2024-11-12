@@ -25,24 +25,24 @@
           "builder": "@angular-builders/custom-webpack:browser",
           "options": {
             "aot": true,
-            "customWebpackConfig": {
-              "path": "./webpack.config.js"
-            },
             "main": "src/main.ts",
-            "outputPath": "dist/app-fe",
             "index": "src/index.html",
+            "outputPath": "dist/app-fe",
             "polyfills": [
               "zone.js"
             ],
-            "tsConfig": "tsconfig.app.json",
-            "inlineStyleLanguage": "scss",
             "assets": [
               "src/assets"
             ],
             "styles": [
               "src/styles.scss"
             ],
-            "scripts": []
+            "scripts": [],
+            "inlineStyleLanguage": "scss",
+            "tsConfig": "tsconfig.app.json",
+            "customWebpackConfig": {
+              "path": "./webpack.config.js"
+            }
           },
           "configurations": {
             "production": {
@@ -87,7 +87,7 @@
           "defaultConfiguration": "development"
         },
         "extract-i18n": {
-          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "builder": "@angular/build:extract-i18n",
           "options": {
             "buildTarget": "app-fe:build"
           }

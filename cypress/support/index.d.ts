@@ -1,6 +1,5 @@
 /// <reference types="cypress" />
 
-
 declare namespace Cypress {
     interface Chainable<Subject = any> {
         checkIfVisible(selector: string): Chainable<Subject>;
@@ -9,9 +8,20 @@ declare namespace Cypress {
         logIn: (directLoginInput: DirectLoginInput) => Promise<void>;
     }
     interface Window extends AUTWindow{
+        // angular: {
+        //     //get: <AppService>(serviceName: string) => AppService;
+        // //     // version: number
+        //     appAuthService: AppAuthService
+        //     injector: {
+        //         get: <AppService>(serviceName: string) => AppService;
+        //     }
+        // };
         angular: {
             get: <AppService>(serviceName: string) => AppService;
-            version: number
+            injector: {
+                get: <AppService>(serviceName: string) => AppService;
+            };
+            AppAuthService: AppAuthService
         };
     }
     interface AppAuthService {

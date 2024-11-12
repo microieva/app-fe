@@ -61,6 +61,7 @@ import { ChatComponent } from './graphql/chat/chat.component';
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AppSearchComponent } from './shared/components/app-search/app-search.component';
+import { AppAuthService } from './shared/services/app-auth.service';
 
 @NgModule({ 
     declarations: [
@@ -136,6 +137,7 @@ import { AppSearchComponent } from './shared/components/app-search/app-search.co
         AppSocketService,
         AppSnackbarService,
         AppDialogService,
+        AppAuthService,
         provideNativeDateAdapter(),
         provideHttpClient(withInterceptorsFromDi()), 
         provideAnimationsAsync(),

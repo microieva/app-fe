@@ -4,15 +4,34 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.(ts|js)$/,
-        include: path.resolve('src'),
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env'],
+            plugins: ['istanbul']
+          }
+        }
+      },
+      {
+        test: /\.(js|ts)$/,
         loader: 'istanbul-instrumenter-loader',
         options: { esModules: true },
         enforce: 'post',
-        exclude: [/node_modules/, /\.spec\.ts$/],
-      },
-    ],
+        include: require('path').join(__dirname, '..', 'src'),
+        exclude: [
+          /\.(e2e|spec)\.ts$/,
+          /node_modules/,
+          /(ngfactory|ngstyle)\.js/
+        ]
+      }
+    ]
   },
+  resolve: {
+    extensions: ['.js', '.jsx']
+  }
 };
+
 
   
