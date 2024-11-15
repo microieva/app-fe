@@ -12,7 +12,7 @@
                 <span class="material-symbols-outlined header-icon"  (click)="openChat()" *ngIf="userRole!=='patient'" [matBadge]="unreadMessages">chat</span> 
             </div>
             <div>
-                <span class="material-symbols-outlined header-icon" (click)="openCalendar()">calendar_month</span> 
+                <span class="material-symbols-outlined header-icon"  *ngIf="userRole === 'doctor'" (click)="openCalendar()">calendar_month</span> 
             </div>
         </div>
         <p *ngIf="time && time !== '00:00'" class="me"><em>session time:</em> </p>
