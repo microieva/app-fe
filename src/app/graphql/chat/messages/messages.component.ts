@@ -14,6 +14,7 @@ import { User } from "../../user/user";
 import { UserDataSource } from "../../../shared/types";
 import { DateTime } from "luxon";
 import { AppCountUnreadMessagesService } from "../../../shared/services/app-count-unread.service";
+import { getLastLogOutStr } from "../../../shared/utils";
 
 @Component({
     selector: 'app-messages',
@@ -171,7 +172,7 @@ export class MessagesComponent implements OnInit {
         if (this.onlineDoctors && this.onlineDoctors.length > 0) {
             this.formatted = this.doctors.map((doctor) => {
                 const isOnline = this.onlineDoctors?.some(onlineDoctor => doctor.id === onlineDoctor.id);
-                const lastOnline = DateTime.fromISO(doctor.lastLogOutAt, {setZone: true}).toFormat('HH:mm a, MMM dd (cccc), yyyy');
+                const lastOnline = getLastLogOutStr(doctor.lastLogOutAt)
                 let count: number | null = null;
 
                 if (this.unreadMessages && this.unreadMessages.length> 0) {
@@ -189,8 +190,7 @@ export class MessagesComponent implements OnInit {
         } else {
             this.formatted = this.doctors.map(doctor => {
                 let count: number | null = null;
-                const lastOnline = DateTime.fromISO(doctor.lastLogOutAt, {setZone: true}).toFormat('HH:mm a, MMM dd (cccc), yyyy');
-                
+                const lastOnline = getLastLogOutStr(doctor.lastLogOutAt)
                 if (this.unreadMessages && this.unreadMessages.length> 0) {
                     count = this.unreadMessages?.find(obj => obj.senderId === doctor.id)?.count || null;
                 }
