@@ -53,9 +53,8 @@
             ></app-chat>
         </div>
     </mat-tab>
-    <mat-tab *ngFor="let chat of chats">
+    <mat-tab *ngFor="let chat of chats" >
         <ng-template mat-tab-label>
-            <div class="blinking-tab" [ngClass]="{'blinking': isNewSender(chat.title)}"></div>
             <span class="tab-label">{{ chat.title }}</span>
             <span class="material-icons" matTooltip="Close" (click)="onChatClose(chat.id)">close</span>
         </ng-template>

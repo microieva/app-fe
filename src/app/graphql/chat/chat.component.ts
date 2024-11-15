@@ -9,6 +9,7 @@ import { AppTabsService } from "../../shared/services/app-tabs.service";
 import { AppSocketService } from "../../shared/services/app-socket.service";
 import { AlertComponent } from "../../shared/components/app-alert/app-alert.component";
 import { ConfirmComponent } from "../../shared/components/app-confirm/app-confirm.component";
+import { AppCountUnreadMessagesService } from "../../shared/services/app-count-unread.service";
 
 @Component({
     selector: 'app-chat',
@@ -47,8 +48,10 @@ export class ChatComponent implements OnInit {
         private socketService: AppSocketService,
         private activatedRoute: ActivatedRoute,
         private tabsService: AppTabsService,
-        private router: Router
+        private router: Router,
+        private countService: AppCountUnreadMessagesService
     ){}
+    
     async ngOnInit(){    
         this.activatedRoute.queryParams.subscribe(params => {
             const id = params['id']; 
@@ -56,6 +59,7 @@ export class ChatComponent implements OnInit {
         });
 
         this.socketService.requestOneUserStatus(this.receiverId!);
+        await this.setIsReadToTrue();
         await this.loadMessages();
         this.socketService.receiveNotification().subscribe(async (subscription: any)=> {
             if (subscription && subscription.chatId) {
@@ -67,7 +71,8 @@ export class ChatComponent implements OnInit {
                 this.online = isOnline.online;
             } 
         }); 
-          
+        if (this.form.touched) await this.setIsReadToTrue();
+        if (!this.userRole) this.countService.countUnreadMessages();
     }
 
     async loadMessages(){
@@ -76,6 +81,7 @@ export class ChatComponent implements OnInit {
                 id
                 content
                 createdAt
+                isRead
                 sender {
                     id
                     firstName
@@ -98,6 +104,20 @@ export class ChatComponent implements OnInit {
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Error loading messages: "+error}})
+        }
+    }
+
+    async setIsReadToTrue(){
+        const mutation = `mutation ($chatId: Int!) {
+            setIsReadToTrue (chatId: $chatId) {
+                success
+                message
+            }
+        }`
+        try {
+            await this.graphQLService.mutate(mutation, {chatId: this.chatId});
+        } catch (error) {
+            console.error(error)
         }
     }
 
@@ -138,6 +158,7 @@ export class ChatComponent implements OnInit {
         }
 
         this.form.get('message')?.reset(); 
+        this.countService.countUnreadMessages();
     }
     onDeleteMessage(){
         this.form.get('message')?.reset(); 

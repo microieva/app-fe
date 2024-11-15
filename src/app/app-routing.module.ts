@@ -7,14 +7,14 @@ import { CalendarComponent } from './graphql/appointment/calendar/calendar.compo
 import { RecordsComponent } from './graphql/record/records/records.component';
 import { DoctorsComponent } from './graphql/user/doctors/doctors.component';
 import { PatientsComponent } from './graphql/user/patients/patients.component';
-import { AppHomeComponent } from './shared/components/app-home/app-home.component';
 import { AppLandingComponent } from './shared/components/app-landing/app-landing.component';
+import { AppHomeComponent } from './shared/components/app-home/app-home.component';
 import { MessagesComponent } from './graphql/chat/messages/messages.component';
 
 
 const routes: Routes = [
-    { path: '', component: AppHomeComponent},
-    { path: 'home', component: AppLandingComponent, canActivate: [authGuard], children: [
+    { path: '', component: AppLandingComponent},
+    { path: 'home', component: AppHomeComponent, canActivate: [authGuard], children: [
         { path: 'user', component: UserComponent },
         { path: 'users', component: DoctorsComponent },
         { path: 'user/:id', component: UserComponent },

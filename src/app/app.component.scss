@@ -1,0 +1,16 @@
+.header-icon {
+    font-size: 2rem;
+    color: gray;
+    margin: 5px;
+    &#chat-icon {
+        position:absolute;
+        right: 50px;
+        top: 4px;
+    }
+    &:hover {
+        cursor: pointer;
+    }
+}
+.icon-wrapper {
+    position:relative;
+}

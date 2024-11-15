@@ -34,7 +34,13 @@
     <div class="messages-wrapper flex-column">
         <div *ngFor="let message of messages">
             <div class="message-wrapper" [ngStyle]="senderId !== message.sender.id ? {'flex-direction':'row-reverse'} : {'float': 'right'}">
-                <div class="message" [ngClass]="senderId !== message.sender.id ? 'incoming' : 'outgoing'">{{message.content}}</div>
+                <div 
+                    class="message" 
+                    [ngClass]="senderId !== message.sender.id ? 'incoming' : 'outgoing'" 
+                    [ngStyle]="senderId !== message.sender.id && !message.isRead && {'font-weight': '900'}"
+                >
+                    {{message.content}}
+                </div>
                 <div class="timestamp"><p>{{message.createdAt}}</p></div>
             </div>
         </div>

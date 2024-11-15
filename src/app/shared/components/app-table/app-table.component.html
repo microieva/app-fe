@@ -1,5 +1,3 @@
-
-    
 <div *ngIf="injectedData && !isLoading" style="margin:2rem 2rem 0 2rem;">
     <app-search    
         [useAdvanced]="true"
@@ -29,6 +27,7 @@
                 <ng-container *ngIf="column.columnDef === 'online'">
                     <div [ngClass]="{ 'online-dot': element.online, 'offline-dot': !element.online }"></div>
                 </ng-container>
+               
                 <ng-container *ngIf="column.columnDef === 'name'" class="name-with-msg">
                     <span *ngIf="element.message" class="material-symbols-outlined" matTooltip="Added message">mail</span>
                 </ng-container>
@@ -55,16 +54,13 @@
                 </ng-container>
 
                 <ng-container *ngIf="column.columnDef !== 'online' && column.columnDef !== 'message' && column.columnDef !== 'draft'  && column.columnDef !== 'record'  && column.columnDef !== 'actions'">
-                    <ng-container *ngIf="element[column.columnDef] === '' || element[column.columnDef] === 'Invalid DateTime'; else value">
+                    <ng-container *ngIf="element[column.columnDef] === null || element[column.columnDef] === '' || element[column.columnDef] === 'Invalid DateTime'; else value">
                         <span>-</span>
                     </ng-container>
                     <ng-template #value>
-                        <span>{{ element[column.columnDef] }}</span>
+                        <span [ngStyle]="element[column.columnDef] === 'Currently online' && {'font-style':'italic'}">{{ element[column.columnDef] }}</span>
                     </ng-template>
-                </ng-container>
-                  
-                
-                
+                </ng-container>    
             </td>
         </ng-container>        
         
@@ -73,8 +69,8 @@
             mat-row 
             *matRowDef="let row; columns: columnNames"
             (click)="onRowClick(row.id, row.title || undefined)"
-            [ngStyle]="{backgroundColor: (markAppointmentId && markAppointmentId === row.id) ? 'aqua': ''}"
-            [ngClass]="{'blinking': isNewSender(row)}">
+            [ngStyle]="{backgroundColor: (markAppointmentId && markAppointmentId === row.id) ? 'aqua': '' }"
+            [ngClass]="{'blinking': isNewSender(row), 'bold-row': isUnreadChat(row)}">
         </tr>
         <tr class="mat-row" *matNoDataRow>
             <td class="mat-cell" colspan="4">No data matching current search parameters</td>

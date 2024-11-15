@@ -34,6 +34,7 @@ $custom-theme-theme: mat.define-light-theme((
   --mat-table-background-color: rgb(215,222,230);
   --mat-paginator-container-background-color: transparent;
   --mdc-circular-progress-active-indicator-color:  rgb(175 111 174); 
+  --mat-badge-background-color: rgba(115, 72, 114, 0.7);
 }
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; color: rgb(68, 65, 65); }
@@ -94,8 +95,9 @@ mat-form-field {
 }
 .mat-mdc-tab.mdc-tab {
   width: 16rem;
-  &--active {background-color: rgb(139,149,161);}
+  &--active  {background-color: rgb(139,149,161);}
 }
+
 .tab-label{
   color:rgb(68, 65, 65);
 }

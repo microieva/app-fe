@@ -1,196 +1,152 @@
-<mat-sidenav-container>
-    <mat-sidenav [opened]="true" mode="side" class="sidenav">
-        <mat-nav-list style="padding:0;">
-            <a mat-list-item [routerLink]="['/home', 'user']" *ngIf="userRole" routerLinkActive="activeLink">
-                <div class="flex">
-                    <span>{{ 'My Account' }}</span>
-                    <span [ngStyle]="{visibility: !isUserUpdated ? 'visible':'hidden'}" class="icon material-symbols-outlined">info</span>
-                </div>
-            </a>
-            <a mat-list-item (click)="onAppointmentsClick()" [routerLink]="['/home','appointments']" *ngIf="userRole !== 'admin' && isUserUpdated" routerLinkActive="activeLink">
-                <div class="flex" >
-                    <span>{{ 'Appointments' }}</span>
-                    <span [ngStyle]="{visibility: !isUserUpdated || isNowAppointment ? 'visible':'hidden'}" class="icon material-symbols-outlined">info</span>
-                </div>
-            </a>
-            <a mat-list-item [routerLink]="['/home','records']" *ngIf="userRole === 'patient' && countRecords>0 || userRole==='doctor'" routerLinkActive="activeLink">
-                <div class="flex">
-                    <span>{{ 'Medical Records' }}</span>
-                </div>
-            </a>
-            <a mat-list-item [routerLink]="['/home','users']" *ngIf="userRole === 'admin'" routerLinkActive="activeLink">
-                <div class="flex" >
-                    <span>{{ 'Doctors' }}</span>
-                    <span [ngStyle]="{visibility: countDoctorRequests>0 ? 'visible':'hidden'}" class="icon material-symbols-outlined">info</span>
-                </div>
-            </a>
-            <a mat-list-item [routerLink]="['/home','patients']" *ngIf="userRole === 'admin'" routerLinkActive="activeLink">
-                <div class="flex">
-                    <span>{{ 'Patients' }}</span>
-                </div>
-            </a>
-            <a mat-list-item [routerLink]="['/home','messages']" routerLinkActive="activeLink"  *ngIf="userRole !== 'patient' && isUserUpdated">
-                <div class="flex">
-                    <span>{{ 'Messages' }}</span>
-                </div>
-            </a>
-        </mat-nav-list>
-    </mat-sidenav>
-    <mat-sidenav-content class="content">  
+<div class="content-view-wrapper">
+    <div class="img-wrapper">
+        <img src="assets/front-page.jpg"/>
+    </div>
+    <div class="page">
+        <div @slideInOut [ngStyle]="{'transform': 'translateY(' + scrollOffset + 'px)'}" class="slide-block">
+            <div class="slide-div txt">
+                <div style="position: absolute; top: -66px;">
+                    <h1 style="margin-bottom: 1rem;" class="title bg">Empathic health care center for all</h1>
+                    <h1 class="sm">You are in safe hands!</h1>
 
-        <div class="btn-block"  style="margin: 12rem 18rem;" *ngIf="isHomeRoute && !isUserUpdated && !isLoading">
-            <div style="margin-bottom: 2rem;">
-                <h3>Welcome!</h3>
-                <p class="title" style="font-size: 2rem;">Complete setting up your account</p>
-                <em>Please fill out your contact details to use Health Center services. By adding the information you agree to our Terms of Service and allow us handling your personal details. We guarantee no third parties have access to the details you provide. All personal information is saved only in our internal database. Requested contact details will be used for contacting and billing.</em>
+                </div>
+                <div class="flex-row clickable click" (click)="onLogIn()">
+                    <h2 class="font">Log in to your account</h2>
+                    <h2 style="height: 1.7rem;"><span class="material-symbols-outlined">
+                    arrow_right
+                    </span></h2>
+                </div>
             </div>
-            <button mat-stroked-button style="width:14rem;"><a [routerLink]="['/home/user']">{{'Update Information'}}</a></button>
+            <div class="slide-div block font" id="top">
+                <div class="flex-row"><h2>Same day appointments on call</h2><h2><span class="material-icons">
+                    call_outlined
+                    </span></h2></div>
+                <div class="flex-row"><h2>Treatments & consultations</h2><h2><span class="material-symbols-outlined">
+                    stethoscope
+                    </span></h2></div>
+                <div class="flex-row"><h2>All locations easily accessible</h2><h2><span class="material-symbols-outlined">
+                    accessible
+                    </span></h2></div>
+            </div>
+            <div class="slide-div block font">
+                <div class="flex-row"><h2>Infant & child care department</h2><h2><span class="material-symbols-outlined">
+                    child_care
+                    </span></h2></div>
+                <div class="flex-row"><h2>Dental care department</h2><h2><span class="material-symbols-outlined">
+                    dentistry
+                    </span></h2></div>
+                <div class="flex-row"><h2>Recovering physiotherapy unit</h2><h2><span class="material-symbols-outlined">
+                    physical_therapy
+                    </span></h2></div>
+                <div class="flex-row"><h2>Psychotherapy department</h2><h2><span class="material-symbols-outlined">
+                    psychology
+                    </span></h2></div>
+                <div class="flex-row"><h2>Special aid</h2><h2><span class="material-symbols-outlined">
+                    hearing_aid
+                    </span></h2></div>
+            </div>
+            <div class="block" id="personel">
+                <h1>Our personel always there to help</h1>
+                <div class="flex-row">
+                    <div class="flex-column card">
+                        <div class="card-img-wrapper">
+                            <img src="assets/doc-3.jpeg"/>
+                        </div>
+                        <p>Some lorem ipsum lorem ipsum. A couple of sentences to fill this card space</p>
+                    </div>
+                    <div class="flex-column card">
+                        <div class="card-img-wrapper">
+                            <img src="assets/doc-2.jpeg"/>
+                        </div>
+                        <p>Some lorem ipsum lorem ipsum. A couple of sentences to fill this card space</p>
+                    </div>
+                    <div class="flex-column card">
+                        <div class="card-img-wrapper">
+                            <img src="assets/doc-1.png"/>
+                        </div>
+                        <p>Some lorem ipsum lorem ipsum. A couple of sentences to fill this card space</p>
+                    </div>
+                </div>
+            </div>
+            <div class="block" id="feedback">
+                <h1>Our customer feedback</h1>
+                <div class="flex-column">
+                    <div class="flex-row row">
+                        <div class="row-img-wrapper">
+                            <img src="assets/cust-1.jpeg"/>
+                        </div>
+                        <p>Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt vulputate ad. Adipiscing morbi dapibus amet nec potenti mus suscipit dui. Ultricies auctor tempor interdum et ridiculus volutpat proin tortor erat. Gravida amet diam molestie sociosqu himenaeos nisl posuere habitasse.</p>
+                    </div>
+                    <div class="flex-row row">
+                        <div class="row-img-wrapper">
+                            <img src="assets/cust-2.png"/>
+                        </div>
+                        <p>Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt vulputate ad. Adipiscing morbi dapibus amet nec potenti mus suscipit dui. Ultricies auctor tempor interdum et ridiculus volutpat proin tortor erat. Gravida amet diam molestie sociosqu himenaeos nisl posuere habitasse.</p>
+                    </div>
+                    <div class="flex-row row">
+                        <div class="row-img-wrapper">
+                            <img src="assets/cust-3.png"/>
+                        </div>
+                        <p>Some lorem ipsum lorem ipsum. A couple of sentences to fill this card space. Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt vulputate ad. Adipiscing morbi dapibus amet nec potenti mus suscipit dui. Ultricies auctor tempor interdum et ridiculus volutpat proin tortor erat. Gravida amet diam molestie sociosqu himenaeos nisl posuere habitasse.</p>
+                    </div>
+                    <div class="flex-row row">
+                        <div class="row-img-wrapper">
+                            <img src="assets/cust-4.jpeg"/>
+                        </div>
+                        <p>Some lorem ipsum lorem ipsum. A couple of sentences to fill this card space. Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt vulputate ad. Adipiscing morbi dapibus amet nec potenti mus suscipit dui. Ultricies auctor tempor interdum et ridiculus volutpat proin tortor erat. Gravida amet diam molestie sociosqu himenaeos nisl posuere habitasse.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="block flex-column follow-us">
+                <h1>Follow us:</h1>
+                <div class="flex-row">
+                    <h1><span class="fa fa-facebook"></span></h1>
+                    <h1><span class="fa fa-instagram"></span></h1>
+                    <h1><span class="fa fa-linkedin"></span></h1>
+                </div>
+            </div>
         </div>
-        
-        <div *ngIf="isUserUpdated && isLoading" class="loading">
-            <app-loading></app-loading>
+        <div class="text-block" id="animation-wrapper">
+            <div class="typing-container">
+                <span @typingAnimation>{{ displayedText }}</span><span @cursorAnimation>|</span>
+            </div>
+            <div style="width: 100%; text-align: center;">
+                <h1>Your email address</h1>
+                <mat-form-field class="input">
+                    <mat-label>{{ 'Tyep here' }}</mat-label>
+                    <input matInput name="email" [formControl]="email">
+                </mat-form-field>
+            </div>
         </div>
-        <div class="page" *ngIf="isHomeRoute && !isLoading && isUserUpdated" @slideInOut>
-            <div *ngIf="userRole ==='admin'">
-                <div class="flat next-appointment">
-                    <span *ngIf="today" class="material-symbols-outlined" id="bg-icon">
-                        event
-                    </span>
-                    <div class="flex-row">
-                        <div class="flex-column">
-                            <p class="title">Today is:</p>
-                            <div class="time-wrapper" style="font-size: 3.5rem;">
-                                <h3>{{today.weekday}},</h3>
-                                <p style="font-size:smaller;"><em>{{today.date}}</em></p>
-                                <h1>{{clock}}</h1>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="block">
-                    <div class="flex-row"><h2 class="font">New doctor account activation requests </h2><h2><span>{{countDoctorRequests}}</span></h2></div>
-                    <div class="flex-row"><h2 class="font">Missed appointment requests</h2><h2><span>{{countMissedAppointments}}</span></h2></div>
-                    <div class="flex-row"><h2 class="font">Registered doctors</h2><h2><span>{{countDoctors}}</span></h2></div>
-                    <div class="flex-row"><h2 class="font">Registered patients</h2><h2><span>{{countPatients}}</span></h2></div>
-                    <div class="flex-row" id="last-login"><h2 class="font">Last log out:</h2><h2><span>{{lastLogOut}}</span></h2></div>
-                </div>
+    </div>
+</div>
+<footer>
+    <div class="footer">
+        <div class="flex-row">
+            <div class="flex-column">
+                <em>Helsinki</em>
+                <span>Mon-Fri: 8:00 - 18:00</span>
+                <span>0 40 50 6001</span>
+                <span>Josefatinkatu 12</span>
             </div>
-
-
-            <div *ngIf="userRole ==='doctor'" [ngStyle]="{'margin-top': !nextId ? '16rem':'inherit'}">
-                <span class="material-symbols-outlined" id="bg-icon">
-                    calendar_clock
-                </span>
-                <div class="flat next-appointment" *ngIf="nextId">
-                    <h1 class="font" style="margin-top:0;">Next appointment:</h1>
-
-                    <div class="flex-row">
-                        <div class="flex-column">
-                            <p class="title" style="font-size:medium;">Appoinment time</p>
-                            <div class="time-wrapper" style="font-size: 3.5rem;">
-                                <h3>{{nextStart.dayName}},</h3>
-                                <h1>{{nextStart.time}}</h1>
-                                <p style="font-size:smaller;"><em>{{nextStart.date}}</em></p>
-                            </div>
-                        </div>
-                        <div class="flex-column" id="patient-details">
-                            <p class="title">Patient's information</p>
-                            <div class="block">
-                                <div class="flex-row">
-                                    <h2 class="font">Name</h2>
-                                    <h2><span>{{nextAppointmentName}}</span></h2>
-                                </div>
-                                <div class="flex-row">
-                                    <h2 class="font">Date of birth</h2>
-                                    <h2><span>{{nextAppointmentPatientDob}}</span></h2>
-                                </div>
-                                <div class="flex-row">
-                                    <h2 class="font">Previous appointment</h2>
-                                    <h2><span>{{previousAppointmentDate}}</span></h2>
-                                </div>
-                                <div class="flex-row" [ngClass]="recordIds.length> 0 && 'clickable'" (click)="recordIds.length> 0 && onOpenRecords()" >
-                                    <h2 class="font">Medical records</h2>
-                                    <h2>
-                                        <span *ngIf="recordIds.length > 0" class="material-symbols-outlined" matTooltip="Open patient's medical records">
-                                            open_in_new
-                                        </span>
-                                        <span *ngIf="recordIds.length === 0">
-                                            -
-                                        </span>
-                                    </h2>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-                <div class="block">
-                    <div class="flex-row"><h2 class="font">Appointments today</h2><h2><span>{{countTodayAppointments}}</span></h2></div>
-                    <div class="flex-row"><h2 class="font">Total hours today</h2><h2><span>{{countTotalHoursToday}}</span></h2></div>
-                    
-                    <div class="flex-row"><h2 class="font">Pending appointment requests </h2><h2><span>{{countPendingAppointments}}</span></h2></div>
-                    <div class="flex-row"><h2 class="font">Accepted appointments </h2><h2><span>{{countUpcomingAppointments}}</span></h2></div>  
-                    <div class="flex-row"><h2 class="font">Missed appointment requests</h2><h2><span>{{countMissedAppointments}}</span></h2></div>
-                    <div class="flex-row " id="last-login"><h2 class="font">Last log out:</h2><h2><span>{{lastLogOut}}</span></h2></div>
-                 </div>
-
+            <div class="flex-column">
+                <em>Espoo </em>
+                <span>Mon-Fri: 8:00 - 18:00</span>
+                <span>0 40 50 6002</span>
+                <span>Johansenkatu 10</span>
             </div>
-
-
-            <div *ngIf="userRole ==='patient'" [ngStyle]="{'margin-top': !nextId ? '16rem':'inherit'}">
-                <span class="material-symbols-outlined" id="bg-icon">
-                    calendar_clock
-                </span>
-                <div class="flat next-appointment" *ngIf="nextId">
-                    <h1 class="font" style="margin-top:0;">Next appointment:</h1>
-
-                    <div class="flex-row">
-                        <div class="flex-column" *ngIf="nextStart">
-                            <p class="title" style="font-size:medium;">Appoinment time</p>
-                            <div class="time-wrapper" style="font-size: 3.5rem;">
-                                <h3>{{nextStart.dayName}},</h3>
-                                <h1>{{nextStart.time}}</h1>
-                                <p style="font-size:smaller;"><em>{{nextStart.date}}</em></p>
-                            </div>
-                        </div>
-                        <div class="flex-column" id="patient-details">
-                            <p class="title">Appointment information</p>
-                            <div class="block">
-                                <div class="flex-row">
-                                    <h2 class="font">Doctor's name</h2>
-                                    <h2><span>{{nextAppointmentName}}</span></h2>
-                                </div>
-                                <div class="flex-row">
-                                    <h2 class="font">Previous appointment</h2>
-                                    <h2><span>{{previousAppointmentDate}}</span></h2>
-                                </div>
-                                <div class="flex-row" [ngClass]="recordIds.length> 0 && 'clickable'" (click)="recordIds.length> 0 && onOpenRecords()" >
-                                    <h2 class="font">Medical records</h2>
-                                    <h2>
-                                        <span *ngIf="recordIds.length > 0" class="material-symbols-outlined" matTooltip="Open my medical records">
-                                            open_in_new
-                                        </span>
-                                        <span *ngIf="recordIds.length === 0">
-                                            -
-                                        </span>
-                                    </h2>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-                <div class="block">
-                    
-                    <div class="flex-row"><h2 class="font">Pending appointment requests </h2><h2><span>{{countPendingAppointments}}</span></h2></div>
-                    <div class="flex-row"><h2 class="font">Upcoming appointments </h2><h2><span>{{countUpcomingAppointments}}</span></h2></div>     
-                    <div class="flex-row"><h2 class="font">Missed appointment requests</h2><h2><span>{{countMissedAppointments}}</span></h2></div>
-                    <div class="flex-row"><h2 class="font">Medical records </h2><h2><span>{{countRecords}}</span></h2></div>      
-                    <div class="flex-row" id="last-login"><h2 class="font">Last log out:</h2><h2><span>{{lastLogOut}}</span></h2></div>
-                  </div>
+            <div class="flex-column">
+                <em>Tampere</em>
+                <span>Mon-Fri: 8:00 - 18:00</span>
+                <span>0 40 50 6003</span>
+                <span>Tampereen valtatie 35</span>
             </div>
-        </div> 
-        <router-outlet></router-outlet>
-    </mat-sidenav-content>
-</mat-sidenav-container>
-
+        </div>
+        <div class="footer-bottom">
+            <p>Lorem ipsum odor amet, consectetuer adipiscing elit. Quam maecenas tortor integer commodo posuere commodo, blandit consequat. Metus inceptos viverra taci ti mag ti tellus. </p>
+            <br>
+            <p>Lorem ipsum odor amet, consectetuer adipiscing elit. Quam maecenas tortor integer commodo posuere commodo, blandit consequat. Metus inceptos viverra taciti magna justo mattis tellus. </p>
+        </div>
+        <div style="float:right;">by Ieva Vyliaudaite, Helsinki 2024</div>
+    </div>
+</footer>
