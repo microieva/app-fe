@@ -73,15 +73,33 @@ export class AppSocketService {
     }
 
     requestOnlineUsers() {
-        this.socket.emit('getOnlineUsers');
+        if (this.socket && this.socket.connected) {
+            this.socket.emit('getOnlineUsers');
+        } else {
+            this.reconnectSocket().then(() => {
+                this.socket.emit('getOnlineUsers');
+            });
+        }
     }
 
     requestOneUserStatus(id: number) {
-        this.socket.emit('getOneUserStatus', id);
+        if (this.socket && this.socket.connected) {
+            this.socket.emit('getOneUserStatus', id);
+        } else {
+            this.reconnectSocket().then(() => {
+                this.socket.emit('getOneUserStatus', id);
+            });
+        }
     }
 
     sendNotification(message: string) {
-        this.socket.emit('sendNotification', message);
+        if (this.socket && this.socket.connected) {
+            this.socket.emit('sendNotification', message);
+        } else {
+            this.reconnectSocket().then(() => {
+                this.socket.emit('sendNotification', message);
+            });
+        }
     }
 
     receiveNotification() {
@@ -93,7 +111,13 @@ export class AppSocketService {
     }
 
     notifyDoctors(newAppointemnt: any){
-        this.socket.emit('notifyDoctors', newAppointemnt);
+        if (this.socket && this.socket.connected) {
+            this.socket.emit('notifyDoctors', newAppointemnt);
+        } else {
+            this.reconnectSocket().then(() => {
+                this.socket.emit('notifyDoctors', newAppointemnt);
+            });
+        }  
     }
 
     newAppointmentRequest() {
@@ -105,7 +129,13 @@ export class AppSocketService {
     }
 
     notifyDoctor(info: any){
-        this.socket.emit('notifyDoctor', info);
+        if (this.socket && this.socket.connected) {
+            this.socket.emit('notifyDoctor', info);
+        } else {
+            this.reconnectSocket().then(() => {
+                this.socket.emit('notifyDoctor', info);
+            });
+        }    
     }
     
     deletedAppointmentInfo() {

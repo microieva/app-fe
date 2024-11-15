@@ -22,7 +22,7 @@ import {MatTableModule} from '@angular/material/table';
 import {MatAccordion, MatExpansionModule} from '@angular/material/expansion';
 import {MatRadioModule} from '@angular/material/radio';
 import { MAT_DATE_FORMATS, MAT_DATE_LOCALE, MatCommonModule, provideNativeDateAdapter } from '@angular/material/core';
-import { AppHomeComponent } from './shared/components/app-home/app-home.component';
+import { AppLandingComponent } from './shared/components/app-landing/app-landing.component';
 import { MatDialogContent, MatDialogModule } from '@angular/material/dialog';
 import { UserComponent } from './graphql/user/user.component';
 import { LUXON_DATE_FORMATS } from './shared/constants';
@@ -49,7 +49,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { DoctorsComponent } from './graphql/user/doctors/doctors.component';
 import { PatientsComponent } from './graphql/user/patients/patients.component';
-import { AppLandingComponent } from './shared/components/app-landing/app-landing.component';
+import { AppHomeComponent } from './shared/components/app-home/app-home.component';
 import { LoginMenuComponent } from './shared/components/app-login-menu/app-login-menu.component';
 import { AppSocketService } from './shared/services/app-socket.service';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -60,7 +60,9 @@ import { MessagesComponent } from './graphql/chat/messages/messages.component';
 import { ChatComponent } from './graphql/chat/chat.component';
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import {MatBadgeModule} from '@angular/material/badge';
 import { AppSearchComponent } from './shared/components/app-search/app-search.component';
+import { AppCountUnreadMessagesService } from './shared/services/app-count-unread.service';
 
 @NgModule({ 
     declarations: [
@@ -125,7 +127,8 @@ import { AppSearchComponent } from './shared/components/app-search/app-search.co
         NgxEditorModule,
         MatSnackBarModule,
         TextFieldModule,
-        MatTooltipModule
+        MatTooltipModule,
+        MatBadgeModule
     ], 
     providers: [
         AppTimerService,
@@ -134,6 +137,7 @@ import { AppSearchComponent } from './shared/components/app-search/app-search.co
         AppSocketService,
         AppSnackbarService,
         AppDialogService,
+        AppCountUnreadMessagesService,
         provideNativeDateAdapter(),
         provideHttpClient(withInterceptorsFromDi()), 
         provideAnimationsAsync(),

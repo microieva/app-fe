@@ -60,12 +60,7 @@ export class AppSnackbarContainerComponent {
         if (index !== -1) this.snackbars.splice(index, 1);
     }
     showChat(id: number) {
-        this.router.navigate(['/home/messages'],  {
-                relativeTo: this.activatedRoute,
-                queryParams: { tab: 1, id},
-                queryParamsHandling: 'merge'  
-            }
-        ); 
+        this.router.navigate(['/home/messages']); 
         const index = this.snackbars.findIndex(snack => snack.appointmentId === id);
         if (index !== -1) this.snackbars.splice(index, 1);
         this.snackbars.shift();

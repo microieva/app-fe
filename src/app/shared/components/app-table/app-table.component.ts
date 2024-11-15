@@ -30,7 +30,6 @@ export class AppTableComponent implements OnInit, AfterViewInit {
 
     @Output() pageChange = new EventEmitter<{pageIndex: number, pageLimit: number}>();
     @Output() sortChange = new EventEmitter<{active: string, direction: string}>();
-    //@Output() filterValue = new EventEmitter<string>();
     @Output() rowClick= new EventEmitter<{id: number, title?: string}>();
     @Output() action= new EventEmitter<{id: number, text: string}>();
 
@@ -144,7 +143,7 @@ export class AppTableComponent implements OnInit, AfterViewInit {
             if (response.data) {
                 const records = response.data.medicalRecordsFromIds.slice;
                 this.length = response.data.medicalRecordsFromIds.length;
-                this.formatDataSourceAndColumns(records);
+                this.formatDataSourceAndColumnsForRecords(records);
                 this.isLoading = false;
             }
         } catch(error) {
@@ -153,7 +152,7 @@ export class AppTableComponent implements OnInit, AfterViewInit {
 
     }
 
-    formatDataSourceAndColumns(records: any[]) {
+    formatDataSourceAndColumnsForRecords(records: any[]) {
         this.injectedData = records.map((record: Record) => {
             let createdAt: string;
             let updatedAt: string;
@@ -222,7 +221,7 @@ export class AppTableComponent implements OnInit, AfterViewInit {
         });
     }
 
-    ngAfterViewInit(): void {   
+    ngAfterViewInit(): void {  
         if (this.paginator && this.dataSource && this.displayedColumns) {
             this.columnNames = this.displayedColumns.map(column => column.columnDef);
             this.paginator.length = this.length;
@@ -265,7 +264,7 @@ export class AppTableComponent implements OnInit, AfterViewInit {
 
     onRowClick(id: number, title?: string){
         if (this.recordIds) {
-            const dialogRef = this.dialog.open(RecordComponent, {data: {recordId: id, width: "45rem", noDelete: true}});
+            this.dialog.open(RecordComponent, {data: {recordId: id, width: "45rem", noDelete: true}});
         }
         this.markAppointmentId = null;
         if (id) {
@@ -277,7 +276,13 @@ export class AppTableComponent implements OnInit, AfterViewInit {
         this.rowClick.emit({id, title});
     }
     isNewSender(element: any): boolean {
+        if (element.unreadMessages !== undefined && element.unreadMessages === null) {
+            return false;
+        }
         return this.senders.some(sender => sender === `${element.firstName} ${element.lastName}`);
+    }
+    isUnreadChat(element: any){
+        return element.unreadMessages !== undefined && element.unreadMessages !== null;
     }
     onActionClick(text: string, id: number) {
         this.action.emit({text, id});

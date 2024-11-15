@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
-import { Location } from '@angular/common';
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
@@ -21,14 +20,16 @@ import { LoginMenuComponent } from './shared/components/app-login-menu/app-login
 import { AppSnackbarContainerComponent } from './shared/components/app-snackbar/app-snackbar.component';
 import { Appointment } from './graphql/appointment/appointment';
 import { User } from './graphql/user/user';
+import { AppCountUnreadMessagesService } from './shared/services/app-count-unread.service';
 
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
-    styleUrls: ['./app.component.css']
+    styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit, OnDestroy {
     title = 'Health Center';
+    unreadMessages: string = '';
 
     me: User | null = null;
     nowAppointment: Appointment | null = null;
@@ -47,7 +48,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
     constructor (
         private dialog: MatDialog,
-        private location: Location,
         private router: Router,
         private renderer: Renderer2,
         private activatedRoute: ActivatedRoute,
@@ -59,8 +59,10 @@ export class AppComponent implements OnInit, OnDestroy {
         private http: HttpClient,
         private socketService: AppSocketService,
         private snackbarService: AppSnackbarService,
-        private dialogService: AppDialogService
-    ) {}
+        private dialogService: AppDialogService,
+        private countService: AppCountUnreadMessagesService
+    ) {
+    }
 
     async ngOnInit() {
         this.activatedRoute.queryParams.subscribe(params => {
@@ -169,12 +171,13 @@ export class AppComponent implements OnInit, OnDestroy {
             this.userRole = null;
         }
         
-        this.socketService.receiveNotification().subscribe((subscription: any)=> {
+        this.socketService.receiveNotification().subscribe(async (subscription: any)=> {
             
             if (subscription && subscription.receiverId) {
                 if (this.me?.id === JSON.parse(subscription.receiverId)) {
                     if (subscription.chatId) {
                         this.snackbarService.show(subscription.message, null, null, subscription.chatId, subscription.sender);
+                        this.countService.countUnreadMessages();
                     } else {
                         this.snackbarMessage = subscription.message;
                         this.snackbarAppointmentId = subscription.appointmentId;
@@ -226,6 +229,18 @@ export class AppComponent implements OnInit, OnDestroy {
                 }
             }
         });
+        if (this.userRole !=='patient') {
+            this.countService.countUnreadMessages();   
+        }
+        this.countService.unreadCount$.subscribe((count) => {
+            if (count !== 0) {
+                if (this.userRole !== 'patient') {
+                    this.unreadMessages = count.toString();
+                }
+            } else {
+                this.unreadMessages = ''
+            }
+        });
     }
 
     ngOnDestroy() {
@@ -268,6 +283,20 @@ export class AppComponent implements OnInit, OnDestroy {
     onLogIn(){
         this.dialog.open(LoginMenuComponent)
     }
+    async countUnreadMessages(){
+        const query = `query { countUnreadMessages }`
+          try {
+            const response = await this.graphQLService.send(query);
+
+            if (response.data.countUnreadMessages !== 0) {
+                this.unreadMessages = response.data.countUnreadMessages.toString();
+            } else {
+                this.unreadMessages = '';
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
 
     exchangeCodeForToken(code: string, state: string, scope: any) {
 
@@ -306,5 +335,11 @@ export class AppComponent implements OnInit, OnDestroy {
         this.dialog.open(LoadingComponent);
         this.timerService.cancelTokenTimer();
         this.authService.logOut(); 
+    }
+    openChat() {
+        this.router.navigate(['/home/messages']);
+    }
+    openCalendar() {
+        this.router.navigate(['/home/appointments/calendar']);
     }
 }

@@ -13,6 +13,7 @@ import { ChatComponent } from "../chat.component";
 import { User } from "../../user/user";
 import { UserDataSource } from "../../../shared/types";
 import { DateTime } from "luxon";
+import { AppCountUnreadMessagesService } from "../../../shared/services/app-count-unread.service";
 
 @Component({
     selector: 'app-messages',
@@ -44,6 +45,7 @@ export class MessagesComponent implements OnInit {
     receiverId: number | undefined;
     doctors: User[] = [];
     doctorsLength: number = 0;
+    unreadMessages: { senderId: number, count: number}[] | undefined;
 
     pageIndex: number = 0;
     pageLimit: number = 10;
@@ -61,22 +63,27 @@ export class MessagesComponent implements OnInit {
         private activatedRoute: ActivatedRoute,
         private socketService: AppSocketService,
         private tabsService: AppTabsService,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private countService: AppCountUnreadMessagesService
     ){}
 
     async ngOnInit() {
         await this.loadMe();
         if (this.userRole === 'admin') {
+            await this.loadUnreadMessages();
             await this.loadDoctors();
             this.chats = this.tabsService.getChatTabs();
             this.socketService.getOnlineUsers().subscribe(async (users) => {
                 this.onlineDoctors = users.filter(user => user.userRole === 'doctor') || [];
+                await this.loadUnreadMessages();
                 await this.loadDoctors();
-                this.formatDataSource();
+                
             });
-            this.socketService.receiveNotification().subscribe((subscription: any)=> {
+            this.socketService.receiveNotification().subscribe(async (subscription: any)=> {
                 if (subscription && subscription.chatId) {
                     this.senders.push(subscription.sender);
+                    await this.loadUnreadMessages();
+                    await this.loadDoctors();
                 }
             });
           
@@ -85,10 +92,24 @@ export class MessagesComponent implements OnInit {
             this.receiverId = environment.adminId;
             this.chatId = await this.loadChatId();
         }
-        this.activatedRoute.queryParams.subscribe(params => {
+        this.activatedRoute.queryParams.subscribe(async params => {
             const tab = params['tab'];
             this.selectedIndex = tab ? +tab : 0; 
         });
+    }
+
+    async loadUnreadMessages(){
+        const query = `query { countAllUnreadMessages { senderId count }}`
+
+        try {
+            const response = await this.graphQLService.send(query);
+            if (response.data) {
+                this.unreadMessages = response.data.countAllUnreadMessages;
+                console.log('UNREAD COUNTS: ', this.unreadMessages)
+            }
+        } catch (error) {
+            this.dialog.open(AlertComponent, {data: {message: error}});
+        }
     }
     
     async loadDoctors(){
@@ -132,15 +153,15 @@ export class MessagesComponent implements OnInit {
             if (response.data.doctors) {
                 this.doctors = response.data.doctors.slice;
                 this.doctorsLength = response.data.doctors.length;
-                this.formatDataSource()
+                this.formatDataSource();
 
                 this.dataSource = new MatTableDataSource<UserDataSource>(this.formatted);
                 this.displayedColumns = [ 
                     {header: 'Online', columnDef: 'online'},
                     {header: 'Name', columnDef: 'name'},
                     {header: 'Last online', columnDef: 'lastLogOutAt'},
-
-                ]
+                    {header: 'Unread', columnDef: 'unreadMessages'},
+                ]  
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading requests: "+error}})
@@ -150,26 +171,42 @@ export class MessagesComponent implements OnInit {
         if (this.onlineDoctors && this.onlineDoctors.length > 0) {
             this.formatted = this.doctors.map((doctor) => {
                 const isOnline = this.onlineDoctors?.some(onlineDoctor => doctor.id === onlineDoctor.id);
+                const lastOnline = DateTime.fromISO(doctor.lastLogOutAt, {setZone: true}).toFormat('HH:mm a, MMM dd (cccc), yyyy');
+                let count: number | null = null;
+
+                if (this.unreadMessages && this.unreadMessages.length> 0) {
+                    count = this.unreadMessages?.find(obj => obj.senderId === doctor.id)?.count || null;
+                }
+
                 return {
                     ...doctor,
                     name: doctor.firstName+' '+doctor.lastName,
                     online: isOnline || false, 
-                    lastLogOutAt:  DateTime.fromISO(doctor.lastLogOutAt, {setZone: true}).toFormat('HH:mm a, MMM dd (cccc), yyyy')
+                    lastLogOutAt:  !isOnline ? lastOnline : 'Currently online',
+                    unreadMessages: count
                 };
             });
         } else {
             this.formatted = this.doctors.map(doctor => {
+                let count: number | null = null;
+                const lastOnline = DateTime.fromISO(doctor.lastLogOutAt, {setZone: true}).toFormat('HH:mm a, MMM dd (cccc), yyyy');
+                
+                if (this.unreadMessages && this.unreadMessages.length> 0) {
+                    count = this.unreadMessages?.find(obj => obj.senderId === doctor.id)?.count || null;
+                }
+
                 return {
                     ...doctor,
                     online: false,
                     name: doctor.firstName+' '+doctor.lastName,
-                    lastLogOutAt:  DateTime.fromISO(doctor.lastLogOutAt, {setZone: true}).toFormat('HH:mm a, MMM dd (cccc), yyyy')
+                    lastLogOutAt: lastOnline,
+                    unreadMessages: count
                 }
             });
         }
     }
     
-    onTabChange(value: any){
+    async onTabChange(value: any){
         this.selectedIndex = value;
 
         this.chats = this.tabsService.getChatTabs();
@@ -178,7 +215,17 @@ export class MessagesComponent implements OnInit {
             const receiverName = doctor.firstName+' '+doctor.lastName;
             return chat && chat.title === receiverName
         })?.id;
+        this.countService.countUnreadMessages();
+        if (this.selectedIndex === 0) {
+            this.loadUnreadMessages();
+            await this.loadDoctors();
+            
+            this.router.navigate([], {
+                queryParams: { tab: value }
+            });
+        }
         this.senders = this.senders.filter((name: string) => name !== chat.sender);
+        
         this.router.navigate([], {
             relativeTo: this.activatedRoute,
             queryParams: { tab: value, id: receiverId },
@@ -190,6 +237,8 @@ export class MessagesComponent implements OnInit {
         this.receiverId = value.id;
         const chatReceiver = this.dataSource?.data.find(row => row.id === this.receiverId);
         this.createChatTab(chatReceiver);
+        this.countService.countUnreadMessages();
+        this.loadUnreadMessages();
     }
 
     onChatClose(id: number){
@@ -255,11 +304,6 @@ export class MessagesComponent implements OnInit {
             console.error(error);
             this.router.navigate(['/home'])
         }
-    }
-
-    isNewSender(senderName: string){
-        return false;
-        //return this.senders.some((name: string) => name === senderName);
     }
 
     async onPageChange(value: any) {
