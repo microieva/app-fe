@@ -13,7 +13,7 @@
                     <span [ngStyle]="{visibility: !isUserUpdated || isNowAppointment ? 'visible':'hidden'}" class="icon material-symbols-outlined">info</span>
                 </div>
             </a>
-            <a mat-list-item [routerLink]="['/home','records']" *ngIf="userRole === 'patient' && countRecords>0 || userRole==='doctor'" routerLinkActive="activeLink">
+            <a mat-list-item [routerLink]="['/home','records']" *ngIf="isUserUpdated && (userRole === 'patient' && countRecords>0 || userRole==='doctor')" routerLinkActive="activeLink">
                 <div class="flex">
                     <span>{{ 'Medical Records' }}</span>
                 </div>
@@ -44,7 +44,7 @@
                 <p class="title" style="font-size: 2rem;">Complete setting up your account</p>
                 <em>Please fill out your contact details to use Health Center services. By adding the information you agree to our Terms of Service and allow us handling your personal details. We guarantee no third parties have access to the details you provide. All personal information is saved only in our internal database. Requested contact details will be used for contacting and billing.</em>
             </div>
-            <button mat-stroked-button style="width:14rem;"><a [routerLink]="['/home/user']">{{'Update Information'}}</a></button>
+            <button mat-stroked-button style="width:14rem;"><a [routerLink]="['/home','user']">{{'Update Information'}}</a></button>
         </div>
         
         <div *ngIf="isUserUpdated && isLoading" class="loading">

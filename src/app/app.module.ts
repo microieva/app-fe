@@ -63,6 +63,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import {MatBadgeModule} from '@angular/material/badge';
 import { AppSearchComponent } from './shared/components/app-search/app-search.component';
 import { AppCountUnreadMessagesService } from './shared/services/app-count-unread.service';
+import { AppRefreshService } from './shared/services/app-refresh.service';
 
 @NgModule({ 
     declarations: [
@@ -138,6 +139,7 @@ import { AppCountUnreadMessagesService } from './shared/services/app-count-unrea
         AppSnackbarService,
         AppDialogService,
         AppCountUnreadMessagesService,
+        AppRefreshService,
         provideNativeDateAdapter(),
         provideHttpClient(withInterceptorsFromDi()), 
         provideAnimationsAsync(),

@@ -21,6 +21,7 @@ import { AppSnackbarContainerComponent } from './shared/components/app-snackbar/
 import { Appointment } from './graphql/appointment/appointment';
 import { User } from './graphql/user/user';
 import { AppCountUnreadMessagesService } from './shared/services/app-count-unread.service';
+import { AppRefreshService } from './shared/services/app-refresh.service';
 
 @Component({
     selector: 'app-root',
@@ -37,6 +38,7 @@ export class AppComponent implements OnInit, OnDestroy {
     remainder!: Subscription;
     time!: string | null;
     userRole: string | null = null;
+    isUserUpdated: boolean = false;
 
     snackbarMessage: string | undefined;
     snackbarAppointmentId: number | undefined;
@@ -60,11 +62,18 @@ export class AppComponent implements OnInit, OnDestroy {
         private socketService: AppSocketService,
         private snackbarService: AppSnackbarService,
         private dialogService: AppDialogService,
-        private countService: AppCountUnreadMessagesService
+        private countService: AppCountUnreadMessagesService,
+        private refreshService: AppRefreshService
     ) {
     }
 
     async ngOnInit() {
+        this.refreshService.refresh$.subscribe((refresh) => {
+            if (refresh) {
+                this.ngOnInit();
+                this.refreshService.resetRefresh(); 
+            }
+        });
         this.activatedRoute.queryParams.subscribe(params => {
             const code = params['code'];
             const state = params['state'];
@@ -271,6 +280,7 @@ export class AppComponent implements OnInit, OnDestroy {
             if (response.data) {
                 this.me = response.data.me;
                 this.userRole = response.data.me.userRole;
+                this.isUserUpdated = response.data.me.updatedAt;
             } else {
                 this.me = null;
             }
