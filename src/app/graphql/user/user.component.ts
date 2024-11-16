@@ -6,13 +6,13 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dial
 import _, { some } from "lodash-es";
 import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../shared/services/app-graphql.service";
-import { AppAuthService } from "../../shared/services/app-auth.service";
 import { AppTimerService } from "../../shared/services/app-timer.service";
 import { AlertComponent } from "../../shared/components/app-alert/app-alert.component";
 import { ConfirmComponent } from "../../shared/components/app-confirm/app-confirm.component";
 import { UserInput } from "./user.input";
 import { DoctorRequest } from "./doctor-request";
 import { User } from "./user";
+import { AppRefreshService } from "../../shared/services/app-refresh.service";
 
 @Component({
     selector: 'app-user',
@@ -50,8 +50,8 @@ export class UserComponent implements OnInit {
         private activatedRoute: ActivatedRoute,
         private formBuilder: FormBuilder,
         private dialog: MatDialog,
-        private authService: AppAuthService,
         private timerService: AppTimerService,
+        private refreshService: AppRefreshService,
 
         @Optional() public dialogRef: MatDialogRef<UserComponent>,
         @Optional() @Inject(MAT_DIALOG_DATA) public data: any
@@ -63,7 +63,7 @@ export class UserComponent implements OnInit {
     async ngOnInit() {
         if (this.userId) {
             await this.loadStatic();
-        } 
+        }
         await this.loadMe();
 
         this.activatedRoute.paramMap.subscribe(async (params)=> {
@@ -88,6 +88,7 @@ export class UserComponent implements OnInit {
                 streetAddress
                 city
                 postCode
+                updatedAt
             }
             request (userId: $userId){
                 id
@@ -123,6 +124,7 @@ export class UserComponent implements OnInit {
                 streetAddress
                 city
                 postCode
+                updatedAt
             }
         }`
 
@@ -166,10 +168,13 @@ export class UserComponent implements OnInit {
                 }`
 
                 try {
-                    await this.graphQLService.mutate(mutation, { userId: this.me.id});
-                    this.timerService.cancelTokenTimer();
-                    this.authService.logOut(); 
-                    this.router.navigate(['/']);
+                    const response = await this.graphQLService.mutate(mutation, { userId: this.me.id});
+                    if (response.data) {
+                        this.timerService.cancelTokenTimer();
+                        localStorage.clear();
+                        
+                    }
+                    window.location.reload();
                 } catch (error) {
                     this.dialog.open(AlertComponent, { data: {message: "Error deleting user: "+ error}})
                 }
@@ -215,9 +220,8 @@ export class UserComponent implements OnInit {
         try {
             const response = await this.graphQLService.mutate(mutation, { userInput: input });
             if (response.data.saveUser.success) {
-                this.router.navigate(['/home/user'], {
-                    queryParams: { updated: true }
-                });
+                this.router.navigate(['/home/user']);
+                this.refreshService.triggerRefresh();
             }
         } catch (error) {
             this.dialog.open(AlertComponent, { data: {message: "Error saving user details: "+ error}})

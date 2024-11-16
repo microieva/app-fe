@@ -12,6 +12,8 @@ import { AppTableComponent } from "../app-table/app-table.component";
 import { Appointment } from "../../../graphql/appointment/appointment";
 import { User } from "../../../graphql/user/user";
 import { AppCountUnreadMessagesService } from "../../services/app-count-unread.service";
+import { AppRefreshService } from "../../services/app-refresh.service";
+import { Subscription } from "rxjs";
 
 @Component({
     selector: 'app-home',
@@ -56,6 +58,7 @@ export class AppHomeComponent implements OnInit {
     today: { weekday: string, time: string, date: string} | undefined;
     clock: string | undefined;
     recordIds: number[] = [];
+    private refreshSubscription!: Subscription;
 
     constructor(
         private activatedRoute: ActivatedRoute,
@@ -64,10 +67,17 @@ export class AppHomeComponent implements OnInit {
         private graphQLService: AppGraphQLService,
         private appointmentService: AppAppointmentService,
         private timerService: AppTimerService,
-        private countService: AppCountUnreadMessagesService
+        private countService: AppCountUnreadMessagesService,
+        private refreshService: AppRefreshService
     ){}
 
     async ngOnInit() {
+        this.refreshSubscription = this.refreshService.refresh$.subscribe((refresh) => {
+            if (refresh) {
+                this.ngOnInit();
+                this.refreshService.resetRefresh(); 
+            }
+        });
         await this.loadMe();
         await this.loadData();
         
@@ -121,6 +131,11 @@ export class AppHomeComponent implements OnInit {
         }
         this.isLoading = false;
     }
+    ngOnDestroy(): void {
+        if (this.refreshSubscription) {
+            this.refreshSubscription.unsubscribe();
+        }
+    }
 
     async loadData(){
         switch (this.userRole) {
@@ -143,7 +158,7 @@ export class AppHomeComponent implements OnInit {
         const query = `query { 
             me { 
                 userRole 
-                streetAddress
+                updatedAt
                 lastLogOutAt
             }
         }`
@@ -154,7 +169,7 @@ export class AppHomeComponent implements OnInit {
                 this.userRole = response.data.me.userRole;
                 const str = getLastLogOutStr(this.me.lastLogOutAt);
                 this.lastLogOut = str !== 'Invalid DateTime' ? str : '-'
-                this.isUserUpdated = response.data.me.streetAddress ? true : false;
+                this.isUserUpdated = response.data.me.updatedAt;
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "No user, "+error}})

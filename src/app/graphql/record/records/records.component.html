@@ -28,6 +28,7 @@
                 </div>
                 <div class="table-wrapper">
                     <app-search
+                        *ngIf="dataSource && displayedColumns && countRecords>0"
                         [useAdvanced]="true"
                         (advancedSearchValue)="onSearch($event)"
                         (inputValue)="onFilterValueChange($event, async)"
@@ -65,6 +66,7 @@
             <div class="page">
                 <div class="table-wrapper">
                     <app-search
+                        *ngIf="dataSource && displayedColumns && countDrafts> 0"
                         [useAdvanced]="true"
                         (advancedSearchValue)="onSearch($event)"
                         (inputValue)="onFilterValueChange($event, async)"
