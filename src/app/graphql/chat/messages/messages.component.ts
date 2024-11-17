@@ -243,6 +243,8 @@ export class MessagesComponent implements OnInit {
     onChatClose(id: number){
         this.tabsService.closeChatTab(id);
         this.chats = this.tabsService.getChatTabs();
+        this.countService.countUnreadMessages();
+        this.loadUnreadMessages();
     }
     
     async createChatTab(chatReceiver: any) {
