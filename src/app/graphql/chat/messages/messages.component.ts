@@ -40,7 +40,7 @@ export class MessagesComponent implements OnInit {
     dataSource: MatTableDataSource<any> | null = null;
     displayedColumns: Array<{ columnDef: string, header: string }> = [];
     formatted: UserDataSource[] | undefined;
-    onlineDoctors: any[] | undefined;
+    onlineDoctors: any[];
     chatId: number | undefined = 0;
     senders: string[] = [];
     receiverId: number | undefined;
@@ -66,16 +66,19 @@ export class MessagesComponent implements OnInit {
         private tabsService: AppTabsService,
         private dialog: MatDialog,
         private countService: AppCountUnreadMessagesService
-    ){}
+    ){
+        this.onlineDoctors = [];
+    }
 
     async ngOnInit() {
         await this.loadMe();
         if (this.userRole === 'admin') {
+            this.socketService.requestOnlineUsers();
             await this.loadUnreadMessages();
             await this.loadDoctors();
             this.chats = this.tabsService.getChatTabs();
             this.socketService.getOnlineUsers().subscribe(async (users) => {
-                this.onlineDoctors = users.filter(user => user.userRole === 'doctor') || [];
+                this.onlineDoctors = users.filter(user => user.userRole === 'doctor' && user.online) || [];
                 await this.loadUnreadMessages();
                 await this.loadDoctors();
                 
@@ -87,8 +90,6 @@ export class MessagesComponent implements OnInit {
                     await this.loadDoctors();
                 }
             });
-          
-            this.socketService.requestOnlineUsers();
         } else { 
             this.receiverId = environment.adminId;
             this.chatId = await this.loadChatId();
@@ -97,6 +98,7 @@ export class MessagesComponent implements OnInit {
             const tab = params['tab'];
             this.selectedIndex = tab ? +tab : 0; 
         });
+        console.log('onlineDoctors: ', this.onlineDoctors)
     }
 
     async loadUnreadMessages(){
