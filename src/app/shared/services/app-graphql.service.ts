@@ -15,7 +15,6 @@ export class AppGraphQLService {
             fetchPolicy: 'network-only',
             pollInterval: 3000
         }).valueChanges;
-
         return firstValueFrom(result);
     }
 
@@ -25,7 +24,6 @@ export class AppGraphQLService {
             variables,
             fetchPolicy: 'network-only'
         });
-
         return firstValueFrom(result);
     }
 }

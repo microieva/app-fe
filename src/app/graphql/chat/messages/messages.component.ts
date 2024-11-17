@@ -106,7 +106,6 @@ export class MessagesComponent implements OnInit {
             const response = await this.graphQLService.send(query);
             if (response.data) {
                 this.unreadMessages = response.data.countAllUnreadMessages;
-                console.log('UNREAD COUNTS: ', this.unreadMessages)
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: error}});

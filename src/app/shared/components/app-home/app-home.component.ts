@@ -1,4 +1,5 @@
 import { Component, OnInit } from "@angular/core";
+import { Subscription } from "rxjs";
 import { MatDialog } from "@angular/material/dialog";
 import { ActivatedRoute, Router } from "@angular/router";
 import { animate, state, style, transition, trigger } from "@angular/animations";
@@ -6,14 +7,13 @@ import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../services/app-graphql.service";
 import { AppAppointmentService } from "../../services/app-appointment.service";
 import { AppTimerService } from "../../services/app-timer.service";
+import { AppCountUnreadMessagesService } from "../../services/app-count-unread.service";
+import { AppRefreshService } from "../../services/app-refresh.service";
 import { getTodayWeekdayTime, getNextAppointmentWeekdayStart, getLastLogOutStr } from "../../utils";
 import { AlertComponent } from "../app-alert/app-alert.component";
 import { AppTableComponent } from "../app-table/app-table.component";
 import { Appointment } from "../../../graphql/appointment/appointment";
 import { User } from "../../../graphql/user/user";
-import { AppCountUnreadMessagesService } from "../../services/app-count-unread.service";
-import { AppRefreshService } from "../../services/app-refresh.service";
-import { Subscription } from "rxjs";
 
 @Component({
     selector: 'app-home',
@@ -33,7 +33,7 @@ export class AppHomeComponent implements OnInit {
     isHomeRoute: boolean = true;
     isLoading: boolean = true;
     userRole!: string;
-    me!: User;
+    me: User | undefined;
     lastLogOut!: string;
     isUserUpdated: boolean = false;
     nowAppointment: Appointment | null = null;
@@ -58,7 +58,7 @@ export class AppHomeComponent implements OnInit {
     today: { weekday: string, time: string, date: string} | undefined;
     clock: string | undefined;
     recordIds: number[] = [];
-    private refreshSubscription!: Subscription;
+    private refreshSubscription: Subscription | null = null;
 
     constructor(
         private activatedRoute: ActivatedRoute,
@@ -72,64 +72,59 @@ export class AppHomeComponent implements OnInit {
     ){}
 
     async ngOnInit() {
-        this.refreshSubscription = this.refreshService.refresh$.subscribe((refresh) => {
-            if (refresh) {
-                this.ngOnInit();
-                this.refreshService.resetRefresh(); 
-            }
-        });
         await this.loadMe();
         await this.loadData();
-        
-        this.router.events.subscribe(async () => {
-            this.isHomeRoute = this.router.url === '/home';
-            if (this.isHomeRoute) {  
-                await this.loadData();
-            }
-        });
 
-        this.activatedRoute.queryParams.subscribe(async params => {
-            if(params['updated']) {
-                this.isUserUpdated = true;
-                this.isLoading = false;
-            }
-        });
-
-        if (this.userRole !== 'patient') {
-            this.countService.countUnreadMessages();
-        }
-
-        if (this.userRole === 'admin') {
-            this.today = getTodayWeekdayTime();
-            const now = DateTime.now().setZone('Europe/Helsinki').toISO();
-            this.timerService.startClock(now!);
-            this.timerService.clock.subscribe(value=> {
-                this.clock = value;
+        if (this.me) {
+            this.isLoading = false;
+            this.router.events.subscribe(async () => {
+                this.isHomeRoute = this.router.url === '/home';
+                if (this.isHomeRoute) {  
+                    await this.loadData();
+                }
             });
-        }
 
-        if (this.userRole === 'doctor') {
-            this.appointmentService.pollNextAppointment();
-            this.appointmentService.appointmentInfo.subscribe(async (subscription) => {
-
-                if (subscription && subscription.nextAppointment) {
-                    this.nextId = subscription.nextAppointment.nextId;
-                    if (this.previousNextId !== this.nextId) {
-                        this.previousNextId = this.nextId;
+            if (this.userRole !== 'patient') {
+                this.countService.countUnreadMessages();
+            }
+            if (this.userRole === 'admin') {
+                this.today = getTodayWeekdayTime();
+                const now = DateTime.now().setZone('Europe/Helsinki').toISO();
+                this.timerService.startClock(now!);
+                this.timerService.clock.subscribe(value=> {
+                    this.clock = value;
+                });
+            }
+            if (this.userRole === 'doctor') {
+                this.appointmentService.pollNextAppointment();
+                this.appointmentService.appointmentInfo.subscribe(async (subscription) => {
+    
+                    if (subscription && subscription.nextAppointment) {
+                        this.nextId = subscription.nextAppointment.nextId;
+                        if (this.previousNextId !== this.nextId) {
+                            this.previousNextId = this.nextId;
+                        } 
+                        const nextStart = subscription.nextAppointment.nextStart;
+                        this.nextAppointmentStartTime = ''
+                        this.nextStart = getNextAppointmentWeekdayStart(nextStart);
+                        this.nextAppointmentName = subscription.nextAppointment.patient.firstName+' '+subscription.nextAppointment.patient.lastName;
+                        this.nextAppointmentPatientDob = DateTime.fromISO(subscription.nextAppointment.patient.dob).toFormat('MMM dd, yyyy');
+                        const str = DateTime.fromISO(subscription.nextAppointment.previousAppointmentDate).toFormat('MMM dd, yyyy'); 
+                        this.previousAppointmentDate = str !== 'Invalid DateTime' ? str : '-';
+                        this.recordIds = subscription.nextAppointment.recordIds;
+                       
                     } 
-                    const nextStart = subscription.nextAppointment.nextStart;
-                    this.nextAppointmentStartTime = ''
-                    this.nextStart = getNextAppointmentWeekdayStart(nextStart);
-                    this.nextAppointmentName = subscription.nextAppointment.patient.firstName+' '+subscription.nextAppointment.patient.lastName;
-                    this.nextAppointmentPatientDob = DateTime.fromISO(subscription.nextAppointment.patient.dob).toFormat('MMM dd, yyyy');
-                    const str = DateTime.fromISO(subscription.nextAppointment.previousAppointmentDate).toFormat('MMM dd, yyyy'); 
-                    this.previousAppointmentDate = str !== 'Invalid DateTime' ? str : '-';
-                    this.recordIds = subscription.nextAppointment.recordIds;
-                   
-                } 
-            });       
-        }
-        this.isLoading = false;
+                });       
+                if (this.me.updatedAt === null) {
+                    this.refreshSubscription = this.refreshService.refresh$.subscribe((refresh) => {
+                        if (refresh) {
+                            this.ngOnInit();
+                            this.refreshService.resetRefresh(); 
+                        }
+                    });
+                }
+            }
+        }   
     }
     ngOnDestroy(): void {
         if (this.refreshSubscription) {
@@ -164,10 +159,10 @@ export class AppHomeComponent implements OnInit {
         }`
         try {
             const response = await this.graphQLService.send(query);
-            if (response.data) {
+            if (response.data.me) {
                 this.me = response.data.me;
                 this.userRole = response.data.me.userRole;
-                const str = getLastLogOutStr(this.me.lastLogOutAt);
+                const str = getLastLogOutStr(response.data.me.lastLogOutAt);
                 this.lastLogOut = str !== 'Invalid DateTime' ? str : '-'
                 this.isUserUpdated = response.data.me.updatedAt;
             }
