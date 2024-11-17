@@ -13,6 +13,8 @@ import { AppTabsService } from './shared/services/app-tabs.service';
 import { AppAuthService } from './shared/services/app-auth.service';
 import { AppGraphQLService } from './shared/services/app-graphql.service';
 import { AppDialogService } from './shared/services/app-dialog.service';
+import { AppRefreshService } from './shared/services/app-refresh.service';
+import { AppCountUnreadMessagesService } from './shared/services/app-count-unread.service';
 import { AppointmentComponent } from './graphql/appointment/appointment.component';
 import { LoadingComponent } from './shared/components/app-loading/loading.component';
 import { AlertComponent } from './shared/components/app-alert/app-alert.component';
@@ -20,8 +22,6 @@ import { LoginMenuComponent } from './shared/components/app-login-menu/app-login
 import { AppSnackbarContainerComponent } from './shared/components/app-snackbar/app-snackbar.component';
 import { Appointment } from './graphql/appointment/appointment';
 import { User } from './graphql/user/user';
-import { AppCountUnreadMessagesService } from './shared/services/app-count-unread.service';
-import { AppRefreshService } from './shared/services/app-refresh.service';
 
 @Component({
     selector: 'app-root',
@@ -47,6 +47,7 @@ export class AppComponent implements OnInit, OnDestroy {
     buttonClickListener!: () => void;
 
     @ViewChild('snackbarContainer') snackbarContainer!: AppSnackbarContainerComponent;
+    private refreshSubscription: Subscription | null = null;
 
     constructor (
         private dialog: MatDialog,
@@ -68,12 +69,6 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     async ngOnInit() {
-        this.refreshService.refresh$.subscribe((refresh) => {
-            if (refresh) {
-                this.ngOnInit();
-                this.refreshService.resetRefresh(); 
-            }
-        });
         this.activatedRoute.queryParams.subscribe(params => {
             const code = params['code'];
             const state = params['state'];
@@ -174,87 +169,100 @@ export class AppComponent implements OnInit, OnDestroy {
                         }
                     });
                 }
+                this.socketService.receiveNotification().subscribe(async (subscription: any)=> {
+            
+                    if (subscription && subscription.receiverId) {
+                        if (this.me?.id === JSON.parse(subscription.receiverId)) {
+                            if (subscription.chatId) {
+                                this.snackbarService.show(subscription.message, null, null, subscription.chatId, subscription.sender);
+                                this.countService.countUnreadMessages();
+                            } else {
+                                this.snackbarMessage = subscription.message;
+                                this.snackbarAppointmentId = subscription.appointmentId;
+                                this.snackbarReceiverId = subscription.receiverId;
+                                this.snackbarService.show(subscription.message, subscription.appointmentId, subscription.doctorRequestId, null, null);
+                            }
+                        }
+                    } else if (subscription && subscription.message === "New appointment request") {
+                        this.snackbarMessage = subscription.message;
+                        this.snackbarAppointmentId = subscription.appointmentId;
+                        this.snackbarReceiverId = subscription.receiverId;
+                    }
+                });
+                this.dialogService.dialogOpened$.subscribe(() => {
+                    const eventComponent = document.querySelector('app-event');
+                    const confirmComponent = document.querySelector('app-confirm');
+        
+                    if (eventComponent) {
+                        const actionButton = eventComponent.querySelector('#submit-btn');
+                        if (actionButton) {
+                            this.buttonClickListener = this.renderer.listen(
+                                actionButton,
+                                'click',
+                                () => { 
+                                    if (this.snackbarMessage === "New appointment request") {
+                                        this.socketService.notifyDoctors({
+                                            message: this.snackbarMessage,
+                                            appointmentId: this.snackbarAppointmentId
+                                        });
+                                    }
+                                }
+                            );
+                        }
+                    }
+                    if (confirmComponent) {
+                        const actionButton = confirmComponent.querySelector('#confirm-btn');
+                        if (actionButton) {
+                            this.buttonClickListener = this.renderer.listen(
+                                actionButton,
+                                'click',
+                                () => { 
+                                    this.socketService.notifyDoctor({
+                                        message: this.snackbarMessage,
+                                        doctorId: this.snackbarReceiverId
+                                    });
+                                }
+                            );
+                        }
+                    }
+                });
+
+                this.refreshSubscription = this.refreshService.refresh$.subscribe((refresh) => {
+                    if (refresh) {
+                        this.ngOnInit();
+                        this.refreshService.resetRefresh(); 
+                    }
+                });
+                if (this.me.updatedAt) {
+                    if (this.userRole !=='patient') {
+                        this.countService.countUnreadMessages();   
+                    }
+                    this.countService.unreadCount$.subscribe((count) => {
+                        if (count !== 0) {
+                            if (this.userRole !== 'patient') {
+                                this.unreadMessages = count.toString();
+                            }
+                        } else {
+                            this.unreadMessages = ''
+                        }
+                    });
+                }           
+            } else {
+                this.router.navigate(['/']);
             }
         } else {
             this.me = null;
             this.userRole = null;
+            this.router.navigate(['/']);
         }
-        
-        this.socketService.receiveNotification().subscribe(async (subscription: any)=> {
-            
-            if (subscription && subscription.receiverId) {
-                if (this.me?.id === JSON.parse(subscription.receiverId)) {
-                    if (subscription.chatId) {
-                        this.snackbarService.show(subscription.message, null, null, subscription.chatId, subscription.sender);
-                        this.countService.countUnreadMessages();
-                    } else {
-                        this.snackbarMessage = subscription.message;
-                        this.snackbarAppointmentId = subscription.appointmentId;
-                        this.snackbarReceiverId = subscription.receiverId;
-                        this.snackbarService.show(subscription.message, subscription.appointmentId, subscription.doctorRequestId, null, null);
-                    }
-                }
-            } else if (subscription && subscription.message === "New appointment request") {
-                this.snackbarMessage = subscription.message;
-                this.snackbarAppointmentId = subscription.appointmentId;
-                this.snackbarReceiverId = subscription.receiverId;
-            }
-        });
-
-        this.dialogService.dialogOpened$.subscribe(() => {
-            const eventComponent = document.querySelector('app-event');
-            const confirmComponent = document.querySelector('app-confirm');
-
-            if (eventComponent) {
-                const actionButton = eventComponent.querySelector('#submit-btn');
-                if (actionButton) {
-                    this.buttonClickListener = this.renderer.listen(
-                        actionButton,
-                        'click',
-                        () => { 
-                            if (this.snackbarMessage === "New appointment request") {
-                                this.socketService.notifyDoctors({
-                                    message: this.snackbarMessage,
-                                    appointmentId: this.snackbarAppointmentId
-                                });
-                            }
-                        }
-                    );
-                }
-            }
-            if (confirmComponent) {
-                const actionButton = confirmComponent.querySelector('#confirm-btn');
-                if (actionButton) {
-                    this.buttonClickListener = this.renderer.listen(
-                        actionButton,
-                        'click',
-                        () => { 
-                            this.socketService.notifyDoctor({
-                                message: this.snackbarMessage,
-                                doctorId: this.snackbarReceiverId
-                            });
-                        }
-                    );
-                }
-            }
-        });
-        if (this.userRole !=='patient') {
-            this.countService.countUnreadMessages();   
-        }
-        this.countService.unreadCount$.subscribe((count) => {
-            if (count !== 0) {
-                if (this.userRole !== 'patient') {
-                    this.unreadMessages = count.toString();
-                }
-            } else {
-                this.unreadMessages = ''
-            }
-        });
     }
 
     ngOnDestroy() {
         if (this.buttonClickListener) {
             this.buttonClickListener();
+        }
+        if (this.refreshSubscription) {
+            this.refreshSubscription.unsubscribe();
         }
     }
 
@@ -277,35 +285,25 @@ export class AppComponent implements OnInit, OnDestroy {
         try {
             const response = await this.graphQLService.send(query);
 
-            if (response.data) {
+            if (response.data.me) {
                 this.me = response.data.me;
                 this.userRole = response.data.me.userRole;
                 this.isUserUpdated = response.data.me.updatedAt;
             } else {
-                this.me = null;
+                localStorage.clear();
+                window.location.reload();
             }
         } catch (error) {
             localStorage.clear();
-            console.error(error);
+            const ref = this.dialog.open(AlertComponent, {data: {message: error}});
+            ref.componentInstance.ok.subscribe(ok => {
+                if (ok) window.location.reload();
+            })
         }
     }
 
     onLogIn(){
         this.dialog.open(LoginMenuComponent)
-    }
-    async countUnreadMessages(){
-        const query = `query { countUnreadMessages }`
-          try {
-            const response = await this.graphQLService.send(query);
-
-            if (response.data.countUnreadMessages !== 0) {
-                this.unreadMessages = response.data.countUnreadMessages.toString();
-            } else {
-                this.unreadMessages = '';
-            }
-        } catch (error) {
-            console.error(error);
-        }
     }
 
     exchangeCodeForToken(code: string, state: string, scope: any) {
