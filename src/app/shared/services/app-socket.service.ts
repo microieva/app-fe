@@ -62,8 +62,8 @@ export class AppSocketService {
     }
 
     getOneUserStatus(id: number): Observable<any> {
+        this.socket.emit('onlineUser', id);
         return new Observable<any>(observer => {
-            this.socket.emit('onlineUser', id);
             this.socket.on('online', (online) => {
                 observer.next(online);
             });
