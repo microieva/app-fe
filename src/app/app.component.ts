@@ -327,10 +327,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
     exchangeCodeForToken(code: string, state: string, scope: any) {
 
-        const tokenEndpoint = environment.tokenEndpoint;
-        const clientId = environment.clientId;
-        const clientSecret = environment.clientSecret;
-        const redirectUri = environment.redirectUri; 
+        const tokenEndpoint = 'https://health-center.sandbox.signicat.com/auth/open/connect/token';
+        const clientId = 'sandbox-itchy-wheel-954';
+        const clientSecret =  'EJTOPAOXSS2c8bPpMOeJpTe64DvbFdWBS2wH5ytbvT7Tt5Yh';
+        const redirectUri = 'https://app-fe-gamma.vercel.app/';
       
         const headers = new HttpHeaders({
           'Content-Type': 'application/x-www-form-urlencoded',
