@@ -11,7 +11,7 @@ export interface Appointment {
     end: string
     allDay: boolean
     patient: User
-    doctor?: User
+    doctor: User | null
     patientMessage: string
     doctorMessage: string
     record?: Record

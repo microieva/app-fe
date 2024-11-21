@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { CalendarOptions, DateSelectArg, EventClickArg, EventApi, DayCellContentArg, EventDropArg, DatesSetArg } from '@fullcalendar/core';
 import { ActivatedRoute, Router } from "@angular/router";
 import { MatDialog } from "@angular/material/dialog";
@@ -6,6 +6,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
+import { Subscription } from "rxjs";
 import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../services/app-graphql.service";
 import { AppDialogService } from "../../services/app-dialog.service";
@@ -21,22 +22,24 @@ import { AppointmentInput } from "../../../graphql/appointment/appointment.input
     templateUrl: './app-calendar.component.html',
     styleUrls: ['app-calendar.component.scss']
 })
-export class AppCalendarComponent implements OnInit {
+export class AppCalendarComponent implements OnInit, OnDestroy {
     @Output() appointment = new EventEmitter<AppointmentInput>();
     @Output() snackbar = new EventEmitter<any>();
-    @Input() role!: string;
+    @Input() role!: 'admin' | 'doctor' | 'patient';
 
-    appointmentSelections = ['All', 'Pending confirmation', 'Upcoming', 'Past', 'Missed requests']
+    appointmentSelections: string[] = [];
     calendarVisible = true;
     calendarOptions!: CalendarOptions;
     currentEvents: EventApi[] = [];
     appointments: Appointment[] = [];
     allDayAppointments: Appointment[] = [];
-    selectedAppointments: string = 'All';
+    selectedAppointments: string | null = 'All';
     events: any = []; 
     patientId: number | undefined;
     monthStart: any;
     monthEnd: any;
+
+    private subscriptions: Subscription = new Subscription();
 
     constructor(
         private dialog: MatDialog,
@@ -44,13 +47,25 @@ export class AppCalendarComponent implements OnInit {
         private router: Router,
         private activatedRoute: ActivatedRoute,
         private dialogService: AppDialogService
-    ){}
+    ){
+       
+    }
   
     async ngOnInit() {
-        this.activatedRoute.queryParams.subscribe(params => {
+        const sub = this.activatedRoute.queryParams.subscribe(params => {
             this.patientId = +params['id']; 
         });
-        this.initializeCalendar();
+        this.subscriptions.add(sub);
+
+        if (this.role === 'admin' && !this.patientId) {
+            this.appointmentSelections = [];
+            this.selectedAppointments = 'Missed requests';
+            this.initializeCalendar();
+        } else {
+            this.appointmentSelections = ['All', 'Pending confirmation', 'Upcoming', 'Past', 'Missed requests']
+            
+            this.initializeCalendar();
+        }
     }
 
     async loadEvents(type?: string){
@@ -73,9 +88,16 @@ export class AppCalendarComponent implements OnInit {
                 this.initializeCalendar();
                 return;
             default:
-                await this.loadAllAppointments();
-                this.initializeCalendar();
-                return;
+                if (this.role === 'admin' && !this.patientId) {
+                    await this.loadMissedAppointments();
+                    this.initializeCalendar();
+                    return;
+                } else {
+                    await this.loadAllAppointments();
+                    this.initializeCalendar();
+                    return;
+
+                }
         }
     }
 
@@ -122,6 +144,9 @@ export class AppCalendarComponent implements OnInit {
     onDatesSet(dateInfo: DatesSetArg) {
         this.monthStart = dateInfo.start;
         this.monthEnd = dateInfo.end;
+        if (this.role === 'admin') {
+            this.loadEvents('missed requests');
+        }
         this.loadEvents();
     }
 
@@ -144,11 +169,27 @@ export class AppCalendarComponent implements OnInit {
         newStart = startDateTime.toISO()
         newEnd = endDateTime.toISO();
 
+        if (arg.view = 'dayGridMonth') {
+            const oldStartTime = arg.oldEvent.start;
+            const oldEndTime = arg.oldEvent.end;    
+            const newDay = arg.event.start;       
+
+            const start = new Date(newDay); 
+            start.setHours(oldStartTime.getHours(), oldStartTime.getMinutes(), oldStartTime.getSeconds(), oldStartTime.getMilliseconds());
+
+            const end = new Date(newDay);
+            end.setHours(oldEndTime.getHours(), oldEndTime.getMinutes(), oldEndTime.getSeconds(), oldEndTime.getMilliseconds());
+
+            newStart = start;
+            newEnd = end;
+        }
+        
         const event: any = {
             id: arg.event.extendedProps.dbId,
             start: newStart,
             end: newEnd,
-            allDay: false
+            allDay: false,
+            patientId: arg.event.extendedProps.patientId
         }
         this.appointment.emit(event);
     }
@@ -180,6 +221,10 @@ export class AppCalendarComponent implements OnInit {
                             firstName
                             lastName
                         }
+                        doctor {
+                            firstName
+                            lastName
+                        }
                     }
                 }
             }
@@ -202,17 +247,29 @@ export class AppCalendarComponent implements OnInit {
                     const start = DateTime.fromISO(appointment.start).toLocal();
                     const startStr = start.toISO({includeOffset: true});
 
-                    if (!appointment.doctorId && startStr! < now) {
-                        title = "Missed request"
-                    } else if (!appointment.doctorId && startStr! > now) {
-                        title = "Pending"
-                    }
+                    // if (!appointment.doctorId && startStr! < now) {
+                    //     title = "Missed request"
+                    // } else if (!appointment.doctorId && startStr! > now) {
+                    //     title = "Pending"
+                    // }
 
-                    if (appointment.doctorId && startStr! < now) {
-                        title = "Past"
-                    } else if (appointment.doctorId && startStr! > now) {
-                        title = "Upcoming"
+                    // if (appointment.doctorId && startStr! < now) {
+                    //     title = "Past"
+                    // } else if (appointment.doctorId && startStr! > now) {
+                    //     title = "Upcoming"
+                    // }
+                    if (this.role !== 'patient') {
+                        title = appointment.patient.firstName+' '+appointment.patient.lastName
+                    } else if (this.role === 'patient' && appointment.doctor) {
+                        title = 'Dr. '+appointment.doctor.firstName+' '+appointment.doctor.lastName
+                    } else if (this.role === 'patient' && !appointment.doctor) {
+                          if (!appointment.doctorId && startStr! < now) {
+                            title = "Missed request"
+                        } else if (!appointment.doctorId && startStr! > now) {
+                            title = "Pending confirmation"
+                        }
                     }
+                    
 
                     return {
                         title,
@@ -265,15 +322,23 @@ export class AppCalendarComponent implements OnInit {
             const response = await this.graphQLService.send(query, variables);
             if (response.data) {
                 this.appointments = response.data.calendarMissedAppointments.monthSlice;
-                this.events = this.appointments.map((appointment: Appointment) => ({
-                    title: "Missed request",
-                    start: appointment.start,
-                    end: appointment.end,
-                    extendedProps: {
-                        dbId: appointment.id,
-                        doctorId: appointment.doctorId
+                this.events = this.appointments.map((appointment: Appointment) => {
+                    let title;
+                    if (this.role !== 'patient') {
+                        title = appointment.patient.firstName+' '+appointment.patient.lastName
+                    } else {
+                        title = "Missed request"
                     }
-                }));
+                    return {
+                        title,
+                        start: appointment.start,
+                        end: appointment.end,
+                        extendedProps: {
+                            dbId: appointment.id,
+                            patientId: appointment.patientId
+                        }
+                    }
+                });
             } 
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: 'Unexpected error loading all appointments: '+error}}) 
@@ -296,6 +361,10 @@ export class AppCalendarComponent implements OnInit {
                         patientId
                         doctorId
                         updatedAt
+                        patient {
+                            firstName
+                            lastName
+                        }
                     }
                 }
             }
@@ -311,15 +380,24 @@ export class AppCalendarComponent implements OnInit {
 
             if (response.data) {
                 this.appointments = response.data.calendarPendingAppointments.monthSlice;
-                this.events = this.appointments.map((appointment: Appointment) => ({
-                    title: "Pending",
-                    start: appointment.start,
-                    end: appointment.end,
-                    extendedProps: {
-                        dbId: appointment.id,
-                        doctorId: appointment.doctorId
+                let title: string;
+                this.events = this.appointments.map((appointment: Appointment) => {
+                    if (this.role !== 'patient') {
+                        title = appointment.patient.firstName+' '+appointment.patient.lastName;
+                    } else {
+                        title =  "Pending confirmation";
                     }
-                }));
+
+                    return {
+                        title,
+                        start: appointment.start,
+                        end: appointment.end,
+                        extendedProps: {
+                            dbId: appointment.id,
+                            doctorId: appointment.doctorId
+                        }
+                    }
+                });
             } 
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: 'Unexpected error loading calendar pending appointments: '+error}}) 
@@ -340,6 +418,14 @@ export class AppCalendarComponent implements OnInit {
                     patientId
                     doctorId
                     updatedAt
+                    patient {
+                        firstName
+                        lastName
+                    }
+                    doctor {
+                        firstName
+                        lastName
+                    }
                 }
             }
         }`
@@ -354,21 +440,32 @@ export class AppCalendarComponent implements OnInit {
 
             if (response.data) {
                 this.appointments = response.data.calendarUpcomingAppointments.monthSlice;
-                this.events = this.appointments.map((appointment: Appointment) => ({
-                    title: "Upcoming",
-                    start: appointment.start,
-                    end: appointment.end,
-                    extendedProps: {
-                        dbId: appointment.id,
-                        doctorId: appointment.doctorId
+                this.events = this.appointments.map((appointment: Appointment) => {
+                    let title;
+                    if (this.role !== 'patient') {
+                        title = appointment.patient.firstName+' '+appointment.patient.lastName
+                    } else if (this.role === 'patient' && appointment.doctor) {
+                        title = 'Dr. '+appointment.doctor.firstName+' '+appointment.doctor.lastName
+                    } 
+                    // else if (this.role === 'patient' && !appointment.doctor) {
+                    //     title = "Pending confirmation"
+                    // }
+                    return {
+                        title,
+                        start: appointment.start,
+                        end: appointment.end,
+                        extendedProps: {
+                            dbId: appointment.id,
+                            doctorId: appointment.doctorId
+                        }
+
                     }
-                  }));
+                  });
             } 
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: 'Unexpected error loading upcoming appointments: '+error}}) 
         }
     }
-
     async loadPastAppointments() {
         const query = `query ($monthStart: Date!, $monthEnd: Date!, $patientId: Int){
             calendarPastAppointments (
@@ -384,6 +481,14 @@ export class AppCalendarComponent implements OnInit {
                     patientId
                     doctorId
                     updatedAt
+                    patient {
+                        firstName
+                        lastName
+                    }
+                    doctor {
+                        firstName
+                        lastName
+                    }
                 }
             }
         }`
@@ -398,15 +503,27 @@ export class AppCalendarComponent implements OnInit {
 
             if (response.data) {
                 this.appointments = response.data.calendarPastAppointments.monthSlice;
-                this.events = this.appointments.map((appointment: Appointment) => ({
-                    title: "Past",
-                    start: appointment.start,
-                    end: appointment.end,
-                    extendedProps: {
-                        dbId: appointment.id,
-                        title: 'Past'
+                this.events = this.appointments.map((appointment: Appointment) => {
+                    let title;
+                    if (this.role !== 'patient') {
+                        title = appointment.patient.firstName+' '+appointment.patient.lastName
+                    } else if (this.role === 'patient' && appointment.doctor) {
+                        title = 'Dr. '+appointment.doctor.firstName+' '+appointment.doctor.lastName
+                    } 
+                    // else if (this.role === 'patient' && !appointment.doctor) {
+                    //     title = "Pending confirmation"
+                    // }
+                    return {
+                        title,
+                        start: appointment.start,
+                        end: appointment.end,
+                        extendedProps: {
+                            dbId: appointment.id,
+                            title: 'Past'
+                        }
+
                     }
-                  }));
+                  });
             } 
         } catch (error) {
             this.dialog.open(AlertComponent,{data: {message: 'Unexpected error loading pending appointments: '+error}}) 
@@ -437,7 +554,7 @@ export class AppCalendarComponent implements OnInit {
                 const dialogRef = this.dialog.open(
                     ConfirmComponent, {data: {message: "Reserve full day?"}}
                 );
-                dialogRef.componentInstance.ok.subscribe(subscription => {
+                const sub = dialogRef.componentInstance.ok.subscribe(subscription => {
 
                     if (subscription) {
                         calendarApi.addEvent(event);
@@ -449,6 +566,7 @@ export class AppCalendarComponent implements OnInit {
                     }
                     calendarApi.changeView('dayGridMonth', arg.start);
                 });
+                this.subscriptions.add(sub);
             } else {
                 const eventInfo = {
                     start: DateTime.fromISO(arg.startStr).toFormat('HH:mm a'),
@@ -463,20 +581,17 @@ export class AppCalendarComponent implements OnInit {
                 });
                 
                 const dialogRef = this.dialog.open(EventComponent, {data: { eventInfo }});
-                dialogRef.afterOpened().subscribe(() => {
+                const sub = dialogRef.afterOpened().subscribe(() => {
                     this.dialogService.notifyDialogOpened();
                 });
-
-                dialogRef.componentInstance.submit.subscribe(subscription => {
-
+                const subSubmit = dialogRef.componentInstance.submit.subscribe(subscription => {
                     if (subscription) {
                         this.dialog.closeAll();
                         calendarApi.addEvent(event);
                         calendarApi.changeView('dayGridMonth');
                     }
                 });
-
-                dialogRef.componentInstance.delete.subscribe(async id => {
+                const subDelete = dialogRef.componentInstance.delete.subscribe(async id => {
 
                     if (id) {
                         const mutation = `mutation ($appointmentId: Int!) {
@@ -495,6 +610,9 @@ export class AppCalendarComponent implements OnInit {
                         }
                     }
                 });
+                this.subscriptions.add(sub);
+                this.subscriptions.add(subSubmit);
+                this.subscriptions.add(subDelete);
             }
         }
     }
@@ -650,14 +768,13 @@ export class AppCalendarComponent implements OnInit {
         }
         const event = this.events.find((event: any)=> event.extendedProps.dbId === eventInfo.id)
         const samePatient = !this.patientId ? true : event.extendedProps.patientId === this.patientId;
-
         const dialogRef = this.dialog.open(EventComponent, {data: {eventInfo, samePatient}});
 
-        dialogRef.componentInstance.delete.subscribe(id => {
+        const subDelete = dialogRef.componentInstance.delete.subscribe(id => {
 
             if (id) {
                 const ref = this.dialog.open(ConfirmComponent, {data: {message: 'This appointment booking will be cancelled'}});
-                ref.componentInstance.ok.subscribe(async (value)=> {
+                const sub = ref.componentInstance.ok.subscribe(async (value)=> {
                     if (value) {
                         
                         const mutation = `mutation ($appointmentId: Int!) {
@@ -678,13 +795,18 @@ export class AppCalendarComponent implements OnInit {
                             this.dialog.open(AlertComponent, { data: { message: "Error deleting appointment: "+ error}})
                         }
                     }
-                }) 
+                });
+                this.subscriptions.add(sub); 
             }
-        })
+        });
+        this.subscriptions.add(subDelete);
     }
 
     handleEvents(events: EventApi[]) {
         this.currentEvents = events;
     }
 
+    ngOnDestroy(){
+        this.subscriptions.unsubscribe();
+    }
 }

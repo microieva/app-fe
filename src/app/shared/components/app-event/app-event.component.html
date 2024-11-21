@@ -1,7 +1,10 @@
-<form class="app-event">
-    <mat-dialog-content #el>
+<mat-dialog-content #el >
+    <div *ngIf="isLoading" class="loading">
+        <app-loading></app-loading>
+    </div>
+    <form class="app-event" *ngIf="!isLoading">
         <div class="flex-row">
-            <h2 [ngClass]="userRole !=='admin' && 'title-hover'" *ngIf="appointmentInfo.title && appointmentInfo.title !== 'View details'" (click)="userRole !== 'admin' && onLinkClick(appointmentInfo.id)">{{ appointmentInfo.title }}</h2>
+            <h2 [ngClass]="userRole !=='admin' && 'title-hover'" *ngIf="appointmentInfo.title && appointmentInfo.title !== 'View details'" (click)="userRole !== 'admin' && onLinkClick(appointmentInfo.id)">{{ title }}</h2>
             <h2 [ngClass]="userRole !=='admin' && 'title-hover'" *ngIf="appointmentInfo.title === 'View details'" (click)="userRole !== 'admin' && onLinkClick(appointmentInfo.id)">{{ 'Appointment' }}</h2>
             <h2 *ngIf="!appointmentInfo.title && userRole !== 'doctor'">{{ "New Appointment" }}</h2>
             <h2 *ngIf="!appointmentInfo.title && userRole === 'doctor'">{{ "Reserve All Day" }}</h2>
@@ -9,10 +12,12 @@
         </div>
         <div class="flex-column">
             <div class="flex-column event-wrapper" *ngIf="appointmentInfo.title">
-                <p class="event-title">{{ 'Basic Information' }}</p>
+                <p class="event-title" *ngIf="userRole !== 'admin' && title !=='Missed request'">{{ 'Basic Information' }}</p>
+                <p class="event-title" *ngIf="userRole === 'admin' && title ==='Missed request'">{{ "Patient's Information" }}</p>
+                
                 <div class="flex-row">
                     <div class="flex-column">
-                        <p class="event-label">{{ 'Patient' }}</p>
+                        <p class="event-label">{{  "Patient's Name"  }}</p>
                         <p class="event-info">{{ patientName }}</p>
 
                         <p class="event-label">{{ 'Date of Birth' }}</p>
@@ -21,11 +26,18 @@
                     <div class="flex-column">
                         <p *ngIf="doctorName" class="event-label">{{ 'Doctor' }}</p>
                         <p *ngIf="doctorName" class="event-info">{{ doctorName }}</p>
-                        <p *ngIf="!doctorName && appointmentInfo.title !=='Missed request'" class="event-info">
+                        <p *ngIf="userRole !== 'admin' && title !=='Missed request'" class="event-info">
                             <a (click)="onLinkClick(appointmentInfo.id)">
                                 <em>{{ 'Pending confirmation' }}</em>
                             </a>
                         </p>
+                        <div *ngIf="userRole ==='admin' && title ==='Missed request'">
+                            <p  class="event-label">{{'Patient Phone Number'}}</p>
+                            <p class="event-info">{{patientPhoneNr}}</p>
+                            <p class="event-label">{{'Patient Email'}}</p>
+                            <p class="event-info">{{patientEmail}}</p>
+
+                        </div>
                     </div>
                 </div>
             </div>
@@ -93,15 +105,15 @@
                 </div>
             </div>
         </div>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-        <button id="submit-btn" mat-button type="submit" [mat-dialog-close]="true" cdkFocusInitial (click)="onSubmit()" *ngIf="!appointmentInfo.title">{{'Confirm'}}</button>
-        <button mat-button type="button" (click)="onAcceptAppointment(appointmentInfo.id)" *ngIf="!doctorName && userRole === 'doctor'">
-            <span *ngIf="appointmentInfo.title ">{{'Accept Appointment'}}</span>
-        </button>
-        <button mat-button type="button" (click)="onDelete()" [disabled]="appointmentInfo.title && !samePatient">
-            <span *ngIf="appointmentInfo.title || userRole === 'admin'">{{'Delete'}}</span>
-            <span *ngIf="!appointmentInfo.title">{{'Cancel'}}</span>
-        </button>
-    </mat-dialog-actions>
-</form>
+        <mat-dialog-actions align="end">
+            <button id="submit-btn" mat-button type="submit" [mat-dialog-close]="true" cdkFocusInitial (click)="onSubmit()" *ngIf="!appointmentInfo.title">{{'Confirm'}}</button>
+            <button mat-button type="button" (click)="onAcceptAppointment(appointmentInfo.id)" *ngIf="!doctorName && userRole === 'doctor'">
+                <span *ngIf="appointmentInfo.title ">{{'Accept Appointment'}}</span>
+            </button>
+            <button mat-button type="button" (click)="onDelete()" [disabled]="appointmentInfo.title && !samePatient">
+                <span *ngIf="appointmentInfo.title || userRole === 'admin'">{{'Delete'}}</span>
+                <span *ngIf="!appointmentInfo.title">{{'Cancel'}}</span>
+            </button>
+        </mat-dialog-actions>
+    </form>
+</mat-dialog-content>

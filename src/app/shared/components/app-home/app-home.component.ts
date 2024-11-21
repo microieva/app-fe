@@ -58,7 +58,7 @@ export class AppHomeComponent implements OnInit {
     today: { weekday: string, time: string, date: string} | undefined;
     clock: string | undefined;
     recordIds: number[] = [];
-    private refreshSubscription: Subscription | null = null;
+    private subscriptions: Subscription = new Subscription();
 
     constructor(
         private activatedRoute: ActivatedRoute,
@@ -77,27 +77,30 @@ export class AppHomeComponent implements OnInit {
 
         if (this.me) {
             this.isLoading = false;
-            this.router.events.subscribe(async () => {
+            const sub = this.router.events.subscribe(async () => {
                 this.isHomeRoute = this.router.url === '/home';
                 if (this.isHomeRoute) {  
                     await this.loadData();
                 }
             });
+            this.subscriptions.add(sub); 
 
             if (this.userRole !== 'patient') {
                 this.countService.countUnreadMessages();
             }
+            
             if (this.userRole === 'admin') {
                 this.today = getTodayWeekdayTime();
                 const now = DateTime.now().setZone('Europe/Helsinki').toISO();
                 this.timerService.startClock(now!);
-                this.timerService.clock.subscribe(value=> {
+                const sub = this.timerService.clock.subscribe(value=> {
                     this.clock = value;
                 });
+                this.subscriptions.add(sub); 
             }
             if (this.userRole === 'doctor') {
                 this.appointmentService.pollNextAppointment();
-                this.appointmentService.appointmentInfo.subscribe(async (subscription) => {
+                const sub = this.appointmentService.appointmentInfo.subscribe(async (subscription) => {
     
                     if (subscription && subscription.nextAppointment) {
                         this.nextId = subscription.nextAppointment.nextId;
@@ -114,22 +117,22 @@ export class AppHomeComponent implements OnInit {
                         this.recordIds = subscription.nextAppointment.recordIds;
                        
                     } 
-                });       
+                });  
+                this.subscriptions.add(sub);     
                 if (this.me.updatedAt === null) {
-                    this.refreshSubscription = this.refreshService.refresh$.subscribe((refresh) => {
+                    const sub = this.refreshService.refresh$.subscribe((refresh) => {
                         if (refresh) {
                             this.ngOnInit();
                             this.refreshService.resetRefresh(); 
                         }
                     });
+                    this.subscriptions.add(sub);
                 }
             }
         }   
     }
     ngOnDestroy(): void {
-        if (this.refreshSubscription) {
-            this.refreshSubscription.unsubscribe();
-        }
+        this.subscriptions.unsubscribe();
     }
 
     async loadData(){

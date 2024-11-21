@@ -2,8 +2,9 @@
     <span class="icon material-symbols-outlined">info</span>
     <h3 *ngIf="userRole==='patient'">Select one of the available dates to make an appointment</h3>
     <h3 *ngIf="userRole==='admin' && patient">Patient name: {{patient.firstName}} {{patient.lastName}}</h3>
+    <h3 *ngIf="userRole==='admin' && !patient">Missed appointment requests</h3>
     <button mat-stroked-button (click)="cancel()">{{ 'Close' }}</button>
 </div>
-<div class="page">
+<div class="page" *ngIf="userRole">
     <app-calendar (appointment)="saveAppointment($event)" [role]="userRole"></app-calendar>
 </div>

@@ -1,4 +1,5 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Inject, Input, OnInit, Optional, Output, SimpleChanges, ViewChild } from "@angular/core";
+import { Subscription } from "rxjs";
+import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Inject, Input, OnDestroy, OnInit, Optional, Output, SimpleChanges, ViewChild } from "@angular/core";
 import { animate, state, style, transition, trigger } from "@angular/animations";
 import { MatTableDataSource } from "@angular/material/table";
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
@@ -13,6 +14,7 @@ import { AlertComponent } from "../app-alert/app-alert.component";
 import { Record } from "../../../graphql/record/record";
 import { AdvancedSearchInput, AppDataSource, UserDataSource } from "../../types";
 
+
 @Component({
     selector: 'app-table',
     templateUrl: './app-table.component.html',
@@ -25,7 +27,7 @@ import { AdvancedSearchInput, AppDataSource, UserDataSource } from "../../types"
         ]),
     ],
 })
-export class AppTableComponent implements OnInit, AfterViewInit {
+export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
     isLoading: boolean = false;
 
     @Output() pageChange = new EventEmitter<{pageIndex: number, pageLimit: number}>();
@@ -58,13 +60,15 @@ export class AppTableComponent implements OnInit, AfterViewInit {
     
     @HostListener('matSortChange', ['$event'])
     onSortChange(event: any) {
+        this.sortChange.emit({active: event.active, direction: event.direction.toUpperCase()})  
+        this.dataSource.sort = this.sort;  
         if (event.active === 'online') {
             this.sortOnline(event.direction);
-        } else {
-            this.dataSource.sort = this.sort; 
-            this.sortChange.emit({active: event.active, direction: event.direction})   
-        }
+        } else if (event.active = 'unreadMessages'){
+            this.sortUnread(event.direction);
+        } 
     }
+    subscription: Subscription | undefined;
 
     constructor(
         public timerService: AppTimerService,
@@ -212,7 +216,7 @@ export class AppTableComponent implements OnInit, AfterViewInit {
         if (this.dataSource && this.displayedColumns) {
            this.columnNames = this.displayedColumns.map(column => column.columnDef);
         }
-        this.socketService.receiveNotification().subscribe((subscription: any)=> {
+        this.subscription = this.socketService.receiveNotification().subscribe((subscription: any)=> {
             if (subscription && subscription.chatId) {
                 if (!this.senders.find(sender => sender === subscription.sender)) {
                     this.senders.push(subscription.sender);
@@ -247,10 +251,23 @@ export class AppTableComponent implements OnInit, AfterViewInit {
             }
         }
     } 
+    ngOnDestroy(): void {
+        if (this.subscription) {
+            this.subscription.unsubscribe();
+        }
+    }
     sortOnline(direction: 'asc' | 'desc') {
         this.dataSource.data.sort((a: any, b: any) => {
             if (a.online === b.online) return 0;
             return direction === 'asc' ? (a.online ? -1 : 1) : (a.online ? 1 : -1);
+        });
+        this.dataSource._updateChangeSubscription(); 
+    }
+
+    sortUnread(direction: 'asc' | 'desc') {
+        this.dataSource.data.sort((a: any, b: any) => {
+            if (a.unreadMessages === b.unreadMessages) return 0;
+            return direction === 'asc' ? (a.unreadMessages ? -1 : 1) : (a.unreadMessages ? 1 : -1);
         });
         this.dataSource._updateChangeSubscription(); 
     }

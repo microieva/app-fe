@@ -28,9 +28,6 @@
                     <div [ngClass]="{ 'online-dot': element.online, 'offline-dot': !element.online }"></div>
                 </ng-container>
                
-                <ng-container *ngIf="column.columnDef === 'name'" class="name-with-msg">
-                    <span *ngIf="element.message" class="material-symbols-outlined" matTooltip="Added message">mail</span>
-                </ng-container>
                 <ng-container *ngIf="column.columnDef === 'actions'">
                     <div *ngFor="let action of element.actions">
                         <span matTooltip="Activate account" style="margin-right: 20px;" class="material-symbols-outlined" *ngIf="action.text === 'Activate Account'" (click)="onActionClick(action.text, column.id)">bookmark_check</span>
@@ -58,9 +55,17 @@
                         <span>-</span>
                     </ng-container>
                     <ng-template #value>
-                        <span [ngStyle]="element[column.columnDef] === 'Currently online' && {'font-style':'italic'}">{{ element[column.columnDef] }}</span>
+                        <div>
+
+                            <span [ngStyle]="element[column.columnDef] === 'Currently online' && {'font-style':'italic'}">{{ element[column.columnDef] }}</span>
+                        </div>
                     </ng-template>
-                </ng-container>    
+                </ng-container>   
+                <ng-container *ngIf="column.columnDef === 'name'">
+                    <div class="icon">
+                        <span *ngIf="element.message" class="material-symbols-outlined" matTooltip="Added message">mail</span>
+                    </div>
+                </ng-container> 
             </td>
         </ng-container>        
         

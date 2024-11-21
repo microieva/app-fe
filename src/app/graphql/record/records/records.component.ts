@@ -1,5 +1,6 @@
 import { DateTime } from "luxon";
-import { Component, OnInit, signal, ViewChild } from "@angular/core";
+import { Subscription } from "rxjs";
+import { Component, OnDestroy, OnInit, signal } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { MatTableDataSource } from "@angular/material/table";
 import { MatDialog } from "@angular/material/dialog";
@@ -7,7 +8,6 @@ import { trigger, state, style, transition, animate } from "@angular/animations"
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
 import { RecordComponent } from "../record.component";
 import { AlertComponent } from "../../../shared/components/app-alert/app-alert.component";
-import { AppTableComponent } from "../../../shared/components/app-table/app-table.component";
 import { AdvancedSearchInput, AppSearchInput, RecordDataSource } from "../../../shared/types";
 import { Record } from "../record";
 
@@ -28,11 +28,12 @@ import { Record } from "../record";
         ]),
     ]
 })
-export class RecordsComponent implements OnInit {
+export class RecordsComponent implements OnInit, OnDestroy {
     selectedIndex!: number;
     dataSource: MatTableDataSource<RecordDataSource> | null = null;
     displayedColumns: Array<{ columnDef: string, header: string }> = [];
     readonly panelOpenState = signal(false);
+    private subscriptions: Subscription = new Subscription();
     records: Record[] = [];
     drafts: Record[] = [];
     draftsLength: number = 0;
@@ -64,11 +65,12 @@ export class RecordsComponent implements OnInit {
         await this.loadMe();
         await this.loadStatic();
 
-        this.activatedRoute.queryParams.subscribe(async params => {
+        const sub = this.activatedRoute.queryParams.subscribe(async params => {
             const tab = params['tab'];
             this.selectedIndex = tab ? +tab : 0;
             await this.loadData();
         }); 
+        this.subscriptions.add(sub);
     }
 
     async loadStatic(){
@@ -294,9 +296,10 @@ export class RecordsComponent implements OnInit {
     onRecordClick(value: {id: number, title?:string}){
         const recordId = value.id;
         const dialogRef = this.dialog.open(RecordComponent, {data: {recordId, width: "45rem"}});
-        dialogRef.componentInstance.reload.subscribe(async subscription => {
+        const sub = dialogRef.componentInstance.reload.subscribe(async subscription => {
             if (subscription) await this.ngOnInit();
-        })
+        });
+        this.subscriptions.add(sub);
     }
 
     formatDataSource(view: string) {
@@ -415,5 +418,8 @@ export class RecordsComponent implements OnInit {
             this.advancedSearchInput = null;
             await this.loadData();
         };
+    }
+    ngOnDestroy(): void {
+        this.subscriptions.unsubscribe();
     }
 }

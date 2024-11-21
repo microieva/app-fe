@@ -1,5 +1,5 @@
 import { trigger, state, style, transition, animate } from "@angular/animations";
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { MatDialog } from "@angular/material/dialog";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -10,6 +10,7 @@ import { AppSocketService } from "../../shared/services/app-socket.service";
 import { AlertComponent } from "../../shared/components/app-alert/app-alert.component";
 import { ConfirmComponent } from "../../shared/components/app-confirm/app-confirm.component";
 import { AppCountUnreadMessagesService } from "../../shared/services/app-count-unread.service";
+import { Subscription } from "rxjs";
 
 @Component({
     selector: 'app-chat',
@@ -28,7 +29,7 @@ import { AppCountUnreadMessagesService } from "../../shared/services/app-count-u
         ]),
     ]
 })
-export class ChatComponent implements OnInit {
+export class ChatComponent implements OnInit, OnDestroy {
 
     @Input() chatId!: number;
     @Input() senderId!: number;
@@ -42,6 +43,8 @@ export class ChatComponent implements OnInit {
     messages: any[] = [];
     online: boolean = false;
 
+    private subscriptions: Subscription = new Subscription();
+
     constructor(
         private graphQLService: AppGraphQLService,
         private dialog: MatDialog,
@@ -53,7 +56,7 @@ export class ChatComponent implements OnInit {
     ){}
     
     async ngOnInit(){    
-        this.activatedRoute.queryParams.subscribe(params => {
+        const subRouterParams = this.activatedRoute.queryParams.subscribe(params => {
             const id = params['id']; 
             if (id) this.receiverId = +id;
         });
@@ -61,18 +64,28 @@ export class ChatComponent implements OnInit {
         this.socketService.requestOneUserStatus(this.receiverId!);
         await this.setIsReadToTrue();
         await this.loadMessages();
-        this.socketService.receiveNotification().subscribe(async (subscription: any)=> {
+
+        const subNotifications = this.socketService.receiveNotification().subscribe(async (subscription: any)=> {
             if (subscription && subscription.chatId) {
                 await this.loadMessages();
             }
         })
-        this.socketService.getOneUserStatus(this.receiverId!).subscribe(isOnline => {
+        const subIsUserOnline = this.socketService.getOneUserStatus(this.receiverId!).subscribe(isOnline => {
             if (isOnline.userId && isOnline.userId === this.receiverId) {
                 this.online = isOnline.online;
             } 
         }); 
         if (this.form.touched) await this.setIsReadToTrue();
-        if (!this.userRole) this.countService.countUnreadMessages();
+        if (!this.userRole) {
+            this.countService.countUnreadMessages();
+        }
+        this.subscriptions.add(subRouterParams);
+        this.subscriptions.add(subNotifications);
+        this.subscriptions.add(subIsUserOnline);
+    }
+
+    ngOnDestroy(){
+        this.subscriptions.unsubscribe();
     }
 
     async loadMessages(){
