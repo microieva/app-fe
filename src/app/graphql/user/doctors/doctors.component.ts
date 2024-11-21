@@ -1,4 +1,5 @@
-import { Component, OnInit, ViewChild } from "@angular/core";
+import { Subscription } from "rxjs";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { ActivatedRoute, Router } from "@angular/router";
 import { trigger, state, style, transition, animate } from "@angular/animations";
@@ -7,7 +8,6 @@ import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
 import { AlertComponent } from "../../../shared/components/app-alert/app-alert.component";
 import { ConfirmComponent } from "../../../shared/components/app-confirm/app-confirm.component";
-import { AppTableComponent } from "../../../shared/components/app-table/app-table.component";
 import { UserComponent } from "../user.component";
 import { UserDataSource } from "../../../shared/types";
 import { User } from "../user";
@@ -29,7 +29,7 @@ import { User } from "../user";
           ]),
     ]
 })
-export class DoctorsComponent implements OnInit {
+export class DoctorsComponent implements OnInit, OnDestroy {
     selectedIndex: number = 0;
     dataSource: MatTableDataSource<UserDataSource> | null = null;
     displayedColumns: Array<{ columnDef: string, header: string }> = [];
@@ -46,9 +46,11 @@ export class DoctorsComponent implements OnInit {
 
     pageIndex: number = 0;
     pageLimit: number = 10;
-    sortDirection: string | null = null;
+    sortDirection: string = 'ASC';
     sortActive: string = 'firstName';
     filterInput: string | null = null;
+
+    private subscriptions: Subscription = new Subscription();
 
     constructor(
         private activatedRoute: ActivatedRoute,
@@ -60,11 +62,12 @@ export class DoctorsComponent implements OnInit {
     async ngOnInit() {
         await this.loadStatic();
         await this.loadData();
-        this.activatedRoute.queryParams.subscribe(async params => {
+        const sub = this.activatedRoute.queryParams.subscribe(async params => {
             const tab = params['tab'];
             this.selectedIndex = tab ? +tab : 0;
             await this.loadData();
-        });   
+        });  
+        this.subscriptions.add(sub); 
     }
 
     async loadStatic() {
@@ -121,7 +124,7 @@ export class DoctorsComponent implements OnInit {
             pageIndex: this.pageIndex,
             pageLimit: this.pageLimit,
             sortActive: this.sortActive,
-            sortDirection: this.sortDirection || 'DESC',
+            sortDirection: this.sortDirection,
             filterInput: this.filterInput
         }
 
@@ -256,9 +259,7 @@ export class DoctorsComponent implements OnInit {
 
     async onTabChange(value: any) {
         this.selectedIndex = value;
-
         this.pageIndex = 0;
-        this.sortDirection = null;
         this.sortActive = 'firstName';
         this.filterInput = null;
         this.displayedColumns = [];
@@ -294,6 +295,9 @@ export class DoctorsComponent implements OnInit {
         this.sortDirection = value.direction.toUpperCase();
         await this.loadData();
     }
+    ngOnDestroy(): void {
+        this.subscriptions.unsubscribe();
+    }
 
     async onFilterValueChange(value: any){
         this.filterInput = value;
@@ -304,11 +308,12 @@ export class DoctorsComponent implements OnInit {
         const userId = value.id;
         const dialogRef = this.dialog.open(UserComponent, {data: {userId}});
 
-        dialogRef.componentInstance.isDeletingUser.subscribe(async subscription => {
+        const sub = dialogRef.componentInstance.isDeletingUser.subscribe(async subscription => {
             if (subscription) {
                 await this.deleteUser(userId);
             }
-        })
+        });
+        this.subscriptions.add(sub);
     }
 
     async onButtonClick(value: any){
@@ -327,7 +332,7 @@ export class DoctorsComponent implements OnInit {
     async activateAccount(doctorRequestId: number) {
         const dialogRef = this.dialog.open(ConfirmComponent, {data: {message: "The user details will be moved to active accounts (user db) and request deleted"}});
 
-        dialogRef.componentInstance.ok.subscribe(async subscription => {
+        const sub = dialogRef.componentInstance.ok.subscribe(async subscription => {
             if (subscription) {
                 const mutation = `mutation ($doctorRequestId: Int!) {
                     saveDoctor(doctorRequestId: $doctorRequestId) {
@@ -347,7 +352,8 @@ export class DoctorsComponent implements OnInit {
                     this.dialog.open(AlertComponent, {data: {message: `Activating error: ${error}`}});
                 }
             }
-        })
+        });
+        this.subscriptions.add(sub);
     }
     deleteDoctorRequest(doctorRequestId: number){
         const dialogRef = this.dialog.open(ConfirmComponent, {data: {message: "Permanently deleting doctor request"}});
@@ -403,7 +409,6 @@ export class DoctorsComponent implements OnInit {
                 break;
         }
     }
-    onSearch(value: any){}
 
     onSearchReset(value: boolean){}
 }

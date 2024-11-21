@@ -47,7 +47,7 @@ export class AppComponent implements OnInit, OnDestroy {
     buttonClickListener!: () => void;
 
     @ViewChild('snackbarContainer') snackbarContainer!: AppSnackbarContainerComponent;
-    private refreshSubscription: Subscription | null = null;
+    private subscriptions: Subscription = new Subscription();
 
     constructor (
         private dialog: MatDialog,
@@ -69,7 +69,7 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     async ngOnInit() {
-        this.activatedRoute.queryParams.subscribe(params => {
+        const subRouteParams = this.activatedRoute.queryParams.subscribe(params => {
             const code = params['code'];
             const state = params['state'];
             const scope = params['scope']
@@ -78,104 +78,38 @@ export class AppComponent implements OnInit, OnDestroy {
                 this.exchangeCodeForToken(code, state, scope);
             } 
         });
-
+        this.subscriptions.add(subRouteParams); 
         if (localStorage.getItem('authToken')) {
             await this.loadMe();
             const tokenExpire = localStorage.getItem('tokenExpire');
             
             if (tokenExpire && this.me) {
                 this.router.navigate(['/home']);
-                this.socketService.registerUser(this.me);
+                this.socketService.registerUser({id: this.me.id, userRole: this.me.userRole} as User);
                 this.remainder = this.timerService.startTokenTimer(tokenExpire);
-                this.timerService.tokenCountdown.subscribe(value=> {
+
+                const subTokenCountDown = this.timerService.tokenCountdown.subscribe(value=> {
                     this.time = value;
                 });
-                this.timerService.logout.subscribe(value => {
+                const subSessionExpire = this.timerService.logout.subscribe(value => {
                     if (value) {
                         this.time = null;
                         this.logOut();
                         this.remainder.unsubscribe();
                     }
                 });
-                this.timerService.ok.subscribe(value => {
+                const subSessionExpireClickedOk = this.timerService.ok.subscribe(value => {
                     if (value) this.router.navigate(['/'])
                 });
-
-                if (this.me.userRole === 'doctor') {
-                    await this.appointmentService.pollNextAppointment();
-
-                    const nowAppointment = await this.appointmentService.loadNowAppointment();
-                    let isTabAdded: boolean = false;
-
-                    if (nowAppointment) {
-                        const patientName = nowAppointment.patient.firstName+" "+nowAppointment.patient.lastName;
-                        const start = DateTime.fromISO(nowAppointment.start,  {setZone: true}).toFormat('HH:mm a');
-                        isTabAdded = JSON.parse(localStorage.getItem('tabs') || '[]').find((tab: any)=> tab.id === nowAppointment?.id);
-                        let isTabCreated: boolean;
-                        
-                        this.activatedRoute.queryParams.subscribe(params => {
-                            const tab = params['tab'];
-                            if (!tab) isTabCreated = false;
-                            isTabCreated = true;
-                        });
-
-                        if (!isTabAdded) {
-                            this.tabsService.addTab("offline start: "+start, AppointmentComponent, nowAppointment.id);
-                            this.dialog.open(AlertComponent, {data: {message: "Current appointment with "+patientName+"\nStarted at "+start}});
-                            this.nowAppointment = nowAppointment;
-                        } 
-                    }
-
-                    this.appointmentService.appointmentInfo.subscribe((subscription) => {
-
-                        if (subscription && subscription.nextAppointment) {
-                            this.timerService.startAppointmentTimer(subscription.nextAppointment.nextStart);
-                            const start = DateTime.fromISO(subscription.nextAppointment.nextStart, { setZone: true }).setZone('Europe/Helsinki', { keepLocalTime: true }); 
-                            this.timerService.nextAppointmentCountdown.subscribe(async value => {
-
-                                if (value === environment.triggerTime) {
-                                    const displayTime = `\n Starting at ${start.toFormat('HH:mm a')}`
-                                    const ref = this.dialog.open(AlertComponent, {data: { message: `You have an appointment in 5 min. ${displayTime}`}});
-                                    
-                                    const tabs = this.tabsService.getTabs();
-                                    if (tabs) {
-                                        const isCreated = tabs.some(tab => tab.id === subscription.nextAppointment.nextId)
-                                        if (!isCreated) {
-                                            this.tabsService.addTab(start.toFormat('HH:mm a'), AppointmentComponent, subscription.nextAppointment.nextId);
-                                        }
-                                    } 
-                                    ref.componentInstance.ok.subscribe(ok => {
-                                        if (ok) {
-                                            this.dialog.closeAll();
-                                            this.router.navigate(['/home/appointments'], {
-                                                relativeTo: this.activatedRoute,
-                                                queryParams: { tab: 3 },
-                                                queryParamsHandling: 'merge' 
-                                            });
-                                        }
-                                    })
-                                }
-                            })
-                        }
-                    });
-                    this.socketService.newAppointmentRequest().subscribe((info: any)=> {
-                        if (info) {
-                            this.snackbarService.show(info.message, info.appointmentId, null, null, null); 
-                        }
-                    });
-                    this.socketService.deletedAppointmentInfo().subscribe((info: any)=> {
-                        if (info && this.me?.id === info.doctorId) {
-                            this.snackbarService.show(info.message, null, null, null, null); 
-                        }
-                    });
-                }
-                this.socketService.receiveNotification().subscribe(async (subscription: any)=> {
-            
+                const subNotifications = this.socketService.receiveNotification().subscribe(async (subscription: any)=> {
                     if (subscription && subscription.receiverId) {
                         if (this.me?.id === JSON.parse(subscription.receiverId)) {
                             if (subscription.chatId) {
                                 this.snackbarService.show(subscription.message, null, null, subscription.chatId, subscription.sender);
                                 this.countService.countUnreadMessages();
+                                if (this.userRole === 'admin') {
+                                    this.socketService.requestOnlineUsers()
+                                }
                             } else {
                                 this.snackbarMessage = subscription.message;
                                 this.snackbarAppointmentId = subscription.appointmentId;
@@ -189,7 +123,8 @@ export class AppComponent implements OnInit, OnDestroy {
                         this.snackbarReceiverId = subscription.receiverId;
                     }
                 });
-                this.dialogService.dialogOpened$.subscribe(() => {
+
+                const subMatDialogButtons = this.dialogService.dialogOpened$.subscribe(() => {
                     const eventComponent = document.querySelector('app-event');
                     const confirmComponent = document.querySelector('app-confirm');
         
@@ -226,18 +161,103 @@ export class AppComponent implements OnInit, OnDestroy {
                         }
                     }
                 });
-
-                this.refreshSubscription = this.refreshService.refresh$.subscribe((refresh) => {
+                const subAppRefresh = this.refreshService.refresh$.subscribe((refresh) => {
                     if (refresh) {
                         this.ngOnInit();
                         this.refreshService.resetRefresh(); 
                     }
                 });
+
+                this.subscriptions.add(subTokenCountDown); 
+                this.subscriptions.add(subSessionExpire); 
+                this.subscriptions.add(subSessionExpireClickedOk); 
+                this.subscriptions.add(subNotifications); 
+                this.subscriptions.add(subMatDialogButtons); 
+                this.subscriptions.add(subAppRefresh);
+
+                if (this.userRole === 'admin') {
+                    this.socketService.requestOnlineUsers();
+                }
+
+                if (this.userRole === 'doctor') {
+                    await this.appointmentService.pollNextAppointment();
+
+                    const nowAppointment = await this.appointmentService.loadNowAppointment();
+                    let isTabAdded: boolean = false;
+
+                    if (nowAppointment) {
+                        const patientName = nowAppointment.patient.firstName+" "+nowAppointment.patient.lastName;
+                        const start = DateTime.fromISO(nowAppointment.start,  {setZone: true}).toFormat('HH:mm a');
+                        isTabAdded = JSON.parse(localStorage.getItem('tabs') || '[]').find((tab: any)=> tab.id === nowAppointment?.id);
+                        let isTabCreated: boolean;
+                        
+                        const subRouteParams = this.activatedRoute.queryParams.subscribe(params => {
+                            const tab = params['tab'];
+                            if (!tab) isTabCreated = false;
+                            isTabCreated = true;
+                        });
+
+                        if (!isTabAdded) {
+                            this.tabsService.addTab("offline start: "+start, AppointmentComponent, nowAppointment.id);
+                            this.dialog.open(AlertComponent, {data: {message: "Current appointment with "+patientName+"\nStarted at "+start}});
+                            this.nowAppointment = nowAppointment;
+                        } 
+                        this.subscriptions.add(subRouteParams);
+                    }
+
+                    const subNextAppointmentInfo = this.appointmentService.appointmentInfo.subscribe((subscription) => {
+                        if (subscription && subscription.nextAppointment) {
+                            this.timerService.startAppointmentTimer(subscription.nextAppointment.nextStart);
+                            const start = DateTime.fromISO(subscription.nextAppointment.nextStart, { setZone: true }).setZone('Europe/Helsinki', { keepLocalTime: true }); 
+                            
+                            const subAppointmentCountDown = this.timerService.nextAppointmentCountdown.subscribe(async value => {
+                                if (value === environment.triggerTime) {
+                                    const displayTime = `\n Starting at ${start.toFormat('HH:mm a')}`
+                                    const ref = this.dialog.open(AlertComponent, {data: { message: `You have an appointment in 5 min. ${displayTime}`}});    
+                                    const tabs = this.tabsService.getTabs();
+
+                                    if (tabs) {
+                                        const isCreated = tabs.some(tab => tab.id === subscription.nextAppointment.nextId)
+                                        if (!isCreated) {
+                                            this.tabsService.addTab(start.toFormat('HH:mm a'), AppointmentComponent, subscription.nextAppointment.nextId);
+                                        }
+                                    } 
+                                    const subAlertClickOk = ref.componentInstance.ok.subscribe(ok => {
+                                        if (ok) {
+                                            this.dialog.closeAll();
+                                            this.router.navigate(['/home/appointments'], {
+                                                relativeTo: this.activatedRoute,
+                                                queryParams: { tab: 3 },
+                                                queryParamsHandling: 'merge' 
+                                            });
+                                        }
+                                    });
+                                    this.subscriptions.add(subAlertClickOk);
+                                }
+                            });
+                            this.subscriptions.add(subAppointmentCountDown);
+                        }
+                    });
+                    const subNewAppointmentNotification = this.socketService.newAppointmentRequest().subscribe((info: any)=> {
+                        if (info) {
+                            this.snackbarService.show(info.message, info.appointmentId, null, null, null); 
+                        }
+                    });
+                    const subDeletedAppointmentNotification = this.socketService.deletedAppointmentInfo().subscribe((info: any)=> {
+                        if (info && this.me?.id === info.doctorId) {
+                            this.snackbarService.show(info.message, null, null, null, null); 
+                        }
+                    });
+                    this.subscriptions.add(subNextAppointmentInfo);
+                    this.subscriptions.add(subNewAppointmentNotification);
+                    this.subscriptions.add(subDeletedAppointmentNotification);
+                }
+               
                 if (this.me.updatedAt) {
                     if (this.userRole !=='patient') {
                         this.countService.countUnreadMessages();   
                     }
-                    this.countService.unreadCount$.subscribe((count) => {
+                    const subUnreadMessagesCount = this.countService.unreadCount$.subscribe((count) => {
                         if (count !== 0) {
                             if (this.userRole !== 'patient') {
                                 this.unreadMessages = count.toString();
@@ -246,7 +266,8 @@ export class AppComponent implements OnInit, OnDestroy {
                             this.unreadMessages = ''
                         }
                     });
-                }           
+                    this.subscriptions.add(subUnreadMessagesCount);
+                }          
             } else {
                 this.router.navigate(['/']);
             }
@@ -261,9 +282,7 @@ export class AppComponent implements OnInit, OnDestroy {
         if (this.buttonClickListener) {
             this.buttonClickListener();
         }
-        if (this.refreshSubscription) {
-            this.refreshSubscription.unsubscribe();
-        }
+        this.subscriptions.unsubscribe();
     }
 
     ngAfterViewInit() {
@@ -308,10 +327,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
     exchangeCodeForToken(code: string, state: string, scope: any) {
 
-        const tokenEndpoint = 'https://health-center.sandbox.signicat.com/auth/open/connect/token'; 
-        const clientId = 'sandbox-itchy-wheel-954';
-        const clientSecret = 'EJTOPAOXSS2c8bPpMOeJpTe64DvbFdWBS2wH5ytbvT7Tt5Yh';
-        const redirectUri = 'https://app-fe-gamma.vercel.app/'; 
+        const tokenEndpoint = environment.tokenEndpoint;
+        const clientId = environment.clientId;
+        const clientSecret = environment.clientSecret;
+        const redirectUri = environment.redirectUri; 
       
         const headers = new HttpHeaders({
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -342,6 +361,7 @@ export class AppComponent implements OnInit, OnDestroy {
     async logOut() {
         this.dialog.open(LoadingComponent);
         this.timerService.cancelTokenTimer();
+        this.subscriptions.unsubscribe();
         this.authService.logOut(); 
     }
     openChat() {

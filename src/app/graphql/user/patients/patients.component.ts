@@ -160,7 +160,6 @@ export class PatientsComponent implements OnInit {
             {header: 'Email', columnDef: 'email'}
         ]
     }
-    onSearch(value: any){}
 
     onSearchReset(value: boolean){}
 }

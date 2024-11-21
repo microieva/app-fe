@@ -6,19 +6,16 @@ import { AppGraphQLService } from './app-graphql.service';
 import { AlertComponent } from '../components/app-alert/app-alert.component';
 import { LoadingComponent } from '../components/app-loading/loading.component';
 import { DirectLoginInput } from '../types';
-import { Location } from '@angular/common';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AppAuthService {
-
     constructor(
         private apollo: Apollo,
         private graphQLService: AppGraphQLService,
         private dialog: MatDialog,
-        private router: Router,
-        private location: Location
+        private router: Router
     ) {}
 
     async logIn(input: DirectLoginInput) {

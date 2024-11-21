@@ -1,5 +1,6 @@
 import { DateTime } from "luxon";
-import { Component, ElementRef, EventEmitter, Inject, OnInit, Output, ViewChild } from "@angular/core";
+import { Subscription } from "rxjs";
+import { Component, ElementRef, EventEmitter, Inject, OnDestroy, OnInit, Output, ViewChild } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from "@angular/router";
@@ -13,7 +14,7 @@ import { ConfirmComponent } from "../app-confirm/app-confirm.component";
     templateUrl: './app-event.component.html',
     styleUrls: ['app-event.component.scss']
 })
-export class EventComponent implements OnInit{
+export class EventComponent implements OnInit, OnDestroy{
     form!: FormGroup;
     showInput: boolean = false;
     id!: number;
@@ -30,7 +31,7 @@ export class EventComponent implements OnInit{
     eventStartTime:  string | undefined;
     eventEndTime:  string | undefined;
     
-    @Output() submit = new EventEmitter<{input: string, showSnackbar: boolean}>();
+    @Output() submit = new EventEmitter<string>();
     @Output() delete = new EventEmitter<number>();
     @Output() message = new EventEmitter<string>();
     @Output() deleteMessage = new EventEmitter<number>();
@@ -40,11 +41,16 @@ export class EventComponent implements OnInit{
     @ViewChild('el') el: ElementRef | undefined;
 
     appointmentInfo: any;
+    title: string = ''
     justCreatedId: number | undefined;
     doctorMessage: string | null = null;
     patientMessage: string | null = null;
     patientId: number | undefined;
     appointmentId: number | undefined;
+    patientPhoneNr: any | undefined;
+    patientEmail: any | undefined;
+    private subscriptions: Subscription = new Subscription();
+    isLoading: boolean = true;
     
     constructor(
         private formBuilder: FormBuilder,
@@ -63,21 +69,29 @@ export class EventComponent implements OnInit{
     }
 
     async ngOnInit() {
-  
-        this.activatedRoute.queryParams.subscribe(params => {
-            this.patientId = +params['id']; 
-        });
         await this.loadMe();
 
-        if (this.userRole === 'admin' && this.patientId && !this.appointmentInfo.id) {
-            this.loadJustCreatedAppointment(this.patientId);
+        const sub = this.activatedRoute.queryParams.subscribe(params => {
+            this.patientId = +params['id']; 
+        });
+        this.subscriptions.add(sub);
+
+        if (this.appointmentInfo.id) {
+            await this.loadAppointment();
         } else {
-            this.loadJustCreatedAppointment(this.id);
+            if (this.userRole === 'admin' && this.patientId) {
+                this.loadJustCreatedAppointment(this.patientId);
+            } else {
+                this.loadJustCreatedAppointment(this.id);
+            }
         }
 
         this.form = this.formBuilder.group({
             input: this.formBuilder.control<string>(' ')
         });
+    }
+    ngOnDestroy(): void {
+        this.subscriptions.unsubscribe();
     }
     async loadJustCreatedAppointment(patientId: number){
         const query = `query ($patientId: Int!) {
@@ -95,6 +109,7 @@ export class EventComponent implements OnInit{
                 this.eventDate = DateTime.fromISO(response.data.justCreatedAppointment.start, {setZone: true}).toFormat('MMM dd, yyyy');
                 this.eventStartTime = DateTime.fromISO(response.data.justCreatedAppointment.start,  {setZone: true}).toFormat('HH:mm a');
                 this.eventEndTime = DateTime.fromISO(response.data.justCreatedAppointment.end,  {setZone: true}).toFormat('HH:mm a');
+                this.isLoading = false;
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Appointment failed "+error}})
@@ -107,14 +122,6 @@ export class EventComponent implements OnInit{
             if (response.data.me.userRole) {
                 this.userRole =response.data.me.userRole;
                 this.id = response.data.me.id;
-
-                if (this.appointmentInfo.id) {
-                    this.loadAppointment();
-                } else {
-                    this.eventStartTime = this.appointmentInfo.start;
-                    this.eventEndTime = this.appointmentInfo.end;
-                    this.eventDate = this.appointmentInfo.date
-                }
             }
         } catch (error) {
             this.dialog.closeAll();
@@ -153,7 +160,7 @@ export class EventComponent implements OnInit{
     }
     async onDeleteMessage(){
         const dialogRef = this.dialog.open(ConfirmComponent, {data: {message: "Remove message"}});
-        dialogRef.componentInstance.ok.subscribe(async value => {
+        const sub = dialogRef.componentInstance.ok.subscribe(async value => {
             if (value) {
                 const mutation = `mutation ($appointmentId: Int!) {
                     deleteAppointmentMessage (appointmentId: $appointmentId) {
@@ -173,7 +180,8 @@ export class EventComponent implements OnInit{
                     this.dialog.open(AlertComponent, { data: {message: "Error removing appointment message: "+ error}})
                 }
             }
-        })
+        });
+        this.subscriptions.add(sub);
     }
     async loadAppointment() {
         const query = `query ($appointmentId: Int!){ 
@@ -185,6 +193,8 @@ export class EventComponent implements OnInit{
                     firstName
                     lastName
                     dob
+                    phone
+                    email
                 }
                 doctor {
                     firstName
@@ -210,6 +220,22 @@ export class EventComponent implements OnInit{
                 this.doctorMessage = response.data.appointment.doctorMessage;
                 this.patientMessage = response.data.appointment.patientMessage;
                 this.appointmentId = response.data.appointment.id;
+                if (this.userRole === 'admin') {
+                    this.patientPhoneNr = appointment.patient.phone;
+                    this.patientEmail = appointment.patient.email;
+                }
+                this.isLoading = false;
+                const now = DateTime.now().toISO();
+
+                if (!appointment.doctor) {
+                    if (appointment.end < now) this.title = "Missed request";
+                    else this.title = "Pending confirmation";
+                } else {
+                    if (appointment.start > now) this.title = "Upcoming appointment"
+                    else if (appointment.start < now && appointment.end > now) this.title = "Ongoing appointment"
+                    else this.title = "Past appointment"
+                }
+
             }
         } catch (error) {
             this.location.back();
@@ -218,10 +244,7 @@ export class EventComponent implements OnInit{
     }
 
     onSubmit(){
-        const value = {
-            input: this.form.value,
-            showSnackbar: true
-        } // TO DO delete boolean from emit value
+        const value = this.form.value;
         this.submit.emit(value);
     }
     async onDelete(){
@@ -264,9 +287,10 @@ export class EventComponent implements OnInit{
             this.isOpened = true;
         } else {
             const ref = this.dialog.open(AlertComponent, {data: {message: "Workspace open"}});
-            ref.componentInstance.ok.subscribe(subscription => {
+            const sub = ref.componentInstance.ok.subscribe(subscription => {
                 if (subscription) this.dialog.closeAll();
-            })
+            });
+            this.subscriptions.add(sub);
         }
     }
     onAcceptAppointment(id: number){

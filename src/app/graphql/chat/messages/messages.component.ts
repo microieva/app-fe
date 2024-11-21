@@ -1,4 +1,5 @@
-import { Component, OnInit, QueryList, ViewChild, ViewChildren, ViewContainerRef } from "@angular/core";
+import { distinctUntilChanged, Subscription } from "rxjs";
+import { Component, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren, ViewContainerRef } from "@angular/core";
 import { MatTableDataSource } from "@angular/material/table";
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -6,15 +7,14 @@ import { trigger, state, style, transition, animate } from "@angular/animations"
 import { MatTabGroup } from "@angular/material/tabs";
 import { MatDialog } from "@angular/material/dialog";
 import { environment } from "../../../../environments/environment";
+import { getLastLogOutStr } from "../../../shared/utils";
 import { AppSocketService } from "../../../shared/services/app-socket.service";
 import { AppTabsService } from "../../../shared/services/app-tabs.service";
+import { AppCountUnreadMessagesService } from "../../../shared/services/app-count-unread.service";
 import { AlertComponent } from "../../../shared/components/app-alert/app-alert.component";
 import { ChatComponent } from "../chat.component";
 import { User } from "../../user/user";
 import { UserDataSource } from "../../../shared/types";
-import { DateTime } from "luxon";
-import { AppCountUnreadMessagesService } from "../../../shared/services/app-count-unread.service";
-import { getLastLogOutStr } from "../../../shared/utils";
 
 @Component({
     selector: 'app-messages',
@@ -33,14 +33,14 @@ import { getLastLogOutStr } from "../../../shared/utils";
         ]),
     ]
 })
-export class MessagesComponent implements OnInit {
+export class MessagesComponent implements OnInit, OnDestroy {
     selectedIndex: number = 0;
     userRole!: string;
     me!: Partial<User>;
     dataSource: MatTableDataSource<any> | null = null;
     displayedColumns: Array<{ columnDef: string, header: string }> = [];
     formatted: UserDataSource[] | undefined;
-    onlineDoctors: any[];
+    onlineDoctors: any[] = [];
     chatId: number | undefined = 0;
     senders: string[] = [];
     receiverId: number | undefined;
@@ -50,13 +50,15 @@ export class MessagesComponent implements OnInit {
 
     pageIndex: number = 0;
     pageLimit: number = 10;
-    sortDirection: string | null = null;
-    sortActive: string | null = 'firstName';
+    sortDirection: string = 'DESC';
+    sortActive: string = 'lastLogOutAt';
     filterInput: string | null = null;
 
     @ViewChildren('tabContent', { read: ViewContainerRef }) tabContents!: QueryList<ViewContainerRef>;
     chats: any[] = [];
     @ViewChild('tabGroup', { static: true }) tabGroup!: MatTabGroup;
+
+    private subscriptions: Subscription = new Subscription();
 
     constructor(
         private graphQLService: AppGraphQLService,
@@ -66,39 +68,46 @@ export class MessagesComponent implements OnInit {
         private tabsService: AppTabsService,
         private dialog: MatDialog,
         private countService: AppCountUnreadMessagesService
-    ){
-        this.onlineDoctors = [];
-    }
+    ){}
 
     async ngOnInit() {
         await this.loadMe();
         if (this.userRole === 'admin') {
-            this.socketService.requestOnlineUsers();
             await this.loadUnreadMessages();
             await this.loadDoctors();
             this.chats = this.tabsService.getChatTabs();
-            this.socketService.getOnlineUsers().subscribe(async (users) => {
-                this.onlineDoctors = users.filter(user => user.userRole === 'doctor' && user.online) || [];
-                await this.loadUnreadMessages();
-                await this.loadDoctors();
-                
-            });
-            this.socketService.receiveNotification().subscribe(async (subscription: any)=> {
+            const subscriptionOnlineUsers = this.socketService.getOnlineUsers()
+                .pipe(
+                    distinctUntilChanged((prev, curr)=> JSON.stringify(prev) === JSON.stringify(curr))
+                )
+                .subscribe(async users => {
+                    this.onlineDoctors = users.filter(user => user.userRole === 'doctor' && user.online) || [];
+                    await this.loadUnreadMessages();
+                    await this.loadDoctors();
+                });
+            
+            const subscriptionNotifications = this.socketService.receiveNotification().subscribe(async (subscription: any)=> {
                 if (subscription && subscription.chatId) {
                     this.senders.push(subscription.sender);
                     await this.loadUnreadMessages();
                     await this.loadDoctors();
                 }
             });
+            this.subscriptions.add(subscriptionOnlineUsers);
+            this.subscriptions.add(subscriptionNotifications);
         } else { 
             this.receiverId = environment.adminId;
             this.chatId = await this.loadChatId();
         }
-        this.activatedRoute.queryParams.subscribe(async params => {
+        const subRouteParams = this.activatedRoute.queryParams.subscribe(async params => {
             const tab = params['tab'];
             this.selectedIndex = tab ? +tab : 0; 
         });
-        console.log('onlineDoctors: ', this.onlineDoctors)
+        this.subscriptions.add(subRouteParams);
+    }
+
+    ngOnDestroy(){
+        this.subscriptions.unsubscribe();
     }
 
     async loadUnreadMessages(){
@@ -106,7 +115,7 @@ export class MessagesComponent implements OnInit {
 
         try {
             const response = await this.graphQLService.send(query);
-            if (response.data) {
+            if (response.data.countAllUnreadMessages) {
                 this.unreadMessages = response.data.countAllUnreadMessages;
             }
         } catch (error) {
@@ -147,14 +156,16 @@ export class MessagesComponent implements OnInit {
             pageIndex: this.pageIndex,
             pageLimit: this.pageLimit,
             sortActive: this.sortActive,
-            sortDirection: this.sortDirection || 'DESC',
+            sortDirection: this.sortDirection,
             filterInput: this.filterInput
         }
+
         try {
             const response = await this.graphQLService.send(query, variables);
             if (response.data.doctors) {
                 this.doctors = response.data.doctors.slice;
                 this.doctorsLength = response.data.doctors.length;
+                this.socketService.requestOnlineUsers();
                 this.formatDataSource();
 
                 this.dataSource = new MatTableDataSource<UserDataSource>(this.formatted);
@@ -171,6 +182,7 @@ export class MessagesComponent implements OnInit {
     }
     formatDataSource() {
         if (this.onlineDoctors && this.onlineDoctors.length > 0) {
+            let isUnread: boolean = false;
             this.formatted = this.doctors.map((doctor) => {
                 const isOnline = this.onlineDoctors?.some(onlineDoctor => doctor.id === onlineDoctor.id);
                 const lastOnline = getLastLogOutStr(doctor.lastLogOutAt)
@@ -178,6 +190,7 @@ export class MessagesComponent implements OnInit {
 
                 if (this.unreadMessages && this.unreadMessages.length> 0) {
                     count = this.unreadMessages?.find(obj => obj.senderId === doctor.id)?.count || null;
+                    isUnread = this.unreadMessages?.some(obj => obj.senderId === doctor.id && obj.count !== null)
                 }
 
                 return {
@@ -187,7 +200,21 @@ export class MessagesComponent implements OnInit {
                     lastLogOutAt:  !isOnline ? lastOnline : 'Currently online',
                     unreadMessages: count
                 };
-            });
+            })
+
+            if (this.sortActive === 'lastLogOutAt' && this.sortDirection === 'DESC') {
+                this.formatted
+                    .sort((a, b) => {
+                        if (a.lastLogOutAt === "Currently online" && b.lastLogOutAt !== "Currently online") {
+                        return -1; 
+                        }
+                        if (b.lastLogOutAt === "Currently online" && a.lastLogOutAt !== "Currently online") {
+                        return 1; 
+                        }
+                        return 0;
+                    }
+                );
+            }
         } else {
             this.formatted = this.doctors.map(doctor => {
                 let count: number | null = null;
@@ -316,11 +343,11 @@ export class MessagesComponent implements OnInit {
     }
 
     async onSortChange(value: any) {
-        switch (value.active) {
-            case 'name':
-                this.sortActive = 'firstName';
-                break;
-        }        
+        if (value.active === 'name') {
+            this.sortActive = 'firstName'
+        } else {
+            this.sortActive = value.active
+        }     
 
         if (value.direction)
         this.sortDirection = value.direction.toUpperCase();

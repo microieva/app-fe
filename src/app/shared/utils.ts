@@ -1,3 +1,4 @@
+import { capitalize } from "lodash-es";
 import { DateTime } from "luxon";
 
 export const getNextAppointmentTodayTomorrowStartStr = (nextStart: any): string => {
@@ -52,15 +53,28 @@ export const getNextAppointmentWeekdayStart = (nextStart: any): { dayName: strin
 
 export const getLastLogOutStr = (timestamp: string): string => {
     const date = DateTime.fromISO(timestamp, { setZone: true }).setZone('Europe/Helsinki');
-    const today = DateTime.now().setZone(date.zone);
-    const yesterday = today.minus({ days: 1 });
+    const now = DateTime.now().setZone('Europe/Helsinki');
 
-    if (date.hasSame(today, 'day')) {
-        return date.toFormat('HH:mm a')+' '+ '(Today)';
-    } else if (date.hasSame(yesterday, 'day')) {
-        return date.toFormat('HH:mm a')+' '+ '(Yesterday)';
+    if (date.hasSame(now, 'day')) {
+        const diff = now.diff(date, ['hours', 'minutes']);
+        const hours = Math.floor(diff.hours);
+        const minutes = Math.floor(diff.minutes % 60);
+
+        if (hours >= 4) {
+            return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+        } else if (hours > 0) {
+            return `${hours} hour${hours > 1 ? 's' : ''} ${minutes > 0 ? `${minutes} minute${minutes > 1 ? 's' : ''}` : ''} ago`;
+        } else if (minutes > 0) {
+            return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+        } else {
+            return 'Just now';
+        }
+    } else if (date.hasSame(now.minus({ days: 1 }), 'day')) {
+        return `${date.toFormat('HH:mm a')} (Yesterday)`;
     } else {
-        return date.toFormat('HH:mm a (cccc), MMM dd, yyyy'); 
-    } 
-}
+        return date.toFormat('HH:mm a (cccc), MMM dd, yyyy');
+    }
+};
+
+
 

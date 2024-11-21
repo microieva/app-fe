@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { Appointment } from "./appointment";
 import { AppGraphQLService } from "../../shared/services/app-graphql.service";
 import { MatDialog } from "@angular/material/dialog";
@@ -6,13 +6,14 @@ import { DateTime } from "luxon";
 import { ConfirmComponent } from "../../shared/components/app-confirm/app-confirm.component";
 import { AlertComponent } from "../../shared/components/app-alert/app-alert.component";
 import { Record } from "../record/record"; 
+import { Subscription } from "rxjs";
 
 @Component({
     selector: 'app-appointment',
     templateUrl: './appointment.component.html',
     styleUrls: ['./appointment.component.scss']
 })
-export class AppointmentComponent implements OnInit {  
+export class AppointmentComponent implements OnInit, OnDestroy {  
     appointment!: Appointment
     record: Record | null = null;
     formattedDate!: string;
@@ -26,6 +27,7 @@ export class AppointmentComponent implements OnInit {
     
     @Input() id!: number;
     @Output() close = new EventEmitter<number>();
+    subscription: Subscription | undefined;
 
     constructor(
         private graphQLService: AppGraphQLService,
@@ -36,9 +38,14 @@ export class AppointmentComponent implements OnInit {
         this.isCreating = false;
         await this.loadAppointment();
     }
+    ngOnDestroy(): void {
+        if (this.subscription) {
+            this.subscription.unsubscribe();
+        }
+    }
     closeTab(){
         const dialogref = this.dialog.open(ConfirmComponent, {data: { message: "All unsaved data will be lost"}});
-        dialogref.componentInstance.ok.subscribe(subscription => {
+        this.subscription = dialogref.componentInstance.ok.subscribe(subscription => {
             if (subscription) {
                 this.close.emit(this.id)
             }

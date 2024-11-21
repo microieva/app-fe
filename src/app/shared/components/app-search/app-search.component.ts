@@ -1,5 +1,5 @@
-import { debounceTime } from "rxjs";
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { debounceTime, Subscription } from "rxjs";
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { AppSearchInput } from "../../types";
 import { dateRangeValidator } from "../../validators";
@@ -9,7 +9,7 @@ import { dateRangeValidator } from "../../validators";
     templateUrl: 'app-search.component.html',
     styleUrls: ['app-search.component.scss']
 })
-export class AppSearchComponent implements OnInit{
+export class AppSearchComponent implements OnInit, OnDestroy{
     form!: FormGroup;
 
     @Input() useAdvanced: boolean = false;
@@ -18,18 +18,22 @@ export class AppSearchComponent implements OnInit{
     @Output() reset = new EventEmitter<boolean>();
 
     showAdvanced: boolean = false;
+    private subscriptions: Subscription = new Subscription();
+    
     constructor(private formBuilder: FormBuilder){
         this.buildForm();
-        this.form.get('advancedSearchInput.rangeStart')?.valueChanges.subscribe(() => {
+        const subRangeStart = this.form.get('advancedSearchInput.rangeStart')?.valueChanges.subscribe(() => {
             this.form.get('advancedSearchInput')?.updateValueAndValidity();
         });
-        this.form.get('advancedSearchInput.rangeEnd')?.valueChanges.subscribe(() => {
+        const subRangeEnd = this.form.get('advancedSearchInput.rangeEnd')?.valueChanges.subscribe(() => {
             this.form.get('advancedSearchInput')?.updateValueAndValidity();
         });
+        this.subscriptions.add(subRangeStart);
+        this.subscriptions.add(subRangeEnd);
     }
 
     ngOnInit(){
-        this.form.get('searchInput')?.valueChanges
+        const sub = this.form.get('searchInput')?.valueChanges
             .pipe(
                 debounceTime(300)
             )
@@ -37,7 +41,11 @@ export class AppSearchComponent implements OnInit{
                 !this.showAdvanced && this.inputValue.emit(value);
             }
         );
-        
+        this.subscriptions.add(sub);
+    }
+
+    ngOnDestroy(): void {
+        this.subscriptions.unsubscribe();
     }
     buildForm(){
         this.form = this.formBuilder.group({

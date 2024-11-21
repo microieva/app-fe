@@ -88,17 +88,7 @@ button {
 .blinking {
     animation: blink 1s infinite; 
 }
-  
-.mat-column-name {
-    display: flex;
-    flex-direction: row-reverse;
-    justify-content: flex-end;
-    align-items: center;
-    line-height: 4rem;
-    span {
-        margin-right: 10px;
-    }
-}
+
 .material-symbols-outlined{
     color: rgb(119, 134, 154);
 }
@@ -110,26 +100,56 @@ button {
         background-color: transparent;
     }
 }
-.mat-column-actions {
-    display:flex;
-    flex-direction: row;
-    button {
-        margin-right: 15px;
-    }
-}
+
 .mat-mdc-header-row {
     background: rgb(204 212 219);
     .mat-mdc-header-cell {
         --mat-table-row-item-outline-color: rgb(78, 84, 90);
         font-weight: 800;
         line-height: 4rem;
+       
     }
 }
-.mat-column-unreadMessages {
-    width: 1rem;
-    text-align: center;
+
+.mat-column-actions {
+    display:flex;
+    flex-direction: row;
+    line-height: 4rem;
+    button {
+        margin-right: 15px;
+    }
 }
+
 .bold-row {
     font-weight: 900;
 }
-  
+
+.mat-column-online, 
+.mat-column-unreadMessages,
+.mat-column-draft {
+    width: 15%;
+}
+.mat-column-unreadMessages.mat-mdc-cell {
+    text-align: center;
+}
+.mat-column-name, 
+.mat-column-lastOnline, 
+.mat-column-email, 
+.mat-column-title {
+    width: 30%;
+}
+.mat-column-name.mat-mdc-cell {
+    display: flex;
+    flex-direction: row;
+    width: inherit;
+    align-items: center;
+    line-height: 3rem;
+    .icon {
+        height: 3rem;
+        margin-left: 5px;
+        padding-top: 15px;
+    }
+}
+.mat-column-pastDate {
+    width: 30%
+}

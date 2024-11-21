@@ -1,9 +1,9 @@
-import { Component, EventEmitter, Inject, OnInit, Optional, Output } from "@angular/core";
+import { Subscription } from "rxjs";
+import { Component, EventEmitter, Inject, OnDestroy, OnInit, Optional, Output } from "@angular/core";
 import { FormGroup, FormControl, FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { trigger, state, style, transition, animate } from "@angular/animations";
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
-import { Location } from '@angular/common';
 import _, { some } from "lodash-es";
 import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../shared/services/app-graphql.service";
@@ -32,7 +32,7 @@ import { User } from "./user";
           ]),
     ]
 })
-export class UserComponent implements OnInit {
+export class UserComponent implements OnInit, OnDestroy {
     me: User | undefined;
     user: User | null = null;
     request: DoctorRequest | null = null;
@@ -44,6 +44,7 @@ export class UserComponent implements OnInit {
     scrollOffset: number = 0;
 
     @Output() isDeletingUser = new EventEmitter<boolean>();
+    private subscriptions: Subscription = new Subscription();
 
     constructor(
         private graphQLService: AppGraphQLService,
@@ -53,7 +54,6 @@ export class UserComponent implements OnInit {
         private dialog: MatDialog,
         private timerService: AppTimerService,
         private refreshService: AppRefreshService,
-        private location: Location,
 
         @Optional() public dialogRef: MatDialogRef<UserComponent>,
         @Optional() @Inject(MAT_DIALOG_DATA) public data: any
@@ -68,13 +68,18 @@ export class UserComponent implements OnInit {
         }
         await this.loadMe();
 
-        this.activatedRoute.paramMap.subscribe(async (params)=> {
+        const sub = this.activatedRoute.paramMap.subscribe(async (params)=> {
             this.id = Number(params.get('id')); 
             
             if (this.id) {
                 await this.loadMe(); 
             }
         });  
+        this.subscriptions.add(sub);
+    }
+
+    ngOnDestroy(): void {
+        this.subscriptions.unsubscribe();
     }
 
     async loadStatic(){
@@ -155,7 +160,7 @@ export class UserComponent implements OnInit {
     async deleteUser(){
         const dialogRef = this.dialog.open(ConfirmComponent, {data: {message: "Deleting account and all associated data permanently"}})
         
-        dialogRef.componentInstance.ok.subscribe(async (subscription)=> {
+        const sub = dialogRef.componentInstance.ok.subscribe(async (subscription)=> {
             if (subscription && this.me) {
 
                 if (this.me.userRole === 'admin') {
@@ -180,7 +185,8 @@ export class UserComponent implements OnInit {
                     this.dialog.open(AlertComponent, { data: {message: "Error deleting user: "+ error}})
                 }
             }
-        }) 
+        });
+        this.subscriptions.add(sub); 
     }
 
     buildForm() {

@@ -5,6 +5,7 @@ import { MatTableDataSource } from "@angular/material/table";
 import { MatTabGroup } from "@angular/material/tabs";
 import { MatDialog } from "@angular/material/dialog";
 import { DateTime } from "luxon";
+import { Subscription } from "rxjs";
 import { environment } from '../../../../environments/environment';
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
 import { AppAppointmentService } from "../../../shared/services/app-appointment.service";
@@ -17,7 +18,6 @@ import { ConfirmComponent } from "../../../shared/components/app-confirm/app-con
 import { EventComponent } from "../../../shared/components/app-event/app-event.component";
 import { AppointmentDataSource } from "../../../shared/types";
 import { Appointment } from "../appointment";
-import { AppTableComponent } from "../../../shared/components/app-table/app-table.component";
 
 @Component({
     selector: 'app-appointments',
@@ -36,7 +36,7 @@ import { AppTableComponent } from "../../../shared/components/app-table/app-tabl
         ]),
     ]
 })
-export class AppointmentsComponent implements OnInit {
+export class AppointmentsComponent implements OnInit, OnDestroy {
     selectedIndex: number = 0;
     id!: number;
     routedAppointmentId: number | undefined;
@@ -71,6 +71,7 @@ export class AppointmentsComponent implements OnInit {
     @ViewChild('scrollView') scrollView!: ElementRef;
 
     readonly panelOpenState = signal(false);
+    private subscriptions: Subscription = new Subscription();
 
     userRole!: string;
     pageIndex: number = 0;
@@ -99,17 +100,17 @@ export class AppointmentsComponent implements OnInit {
             await this.loadData();
         }
 
-        this.activatedRoute.queryParams.subscribe(async (params)=> {
+        const subRouterParamsId = this.activatedRoute.queryParams.subscribe(async (params)=> {
             const id = params['id']; 
             if (id) this.routedAppointmentId = +id;
         });
         
-        this.activatedRoute.queryParams.subscribe(async params => {
+        const subRouterParamsTab = this.activatedRoute.queryParams.subscribe(async params => {
             const tab = params['tab'];
             this.selectedIndex = tab ? +tab : 0;
         }); 
 
-        this.appointmentService.appointmentInfo.subscribe((subscription) => {
+        const subNextAppointmentInfo = this.appointmentService.appointmentInfo.subscribe((subscription) => {
             if (subscription && subscription.nextAppointment) {
                 this.nextId = subscription.nextAppointment.nextId;
 
@@ -120,7 +121,7 @@ export class AppointmentsComponent implements OnInit {
             }
         });
 
-        this.timerService.nextAppointmentCountdown.subscribe(async value => {
+        const subNextAppointmentCountDown = this.timerService.nextAppointmentCountdown.subscribe(async value => {
             const start = this.nextAppointmentStartTime;
 
             if (value === environment.triggerTime) {  
@@ -139,7 +140,14 @@ export class AppointmentsComponent implements OnInit {
                 } 
             }
         });
-        
+        this.subscriptions.add(subRouterParamsId);
+        this.subscriptions.add(subRouterParamsTab);
+        this.subscriptions.add(subNextAppointmentInfo);
+        this.subscriptions.add(subNextAppointmentCountDown);
+    }
+
+    ngOnDestroy(){
+        this.subscriptions.unsubscribe();
     }
 
     createAppointmentTab(appointmentId?: number) {

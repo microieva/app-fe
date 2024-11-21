@@ -5,13 +5,11 @@
 <div class="flex-column" *ngIf="appointments">
     <div class="legend">
         <mat-radio-group
-            aria-labelledby="example-radio-group-label"
             class="flex-column"
             [(ngModel)]="selectedAppointments"
             >
             @for (appointmentSelection of appointmentSelections; track appointmentSelection) {
                 <mat-radio-button 
-                    class="example-radio-button" 
                     [value]="appointmentSelection" 
                     (change)="onCheckboxChange(appointmentSelection)"
                 >

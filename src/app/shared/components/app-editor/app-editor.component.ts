@@ -1,4 +1,5 @@
 import { Editor, Toolbar, ToolbarItem } from 'ngx-editor';
+import { Subscription } from 'rxjs';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { FormGroup, FormControl, FormBuilder, Validators } from "@angular/forms";
 import { MatDialog } from '@angular/material/dialog';
@@ -43,6 +44,8 @@ export class AppEditorComponent implements OnInit, OnDestroy {
     @Output() reload = new EventEmitter<boolean>();
     @Output() saveRecord = new EventEmitter<RecordInput>();
 
+    private subscriptions: Subscription = new Subscription();
+
     constructor(
         private dialog: MatDialog,
         private formBuilder: FormBuilder,
@@ -52,9 +55,10 @@ export class AppEditorComponent implements OnInit, OnDestroy {
     async ngOnInit() {
         this.buildForm();
         this.editor = new Editor();
-        this.form?.get('title')?.valueChanges.subscribe(value => {
+        const sub = this.form?.get('title')?.valueChanges.subscribe(value => {
             this.disabled = value.length < 1;
         });
+        this.subscriptions.add(sub);
         this.editorText = this.record && this.record.text || this.text
     }
     
@@ -65,9 +69,6 @@ export class AppEditorComponent implements OnInit, OnDestroy {
             title: this.formBuilder.control<string>(title || '')
         }) as RecordForm
     }
-    addTitleChangeListener() {
-       
-      }
 
     async save(draft: boolean) {
         const input: any = {
@@ -79,14 +80,16 @@ export class AppEditorComponent implements OnInit, OnDestroy {
     }
     onCancel() {
         const dialogRef = this.dialog.open(ConfirmComponent, {data: {message: "All unsaved changes will be lost"}});
-        dialogRef.componentInstance.ok.subscribe(subscription => {
+        const sub = dialogRef.componentInstance.ok.subscribe(subscription => {
             if (subscription) {
                 this.cancel.emit(true);
             }
-        })
+        });
+        this.subscriptions.add(sub);
     }
     ngOnDestroy(): void {
         this.editor.destroy();
+        this.subscriptions.unsubscribe();
     }
     onContentChange(content: string) {
         const plainText = this.stripHtml(content);
