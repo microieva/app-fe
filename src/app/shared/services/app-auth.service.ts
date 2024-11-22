@@ -89,11 +89,10 @@ export class AppAuthService {
                 expiresAt
             } 
         }`
-        console.log('loginWithSignicat: ', Boolean(signicatAccessToken))
+
         try {
             const response = await this.graphQLService.mutate(mutation, { signicatAccessToken });
 
-            console.log('response: ', response)
             if (response.data) {
                 const token = response.data.loginWithSignicat.token;
                 const tokenExpire = response.data.loginWithSignicat.expiresAt;
