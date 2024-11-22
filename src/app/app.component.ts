@@ -345,15 +345,20 @@ export class AppComponent implements OnInit, OnDestroy {
         body.set('scope', scope);
         this.dialog.open(LoadingComponent);
         this.http.post(tokenEndpoint, body.toString(), { headers }).subscribe(
-            async (response: any) => {
-                if (response) {
-                    await this.authService.loginWithSignicat(response.id_token);
-                }
-                await this.ngOnInit();
-            },
-            (error) => {
-                console.error('Token exchange failed', error);
-                this.router.navigate(['/']);
+            // async (response: any) => {
+            //     if (response) {
+            //         await this.authService.loginWithSignicat(response.id_token);
+            //     }
+            //     await this.ngOnInit();
+            // },
+            // (error) => {
+            //     console.error('Token exchange failed', error);
+            //     this.router.navigate(['/']);
+            // }
+            {
+                next: async (response: any) => await this.authService.loginWithSignicat(response.id_token),
+                error: (error: any) => console.error('Token exchange failed', error),
+                complete: async ()=> await this.ngOnInit()
             }
         );
     }
