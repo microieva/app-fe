@@ -69,7 +69,7 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     async ngOnInit() {
-        const subRouteParams = this.activatedRoute.queryParams.subscribe(params => {
+        this.activatedRoute.queryParams.subscribe(params => {
             const code = params['code'];
             const state = params['state'];
             const scope = params['scope']
@@ -78,7 +78,7 @@ export class AppComponent implements OnInit, OnDestroy {
                 this.exchangeCodeForToken(code, state, scope);
             } 
         });
-        this.subscriptions.add(subRouteParams); 
+        //this.subscriptions.add(subRouteParams); 
         if (localStorage.getItem('authToken')) {
             await this.loadMe();
             const tokenExpire = localStorage.getItem('tokenExpire');
