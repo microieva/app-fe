@@ -326,7 +326,7 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     exchangeCodeForToken(code: string, state: string, scope: any) {
-
+        console.log('exchangeCodeForToken: ', code, scope, state)
         const tokenEndpoint = 'https://health-center.sandbox.signicat.com/auth/open/connect/token';
         const clientId = 'sandbox-itchy-wheel-954';
         const clientSecret =  'EJTOPAOXSS2c8bPpMOeJpTe64DvbFdWBS2wH5ytbvT7Tt5Yh';
