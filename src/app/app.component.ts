@@ -268,7 +268,6 @@ export class AppComponent implements OnInit, OnDestroy {
                 const scope = params['scope']
     
                 if (code && state) {
-                    console.log('calling exchange')
                     this.exchangeCodeForToken(code, state, scope);
                 } 
             });
@@ -345,7 +344,7 @@ export class AppComponent implements OnInit, OnDestroy {
             {
                 next: async (response: any) => await this.authService.loginWithSignicat(response.id_token),
                 error: (error: any) => console.error('Token exchange failed', error),
-                complete: async ()=> this.router.navigate(['/'])
+                complete: ()=> this.router.navigate(['/'])
             }
         );
     }

@@ -98,7 +98,7 @@ export class AppAuthService {
                 const tokenExpire = response.data.loginWithSignicat.expiresAt;
                 localStorage.setItem('authToken', token);
                 localStorage.setItem('tokenExpire', tokenExpire);
-                this.router.navigate(['/home']);
+                window.location.reload();
             }
         } catch (error) {
             const ref = this.dialog.open(AlertComponent, {data: { message:  "AuthService: "+error}});
