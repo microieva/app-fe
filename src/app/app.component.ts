@@ -68,17 +68,7 @@ export class AppComponent implements OnInit, OnDestroy {
     ) {
     }
 
-    async ngOnInit() {
-        this.activatedRoute.queryParams.subscribe(params => {
-            const code = params['code'];
-            const state = params['state'];
-            const scope = params['scope']
-
-            if (code && state) {
-                this.exchangeCodeForToken(code, state, scope);
-            } 
-        });
-        //this.subscriptions.add(subRouteParams); 
+    async ngOnInit() {       
         if (localStorage.getItem('authToken')) {
             await this.loadMe();
             const tokenExpire = localStorage.getItem('tokenExpire');
@@ -272,9 +262,17 @@ export class AppComponent implements OnInit, OnDestroy {
                 this.router.navigate(['/']);
             }
         } else {
-            this.me = null;
-            this.userRole = null;
-            this.router.navigate(['/']);
+            const sub = this.activatedRoute.queryParams.subscribe(params => {
+                const code = params['code'];
+                const state = params['state'];
+                const scope = params['scope']
+    
+                if (code && state) {
+                    console.log('calling exchange')
+                    this.exchangeCodeForToken(code, state, scope);
+                } 
+            });
+            this.subscriptions.add(sub);
         }
     }
 
@@ -326,10 +324,10 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     exchangeCodeForToken(code: string, state: string, scope: any) {
-        const tokenEndpoint = 'https://health-center.sandbox.signicat.com/auth/open/connect/token';
-        const clientId = 'sandbox-itchy-wheel-954';
-        const clientSecret =  'EJTOPAOXSS2c8bPpMOeJpTe64DvbFdWBS2wH5ytbvT7Tt5Yh';
-        const redirectUri = 'https://app-fe-gamma.vercel.app/';
+        const tokenEndpoint = environment.tokenEndpoint;
+        const clientId = environment.clientId
+        const clientSecret =  environment.clientSecret;
+        const redirectUri = environment.redirectUri;
       
         const headers = new HttpHeaders({
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -344,20 +342,10 @@ export class AppComponent implements OnInit, OnDestroy {
         body.set('scope', scope);
         this.dialog.open(LoadingComponent);
         this.http.post(tokenEndpoint, body.toString(), { headers }).subscribe(
-            // async (response: any) => {
-            //     if (response) {
-            //         await this.authService.loginWithSignicat(response.id_token);
-            //     }
-            //     await this.ngOnInit();
-            // },
-            // (error) => {
-            //     console.error('Token exchange failed', error);
-            //     this.router.navigate(['/']);
-            // }
             {
                 next: async (response: any) => await this.authService.loginWithSignicat(response.id_token),
                 error: (error: any) => console.error('Token exchange failed', error),
-                complete: async ()=> await this.ngOnInit()
+                complete: async ()=> this.router.navigate(['/'])
             }
         );
     }

@@ -1,9 +1,10 @@
 import { AfterViewInit, Component, Inject, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { AppAuthService } from "../../services/app-auth.service";
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
+import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { FormGroup, FormControl, FormBuilder } from "@angular/forms";
 import { Validators } from "ngx-editor";
+import { environment } from "../../../../environments/environment";
 import { DirectLoginInput } from "../../types";
 
 @Component({
@@ -24,7 +25,6 @@ export class LoginComponent implements OnInit, AfterViewInit    {
         private authService: AppAuthService,
         private router: Router,
         private formBuilder: FormBuilder,
-        private dialog: MatDialog,
 
         public dialogRef: MatDialogRef<LoginComponent>,
         @Inject(MAT_DIALOG_DATA) public data: any
@@ -52,7 +52,7 @@ export class LoginComponent implements OnInit, AfterViewInit    {
     initializeGoogleSignIn(): void {
         // @ts-ignore
         google.accounts.id.initialize({
-            client_id: '234359946846-qk29f6skfdjaaoklv41g49f1du23c177.apps.googleusercontent.com',
+            client_id: environment.client_id,
             callback: (res: any)=> this.handleCredentialResponse(res),
             cancel_on_tap_outside: true
         });

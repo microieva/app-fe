@@ -1,6 +1,7 @@
 import { Component } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { LoginComponent } from "../app-login/app-login.componnet";
+import { environment } from "../../../../environments/environment";
 
 @Component({
     selector: 'app-login-menu',
@@ -13,15 +14,15 @@ export class LoginMenuComponent {
     ){}
 
     onBankLoginClick(){
-        const authEndpoint = 'https://health-center.sandbox.signicat.com/auth/open/connect/authorize' 
-        const clientId = 'sandbox-itchy-wheel-954';
-        const redirectUri = 'https://app-fe-gamma.vercel.app/'; 
+        const authEndpoint = environment.authEndpoint;
+        const clientId = environment.clientId;
+        const redirectUri = environment.redirectUri;
         const state = generateRandomState(); 
         const responseType= 'code'
         const prompt = 'login'
         const scope = 'openid profile';
         const acrValues = 'idp:ftn'
-        const clientSecret = 'EJTOPAOXSS2c8bPpMOeJpTe64DvbFdWBS2wH5ytbvT7Tt5Yh'
+        const clientSecret = environment.clientSecret;
         const grantType = "authorization_code"
     
         const authUrl = `${authEndpoint}?client_id=${clientId}&client_secret=${clientSecret}&response_type=${responseType}&grant_type=${grantType}&scope=${scope}&state=${state}&prompt=${prompt}&acr_values=${acrValues}&redirect_uri=${redirectUri}`;
