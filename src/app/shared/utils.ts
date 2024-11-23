@@ -1,4 +1,3 @@
-import { capitalize } from "lodash-es";
 import { DateTime } from "luxon";
 
 export const getNextAppointmentTodayTomorrowStartStr = (nextStart: any): string => {

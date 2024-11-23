@@ -4,7 +4,6 @@ import { FormGroup, FormControl, FormBuilder, Validators } from "@angular/forms"
 import { ActivatedRoute, Router } from "@angular/router";
 import { trigger, state, style, transition, animate } from "@angular/animations";
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
-import _, { some } from "lodash-es";
 import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../shared/services/app-graphql.service";
 import { AppTimerService } from "../../shared/services/app-timer.service";
@@ -148,10 +147,6 @@ export class UserComponent implements OnInit, OnDestroy {
             this.router.navigate(['/']);
             this.dialog.open(AlertComponent, {data: {message: error}});
         }
-    }
-
-    checkUserInfo(){
-        return some(this.me, (value: any) => value === null);
     }
 
     updateUser(){
