@@ -13,7 +13,7 @@ const authLink = setContext((_, { headers }) => {
     headers: {
       ...headers,
       authorization: token ? `Bearer ${token}` : "",
-      'Access-Control-Allow-Origin': 'http://localhost:4200'
+      'Access-Control-Allow-Origin': 'https://wonderful-dune-0e4733c03.5.azurestaticapps.net/'
     }
   }
 });
