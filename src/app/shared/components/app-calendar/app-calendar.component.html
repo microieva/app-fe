@@ -1,8 +1,8 @@
 
-<div *ngIf="!appointments" class="loading">
+<div *ngIf="isLoading" class="loading">
     <app-loading></app-loading>
 </div>
-<div class="flex-column" *ngIf="appointments">
+<div class="flex-column" *ngIf="!isLoading">
     <div class="legend">
         <mat-radio-group
             class="flex-column"

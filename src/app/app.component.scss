@@ -14,3 +14,8 @@
 .icon-wrapper {
     position:relative;
 }
+.disabled {
+    cursor: default;
+    pointer-events: none;
+    opacity: 0.6;
+}

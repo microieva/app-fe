@@ -75,5 +75,75 @@ export const getLastLogOutStr = (timestamp: string): string => {
     }
 };
 
+export const getHowSoonUpcoming = (datetime: string): string => {
+    const now = DateTime.now().setZone('Europe/Helsinki');
+    const inputDate = DateTime.fromISO(datetime, { zone: 'utc' }).setZone();
+
+    const diff = inputDate.diff(now, ['years', 'months', 'days', 'hours', 'minutes', 'seconds']);
+    let howSoonStr = 'in ';
+
+    if (diff.years > 0) {
+        howSoonStr += `${diff.years} year${diff.years === 1 ? '' : 's'} `;
+    }
+    if (diff.months > 0) {
+        howSoonStr += `${diff.months} month${diff.months === 1 ? '' : 's'} `;
+    }
+    if (diff.days > 0) {
+        howSoonStr += `${diff.days} day${diff.days === 1 ? '' : 's'} `;
+    }
+    if (diff.days < 1 && diff.hours > 0) {
+        howSoonStr += `${diff.hours} hour${diff.hours === 1 ? '' : 's'} `;
+    }
+    if (diff.days < 1 && diff.minutes > 0) {
+        howSoonStr += `${diff.minutes} minute${diff.minutes === 1 ? '' : 's'} `;
+    }
+
+    howSoonStr = howSoonStr.trim();
+
+    if (!howSoonStr || howSoonStr === 'in') {
+        howSoonStr = 'now';
+    }
+
+    return howSoonStr;
+}
+
+export const getHowLongAgo = (datetime: string):string => {
+    const now = DateTime.now().setZone('Europe/Helsinki');
+    const inputDate = DateTime.fromISO(datetime, { zone: 'utc' }).setZone();
+    const diff = now.diff(inputDate, ['years', 'months', 'days', 'hours', 'minutes', 'seconds']);
+
+    let howLongAgoStr = '';
+
+    if (diff.years > 0) {
+        howLongAgoStr += `${diff.years} year${diff.years === 1 ? '' : 's'} `;
+    }
+    if (diff.months > 0) {
+        howLongAgoStr += `${diff.months} month${diff.months === 1 ? '' : 's'} `;
+    }
+    if (diff.months < 1 && diff.days > 0) {
+        howLongAgoStr += `${diff.days} day${diff.days === 1 ? '' : 's'} `;
+    }
+    if (diff.months <1 && diff.days < 2 && diff.hours > 0) {
+        howLongAgoStr += `${diff.hours} hour${diff.hours === 1 ? '' : 's'} `;
+    }
+    if (diff.months < 1 && diff.days < 1 && diff.hours <2 && diff.minutes > 0) {
+        if (diff.minutes <= 5) {
+            howLongAgoStr = 'Just now';
+        } else {
+            howLongAgoStr += `${diff.minutes} minute${diff.minutes === 1 ? '' : 's'} `;
+        }
+    }
+    if (diff.days <1 && diff.hours <1 && diff.minutes === 0 ) {
+        howLongAgoStr = 'Just now';
+    }
+
+    howLongAgoStr = howLongAgoStr.trim();
+
+    if (howLongAgoStr && howLongAgoStr !== 'Just now') {
+        howLongAgoStr += ' ago';
+    } 
+    return howLongAgoStr;
+}
+
 
 

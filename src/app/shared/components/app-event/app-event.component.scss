@@ -53,15 +53,30 @@ a{
         top:0;
     }
 }
-mat-form-field {
-    margin: 1rem 0;
-    width: 100%;
-}
+
 .icons {
     position: absolute;
     bottom:0;
     div {
         margin: 0.5rem;
     }
+}
+.form {
+    margin-top:1rem;
+    margin-bottom: 1rem;
+    width: 100%;
+}
+.edit-view {
+    cursor: default;
+    &.event-wrapper{padding-bottom: 0;}
+    &:hover{background-color: transparent;}
+}
+.mat-mdc-text-field-wrapper{
+    padding-left:5px!important;
+}
+.disabled {
+    cursor: default;
+    pointer-events: none;
+    opacity: 0.6;
 }
 

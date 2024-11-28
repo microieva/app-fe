@@ -134,7 +134,10 @@
     </div>
 </div>
 <div *ngIf="userId">
-    <div class="dialog">
+    <div *ngIf="isLoading" class="loading">
+        <app-loading></app-loading>
+    </div>
+    <div class="dialog" *ngIf="!isLoading">
         <h2>User Details</h2>
         <div *ngIf="!id">
             <div *ngIf="me" class="flex-column">

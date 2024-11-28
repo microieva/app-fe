@@ -81,7 +81,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
                     distinctUntilChanged((prev, curr)=> JSON.stringify(prev) === JSON.stringify(curr))
                 )
                 .subscribe(async users => {
-                    this.onlineDoctors = users.filter(user => user.userRole === 'doctor' && user.online) || [];
+                    this.onlineDoctors = users.filter(user => user.userRole === 'doctor') || [];
                     await this.loadUnreadMessages();
                     await this.loadDoctors();
                 });
@@ -345,9 +345,12 @@ export class MessagesComponent implements OnInit, OnDestroy {
     async onSortChange(value: any) {
         if (value.active === 'name') {
             this.sortActive = 'firstName'
+        } else if (value.active === 'online'){
+            this.sortActive === 'lastLogOutAt'
         } else {
+
             this.sortActive = value.active
-        }     
+        }   
 
         if (value.direction)
         this.sortDirection = value.direction.toUpperCase();
