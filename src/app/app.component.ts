@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/cor
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { Subscription } from 'rxjs';
+import { distinctUntilChanged, Subscription } from 'rxjs';
 import { DateTime } from 'luxon';
 import { environment } from '../environments/environment';
 import { AppTimerService } from './shared/services/app-timer.service';
@@ -31,6 +31,8 @@ import { User } from './graphql/user/user';
 export class AppComponent implements OnInit, OnDestroy {
     title = 'Health Center';
     unreadMessages: string = '';
+    missedAppointments: string | undefined;
+    isDisabled:boolean = true;
 
     me: User | null = null;
     nowAppointment: Appointment | null = null;
@@ -65,8 +67,7 @@ export class AppComponent implements OnInit, OnDestroy {
         private dialogService: AppDialogService,
         private countService: AppCountUnreadMessagesService,
         private refreshService: AppRefreshService
-    ) {
-    }
+    ) {}
 
     async ngOnInit() {       
         if (localStorage.getItem('authToken')) {
@@ -157,6 +158,12 @@ export class AppComponent implements OnInit, OnDestroy {
                         this.refreshService.resetRefresh(); 
                     }
                 });
+                const subUpdateMissedAppointmentsCount = this.socketService.getMissedAppointmentsCount()  
+                    .subscribe(async isUpdated => {
+                        if (isUpdated) {
+                            await this.countMissedAppointments();
+                        }
+                    });
 
                 this.subscriptions.add(subTokenCountDown); 
                 this.subscriptions.add(subSessionExpire); 
@@ -164,9 +171,12 @@ export class AppComponent implements OnInit, OnDestroy {
                 this.subscriptions.add(subNotifications); 
                 this.subscriptions.add(subMatDialogButtons); 
                 this.subscriptions.add(subAppRefresh);
+                this.subscriptions.add(subUpdateMissedAppointmentsCount);
 
                 if (this.userRole === 'admin') {
                     this.socketService.requestOnlineUsers();
+                    this.socketService.requestCountMissedAppointments();
+                    await this.countMissedAppointments();
                 }
 
                 if (this.userRole === 'doctor') {
@@ -177,7 +187,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
                     if (nowAppointment) {
                         const patientName = nowAppointment.patient.firstName+" "+nowAppointment.patient.lastName;
-                        const start = DateTime.fromISO(nowAppointment.start,  {setZone: true}).toFormat('HH:mm a');
+                        const start = DateTime.fromISO(nowAppointment.start,  {zone: 'utc'}).setZone().toFormat('HH:mm a');
                         isTabAdded = JSON.parse(localStorage.getItem('tabs') || '[]').find((tab: any)=> tab.id === nowAppointment?.id);
                         let isTabCreated: boolean;
                         
@@ -286,6 +296,19 @@ export class AppComponent implements OnInit, OnDestroy {
         this.snackbarService.setContainer(this.snackbarContainer);
     }
 
+    async countMissedAppointments() {
+        const query = `query { countMissedAppointments }`
+        try {
+            const response = await this.graphQLService.send(query);
+            if (response.data.countMissedAppointments !== 0) {
+                this.missedAppointments = response.data.countMissedAppointments.toString();
+                this.isDisabled = false;
+            } 
+        } catch (error) {
+            this.dialog.open(AlertComponent, {data: {message: error}});
+        }
+    }
+
     async loadMe() {
         const query = `query {
             me {
@@ -359,6 +382,11 @@ export class AppComponent implements OnInit, OnDestroy {
         this.router.navigate(['/home/messages']);
     }
     openCalendar() {
-        this.router.navigate(['/home/appointments/calendar']);
+        if (this.userRole === 'admin') {
+            this.router.navigate(['/home/calendar']);
+        } else {
+
+            this.router.navigate(['/home/appointments/calendar']);
+        }
     }
 }

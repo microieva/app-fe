@@ -48,7 +48,7 @@
             <input matInput type="text" formControlName="textLike" />
         </mat-form-field>
 
-        <mat-error *ngIf="form.get('advancedSearchInput')?.hasError('isRangeValid')">
+        <mat-error *ngIf="form.get('advancedSearchInput')?.hasError('isDateRangeValid')">
             The start date cannot be after the end date.
         </mat-error>
     </fieldset>

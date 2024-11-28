@@ -41,6 +41,7 @@ export class UserComponent implements OnInit, OnDestroy {
     form: FormGroup | undefined;
     formattedDate: string | undefined;
     scrollOffset: number = 0;
+    isLoading: boolean = false;
 
     @Output() isDeletingUser = new EventEmitter<boolean>();
     private subscriptions: Subscription = new Subscription();
@@ -63,6 +64,7 @@ export class UserComponent implements OnInit, OnDestroy {
 
     async ngOnInit() {
         if (this.userId) {
+            this.isLoading = true;
             await this.loadStatic();
         }
         await this.loadMe();
@@ -110,6 +112,7 @@ export class UserComponent implements OnInit, OnDestroy {
                 this.formattedDate = DateTime.fromISO(response.data.user?.dob).toFormat('MMM dd, yyyy') 
                 this.user = response.data.user || null;
                 this.request = response.data.request || null;
+                this.isLoading = false;
             }
         } catch (error){
             this.router.navigate(['/']);

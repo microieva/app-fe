@@ -64,6 +64,8 @@ import {MatBadgeModule} from '@angular/material/badge';
 import { AppSearchComponent } from './shared/components/app-search/app-search.component';
 import { AppCountUnreadMessagesService } from './shared/services/app-count-unread.service';
 import { AppRefreshService } from './shared/services/app-refresh.service';
+import { MatSelectModule } from '@angular/material/select';
+import { AppTimeZoneService } from './shared/services/app-timezone.service';
 
 @NgModule({ 
     declarations: [
@@ -127,6 +129,7 @@ import { AppRefreshService } from './shared/services/app-refresh.service';
         MatDividerModule,
         NgxEditorModule,
         MatSnackBarModule,
+        MatSelectModule,
         TextFieldModule,
         MatTooltipModule,
         MatBadgeModule
@@ -140,6 +143,7 @@ import { AppRefreshService } from './shared/services/app-refresh.service';
         AppDialogService,
         AppCountUnreadMessagesService,
         AppRefreshService,
+        AppTimeZoneService,
         provideNativeDateAdapter(),
         provideHttpClient(withInterceptorsFromDi()), 
         provideAnimationsAsync(),

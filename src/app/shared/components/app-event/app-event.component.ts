@@ -1,13 +1,17 @@
 import { DateTime } from "luxon";
 import { Subscription } from "rxjs";
 import { Component, ElementRef, EventEmitter, Inject, OnDestroy, OnInit, Output, ViewChild } from "@angular/core";
-import { FormBuilder, FormGroup } from "@angular/forms";
+import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from "@angular/router";
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
+import { overTimeValidator, timeRangeValidator, weekendValidator } from "../../validators";
 import { AppGraphQLService } from "../../services/app-graphql.service";
 import { AlertComponent } from "../app-alert/app-alert.component";
 import { ConfirmComponent } from "../app-confirm/app-confirm.component";
+import { AppointmentInput } from "../../../graphql/appointment/appointment.input";
+import { AppSocketService } from "../../services/app-socket.service";
+
 
 @Component({
     selector: 'app-event',
@@ -15,12 +19,25 @@ import { ConfirmComponent } from "../app-confirm/app-confirm.component";
     styleUrls: ['app-event.component.scss']
 })
 export class EventComponent implements OnInit, OnDestroy{
-    form!: FormGroup;
+    form = new FormGroup({
+        input: new FormControl<string>('')
+    });
+    appointmentTimeForm = new FormGroup({
+        date: new FormControl(),
+        startHour: new FormControl(),
+        startMin: new FormControl(),
+        endHour: new FormControl(),
+        endMin: new FormControl()
+    });
     showInput: boolean = false;
     id!: number;
     userRole!: string;
     isOpened: boolean = false;
     isConfirmed: boolean = false;
+    isEditting: boolean | undefined;
+    isClickable: boolean = false;
+    isLoadingDetails: boolean = false;
+    isDisabled: boolean = true;
     samePatient: boolean = false;
     
     createdAt: string | undefined;
@@ -30,9 +47,15 @@ export class EventComponent implements OnInit, OnDestroy{
     eventDate:  string | undefined;
     eventStartTime:  string | undefined;
     eventEndTime:  string | undefined;
+
+    startHour: string | undefined;
+    startMin: string | undefined;
+    endHour: string | undefined;
+    endMin: string | undefined;
     
     @Output() submit = new EventEmitter<string>();
     @Output() delete = new EventEmitter<number>();
+    @Output() update = new EventEmitter<boolean>();
     @Output() message = new EventEmitter<string>();
     @Output() deleteMessage = new EventEmitter<number>();
     @Output() acceptAppointment = new EventEmitter<number>();
@@ -51,6 +74,9 @@ export class EventComponent implements OnInit, OnDestroy{
     patientEmail: any | undefined;
     private subscriptions: Subscription = new Subscription();
     isLoading: boolean = true;
+
+    hours: string[] = Array.from({ length: 11 }, (_, i) => (8 + i).toString().padStart(2, '0')); 
+    minutes: string[] = ['00', '30'];
     
     constructor(
         private formBuilder: FormBuilder,
@@ -59,6 +85,7 @@ export class EventComponent implements OnInit, OnDestroy{
         private dialog: MatDialog,
         private graphQLService: AppGraphQLService,
         private activatedRoute: ActivatedRoute,
+        private socketService: AppSocketService,
 
         public dialogRef: MatDialogRef<EventComponent>,
         @Inject(MAT_DIALOG_DATA) public data: any
@@ -89,10 +116,23 @@ export class EventComponent implements OnInit, OnDestroy{
         this.form = this.formBuilder.group({
             input: this.formBuilder.control<string>(' ')
         });
+        this.isClickable = this.userRole === 'admin' && this.title ==='Missed request' && !this.isEditting;
+
+        if (this.appointmentTimeForm) {
+           
+        }
     }
     ngOnDestroy(): void {
         this.subscriptions.unsubscribe();
     }
+    checkFormState(): void {
+        this.isDisabled = !(
+            //this.appointmentTimeForm.valid &&
+            this.appointmentTimeForm.touched &&
+            !this.appointmentTimeForm.errors
+        );
+    }
+
     async loadJustCreatedAppointment(patientId: number){
         const query = `query ($patientId: Int!) {
             justCreatedAppointment(patientId: $patientId) {
@@ -214,15 +254,20 @@ export class EventComponent implements OnInit, OnDestroy{
                 this.patientName = appointment.patient?.firstName+" "+appointment.patient?.lastName;
                 this.patientDob = appointment.patient?.dob && DateTime.fromISO(appointment.patient.dob, {setZone: true}).toFormat('MMM dd, yyyy'); 
                 this.doctorName = appointment.doctor ? appointment.doctor?.firstName+" "+appointment.doctor?.lastName : null;
-                this.eventDate = DateTime.fromISO(appointment.start, {setZone: true}).toFormat('MMM dd, yyyy');
-                this.eventStartTime =  DateTime.fromISO(appointment.start, {setZone: true}).toFormat('HH:mm a');
-                this.eventEndTime = DateTime.fromISO(appointment.end, {setZone: true}).toFormat('HH:mm a');
-                this.doctorMessage = response.data.appointment.doctorMessage;
-                this.patientMessage = response.data.appointment.patientMessage;
-                this.appointmentId = response.data.appointment.id;
+                this.eventDate = DateTime.fromISO(appointment.start, {zone: 'utc'}).setZone().toFormat('MMM dd, yyyy');
+                this.eventStartTime =  DateTime.fromISO(appointment.start, {zone: 'utc'}).setZone().toFormat('HH:mm a');
+                this.eventEndTime = DateTime.fromISO(appointment.end, {zone: 'utc'}).setZone().toFormat('HH:mm a');
+                this.doctorMessage = appointment.doctorMessage;
+                this.patientMessage = appointment.patientMessage;
+                this.appointmentId = appointment.id;
+
                 if (this.userRole === 'admin') {
                     this.patientPhoneNr = appointment.patient.phone;
                     this.patientEmail = appointment.patient.email;
+                    this.startHour = DateTime.fromISO(appointment.start, {zone: 'utc'}).setZone().toFormat('HH');
+                    this.startMin = DateTime.fromISO(appointment.start, {zone: 'utc'}).setZone().toFormat('mm');
+                    this.endHour = DateTime.fromISO(appointment.end, {zone: 'utc'}).setZone().toFormat('HH');
+                    this.endMin = DateTime.fromISO(appointment.end, {zone: 'utc'}).setZone().toFormat('mm');
                 }
                 this.isLoading = false;
                 const now = DateTime.now().toISO();
@@ -245,7 +290,7 @@ export class EventComponent implements OnInit, OnDestroy{
 
     onSubmit(){
         const value = this.form.value;
-        this.submit.emit(value);
+        if (value.input) this.submit.emit(value.input);
     }
     async onDelete(){
         if (this.appointmentInfo.id) {
@@ -295,6 +340,85 @@ export class EventComponent implements OnInit, OnDestroy{
     }
     onAcceptAppointment(id: number){
         this.acceptAppointment.emit(id);
+    }
+    onUpdate(){
+        this.isEditting = true;
+
+        if (this.eventDate && this.startHour && this.startMin && this.endHour&& this.endMin) {
+            this.appointmentTimeForm = this.formBuilder.group({
+                date: this.formBuilder.control<Date>(new Date(this.eventDate), [Validators.required]), 
+                startHour: this.formBuilder.control<string>(this.startHour,  [Validators.required]),
+                startMin: this.formBuilder.control<string>(this.startMin,  [Validators.required]),
+                endHour: this.formBuilder.control<string>(this.endHour,  [Validators.required]),
+                endMin: this.formBuilder.control<string>(this.endMin,  [Validators.required]),
+            },
+            { validators: [timeRangeValidator, overTimeValidator, weekendValidator] });
+
+            const sub = this.appointmentTimeForm.statusChanges.subscribe(() => {
+                this.checkFormState();   
+            });
+            this.subscriptions.add(sub);
+        }     
+    }
+
+    async onNewTimeSubmit(){
+        if (this.appointmentTimeForm.valid) {
+            const { date, startHour, startMin, endHour, endMin } = this.appointmentTimeForm.value;
+
+            const year = date.getFullYear();
+            const month = date.getMonth(); 
+            const day = date.getDate();
+
+            const start = new Date(year, month, day, parseInt(startHour, 10), parseInt(startMin, 10), 0)
+            const end = new Date(year, month, day, parseInt(endHour, 10), parseInt(endMin, 10), 0)
+            const startDateTime = DateTime.fromJSDate(start).toLocal()
+            const endDateTime = DateTime.fromJSDate(end).toLocal()
+
+            if (
+                date && startDateTime && endDateTime && 
+                start !== new Date(this.eventStartTime!) && 
+                end !== new Date(this.eventEndTime!) && 
+                date !== this.eventDate
+            ) {
+                const appointmentInput = {
+                    id: this.appointmentInfo.id,
+                    start: startDateTime.toISO() as string,
+                    end: endDateTime.toISO() as string, 
+                    allDay: false
+                }
+                this.isEditting = false;
+                this.isLoadingDetails = true;
+                await this.updateAppointment(appointmentInput);
+            } else {
+                this.isEditting = false;
+            }
+        } else {
+            this.isEditting = false;
+        }
+    } 
+    async updateAppointment(appointmentInput: AppointmentInput){
+        const mutation = `
+        mutation ($appointmentInput: AppointmentInput!) {
+            saveAppointment (appointmentInput: $appointmentInput) {
+                success
+                message
+            }
+        }`
+
+        try {
+            const response = await this.graphQLService.mutate(mutation, {appointmentInput});
+            if (response.data.saveAppointment.success) {
+                await this.loadAppointment();
+            } else {
+                this.dialog.open(AlertComponent, {data: {message: response.data.saveAppointment.message}});
+                await this.loadAppointment();
+            }
+            this.isLoadingDetails = false;
+            this.socketService.requestCountMissedAppointments();
+            this.update.emit(true);
+        } catch (error) {
+            this.dialog.open(AlertComponent, {data: {message: "Error saving appointment: "+error}});
+        }
     }
 
 }

@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
-import { CalendarOptions, DateSelectArg, EventClickArg, EventApi, DayCellContentArg, EventDropArg, DatesSetArg } from '@fullcalendar/core';
+import { CalendarOptions, DateSelectArg, EventClickArg, EventApi, DayCellContentArg, EventDropArg, DatesSetArg, ViewMountArg } from '@fullcalendar/core';
 import { ActivatedRoute, Router } from "@angular/router";
 import { MatDialog } from "@angular/material/dialog";
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -28,16 +28,16 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
     @Input() role!: 'admin' | 'doctor' | 'patient';
 
     appointmentSelections: string[] = [];
-    calendarVisible = true;
     calendarOptions!: CalendarOptions;
     currentEvents: EventApi[] = [];
     appointments: Appointment[] = [];
     allDayAppointments: Appointment[] = [];
-    selectedAppointments: string | null = 'All';
+    selectedAppointments!: string;
     events: any = []; 
     patientId: number | undefined;
     monthStart: any;
     monthEnd: any;
+    isLoading: boolean = true;
 
     private subscriptions: Subscription = new Subscription();
 
@@ -62,15 +62,16 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
             this.selectedAppointments = 'Missed requests';
             this.initializeCalendar();
         } else {
+            this.selectedAppointments = 'All'
             this.appointmentSelections = ['All', 'Pending confirmation', 'Upcoming', 'Past', 'Missed requests']
             
             this.initializeCalendar();
         }
     }
 
-    async loadEvents(type?: string){
+    async loadEvents(){
 
-        switch (type) {
+        switch (this.selectedAppointments) {
             case 'Pending confirmation':
                 await this.loadPendingAppointments();
                 this.initializeCalendar();
@@ -96,7 +97,6 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                     await this.loadAllAppointments();
                     this.initializeCalendar();
                     return;
-
                 }
         }
     }
@@ -137,26 +137,43 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                 daysOfWeek: [ 1, 2, 3, 4, 5 ],
                 startTime: '08:00', 
                 endTime: '18:00'
-            }
+            },
+            viewDidMount: (arg: ViewMountArg) => this.onViewChange(arg)
         }
+        this.isLoading = false;
+    }
+    async onViewChange(arg: ViewMountArg) {
+        this.monthStart = arg.view.currentStart;
+        this.monthEnd = arg.view.currentEnd;
+        if (this.selectedAppointments) {
+            await this.loadEvents();
+        } 
     }
 
     onDatesSet(dateInfo: DatesSetArg) {
         this.monthStart = dateInfo.start;
         this.monthEnd = dateInfo.end;
         if (this.role === 'admin') {
-            this.loadEvents('missed requests');
+            this.loadEvents();
         }
         this.loadEvents();
     }
 
     handleEventDrop(arg: any) {
+        const now = new Date()
+        if (arg.event.start < now) {
+            arg.revert();
+        }
         if (this.role === 'patient') {
             if (arg.event.extendedProps.doctorId) {
                 this.dialog.open(AlertComponent, {data: {message: "Cannot change the appointment time since it has been already accepted by a doctor... Consider cancelling appointment and creating a new one."}});
                 arg.revert();
             } else if (arg.event.extendedProps.title)  {
                 this.dialog.open(AlertComponent, {data: {message: "The appointment already past"}});
+                arg.revert();
+            }
+        } else if (this.role = 'doctor'){
+            if (!arg.event.extendedProps.doctorId) {
                 arg.revert();
             }
         }
@@ -196,7 +213,8 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
 
     onCheckboxChange(value: string) {
         if (value) {
-            this.loadEvents(value);
+            this.selectedAppointments = value;
+            this.loadEvents();
         }
     }
 
@@ -244,28 +262,21 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                 const now = DateTime.now().toISO({ includeOffset: true });
                 this.events = this.appointments.map((appointment: Appointment) => {
                     
-                    const start = DateTime.fromISO(appointment.start).toLocal();
-                    const startStr = start.toISO({includeOffset: true});
+                    const startStr = DateTime.fromISO(appointment.start, {zone:'utc'}).setZone().toLocal();
+                    const start = startStr.toISO({includeOffset: true});
 
-                    // if (!appointment.doctorId && startStr! < now) {
-                    //     title = "Missed request"
-                    // } else if (!appointment.doctorId && startStr! > now) {
-                    //     title = "Pending"
-                    // }
+                    const endStr = DateTime.fromISO(appointment.end, {zone:'utc'}).setZone().toLocal();
+                    const end = endStr.toISO({includeOffset: true});
 
-                    // if (appointment.doctorId && startStr! < now) {
-                    //     title = "Past"
-                    // } else if (appointment.doctorId && startStr! > now) {
-                    //     title = "Upcoming"
-                    // }
+
                     if (this.role !== 'patient') {
                         title = appointment.patient.firstName+' '+appointment.patient.lastName
                     } else if (this.role === 'patient' && appointment.doctor) {
                         title = 'Dr. '+appointment.doctor.firstName+' '+appointment.doctor.lastName
                     } else if (this.role === 'patient' && !appointment.doctor) {
-                          if (!appointment.doctorId && startStr! < now) {
+                          if (!appointment.doctorId && start! < now) {
                             title = "Missed request"
-                        } else if (!appointment.doctorId && startStr! > now) {
+                        } else if (!appointment.doctorId && end! > now) {
                             title = "Pending confirmation"
                         }
                     }
@@ -273,8 +284,8 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
 
                     return {
                         title,
-                        start: appointment.start,
-                        end: appointment.end,
+                        start,
+                        end,
                         extendedProps: {
                             dbId: appointment.id,
                             doctorId: appointment.doctorId,
@@ -329,10 +340,15 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                     } else {
                         title = "Missed request"
                     }
+                    const startStr = DateTime.fromISO(appointment.start).toLocal();
+                    const start = startStr.toISO({includeOffset: true});
+
+                    const endStr = DateTime.fromISO(appointment.end).toLocal();
+                    const end = endStr.toISO({includeOffset: true});
                     return {
                         title,
-                        start: appointment.start,
-                        end: appointment.end,
+                        start,
+                        end,
                         extendedProps: {
                             dbId: appointment.id,
                             patientId: appointment.patientId
@@ -387,11 +403,16 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                     } else {
                         title =  "Pending confirmation";
                     }
+                    const startStr = DateTime.fromISO(appointment.start, {zone:'utc'}).setZone().toLocal();
+                    const start = startStr.toISO({includeOffset: true});
+
+                    const endStr = DateTime.fromISO(appointment.end, {zone:'utc'}).setZone().toLocal();
+                    const end = endStr.toISO({includeOffset: true});
 
                     return {
                         title,
-                        start: appointment.start,
-                        end: appointment.end,
+                        start,
+                        end,
                         extendedProps: {
                             dbId: appointment.id,
                             doctorId: appointment.doctorId
@@ -447,13 +468,16 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                     } else if (this.role === 'patient' && appointment.doctor) {
                         title = 'Dr. '+appointment.doctor.firstName+' '+appointment.doctor.lastName
                     } 
-                    // else if (this.role === 'patient' && !appointment.doctor) {
-                    //     title = "Pending confirmation"
-                    // }
+                    const startStr = DateTime.fromISO(appointment.start, {zone:'utc'}).setZone().toLocal();
+                    const start = startStr.toISO({includeOffset: true});
+
+                    const endStr = DateTime.fromISO(appointment.end, {zone:'utc'}).setZone().toLocal();
+                    const end = endStr.toISO({includeOffset: true});
+
                     return {
                         title,
-                        start: appointment.start,
-                        end: appointment.end,
+                        start,
+                        end,
                         extendedProps: {
                             dbId: appointment.id,
                             doctorId: appointment.doctorId
@@ -510,13 +534,16 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                     } else if (this.role === 'patient' && appointment.doctor) {
                         title = 'Dr. '+appointment.doctor.firstName+' '+appointment.doctor.lastName
                     } 
-                    // else if (this.role === 'patient' && !appointment.doctor) {
-                    //     title = "Pending confirmation"
-                    // }
+                    const startStr = DateTime.fromISO(appointment.start, {zone:'utc'}).setZone().toLocal();
+                    const start = startStr.toISO({includeOffset: true});
+
+                    const endStr = DateTime.fromISO(appointment.end, {zone:'utc'}).setZone().toLocal();
+                    const end = endStr.toISO({includeOffset: true});
+
                     return {
                         title,
-                        start: appointment.start,
-                        end: appointment.end,
+                        start,
+                        end,
                         extendedProps: {
                             dbId: appointment.id,
                             title: 'Past'
@@ -734,7 +761,7 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
         const isDouble = this.isDouble(arg) 
         const isBusinessHours = this.isBusinessHours(arg);
         const isFuture = this.isFuture(arg);
-
+        
         if ((!isDouble && isBusinessHours && isFuture) || isFuture && arg.allDay) {
             this.handleAddEvent(arg);
         } 
@@ -746,13 +773,13 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
 
     isDouble(arg: any): boolean {
         return this.appointments.some((event) => 
-            DateTime.fromISO(event.start).toFormat('HH:mm') === DateTime.fromISO(arg.startStr).toFormat('HH:mm')
+            event.start === arg.startStr
         );
     }
 
     isFuture(arg: any): boolean {
-        const now = DateTime.now().toISO({includeOffset: true});
-        return arg.startStr > now;
+        const now = new Date();
+        return new Date(arg.startStr) > now;
     }
 
     isBusinessHours(date: any): boolean {
@@ -799,7 +826,13 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                 this.subscriptions.add(sub); 
             }
         });
+        const subUpdate = dialogRef.componentInstance.update.subscribe(value =>{
+            if (value) {
+                this.loadEvents();
+            }
+        })
         this.subscriptions.add(subDelete);
+        this.subscriptions.add(subUpdate);
     }
 
     handleEvents(events: EventApi[]) {

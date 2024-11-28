@@ -18,6 +18,7 @@ import { ConfirmComponent } from "../../../shared/components/app-confirm/app-con
 import { EventComponent } from "../../../shared/components/app-event/app-event.component";
 import { AppointmentDataSource } from "../../../shared/types";
 import { Appointment } from "../appointment";
+import { getHowLongAgo, getHowSoonUpcoming } from "../../../shared/utils";
 
 @Component({
     selector: 'app-appointments',
@@ -117,7 +118,7 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                 if (this.previousNextId !== this.nextId) {
                     this.previousNextId = this.nextId;
                 }
-                this.nextAppointmentStartTime = DateTime.fromISO(subscription.nextAppointment.nextStart, {setZone: true}).toFormat('HH:mm a');
+                this.nextAppointmentStartTime = DateTime.fromISO(subscription.nextAppointment.nextStart, {zone: 'utc'}).setZone().toFormat('HH:mm a');
             }
         });
 
@@ -230,11 +231,10 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
         this.filterInput = null;
         this.pageIndex = 0;
 
+        await this.loadData();
         this.router.navigate([], {
-            relativeTo: this.activatedRoute,
             queryParams: { tab: value }
         });
-        await this.loadData();
     }
 
     async onPageChange(value: any) {
@@ -515,7 +515,7 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
         switch (view) {
             case "pending":
                 this.pendingDataSource = this.pendingAppointments.map(row => {
-                    const howLongAgoStr = this.getHowLongAgo(row.createdAt);
+                    const howLongAgoStr = getHowLongAgo(row.createdAt);
                     const startDate = DateTime.fromISO(row.start, { setZone: true });
                     const today = DateTime.now().setZone(startDate.zone);
                     const tomorrow = today.plus({ days: 1 });
@@ -534,8 +534,8 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                         title: this.userRole === 'patient' ? "Pending doctor confirmation" : "",
                         buttons: this.userRole === 'doctor' ? allButtons : cancelButton,
                         date: DateTime.fromISO(row.start, {setZone: true}).toFormat('MMM dd, yyyy'),
-                        start: date+`, ${DateTime.fromISO(row.start, {setZone: true}).toFormat('HH:mm a')}`,
-                        end: DateTime.fromISO(row.end, {setZone: true}).toFormat('HH:mm a'),
+                        start: date+`, ${DateTime.fromISO(row.start, {zone: 'utc'}).setZone().toFormat('HH:mm a')}`,
+                        end: DateTime.fromISO(row.end, {zone: 'utc'}).setZone().toFormat('HH:mm a'),
                         name: this.userRole==='doctor' ? `${row.patient.firstName} ${row.patient.lastName}` : undefined,
                         message: this.userRole==='doctor' ? row.patientMessage : undefined
                     } 
@@ -555,7 +555,7 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                 break;
             case "upcoming":
                 this.upcomingDataSource = this.upcomingAppointments.map(row => {
-                    const howSoonStr = this.getHowSoonUpcoming(row.start);
+                    const howSoonStr = getHowSoonUpcoming(row.start);
                     const startDate = DateTime.fromISO(row.start, { setZone: true });
                     const today = DateTime.now().setZone(startDate.zone);
                     const tomorrow = today.plus({ days: 1 });
@@ -574,8 +574,8 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                         title: this.userRole === 'patient' ? "Confirmed appointment" : undefined,
                         buttons: cancelButton,
                         date: DateTime.fromISO(row.start, {setZone: true}).toFormat('MMM dd, yyyy'),
-                        start: date+`, ${DateTime.fromISO(row.start, {setZone: true}).toFormat('HH:mm a')}`,
-                        end: DateTime.fromISO(row.end, {setZone: true}).toFormat('HH:mm a'),
+                        start: date+`, ${DateTime.fromISO(row.start, {zone: 'utc'}).setZone().toFormat('HH:mm a')}`,
+                        end: DateTime.fromISO(row.end, {zone: 'utc'}).setZone().toFormat('HH:mm a'),
                         name: this.userRole==='doctor' ? `${row.patient.firstName} ${row.patient.lastName}` : `${row.doctor?.firstName} ${row.doctor?.lastName}`,
                         message: this.userRole==='doctor' ? row.patientMessage : row.doctorMessage,
                         draft: this.userRole==='doctor' && row.record ? row.record.draft : undefined,
@@ -592,7 +592,7 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                 break;
             case "past":
                 this.pastDataSource = this.pastAppointments.map(row => {
-                    const howLongAgoStr = this.getHowLongAgo(row.start);
+                    const howLongAgoStr = getHowLongAgo(row.start);
                     const startDate = DateTime.fromISO(row.start, { setZone: true });
                     const today = DateTime.now().setZone(startDate.zone);
                     const yesterday = today.minus({ days: 1 });
@@ -610,9 +610,9 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                         pastDate: howLongAgoStr,
                         title: this.userRole === 'patient' ? "View details": undefined,
                         buttons: deleteButton,
-                        date: DateTime.fromISO(row.start, {setZone: true}).toFormat('MMM dd, yyyy'),
-                        start: date+`, ${DateTime.fromISO(row.start, {setZone: true}).toFormat('HH:mm a')}`,
-                        end: DateTime.fromISO(row.end, {setZone: true}).toFormat('HH:mm a'),
+                        date: DateTime.fromISO(row.start, {zone: 'utc'}).setZone().toFormat('MMM dd, yyyy'),
+                        start: date+`, ${DateTime.fromISO(row.start, {zone: 'utc'}).setZone().toFormat('HH:mm a')}`,
+                        end: DateTime.fromISO(row.end, {zone: 'utc'}).setZone().toFormat('HH:mm a'),
                         name: this.userRole==='doctor' ? `${row.patient.firstName} ${row.patient.lastName}` : `${row.doctor?.firstName} ${row.doctor?.lastName}`,
                         message: this.userRole==='doctor' ? row.patientMessage : row.doctorMessage,
                         draft: this.userRole==='doctor' && row.record ? row.record.draft : undefined,
@@ -630,75 +630,6 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
             default:
                 break;
         }
-    }
-    getHowSoonUpcoming(datetime: string) {
-        const now = DateTime.now().setZone('Europe/Helsinki');
-        const inputDate = DateTime.fromISO(datetime, { zone: 'utc' }).setZone('Europe/Helsinki', {keepLocalTime: true});
-    
-        const diff = inputDate.diff(now, ['years', 'months', 'days', 'hours', 'minutes', 'seconds']);
-        let howSoonStr = 'in ';
-
-        if (diff.years > 0) {
-            howSoonStr += `${diff.years} year${diff.years === 1 ? '' : 's'} `;
-        }
-        if (diff.months > 0) {
-            howSoonStr += `${diff.months} month${diff.months === 1 ? '' : 's'} `;
-        }
-        if (diff.days > 0) {
-            howSoonStr += `${diff.days} day${diff.days === 1 ? '' : 's'} `;
-        }
-        if (diff.days < 1 && diff.hours > 0) {
-            howSoonStr += `${diff.hours} hour${diff.hours === 1 ? '' : 's'} `;
-        }
-        if (diff.days < 1 && diff.minutes > 0) {
-            howSoonStr += `${diff.minutes} minute${diff.minutes === 1 ? '' : 's'} `;
-        }
-    
-        howSoonStr = howSoonStr.trim();
-    
-        if (!howSoonStr || howSoonStr === 'in') {
-            howSoonStr = 'now';
-        }
-    
-        return howSoonStr;
-    }
-
-    getHowLongAgo(datetime: string) {
-        const now = DateTime.now().setZone('Europe/Helsinki');
-        const inputDate = DateTime.fromISO(datetime, { zone: 'utc' }).setZone('Europe/Helsinki', {keepLocalTime: false});
-        const diff = now.diff(inputDate, ['years', 'months', 'days', 'hours', 'minutes', 'seconds']);
-
-        let howLongAgoStr = '';
-
-        if (diff.years > 0) {
-            howLongAgoStr += `${diff.years} year${diff.years === 1 ? '' : 's'} `;
-        }
-        if (diff.months > 0) {
-            howLongAgoStr += `${diff.months} month${diff.months === 1 ? '' : 's'} `;
-        }
-        if (diff.months < 1 && diff.days > 0) {
-            howLongAgoStr += `${diff.days} day${diff.days === 1 ? '' : 's'} `;
-        }
-        if (diff.months <1 && diff.days < 2 && diff.hours > 0) {
-            howLongAgoStr += `${diff.hours} hour${diff.hours === 1 ? '' : 's'} `;
-        }
-        if (diff.months < 1 && diff.days < 1 && diff.hours <2 && diff.minutes > 0) {
-            if (diff.minutes <= 5) {
-                howLongAgoStr = 'Just now';
-            } else {
-                howLongAgoStr += `${diff.minutes} minute${diff.minutes === 1 ? '' : 's'} `;
-            }
-        }
-        if (diff.days <1 && diff.hours <1 && diff.minutes === 0 ) {
-            howLongAgoStr = 'Just now';
-        }
-
-        howLongAgoStr = howLongAgoStr.trim();
-
-        if (howLongAgoStr && howLongAgoStr !== 'Just now') {
-            howLongAgoStr += ' ago';
-        } 
-        return howLongAgoStr;
     }
 
     openCalendar() {

@@ -61,6 +61,14 @@ export class AppSocketService {
         });
     }
 
+    getMissedAppointmentsCount(): Observable<boolean> {
+        return new Observable<boolean>(observer => {
+            this.socket.on('updateMissedAppointmentsCount', (isUpdated: boolean) => {
+                observer.next(isUpdated);
+            });
+        });
+    }
+
     getOneUserStatus(id: number): Observable<any> {
         this.socket.emit('onlineUser', id);
         return new Observable<any>(observer => {
@@ -76,6 +84,15 @@ export class AppSocketService {
         } else {
             this.reconnectSocket().then(() => {
                 this.socket.emit('getOnlineUsers');
+            });
+        }
+    }
+    requestCountMissedAppointments(){
+        if (this.socket && this.socket.connected) {
+            this.socket.emit('getMissedAppointmentsCount');
+        } else {
+            this.reconnectSocket().then(() => {
+                this.socket.emit('getMissedAppointmentsCount');
             });
         }
     }
