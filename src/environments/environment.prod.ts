@@ -1,8 +1,8 @@
 export const environment = {
   production: true,
-  url: 'https://health-center-ha99.onrender.com/graphql' ,
+  url: 'https://health-center.happypond-6e715cde.northeurope.azurecontainerapps.io/graphql' ,
   triggerTime: '00:05:00',
-  socketUrl: 'wss://health-center-ha99.onrender.com',
+  socketUrl: 'wss://health-center.happypond-6e715cde.northeurope.azurecontainerapps.io',
   adminId: 4,
   tokenEndpoint: 'https://health-center.sandbox.signicat.com/auth/open/connect/token',
   authEndpoint: 'https://health-center.sandbox.signicat.com/auth/open/connect/authorize',
