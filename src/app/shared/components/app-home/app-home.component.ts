@@ -73,6 +73,7 @@ export class AppHomeComponent implements OnInit {
             await this.loadMe();
             if (this.me) {
                 await this.loadData();
+                this.isLoading = false;
                 const sub = this.router.events.subscribe(async () => {
                     this.isHomeRoute = this.router.url === '/home';
                     if (this.isHomeRoute) {  
@@ -116,7 +117,6 @@ export class AppHomeComponent implements OnInit {
                     });  
                     this.subscriptions.add(sub);  
                 }
-                this.isLoading = false;
             } 
 
     }
