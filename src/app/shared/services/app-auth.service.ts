@@ -11,6 +11,7 @@ import { DirectLoginInput } from '../types';
   providedIn: 'root'
 })
 export class AppAuthService {
+    
     constructor(
         private apollo: Apollo,
         private graphQLService: AppGraphQLService,
@@ -41,10 +42,10 @@ export class AppAuthService {
             }
         } catch (error) {
             const ref = this.dialog.open(AlertComponent, {data: {message: error}});
-            ref.componentInstance.ok.subscribe(subscription => {
+            ref.componentInstance.ok.subscribe(async subscription => {
                 if (subscription) {
-                    this.logOut();
                     this.dialog.closeAll();
+                    await this.logOut();
                 }
             });
         }
@@ -70,7 +71,6 @@ export class AppAuthService {
                 localStorage.setItem('authToken', token);
                 localStorage.setItem('tokenExpire', tokenExpire);
                 this.dialog.closeAll();
-                window.location.reload();
             }
         } catch (error) {
             const ref = this.dialog.open(AlertComponent, {data: { message:  "AuthService: "+error}});
@@ -98,7 +98,6 @@ export class AppAuthService {
                 const tokenExpire = response.data.loginWithSignicat.expiresAt;
                 localStorage.setItem('authToken', token);
                 localStorage.setItem('tokenExpire', tokenExpire);
-                window.location.reload();
             }
         } catch (error) {
             const ref = this.dialog.open(AlertComponent, {data: { message:  "AuthService: "+error}});
@@ -107,18 +106,22 @@ export class AppAuthService {
                     this.dialog.closeAll(); 
                 }
             });
-            this.router.navigate(['/'])
+            this.router.navigate(['/']);
         }
     }
 
     async logOut() {
-        await this.graphQLService.mutate(`mutation { logOut }`, {});
-        this.apollo.client.clearStore(); 
-        localStorage.clear(); 
-        window.location.reload();
+        try {
+            await this.graphQLService.mutate(`mutation { logOut }`, {});
+            await this.apollo.client.clearStore();
+            localStorage.clear();
+            this.router.navigate(['/']);
+        } catch (error) {
+            console.error('Error during logout process:', error);
+        }
     }
 
-    isLoggedIn(): boolean {
+    isAuth():boolean {
         return !!localStorage.getItem('authToken'); 
     }
 }

@@ -70,7 +70,6 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
     }
 
     async loadEvents(){
-
         switch (this.selectedAppointments) {
             case 'Pending confirmation':
                 await this.loadPendingAppointments();
@@ -607,7 +606,7 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                     patientId: this.patientId || undefined
                 });
                 
-                const dialogRef = this.dialog.open(EventComponent, {data: { eventInfo }});
+                const dialogRef = this.dialog.open(EventComponent, {disableClose: true, data: { eventInfo }});
                 const sub = dialogRef.afterOpened().subscribe(() => {
                     this.dialogService.notifyDialogOpened();
                 });
@@ -761,7 +760,7 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
         const isDouble = this.isDouble(arg) 
         const isBusinessHours = this.isBusinessHours(arg);
         const isFuture = this.isFuture(arg);
-        
+
         if ((!isDouble && isBusinessHours && isFuture) || isFuture && arg.allDay) {
             this.handleAddEvent(arg);
         } 
@@ -773,7 +772,7 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
 
     isDouble(arg: any): boolean {
         return this.appointments.some((event) => 
-            event.start === arg.startStr
+            new Date(event.start).getTime() === new Date(arg.startStr).getTime()
         );
     }
 
@@ -831,6 +830,7 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                 this.loadEvents();
             }
         })
+
         this.subscriptions.add(subDelete);
         this.subscriptions.add(subUpdate);
     }

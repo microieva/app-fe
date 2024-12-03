@@ -6,7 +6,7 @@ import { LoginMenuComponent } from "../app-login-menu/app-login-menu.component";
 
 @Component({
     selector: 'app-landing',
-    templateUrl: './app-landing.component.html',
+    templateUrl: 'app-landing.component.html',
     styleUrls: ['app-landing.component.scss'],
     animations: [
         trigger('slideInOut', [
@@ -30,10 +30,24 @@ import { LoginMenuComponent } from "../app-login-menu/app-login-menu.component";
               animate('0s')
             ])
         ]),
+        // trigger('cursorAnimation', [
+        //     state('blink', style({ opacity: 0 })),
+        //     transition('* => blink', animate('700ms ease-in-out infinite')),
+        // ])
         trigger('cursorAnimation', [
             state('blink', style({ opacity: 0 })),
-            transition('* => blink', animate('700ms ease-in-out infinite')),
-        ])
+            transition('* => blink', [
+              animate(
+                '1s ease-in-out', // Total duration of the animation (700ms fade-in + 700ms fade-out)
+                keyframes([
+                  style({ opacity: 1, offset: 0 }),  
+                  style({ opacity: 0, offset: 0.5 }), 
+                  style({ opacity: 1, offset: 1 })  
+                ])
+              )
+            ])
+          ])
+          
     ]
 })
 export class AppLandingComponent implements OnInit{
@@ -41,7 +55,6 @@ export class AppLandingComponent implements OnInit{
     fullText: string = 'Sign up for our Newsletter!';
     displayedText: string = '';
     email!: FormControl;
-    homeRoute: boolean = true;
     
     @HostListener('window:scroll', ['$event'])
     onWindowScroll(): void {
@@ -57,6 +70,7 @@ export class AppLandingComponent implements OnInit{
     async ngOnInit() {
         this.startTypingAnimation();
         this.email = this.formBuilder.control<string>('');
+        this.dialog.closeAll();
     }
 
     startTypingAnimation() {

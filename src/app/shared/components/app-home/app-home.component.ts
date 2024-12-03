@@ -8,7 +8,6 @@ import { AppGraphQLService } from "../../services/app-graphql.service";
 import { AppAppointmentService } from "../../services/app-appointment.service";
 import { AppTimerService } from "../../services/app-timer.service";
 import { AppCountUnreadMessagesService } from "../../services/app-count-unread.service";
-import { AppRefreshService } from "../../services/app-refresh.service";
 import { getTodayWeekdayTime, getNextAppointmentWeekdayStart, getLastLogOutStr } from "../../utils";
 import { AlertComponent } from "../app-alert/app-alert.component";
 import { AppTableComponent } from "../app-table/app-table.component";
@@ -17,7 +16,7 @@ import { User } from "../../../graphql/user/user";
 
 @Component({
     selector: 'app-home',
-    templateUrl: './app-home.component.html',
+    templateUrl: 'app-home.component.html',
     styleUrls: ['app-home.component.scss'],
     animations: [
         trigger('slideInOut', [
@@ -67,69 +66,59 @@ export class AppHomeComponent implements OnInit {
         private graphQLService: AppGraphQLService,
         private appointmentService: AppAppointmentService,
         private timerService: AppTimerService,
-        private countService: AppCountUnreadMessagesService,
-        private refreshService: AppRefreshService
+        private countService: AppCountUnreadMessagesService
     ){}
 
     async ngOnInit() {
-        await this.loadMe();
-        await this.loadData();
-
-        if (this.me) {
-            this.isLoading = false;
-            const sub = this.router.events.subscribe(async () => {
-                this.isHomeRoute = this.router.url === '/home';
-                if (this.isHomeRoute) {  
-                    await this.loadData();
-                }
-            });
-            this.subscriptions.add(sub); 
-
-            if (this.userRole !== 'patient') {
-                this.countService.countUnreadMessages();
-            }
-            
-            if (this.userRole === 'admin') {
-                this.today = getTodayWeekdayTime();
-                const now = DateTime.now().setZone('Europe/Helsinki').toISO();
-                this.timerService.startClock(now!);
-                const sub = this.timerService.clock.subscribe(value=> {
-                    this.clock = value;
+            await this.loadMe();
+            if (this.me) {
+                await this.loadData();
+                const sub = this.router.events.subscribe(async () => {
+                    this.isHomeRoute = this.router.url === '/home';
+                    if (this.isHomeRoute) {  
+                        await this.loadData();
+                    }
                 });
                 this.subscriptions.add(sub); 
-            }
-            if (this.userRole === 'doctor') {
-                this.appointmentService.pollNextAppointment();
-                const sub = this.appointmentService.appointmentInfo.subscribe(async (subscription) => {
     
-                    if (subscription && subscription.nextAppointment) {
-                        this.nextId = subscription.nextAppointment.nextId;
-                        if (this.previousNextId !== this.nextId) {
-                            this.previousNextId = this.nextId;
-                        } 
-                        const nextStart = subscription.nextAppointment.nextStart;
-                        this.nextAppointmentStartTime = ''
-                        this.nextStart = getNextAppointmentWeekdayStart(nextStart);
-                        this.nextAppointmentName = subscription.nextAppointment.patient.firstName+' '+subscription.nextAppointment.patient.lastName;
-                        this.nextAppointmentPatientDob = DateTime.fromISO(subscription.nextAppointment.patient.dob).toFormat('MMM dd, yyyy');
-                        const str = DateTime.fromISO(subscription.nextAppointment.previousAppointmentDate).toFormat('MMM dd, yyyy'); 
-                        this.previousAppointmentDate = str !== 'Invalid DateTime' ? str : '-';
-                        this.recordIds = subscription.nextAppointment.recordIds;
-                       
-                    } 
-                });  
-                this.subscriptions.add(sub);     
-                if (this.me.updatedAt === null) {
-                    const sub = this.refreshService.refresh$.subscribe((refresh) => {
-                        if (refresh) {
-                            this.ngOnInit();
-                            this.refreshService.resetRefresh(); 
-                        }
-                    });
-                    this.subscriptions.add(sub);
+                if (this.userRole !== 'patient') {
+                    this.countService.countUnreadMessages();
                 }
-            }
-        }   
+                
+                if (this.userRole === 'admin') {
+                    this.today = getTodayWeekdayTime();
+                    const now = DateTime.now().setZone('Europe/Helsinki').toISO();
+                    this.timerService.startClock(now!);
+                    const sub = this.timerService.clock.subscribe(value=> {
+                        this.clock = value;
+                    });
+                    this.subscriptions.add(sub); 
+                }
+                if (this.userRole === 'doctor') {
+                    this.appointmentService.pollNextAppointment();
+                    const sub = this.appointmentService.appointmentInfo.subscribe(async (subscription) => {
+        
+                        if (subscription && subscription.nextAppointment) {
+                            this.nextId = subscription.nextAppointment.nextId;
+                            if (this.previousNextId !== this.nextId) {
+                                this.previousNextId = this.nextId;
+                            } 
+                            const nextStart = subscription.nextAppointment.nextStart;
+                            this.nextAppointmentStartTime = ''
+                            this.nextStart = getNextAppointmentWeekdayStart(nextStart);
+                            this.nextAppointmentName = subscription.nextAppointment.patient.firstName+' '+subscription.nextAppointment.patient.lastName;
+                            this.nextAppointmentPatientDob = DateTime.fromISO(subscription.nextAppointment.patient.dob).toFormat('MMM dd, yyyy');
+                            const str = DateTime.fromISO(subscription.nextAppointment.previousAppointmentDate).toFormat('MMM dd, yyyy'); 
+                            this.previousAppointmentDate = str !== 'Invalid DateTime' ? str : '-';
+                            this.recordIds = subscription.nextAppointment.recordIds;
+                           
+                        } 
+                    });  
+                    this.subscriptions.add(sub);  
+                }
+                this.isLoading = false;
+            } 
+
     }
     ngOnDestroy(): void {
         this.subscriptions.unsubscribe();

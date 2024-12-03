@@ -65,7 +65,7 @@ export class EventComponent implements OnInit, OnDestroy{
 
     appointmentInfo: any;
     title: string = ''
-    justCreatedId: number | undefined;
+    justCreatedId: number | null = null;
     doctorMessage: string | null = null;
     patientMessage: string | null = null;
     patientId: number | undefined;
@@ -117,17 +117,12 @@ export class EventComponent implements OnInit, OnDestroy{
             input: this.formBuilder.control<string>(' ')
         });
         this.isClickable = this.userRole === 'admin' && this.title ==='Missed request' && !this.isEditting;
-
-        if (this.appointmentTimeForm) {
-           
-        }
     }
     ngOnDestroy(): void {
         this.subscriptions.unsubscribe();
     }
     checkFormState(): void {
         this.isDisabled = !(
-            //this.appointmentTimeForm.valid &&
             this.appointmentTimeForm.touched &&
             !this.appointmentTimeForm.errors
         );

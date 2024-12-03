@@ -1,0 +1,30 @@
+<mat-toolbar style=" border-bottom: 0.8px solid darkgray;">
+    <h2><a [routerLink]="['/home']">Health Center</a></h2>
+    <p *ngIf="me" class="me"><em>logged in as:</em></p>
+    <p *ngIf="me && userRole === 'admin'" style="text-indent: 10px;">admin</p>
+    <div *ngIf="me && userRole !== 'admin'" class="time">
+        <p>{{me.firstName}} {{me.lastName}}<span *ngIf="userRole === 'doctor'">, MD</span></p>
+    </div>
+    <span class="spacer"></span>
+    <div *ngIf="me && time" class="flex-row"> 
+        <div style="margin-top:7px;">
+            <span class="material-symbols-outlined header-icon"  (click)="openChat()" *ngIf="isUserUpdated && userRole!=='patient'" [matBadge]="unreadMessages">chat</span> 
+        </div>
+        <div style="margin-top:8px;">
+            <span 
+                class="material-symbols-outlined header-icon"  
+                *ngIf="isUserUpdated" 
+                (click)="openCalendar()" 
+                [matBadge]="userRole === 'admin' ? missedAppointments: ''" 
+                [ngClass]="isDisabled && userRole === 'admin' ? 'disabled': ''"
+            >calendar_month
+            </span> 
+        </div>
+    </div>
+    <p *ngIf="time && time !== '00:00'" class="me"><em>session time:</em> </p>
+    <div *ngIf="time && time !== '00:00'" class="time">
+        <p>{{time}}</p>
+    </div>
+    <button *ngIf="!me" mat-stroked-button type="button" color="secondary" (click)="onLogIn()">{{ 'Log In' }}</button>
+    <button *ngIf="me" mat-stroked-button type="button" color="secondary" (click)="onLogOut()">{{ 'Log Out' }}</button>
+</mat-toolbar>
