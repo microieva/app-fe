@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { authGuard } from './shared/services/app-auth-guard.service';
+import { AppAuthGuard } from './shared/services/app-auth.guard';
 import { UserComponent } from './graphql/user/user.component';
 import { AppointmentsComponent } from './graphql/appointment/appointments/appointments.component';
 import { CalendarComponent } from './graphql/appointment/calendar/calendar.component';
@@ -13,8 +13,8 @@ import { MessagesComponent } from './graphql/chat/messages/messages.component';
 
 
 const routes: Routes = [
-    { path: '', component: AppLandingComponent},
-    { path: 'home', component: AppHomeComponent, canActivate: [authGuard], children: [
+    { path: '', component: AppLandingComponent },
+    { path: 'home', component: AppHomeComponent, canActivate: [AppAuthGuard], children: [
         { path: 'user', component: UserComponent },
         { path: 'users', component: DoctorsComponent },
         { path: 'user/:id', component: UserComponent },

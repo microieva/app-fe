@@ -63,13 +63,16 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import {MatBadgeModule} from '@angular/material/badge';
 import { AppSearchComponent } from './shared/components/app-search/app-search.component';
 import { AppCountUnreadMessagesService } from './shared/services/app-count-unread.service';
-import { AppRefreshService } from './shared/services/app-refresh.service';
 import { MatSelectModule } from '@angular/material/select';
 import { AppTimeZoneService } from './shared/services/app-timezone.service';
+import { AppAuthService } from './shared/services/app-auth.service';
+import { AppHeader } from './shared/components/app-header/app-header.component';
+import { AppAuthGuard } from './shared/services/app-auth.guard';
 
 @NgModule({ 
     declarations: [
         AppComponent,
+        AppHeader,
         AppHomeComponent,
         AppLandingComponent,
         AppCalendarComponent,
@@ -135,6 +138,8 @@ import { AppTimeZoneService } from './shared/services/app-timezone.service';
         MatBadgeModule
     ], 
     providers: [
+        AppAuthGuard,
+        AppAuthService,
         AppTimerService,
         AppAppointmentService,
         AppTabsService,
@@ -142,7 +147,6 @@ import { AppTimeZoneService } from './shared/services/app-timezone.service';
         AppSnackbarService,
         AppDialogService,
         AppCountUnreadMessagesService,
-        AppRefreshService,
         AppTimeZoneService,
         provideNativeDateAdapter(),
         provideHttpClient(withInterceptorsFromDi()), 

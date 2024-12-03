@@ -12,8 +12,7 @@ const authLink = setContext((_, { headers }) => {
     return {
     headers: {
       ...headers,
-      authorization: token ? `Bearer ${token}` : "",
-      //'Access-Control-Allow-Origin': 'https://health-center.happypond-6e715cde.northeurope.azurecontainerapps.io'
+      authorization: token ? `Bearer ${token}` : ""
     }
   }
 });

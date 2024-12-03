@@ -7,9 +7,9 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dial
 import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../shared/services/app-graphql.service";
 import { AppTimerService } from "../../shared/services/app-timer.service";
-import { AppRefreshService } from "../../shared/services/app-refresh.service";
 import { AlertComponent } from "../../shared/components/app-alert/app-alert.component";
 import { ConfirmComponent } from "../../shared/components/app-confirm/app-confirm.component";
+import { LoadingComponent } from "../../shared/components/app-loading/loading.component";
 import { UserInput } from "./user.input";
 import { DoctorRequest } from "./doctor-request";
 import { User } from "./user";
@@ -53,12 +53,10 @@ export class UserComponent implements OnInit, OnDestroy {
         private formBuilder: FormBuilder,
         private dialog: MatDialog,
         private timerService: AppTimerService,
-        private refreshService: AppRefreshService,
 
         @Optional() public dialogRef: MatDialogRef<UserComponent>,
         @Optional() @Inject(MAT_DIALOG_DATA) public data: any
     ){
-        this.form = undefined; 
         this.userId = this.data?.userId || null;
     }
 
@@ -172,14 +170,16 @@ export class UserComponent implements OnInit, OnDestroy {
                     }
                 }`
 
+                const ref = this.dialog.open(LoadingComponent);
                 try {
                     const response = await this.graphQLService.mutate(mutation, { userId: this.me.id});
                     if (response.data.deleteUser.success) {
                         this.timerService.cancelTokenTimer();
                         localStorage.clear();
-                        window.location.reload();
+                        this.router.navigate(['']);
                     }
                 } catch (error) {
+                    ref.close();
                     this.dialog.open(AlertComponent, { data: {message: "Error deleting user: "+ error}})
                 }
             }
@@ -226,7 +226,6 @@ export class UserComponent implements OnInit, OnDestroy {
             const response = await this.graphQLService.mutate(mutation, { userInput: input });
             if (response.data.saveUser.success) {
                 this.router.navigate(['/home/user']);
-                this.refreshService.triggerRefresh();
             }
         } catch (error) {
             this.dialog.open(AlertComponent, { data: {message: "Error saving user details: "+ error}})
@@ -242,14 +241,3 @@ export class UserComponent implements OnInit, OnDestroy {
         this.dialog.closeAll();
     }
 }
-
-type UserForm = FormGroup<({
-    firstName: FormControl<string>
-    lastname: FormControl<string>
-    dob: FormControl<string>
-    email: FormControl<string>
-    phone: FormControl<string>
-    streetAddress: FormControl<string>
-    city: FormControl<string>
-    postCode: FormControl<string>
-})>
