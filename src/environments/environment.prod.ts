@@ -3,7 +3,7 @@ export const environment = {
   url: 'https://health-center.happypond-6e715cde.northeurope.azurecontainerapps.io/graphql' ,
   triggerTime: '00:05:00',
   socketUrl: 'wss://health-center.happypond-6e715cde.northeurope.azurecontainerapps.io',
-  adminId: 4,
+  adminId: 8,
   tokenEndpoint: 'https://health-center.sandbox.signicat.com/auth/open/connect/token',
   authEndpoint: 'https://health-center.sandbox.signicat.com/auth/open/connect/authorize',
   clientId: 'sandbox-itchy-wheel-954',
