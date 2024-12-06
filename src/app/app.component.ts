@@ -39,6 +39,10 @@ export class AppComponent implements OnInit, OnDestroy {
                 this.exchangeCodeForToken(code, state, scope);
             } 
         });
+        if (this.authService.isAuth()) {
+            this.router.navigate(['/home'])
+
+        }
     }
 
     ngAfterViewInit() {
