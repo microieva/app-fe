@@ -69,14 +69,13 @@ export class LoginComponent implements OnInit, AfterViewInit    {
 
         if (token) {
             this.dialogRef.close();
-            //window.location.reload(); 
             this.router.navigate(['/home'])
         } else {
             this.error = "Invalid email or password"
         }
     }
     cancelDirectLogin(){
-       window.location.reload();
+        this.dialogRef.close();
     }
 
     async handleCredentialResponse(response: any) {

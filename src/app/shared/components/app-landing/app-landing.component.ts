@@ -38,7 +38,7 @@ import { LoginMenuComponent } from "../app-login-menu/app-login-menu.component";
             state('blink', style({ opacity: 0 })),
             transition('* => blink', [
               animate(
-                '1s ease-in-out', // Total duration of the animation (700ms fade-in + 700ms fade-out)
+                '1s ease-in-out', // x ms fade-in + x ms fade-out)
                 keyframes([
                   style({ opacity: 1, offset: 0 }),  
                   style({ opacity: 0, offset: 0.5 }), 

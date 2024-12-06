@@ -1,3 +1,4 @@
+import { BehaviorSubject } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Apollo } from 'apollo-angular';
@@ -11,7 +12,8 @@ import { DirectLoginInput } from '../types';
   providedIn: 'root'
 })
 export class AppAuthService {
-    
+    private loggedInSubject = new BehaviorSubject<boolean>(false);
+    isLoggedIn$ = this.loggedInSubject.asObservable();
     constructor(
         private apollo: Apollo,
         private graphQLService: AppGraphQLService,
@@ -38,6 +40,7 @@ export class AppAuthService {
 
                 localStorage.setItem('authToken', token);
                 localStorage.setItem('tokenExpire', tokenExpire);
+                this.loggedInSubject.next(true);
                 return token;
             }
         } catch (error) {
@@ -70,7 +73,7 @@ export class AppAuthService {
 
                 localStorage.setItem('authToken', token);
                 localStorage.setItem('tokenExpire', tokenExpire);
-                //this.dialog.closeAll();
+                this.loggedInSubject.next(true);
             }
         } catch (error) {
             const ref = this.dialog.open(AlertComponent, {data: { message:  "AuthService: "+error}});
@@ -98,6 +101,7 @@ export class AppAuthService {
                 const tokenExpire = response.data.loginWithSignicat.expiresAt;
                 localStorage.setItem('authToken', token);
                 localStorage.setItem('tokenExpire', tokenExpire);
+                this.loggedInSubject.next(true);
             }
         } catch (error) {
             const ref = this.dialog.open(AlertComponent, {data: { message:  "AuthService: "+error}});
@@ -112,6 +116,7 @@ export class AppAuthService {
 
     async logOut() {
         try {
+            this.loggedInSubject.next(false);
             await this.graphQLService.mutate(`mutation { logOut }`, {});
             await this.apollo.client.clearStore();
             localStorage.clear();
