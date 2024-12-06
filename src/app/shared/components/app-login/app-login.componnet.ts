@@ -69,7 +69,8 @@ export class LoginComponent implements OnInit, AfterViewInit    {
 
         if (token) {
             this.dialogRef.close();
-            window.location.reload(); 
+            //window.location.reload(); 
+            this.router.navigate(['/home'])
         } else {
             this.error = "Invalid email or password"
         }
@@ -80,13 +81,13 @@ export class LoginComponent implements OnInit, AfterViewInit    {
 
     async handleCredentialResponse(response: any) {
         this.googleCredential = response.credential;
-        this.loginWithGoogle();
+        await this.loginWithGoogle();
     }
 
-    loginWithGoogle(){
+    async loginWithGoogle(){
         if (this.googleCredential) {
-            this.authService.loginWithGoogle(this.googleCredential);
-            this.router.navigate(['/']);
+            await this.authService.loginWithGoogle(this.googleCredential);
+            this.router.navigate(['/home']);
         }
     }
 }
