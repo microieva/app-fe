@@ -70,8 +70,7 @@ export class AppAuthService {
 
                 localStorage.setItem('authToken', token);
                 localStorage.setItem('tokenExpire', tokenExpire);
-                this.router.navigate(['/home']);
-                this.dialog.closeAll();
+                //this.dialog.closeAll();
             }
         } catch (error) {
             const ref = this.dialog.open(AlertComponent, {data: { message:  "AuthService: "+error}});
