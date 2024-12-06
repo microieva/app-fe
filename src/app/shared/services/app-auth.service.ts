@@ -71,6 +71,7 @@ export class AppAuthService {
                 localStorage.setItem('authToken', token);
                 localStorage.setItem('tokenExpire', tokenExpire);
                 this.dialog.closeAll();
+                this.router.navigate(['/']);
             }
         } catch (error) {
             const ref = this.dialog.open(AlertComponent, {data: { message:  "AuthService: "+error}});
