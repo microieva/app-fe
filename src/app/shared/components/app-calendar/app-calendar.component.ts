@@ -562,11 +562,11 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
             let start: any;
             let end: any;
 
-            const startDateTime = DateTime.fromJSDate(arg.start).toLocal();
-            const endDateTime = DateTime.fromJSDate(arg.end).toLocal();
+            const startDateTime = DateTime.fromJSDate(arg.start, {zone:'utc'}).setZone('utc')
+            const endDateTime = DateTime.fromJSDate(arg.end, {zone:'utc'}).setZone('utc')
 
-            start = startDateTime.toISO();
-            end = endDateTime.toISO();
+            start = startDateTime.toISO({includeOffset: false});
+            end = endDateTime.toISO({includeOffset:false});
 
             const event: any = {
                 id: createEventId(),
