@@ -1,4 +1,4 @@
-import { Component, OnInit, Renderer2 } from "@angular/core";
+import {  Component, OnInit, Renderer2 } from "@angular/core";
 import { AppAuthService } from "../../services/app-auth.service";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Subscription } from "rxjs";
@@ -58,14 +58,15 @@ export class AppHeader implements OnInit {
         private snackbarService: AppSnackbarService,
         private dialogService: AppDialogService,
         private countService: AppCountUnreadMessagesService
-    ){}
+    ){
+    }
     async ngOnInit() {
-        const sub = this.authService.isLoggedIn$.subscribe(async isLoggedIn => {
+        this.authService.isLoggedIn$.subscribe(async (isLoggedIn: boolean) => {
             if (isLoggedIn) {
                 await this.loadMe();
                 const tokenExpire = localStorage.getItem('tokenExpire');
-                if (tokenExpire && this.me) {
-                    this.socketService.registerUser({id: this.me.id, userRole: this.me.userRole} as User);
+                if (tokenExpire) {
+                    this.socketService.registerUser({id: this.me!.id, userRole: this.me!.userRole} as User);
                     this.remainder = this.timerService.startTokenTimer(tokenExpire);
         
                     const subTokenCountDown = this.timerService.tokenCountdown.subscribe(value=> {
@@ -235,7 +236,7 @@ export class AppHeader implements OnInit {
                         this.subscriptions.add(subDeletedAppointmentNotification);
                     }
                     
-                    if (this.me.updatedAt) {
+                    if (this.me!.updatedAt) {
                         if (this.userRole !=='patient') {
                             this.countService.countUnreadMessages();   
                         }
@@ -253,7 +254,6 @@ export class AppHeader implements OnInit {
                 } 
             }
         })
-        this.subscriptions.add(sub);
     }
 
     async loadMe() {

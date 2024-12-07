@@ -1,13 +1,15 @@
+import { Subscription } from 'rxjs';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { Subscription } from 'rxjs';
 import { environment } from '../environments/environment';
 import { AppAuthService } from './shared/services/app-auth.service';
 import { AppSnackbarService } from './shared/services/app-snackbar.service';
+import { AppTimerService } from './shared/services/app-timer.service';
 import { LoadingComponent } from './shared/components/app-loading/loading.component';
 import { AppSnackbarContainerComponent } from './shared/components/app-snackbar/app-snackbar.component';
+
 
 @Component({
     selector: 'app-root',
@@ -16,9 +18,11 @@ import { AppSnackbarContainerComponent } from './shared/components/app-snackbar/
 })
 export class AppComponent implements OnInit, OnDestroy {
     title = 'Health Center';
+    refresh: boolean = false;
 
     @ViewChild('snackbarContainer') snackbarContainer!: AppSnackbarContainerComponent;
-    private subscription!: Subscription
+    private subscription!: Subscription;
+    private auth!: Subscription;
 
     constructor (
         private dialog: MatDialog,
@@ -26,7 +30,8 @@ export class AppComponent implements OnInit, OnDestroy {
         private activatedRoute: ActivatedRoute,
         private authService: AppAuthService,
         private http: HttpClient,
-        private snackbarService: AppSnackbarService
+        private snackbarService: AppSnackbarService,
+        private timerService: AppTimerService
     ) {}
 
     ngOnInit(): void {
@@ -39,6 +44,12 @@ export class AppComponent implements OnInit, OnDestroy {
                 this.exchangeCodeForToken(code, state, scope);
             } 
         });
+        this.auth = this.authService.isLoggedIn$.subscribe(isLoggedIn => {
+            if (isLoggedIn) {
+                const tokenExpire = localStorage.getItem('tokenExpire');
+                if (tokenExpire) this.timerService.startTokenTimer(tokenExpire);
+            }
+        })
     }
 
     ngAfterViewInit() {
@@ -47,6 +58,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.subscription.unsubscribe();
+        this.auth.unsubscribe();
     }
 
     exchangeCodeForToken(code: string, state: string, scope: any) {

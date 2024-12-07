@@ -1,7 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { Subscription } from "rxjs";
 import { MatDialog } from "@angular/material/dialog";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
 import { animate, state, style, transition, trigger } from "@angular/animations";
 import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../services/app-graphql.service";
@@ -74,8 +74,8 @@ export class AppHomeComponent implements OnInit {
             if (this.me) {
                 await this.loadData();
                 this.isLoading = false;
-                const sub = this.router.events.subscribe(async () => {
-                    this.isHomeRoute = this.router.url === '/home';
+                const sub = this.router.events.subscribe(async (event) => {
+                    this.isHomeRoute = this.router.url === '/home' || (event as NavigationEnd).url === '/home';
                     if (this.isHomeRoute) {  
                         await this.loadData();
                     }
