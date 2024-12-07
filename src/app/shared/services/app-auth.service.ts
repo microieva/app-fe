@@ -12,7 +12,7 @@ import { DirectLoginInput } from '../types';
   providedIn: 'root'
 })
 export class AppAuthService {
-    private loggedInSubject = new BehaviorSubject<boolean>(false);
+    private loggedInSubject = new BehaviorSubject<boolean>(this.isAuth());
     isLoggedIn$ = this.loggedInSubject.asObservable();
     constructor(
         private apollo: Apollo,
@@ -116,10 +116,10 @@ export class AppAuthService {
 
     async logOut() {
         try {
-            this.loggedInSubject.next(false);
             await this.graphQLService.mutate(`mutation { logOut }`, {});
             await this.apollo.client.clearStore();
             localStorage.clear();
+            this.loggedInSubject.next(false);
             this.router.navigate(['/']);
         } catch (error) {
             console.error('Error during logout process:', error);

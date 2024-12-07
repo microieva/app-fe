@@ -7,35 +7,36 @@
                     <span [ngStyle]="{visibility: !isUserUpdated ? 'visible':'hidden'}" class="icon material-symbols-outlined">info</span>
                 </div>
             </a>
-            <a mat-list-item (click)="onAppointmentsClick()" [routerLink]="['/home','appointments']" *ngIf="userRole !== 'admin' && isUserUpdated" routerLinkActive="activeLink">
+            <a mat-list-item (click)="onAppointmentsClick(); isHomeRoute=!isHomeRoute" [routerLink]="['/home','appointments']" *ngIf="userRole !== 'admin' && isUserUpdated" routerLinkActive="activeLink">
                 <div class="flex" >
                     <span>{{ 'Appointments' }}</span>
                     <span [ngStyle]="{visibility: !isUserUpdated || isNowAppointment ? 'visible':'hidden'}" class="icon material-symbols-outlined">info</span>
                 </div>
             </a>
-            <a mat-list-item [routerLink]="['/home','records']" *ngIf="isUserUpdated && (userRole === 'patient' && countRecords>0 || userRole==='doctor')" routerLinkActive="activeLink">
+            <a mat-list-item (click)="isHomeRoute=!isHomeRoute" [routerLink]="['/home','records']" *ngIf="isUserUpdated && (userRole === 'patient' && countRecords>0 || userRole==='doctor')" routerLinkActive="activeLink">
                 <div class="flex">
                     <span>{{ 'Medical Records' }}</span>
                 </div>
             </a>
-            <a mat-list-item [routerLink]="['/home','users']" *ngIf="userRole === 'admin'" routerLinkActive="activeLink">
+            <a mat-list-item [routerLink]="['/home','users']" (click)="isHomeRoute=!isHomeRoute" *ngIf="userRole === 'admin'" routerLinkActive="activeLink">
                 <div class="flex" >
                     <span>{{ 'Doctors' }}</span>
                     <span [ngStyle]="{visibility: countDoctorRequests>0 ? 'visible':'hidden'}" class="icon material-symbols-outlined">info</span>
                 </div>
             </a>
-            <a mat-list-item [routerLink]="['/home','patients']" *ngIf="userRole === 'admin'" routerLinkActive="activeLink">
+            <a mat-list-item [routerLink]="['/home','patients']" (click)="isHomeRoute=!isHomeRoute" *ngIf="userRole === 'admin'" routerLinkActive="activeLink">
                 <div class="flex">
                     <span>{{ 'Patients' }}</span>
                 </div>
             </a>
-            <a mat-list-item [routerLink]="['/home','messages']" routerLinkActive="activeLink"  *ngIf="userRole !== 'patient' && isUserUpdated">
+            <a mat-list-item [routerLink]="['/home','messages']" (click)="isHomeRoute=!isHomeRoute" routerLinkActive="activeLink"  *ngIf="userRole !== 'patient' && isUserUpdated">
                 <div class="flex">
                     <span>{{ 'Messages' }}</span>
                 </div>
             </a>
         </mat-nav-list>
     </mat-sidenav>
+    <router-outlet></router-outlet>
     <mat-sidenav-content class="content">  
 
         <div class="btn-block"  style="margin: 12rem 18rem;" *ngIf="isHomeRoute && !isUserUpdated && !isLoading">
@@ -190,7 +191,9 @@
                   </div>
             </div>
         </div> 
-        <router-outlet></router-outlet>
+        <div *ngIf="!isHomeRoute">
+            <router-outlet></router-outlet>
+        </div>
     </mat-sidenav-content>
 </mat-sidenav-container>
 
