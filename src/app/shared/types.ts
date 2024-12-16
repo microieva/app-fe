@@ -74,8 +74,8 @@ export interface UserDataSource {
     dob?: string
     email: string
     lastLogOutAt?: string
-    isRequest?: boolean;
-    online?:boolean;
+    isRequest?: boolean
+    online?:boolean
 }
 export type AppDataSource = AppointmentDataSource | RecordDataSource | UserDataSource;
 
@@ -90,3 +90,20 @@ export interface AdvancedSearchInput {
     titleLike: string
     textLike: string
 }
+
+export interface AppNotification {
+    id: number
+    appointmentId: number
+    message: string
+    doctorRequestId: number
+    receiverId: number
+    chatId: number
+    senderName: string
+}
+
+export type NewAppointmentNotification = Omit<AppNotification, 'receiverId' | 'senderName' | 'doctorRequestId' | 'chatId'>;
+export type NewMessageNotification = Omit<AppNotification, 'appointmentId' | 'doctorRequestId'>
+export type NewDoctorRequestNotification = Omit<AppNotification, 'appointmentId' | 'chatId' | 'senderName'>
+export type CancelledAppointmentNotification = Omit<AppNotification, 'chatId' | 'doctorRequestId' | 'senderName' | 'appointmentId'>
+
+  

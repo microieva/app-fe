@@ -9,7 +9,7 @@ import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from "@angular/material/dial
 export class ConfirmComponent implements OnInit{
     title= "Are you sure?"
     addClass: boolean = false;
-    @Output() ok = new EventEmitter<boolean>(false);
+    @Output() isConfirming = new EventEmitter<boolean>(false);
 
     message: string;
 
@@ -29,7 +29,7 @@ export class ConfirmComponent implements OnInit{
     }
 
     onOkClick(){
-        this.ok.emit(true);
+        this.isConfirming.emit(true);
     }
     onCancel() {
         this.dialog.closeAll();

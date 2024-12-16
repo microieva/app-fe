@@ -1,3 +1,5 @@
+@import '../../../../mixins';
+
 .header-icon {
     font-size: 2rem;
     color: gray;
@@ -19,3 +21,10 @@
     pointer-events: none;
     opacity: 0.6;
 }
+.sm {
+    @include spinner-size(30px);
+    &.flex-row{
+        width: 6rem;
+    }
+}
+

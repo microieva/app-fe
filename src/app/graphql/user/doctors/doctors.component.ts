@@ -332,8 +332,8 @@ export class DoctorsComponent implements OnInit, OnDestroy {
     async activateAccount(doctorRequestId: number) {
         const dialogRef = this.dialog.open(ConfirmComponent, {data: {message: "The user details will be moved to active accounts (user db) and request deleted"}});
 
-        const sub = dialogRef.componentInstance.ok.subscribe(async subscription => {
-            if (subscription) {
+        const sub = dialogRef.componentInstance.isConfirming.subscribe(async isConfirmed => {
+            if (isConfirmed) {
                 const mutation = `mutation ($doctorRequestId: Int!) {
                     saveDoctor(doctorRequestId: $doctorRequestId) {
                         success
@@ -358,8 +358,8 @@ export class DoctorsComponent implements OnInit, OnDestroy {
     deleteDoctorRequest(doctorRequestId: number){
         const dialogRef = this.dialog.open(ConfirmComponent, {data: {message: "Permanently deleting doctor request"}});
 
-        dialogRef.componentInstance.ok.subscribe(async subscription => {
-            if (subscription) {
+        dialogRef.componentInstance.isConfirming.subscribe(async isConfirmed => {
+            if (isConfirmed) {
                 const mutation = `mutation ($doctorRequestId: Int!) {
                     deleteDoctorRequest(doctorRequestId: $doctorRequestId) {
                         success

@@ -45,8 +45,8 @@ export class AppointmentComponent implements OnInit, OnDestroy {
     }
     closeTab(){
         const dialogref = this.dialog.open(ConfirmComponent, {data: { message: "All unsaved data will be lost"}});
-        this.subscription = dialogref.componentInstance.ok.subscribe(subscription => {
-            if (subscription) {
+        this.subscription = dialogref.componentInstance.isConfirming.subscribe(isConfirmed => {
+            if (isConfirmed) {
                 this.close.emit(this.id)
             }
         })
@@ -88,9 +88,9 @@ export class AppointmentComponent implements OnInit, OnDestroy {
                 this.appointmentId = this.appointment.id;
                 this.record = response.data.appointment.record;
                 this.recordId = response.data.appointment.record?.id || null;
-                this.formattedDate = DateTime.fromISO(response.data.appointment.patient.dob,  {setZone: true}).toFormat('MMM dd, yyyy');
-                this.startTime = DateTime.fromISO(response.data.appointment.start,  {setZone: true}).toFormat('HH:mm a');
-                this.date = DateTime.fromISO(response.data.appointment.start,  {setZone: true}).toFormat('MMM dd, yyyy');
+                this.formattedDate = DateTime.fromISO(response.data.appointment.patient.dob).toFormat('MMM dd, yyyy');
+                this.startTime = DateTime.fromISO(response.data.appointment.start).toFormat('HH:mm a');
+                this.date = DateTime.fromISO(response.data.appointment.start).toFormat('MMM dd, yyyy');
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading current appointment: "+error}});

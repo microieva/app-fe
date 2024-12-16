@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 import { environment } from '../../../environments/environment';
 import { User } from '../../graphql/user/user';
@@ -9,6 +9,8 @@ import { User } from '../../graphql/user/user';
 })
 export class AppSocketService {
     private socket: Socket;
+    private refreshSub = new BehaviorSubject<boolean>(false);
+    refresh$ = this.refreshSub.asObservable();
 
     constructor() {
         this.socket = io(environment.socketUrl, {
@@ -19,16 +21,22 @@ export class AppSocketService {
               'x-apollo-operation-name': 'HealthCenter',  
             }
         }); 
+        this.socket.connect();
+        this.listenForEvents();
         this.socket.on('disconnect', () => {
             console.warn('Socket disconnected, attempting to reconnect...');
             this.reconnectSocket();
         });
     }
-    private reconnectSocket(): Promise<void> {
+    listenForEvents(){
+        this.socket.on('refreshEvent', (isUpdated: boolean) => {
+            this.refreshSub.next(isUpdated);
+          });
+    }
+    reconnectSocket(): Promise<void> {
         return new Promise((resolve, reject) => {
             if (!this.socket.connected) {
                 this.socket.connect();  
-
                 this.socket.on('connect', () => {
                     console.log('Reconnected successfully');
                     resolve();
@@ -37,6 +45,7 @@ export class AppSocketService {
                 this.socket.on('connect_error', (error) => {
                     console.error('Reconnection failed', error);
                     reject(error);
+                    this.reconnectSocket();
                 });
             } else {
                 resolve(); 
@@ -66,6 +75,13 @@ export class AppSocketService {
     getMissedAppointmentsCount(): Observable<boolean> {
         return new Observable<boolean>(observer => {
             this.socket.on('updateMissedAppointmentsCount', (isUpdated: boolean) => {
+                observer.next(isUpdated);
+            });
+        });
+    }
+    refresh(): Observable<boolean> {
+        return new Observable<boolean>(observer => {
+            this.socket.on('refresh', (isUpdated: boolean) => {
                 observer.next(isUpdated);
             });
         });
@@ -120,8 +136,8 @@ export class AppSocketService {
     }
 
     receiveNotification() {
-        return new Observable<string>((observer) => {
-            this.socket.on('receiveNotification', (message: string) => {
+        return new Observable<any>((observer) => {
+            this.socket.on('receiveNotification', (message) => {
                 observer.next(message);
             });
         });
@@ -130,11 +146,12 @@ export class AppSocketService {
     notifyDoctors(newAppointemnt: any){
         if (this.socket && this.socket.connected) {
             this.socket.emit('notifyDoctors', newAppointemnt);
-        } else {
-            this.reconnectSocket().then(() => {
-                this.socket.emit('notifyDoctors', newAppointemnt);
-            });
-        }  
+        } 
+        // else {
+        //     this.reconnectSocket().then(() => {
+        //         this.socket.emit('notifyDoctors', newAppointemnt);
+        //     });
+        // }  
     }
 
     newAppointmentRequest() {

@@ -6,11 +6,12 @@ import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from "@angular/router";
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { overTimeValidator, timeRangeValidator, weekendValidator } from "../../validators";
+import { AppSocketService } from "../../services/app-socket.service";
 import { AppGraphQLService } from "../../services/app-graphql.service";
 import { AlertComponent } from "../app-alert/app-alert.component";
 import { ConfirmComponent } from "../app-confirm/app-confirm.component";
 import { AppointmentInput } from "../../../graphql/appointment/appointment.input";
-import { AppSocketService } from "../../services/app-socket.service";
+
 
 
 @Component({
@@ -58,7 +59,7 @@ export class EventComponent implements OnInit, OnDestroy{
     @Output() update = new EventEmitter<boolean>();
     @Output() message = new EventEmitter<string>();
     @Output() deleteMessage = new EventEmitter<number>();
-    @Output() acceptAppointment = new EventEmitter<number>();
+    @Output() isAccepting = new EventEmitter<boolean>(false);
     @Output() isOpeningTab = new EventEmitter<number>();
 
     @ViewChild('el') el: ElementRef | undefined;
@@ -69,6 +70,7 @@ export class EventComponent implements OnInit, OnDestroy{
     doctorMessage: string | null = null;
     patientMessage: string | null = null;
     patientId: number | undefined;
+    doctorId: number | undefined;
     appointmentId: number | undefined;
     patientPhoneNr: any | undefined;
     patientEmail: any | undefined;
@@ -195,8 +197,8 @@ export class EventComponent implements OnInit, OnDestroy{
     }
     async onDeleteMessage(){
         const dialogRef = this.dialog.open(ConfirmComponent, {data: {message: "Remove message"}});
-        const sub = dialogRef.componentInstance.ok.subscribe(async value => {
-            if (value) {
+        const sub = dialogRef.componentInstance.isConfirming.subscribe(async isConfirmed => {
+            if (isConfirmed) {
                 const mutation = `mutation ($appointmentId: Int!) {
                     deleteAppointmentMessage (appointmentId: $appointmentId) {
                         success
@@ -231,7 +233,9 @@ export class EventComponent implements OnInit, OnDestroy{
                     phone
                     email
                 }
+                doctorId
                 doctor {
+
                     firstName
                     lastName
                 }
@@ -255,6 +259,7 @@ export class EventComponent implements OnInit, OnDestroy{
                 this.doctorMessage = appointment.doctorMessage;
                 this.patientMessage = appointment.patientMessage;
                 this.appointmentId = appointment.id;
+                this.doctorId = appointment.doctorId;
 
                 if (this.userRole === 'admin') {
                     this.patientPhoneNr = appointment.patient.phone;
@@ -286,10 +291,16 @@ export class EventComponent implements OnInit, OnDestroy{
     onSubmit(){
         const value = this.form.value;
         if (value.input) this.submit.emit(value.input);
+
+        this.socketService.notifyDoctors({
+            message: "New appointment request",
+            appointmentId: this.justCreatedId
+        });
     }
     async onDelete(){
         if (this.appointmentInfo.id) {
             this.delete.emit(this.appointmentInfo.id);
+            // need to move this after ConfirmDialog ok click
         }
         if (this.justCreatedId) {
             this.delete.emit(this.justCreatedId);
@@ -334,7 +345,37 @@ export class EventComponent implements OnInit, OnDestroy{
         }
     }
     onAcceptAppointment(id: number){
-        this.acceptAppointment.emit(id);
+
+            if (id) {
+                const mutation = `mutation ($appointmentId: Int!) {
+                    acceptAppointment(appointmentId: $appointmentId) {
+                        success
+                        message
+                        data {
+                            ... on Appointment {
+                                start
+                            }
+                        }
+                    }
+                }`
+                const ref = this.dialog.open(ConfirmComponent, {data: {message: "Appointment will be added to your calendar"}});
+                ref.componentInstance.isConfirming.subscribe(async isConfirmed => {
+                    if (isConfirmed) {
+                        try {   
+                            const response = await this.graphQLService.mutate(mutation, {appointmentId: id});
+                            if (response.data.acceptAppointment.success) {
+                                const start = response.data.acceptAppointment.data.start;
+                                //this.timerService.startAppointmentTimer(start);
+                                this.isAccepting.emit(true);
+                                this.dialog.closeAll();
+                            }
+                        } catch (error) {
+                            this.dialog.open(AlertComponent, {data: {message: `Unexpected error: ${error}`}});
+                        }
+                    }
+                })
+            }
+        
     }
     onUpdate(){
         this.isEditting = true;

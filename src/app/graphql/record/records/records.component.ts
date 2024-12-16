@@ -1,6 +1,6 @@
 import { DateTime } from "luxon";
 import { Subscription } from "rxjs";
-import { Component, OnDestroy, OnInit, signal } from "@angular/core";
+import { AfterViewInit, Component, OnDestroy, OnInit, signal } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { MatTableDataSource } from "@angular/material/table";
 import { MatDialog } from "@angular/material/dialog";
@@ -26,6 +26,16 @@ import { Record } from "../record";
                 animate('600ms cubic-bezier(0.25, 0.8, 0.25, 1)', style({ transform: 'translateY(100%)', opacity: 0.1 }))
             ])
         ]),
+        trigger('fadeIn', [
+            state('visible', style({ opacity: 1 })),
+            state('invisible', style({ opacity: 0 })),
+            transition('invisible => visible', [
+              animate('1s ease-in')
+            ]),
+            transition('visible => invisible', [
+              animate('1s ease-out')
+            ])
+          ])
     ]
 })
 export class RecordsComponent implements OnInit, OnDestroy {
@@ -38,6 +48,7 @@ export class RecordsComponent implements OnInit, OnDestroy {
     drafts: Record[] = [];
     draftsLength: number = 0;
     recordsLength: number = 0;
+    ready = false;
     
     recordDataSource: RecordDataSource[] | undefined;
     draftDataSource: RecordDataSource[] | undefined;
@@ -63,7 +74,7 @@ export class RecordsComponent implements OnInit, OnDestroy {
     ){}
     async ngOnInit() {  
         await this.loadMe();
-        await this.loadStatic();
+        await this.loadStatic().then(()=>this.ready = true);
 
         const sub = this.activatedRoute.queryParams.subscribe(async params => {
             const tab = params['tab'];
@@ -72,7 +83,7 @@ export class RecordsComponent implements OnInit, OnDestroy {
         }); 
         this.subscriptions.add(sub);
     }
-
+    setReady(){ this.ready = true}
     async loadStatic(){
         let query = '';
         if (this.userRole === 'doctor') {

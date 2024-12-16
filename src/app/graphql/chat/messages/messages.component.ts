@@ -35,6 +35,7 @@ import { UserDataSource } from "../../../shared/types";
 })
 export class MessagesComponent implements OnInit, OnDestroy {
     selectedIndex: number = 0;
+    isLoading: boolean = false;
     userRole!: string;
     me!: Partial<User>;
     dataSource: MatTableDataSource<any> | null = null;
@@ -96,6 +97,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
             this.subscriptions.add(subscriptionOnlineUsers);
             this.subscriptions.add(subscriptionNotifications);
         } else { 
+            this.isLoading = true;
             this.receiverId = environment.adminId;
             this.chatId = await this.loadChatId();
         }
@@ -170,7 +172,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
 
                 this.dataSource = new MatTableDataSource<UserDataSource>(this.formatted);
                 this.displayedColumns = [ 
-                    {header: 'Online', columnDef: 'online'},
+                    {header: 'Status', columnDef: 'online'},
                     {header: 'Name', columnDef: 'name'},
                     {header: 'Last online', columnDef: 'lastLogOutAt'},
                     {header: 'Unread', columnDef: 'unreadMessages'},
@@ -311,9 +313,11 @@ export class MessagesComponent implements OnInit, OnDestroy {
         try {
             const response = await this.graphQLService.send(query, {receiverId});
             if (response.data) {
+                this.isLoading = false;
                 return response.data.chatId;
             }
         } catch (error) {
+            this.isLoading = false;
             this.dialog.open(AlertComponent, {data: {message: error}});
         }
         return;

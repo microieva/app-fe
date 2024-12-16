@@ -31,7 +31,10 @@
             </div>
         </div>
     </form>
-    <div class="messages-wrapper flex-column">
+    <div *ngIf="isLoading" class="loading">
+        <app-loading></app-loading>
+    </div>
+    <div class="messages-wrapper flex-column" *ngIf="!isLoading">
         <div *ngFor="let message of messages">
             <div class="message-wrapper" [ngStyle]="senderId !== message.sender.id ? {'flex-direction':'row-reverse'} : {'float': 'right'}">
                 <div 

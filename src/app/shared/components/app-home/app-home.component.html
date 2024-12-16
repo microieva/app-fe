@@ -48,11 +48,11 @@
             <button mat-stroked-button style="width:14rem;"><a [routerLink]="['/home','user']">{{'Update Information'}}</a></button>
         </div>
         
-        <div *ngIf="isUserUpdated && isLoading" class="loading">
+        <div *ngIf="isLoading" class="loading">
             <app-loading></app-loading>
         </div>
-        <div class="page" *ngIf="isHomeRoute && !isLoading && isUserUpdated" @slideInOut>
-            <div *ngIf="userRole ==='admin'">
+        <div class="page" *ngIf="isHomeRoute && !isLoading && isUserUpdated" >
+            <div style="position: relative" *ngIf="userRole ==='admin' && clock" @slideInOut>
                 <div class="flat next-appointment">
                     <span *ngIf="today" class="material-symbols-outlined" id="bg-icon">
                         event
@@ -78,11 +78,11 @@
             </div>
 
 
-            <div *ngIf="userRole ==='doctor'" [ngStyle]="{'margin-top': !nextId ? '16rem':'inherit'}">      
-                <span class="material-symbols-outlined" id="bg-icon">
+            <div style="position: relative" *ngIf="userRole ==='doctor' && nextId" [ngStyle]="{'margin-top': !nextId ? '16rem':'inherit'}" @slideInOut>      
+                <span *ngIf="nextId" class="material-symbols-outlined" id="bg-icon" >
                     calendar_clock
                 </span>
-                <div class="flat next-appointment" *ngIf="nextId">
+                <div class="flat next-appointment">
                     <h1 class="font" style="margin-top:0;">Next appointment:</h1>
 
                     <div class="flex-row">
@@ -138,7 +138,7 @@
             </div>
 
 
-            <div *ngIf="userRole ==='patient'" [ngStyle]="{'margin-top': !nextId ? '16rem':'inherit'}">
+            <div style="position: relative" *ngIf="userRole ==='patient' && nextId" [ngStyle]="{'margin-top': !nextId ? '16rem':'inherit'}" @slideInOut>
                 <span class="material-symbols-outlined" id="bg-icon">
                     calendar_clock
                 </span>

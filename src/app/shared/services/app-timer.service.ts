@@ -1,46 +1,50 @@
 import { EventEmitter, Injectable, Output } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
-import { Subscription, finalize, interval, take } from "rxjs";
+import { BehaviorSubject, Observable, Subscription, distinctUntilChanged, finalize, interval, map, startWith, take, tap } from "rxjs";
 import { DateTime, Duration } from "luxon";
 import { AlertComponent } from "../components/app-alert/app-alert.component";
+import { getHowLongAgo, getHowSoonUpcoming } from "../utils";
 
 @Injectable({
     providedIn: 'root'
 })
 export class AppTimerService {   
-    @Output() logout = new EventEmitter<boolean>(false);
-    @Output() tokenCountdown = new EventEmitter<string>();
-    @Output() nextAppointmentCountdown = new EventEmitter<string>();
+    //@Output() nextAppointmentCountdown = new EventEmitter<string>();
     @Output() clock = new EventEmitter<string>();
     @Output() howSoonCountdown = new EventEmitter<string>();
     @Output() howLongAgoCountdown = new EventEmitter<string>();
-    @Output() ok = new EventEmitter<boolean>(false);
 
-    tokenTimerSubscription!: Subscription;
-    appointmentTimerSubscription!: Subscription;
+    private countdown = new BehaviorSubject<string | null>(null);
+    tokenCountdown$ = this.countdown.asObservable();
+    tokenTimerSubscription: Subscription = new Subscription();
+
+    private onLogout = new BehaviorSubject<boolean>(false);
+    logout$ = this.onLogout.asObservable();
+
+    private appointmentCountdownSubject = new BehaviorSubject<string | null>(null);
+    appointmentCountdown$ = this.appointmentCountdownSubject.asObservable();
+    private appointmentTimerSubscription!: Subscription;
+
     clockSubscription: Subscription | null = null;
 
     constructor(
         private dialog: MatDialog
     ) {}
 
-    startTokenTimer(timeStamp: string) {
+    startTokenTimer(timeStamp: string): void{
         const now = DateTime.local();
         const momentExpire = DateTime.fromISO(timeStamp); 
         const duration = momentExpire.diff(now).as('seconds');
-    
-        const source = interval(1000);
-        const counter = source.pipe(
-            take(duration + 1), 
-            finalize(() => {
-                this.logout.emit(true);  
-            }) 
+
+        const source = interval(1000).pipe(
+            take(duration + 1),
+            finalize(() => this.onLogout.next(true))
         );
-    
-        this.tokenTimerSubscription = counter.subscribe((val) => {
+
+        this.tokenTimerSubscription = source.subscribe((val) => {
             const remainingSeconds = duration - val;
             const seconds = Duration.fromObject({ seconds: remainingSeconds });
-            
+
             let tokenCountdown: string;
 
             if (remainingSeconds < 3600) {
@@ -50,49 +54,68 @@ export class AppTimerService {
                 const remainingMinutes = Math.floor((remainingSeconds % 3600) / 60);
                 tokenCountdown = `${remainingHours}h ${remainingMinutes}min`;
             }
-    
+
             if (tokenCountdown === '00:05') {
-                const dialogRef = this.dialog.open(AlertComponent, {data: {message: "Session expired, please login to renew"}});
-    
-                dialogRef.componentInstance.ok.subscribe((value) => {
-                    if (value) {
-                        this.logout.emit(true); 
-                        this.dialog.closeAll();
-                    }
-                });
+            const dialogRef = this.dialog.open(AlertComponent, { data: { message: "Session expired, please login to renew" } });
+
+            dialogRef.componentInstance.ok.subscribe((value) => {
+                if (value) {
+                    this.onLogout.next(true);
+                    this.dialog.closeAll();
+                }
+            });
             }
-    
+
             if (tokenCountdown === '00:00') {
-                this.logout.emit(true); 
+                this.onLogout.next(true); 
             }
-    
-            this.tokenCountdown.emit(tokenCountdown);
+
+            this.countdown.next(tokenCountdown);
+            return this.tokenTimerSubscription;
         });
-    
-        return this.tokenTimerSubscription;
     }
 
-    startAppointmentTimer(timeStamp: string) {
-        if (this.appointmentTimerSubscription) {
-            this.appointmentTimerSubscription.unsubscribe();
+        startAppointmentTimer(timeStamp: string): void { 
+            const now = DateTime.now().setZone('Europe/Helsinki').setLocale('fi-FI');
+            const start = DateTime.fromISO(timeStamp, { setZone: true });
+            const duration = start.diff(now).as('seconds');
+            
+            if (duration <= 0) {
+                this.appointmentCountdownSubject.next('00:00:00');
+                return;
+            }
+            
+            interval(1000)
+                .pipe(
+                    take(duration + 1), 
+                    map((elapsed) => {
+                    const remainingSeconds = Math.max(0, duration - elapsed);
+                    const timeLeft = Duration.fromObject({ seconds: remainingSeconds });
+                        return timeLeft.toFormat('hh:mm:ss');
+                    }),
+                    distinctUntilChanged()
+                )
+                .subscribe({
+                        next: (countdown) => {
+                            this.appointmentCountdownSubject.next(countdown);
+                        },
+                        complete: () => console.log('Countdown complete'),
+                        error: (err) => console.error('Error in timer:', err),
+                });
         }
-
-        const now = DateTime.now().setZone('Europe/Helsinki').setLocale('fi-FI');
-        const start = DateTime.fromISO(timeStamp, { setZone: true }).setZone('Europe/Helsinki', { keepLocalTime: true });    
-        const duration = start.diff(now).as('seconds');
-        const source = interval(1000);
-
-        const counter = source.pipe(take(duration + 1));
-    
-        this.appointmentTimerSubscription = counter.subscribe((val) => {
-            const remainingSeconds = duration - val;
-            const seconds = Duration.fromObject({ seconds: remainingSeconds });
-            let appointmentCountdown: string = seconds.toFormat('hh:mm:ss'); 
-            this.nextAppointmentCountdown.emit(appointmentCountdown);
-        });
-    
-        return this.appointmentTimerSubscription;
-    }  
+          
+    startHowSoonCountdown(datetime: string): Observable<string> {
+        return interval(1000).pipe(
+          startWith(0), 
+          map(() => getHowSoonUpcoming(datetime))
+        );
+    }
+    startHowLongAgoCountdown(datetime: string): Observable<string> {
+        return interval(1000).pipe(
+          startWith(0), 
+          map(() => getHowLongAgo(datetime))
+        );
+    }
 
     startClock(timeStamp: string): Subscription {
         if (this.clockSubscription) {
@@ -114,7 +137,10 @@ export class AppTimerService {
       }
     
     cancelTokenTimer() {
-        this.tokenTimerSubscription.unsubscribe();
+            this.countdown.next(null); 
+            if (this.tokenTimerSubscription) {
+                this.tokenTimerSubscription.unsubscribe();
+            }
     }
     cancelAppointmentTimer(){
         this.appointmentTimerSubscription.unsubscribe();

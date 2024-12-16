@@ -1,11 +1,11 @@
-import { Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, QueryList, ViewChild, ViewChildren, ViewContainerRef, signal } from "@angular/core";
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, QueryList, SimpleChanges, ViewChild, ViewChildren, ViewContainerRef, signal } from "@angular/core";
 import { trigger, state, style, transition, animate } from "@angular/animations";
 import { ActivatedRoute, Router } from "@angular/router";
 import { MatTableDataSource } from "@angular/material/table";
 import { MatTabGroup } from "@angular/material/tabs";
 import { MatDialog } from "@angular/material/dialog";
 import { DateTime } from "luxon";
-import { Subscription } from "rxjs";
+import { Subscription, take, tap } from "rxjs";
 import { environment } from '../../../../environments/environment';
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
 import { AppAppointmentService } from "../../../shared/services/app-appointment.service";
@@ -19,6 +19,7 @@ import { EventComponent } from "../../../shared/components/app-event/app-event.c
 import { AppointmentDataSource } from "../../../shared/types";
 import { Appointment } from "../appointment";
 import { getHowLongAgo, getHowSoonUpcoming } from "../../../shared/utils";
+import { AppSocketService } from "../../../shared/services/app-socket.service";
 
 @Component({
     selector: 'app-appointments',
@@ -39,6 +40,7 @@ import { getHowLongAgo, getHowSoonUpcoming } from "../../../shared/utils";
 })
 export class AppointmentsComponent implements OnInit, OnDestroy {
     selectedIndex: number = 0;
+    isLoading: boolean = true;
     id!: number;
     routedAppointmentId: number | undefined;
     length: number = 0;
@@ -81,6 +83,8 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
     sortActive: string | null= null;
     filterInput: string | null = null;
 
+    //initialized:boolean = false;
+
     constructor(
         private graphQLService: AppGraphQLService,
         private router: Router,
@@ -89,7 +93,8 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
         private appointmentService: AppAppointmentService,
         private timerService: AppTimerService,
         public tabsService: AppTabsService,
-        private dialogService: AppDialogService
+        private dialogService: AppDialogService,
+        private socketService: AppSocketService
     ){}
     
     async ngOnInit() {
@@ -100,6 +105,7 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
             await this.loadStatic();
             await this.loadData();
         }
+        this.isLoading = false;
 
         const subRouterParamsId = this.activatedRoute.queryParams.subscribe(async (params)=> {
             const id = params['id']; 
@@ -111,7 +117,7 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
             this.selectedIndex = tab ? +tab : 0;
         }); 
 
-        const subNextAppointmentInfo = this.appointmentService.appointmentInfo.subscribe((subscription) => {
+        const subNextAppointmentInfo = this.appointmentService.appointmentInfo$.subscribe((subscription) => {
             if (subscription && subscription.nextAppointment) {
                 this.nextId = subscription.nextAppointment.nextId;
 
@@ -122,9 +128,8 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
             }
         });
 
-        const subNextAppointmentCountDown = this.timerService.nextAppointmentCountdown.subscribe(async value => {
+        const subNextAppointmentCountDown = this.timerService.appointmentCountdown$.subscribe(async value => {
             const start = this.nextAppointmentStartTime;
-
             if (value === environment.triggerTime) {  
                 this.tabs = this.tabsService.getTabs();
                 if (this.tabs) {
@@ -135,12 +140,20 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                 } 
             } 
             if (value === '00:00:00') {
-                this.appointmentService.pollNextAppointment();
+                await this.appointmentService.pollNextAppointment();
                 if (this.nextAppointmentStartTime !== start) {
                     this.timerService.startAppointmentTimer(this.nextAppointmentStartTime!);   
                 } 
             }
         });
+        this.socketService.refresh$.subscribe(async (isUpdated) => {
+            if (isUpdated) {
+                await this.ngOnInit()
+            }
+        });
+           
+        
+
         this.subscriptions.add(subRouterParamsId);
         this.subscriptions.add(subRouterParamsTab);
         this.subscriptions.add(subNextAppointmentInfo);
@@ -150,6 +163,7 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
     ngOnDestroy(){
         this.subscriptions.unsubscribe();
     }
+
 
     createAppointmentTab(appointmentId?: number) {
         const id = this.nextId
@@ -515,7 +529,7 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
         switch (view) {
             case "pending":
                 this.pendingDataSource = this.pendingAppointments.map(row => {
-                    const howLongAgoStr = getHowLongAgo(row.createdAt);
+                    const howLongAgoStr = row.createdAt;
                     const startDate = DateTime.fromISO(row.start, { setZone: true });
                     const today = DateTime.now().setZone(startDate.zone);
                     const tomorrow = today.plus({ days: 1 });
@@ -555,7 +569,7 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                 break;
             case "upcoming":
                 this.upcomingDataSource = this.upcomingAppointments.map(row => {
-                    const howSoonStr = getHowSoonUpcoming(row.start);
+                    const howSoonStr = row.start 
                     const startDate = DateTime.fromISO(row.start, { setZone: true });
                     const today = DateTime.now().setZone(startDate.zone);
                     const tomorrow = today.plus({ days: 1 });
@@ -592,7 +606,7 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                 break;
             case "past":
                 this.pastDataSource = this.pastAppointments.map(row => {
-                    const howLongAgoStr = getHowLongAgo(row.start);
+                    const howLongAgoStr = row.start;
                     const startDate = DateTime.fromISO(row.start, { setZone: true });
                     const today = DateTime.now().setZone(startDate.zone);
                     const yesterday = today.minus({ days: 1 });
@@ -638,23 +652,37 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
 
     deleteAppointment(id: number) {
         const dialogRef = this.dialog.open(ConfirmComponent, {data: {message: "This appointment booking will be cancelled"}})
-        dialogRef.afterOpened().subscribe(() => {
-            this.dialogService.notifyDialogOpened();
-        });
-        dialogRef.componentInstance.ok.subscribe(async (value)=> {
-            if (value) {
+
+        dialogRef.componentInstance.isConfirming.subscribe(async (isConfirmed)=> {
+            if (isConfirmed) {
                 try {
                     const mutation = `mutation ($appointmentId: Int!) {
                         deleteAppointment (appointmentId: $appointmentId) {
                             success
                             message
+                            data {
+                                 ... on Appointment {
+                                    start
+                                    doctorId
+                                }
+                            }
                         }
                     }`
                     const response = await this.graphQLService.mutate(mutation, {appointmentId: id});
                     if (response.data.deleteAppointment.success) {
+                        const start = response.data.deleteAppointment.data.start;
+                        const doctorId = response.data.deleteAppointment.data.doctorId;
                         this.dialog.closeAll();
+
                         if (this.userRole === 'doctor') {
                             this.appointmentService.pollNextAppointment();
+                        } else {
+                            const timeStr = DateTime.fromISO(start).setZone('Europe/Helsinki').toFormat('HH:mm a, MMM dd');
+                
+                            this.socketService.notifyDoctor({
+                                receiverId: doctorId,
+                                message: `${timeStr} appointment has been cancelled. Check email for more details`,
+                            });
                         }
                         await this.ngOnInit();
                     }
@@ -665,39 +693,6 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
         });  
     }
 
-    onButtonClick({ id, text }: {id: number, text: string}) {
-        switch (text) {
-            case 'Cancel Appointment':
-                if (this.dataSource?.data.length === 1) {
-                    this.deleteAppointment(id);
-                    this.pageIndex--;
-                } else {
-                    this.deleteAppointment(id);
-                }
-                break;
-            case 'Delete Appointment':
-                if (this.dataSource?.data.length === 1) {
-                    this.deleteAppointment(id);
-                    this.pageIndex--;
-                } else {
-                    this.deleteAppointment(id);
-                }
-                break;
-            case 'Accept Appointment':
-                if (this.dataSource?.data.length === 1) {
-                    this.acceptAppointment(id);
-                    this.pageIndex--;
-                } else {
-                    this.acceptAppointment(id);
-                }
-                break;
-            case 'View In Calendar':
-                this.router.navigate(['appointments', 'calendar']);
-                break;
-            default:
-                break;
-        }
-    }
 
     onAppointmentClick(eventInfo: {id: string, title: string}){
         if (!eventInfo.title && this.userRole === 'doctor') {
@@ -709,43 +704,20 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                 this.deleteAppointment(id);
             }
         })
-        dialogRef.componentInstance.acceptAppointment.subscribe(id => {
-            if (id) this.acceptAppointment(id);
+        dialogRef.componentInstance.isAccepting.subscribe(isAccepted => {
+            if (isAccepted) {
+                this.ngOnInit();
+                this.appointmentService.pollNextAppointment();
+            }
         })
-        dialogRef.componentInstance.isOpeningTab.subscribe(subscription => {
-            if (subscription) {
-                this.createAppointmentTab(subscription);
+        dialogRef.componentInstance.isOpeningTab.subscribe(id => {
+            if (id) {
+                this.createAppointmentTab(id);
                 this.dialog.closeAll();
             }
         });
     }
 
-    async acceptAppointment(id: number) {
-        const appointment: Appointment | undefined = this.pendingAppointments.find(app => app.id);
-        if (appointment) {
-            const mutation = `mutation ($appointmentId: Int!) {
-                acceptAppointment(appointmentId: $appointmentId) {
-                    success
-                    message
-                }
-            }`
-            const ref = this.dialog.open(ConfirmComponent, {data: {message: "Appointment will be added to your calendar"}});
-            ref.componentInstance.ok.subscribe(async subscription => {
-                if (subscription) {
-                    try {   
-                        const response = await this.graphQLService.mutate(mutation, {appointmentId: id});
-                        if (response.data.acceptAppointment.success) {
-                            this.ngOnInit();
-                            this.appointmentService.pollNextAppointment();
-                            this.dialog.closeAll();
-                        }
-                    } catch (error) {
-                        this.dialog.open(AlertComponent, {data: {message: `Unexpected error: ${error}`}});
-                    }
-                }
-            })
-        }
-    }
     onSearch(value: any){}
 
     onSearchReset(value: boolean){}
