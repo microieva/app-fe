@@ -1,5 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Apollo, gql } from "apollo-angular";
+import { MatDialog } from "@angular/material/dialog";
 import { BehaviorSubject, Subscription } from "rxjs";
 import { AppGraphQLService } from "./app-graphql.service";
 
@@ -8,8 +9,11 @@ import { AppGraphQLService } from "./app-graphql.service";
 })
 export class AppAppointmentService {   
     private appointmentSubject = new BehaviorSubject<any>(null);
-    public appointmentInfo = this.appointmentSubject.asObservable();
+    appointmentInfo$ = this.appointmentSubject.asObservable();
     private pollingSubscription: Subscription | null = null;
+
+    private missedAppointments = new BehaviorSubject<number>(0);
+    missedAppointmentsCount$ = this.missedAppointments.asObservable();
 
     constructor(
         private apollo: Apollo,
@@ -46,6 +50,7 @@ export class AppAppointmentService {
             });
     }
     stopPolling() {
+        this.appointmentSubject.next(null);
         if (this.pollingSubscription) {
           this.pollingSubscription.unsubscribe();
           this.pollingSubscription = null; 
@@ -86,8 +91,24 @@ export class AppAppointmentService {
             if (response.data) {
                 return response.data.nowAppointment;
             }
-        } catch (error) {
             return null;
+        } catch (error) {
+            return;
         }
+    }
+
+    async countMissedAppointments() {
+
+        const query = `query { countMissedAppointments }`
+
+        await this.graphQLService.send(query)
+            .then((response: any) => {
+
+                const count = response.data.countMissedAppointments;
+                this.missedAppointments.next(count);
+            })
+            .catch((error) => {
+                console.error('Error fetching unread messages count:', error);
+            });
     }
 }

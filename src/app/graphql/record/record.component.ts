@@ -103,8 +103,8 @@ export class RecordComponent implements OnInit {
     }
     deleteRecord() {
         const dialogref = this.dialog.open(ConfirmComponent, {data: {message: "This will delete the record permanently"}});
-        dialogref.componentInstance.ok.subscribe(async subscription => {
-            if (subscription) {
+        dialogref.componentInstance.isConfirming.subscribe(async isConfirmed => {
+            if (isConfirmed) {
                 const mutation = `mutation ($recordId: Int!) {
                     deleteRecord(recordId: $recordId) {
                         success

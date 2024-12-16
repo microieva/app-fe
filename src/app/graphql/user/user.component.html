@@ -2,10 +2,10 @@
 <div *ngIf="!userId">
     <div class="flex-row wrapper info" >
         <span class="icon material-symbols-outlined">info</span>
-        <h3 *ngIf="missingInfo && !id">Add missing infomration to use Health Center services</h3>
-        <h3 *ngIf="!missingInfo">Your Health Center account details</h3>
-        <button *ngIf="missingInfo" mat-stroked-button (click)="updateUser()">{{ 'Update User Details' }}</button>
-        <span *ngIf="!missingInfo">{{ ' '}}</span>
+        <h3 *ngIf="!isUpdated && !id">Add missing infomration to use Health Center services</h3>
+        <h3 *ngIf="isUpdated">Your Health Center account details</h3>
+        <button *ngIf="!isUpdated" mat-stroked-button (click)="updateUser()">{{ 'Update User Details' }}</button>
+        <span *ngIf="isUpdated">{{ ' '}}</span>
     </div>
     <div *ngIf="!me" class="loading">
         <app-loading></app-loading>

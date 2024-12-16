@@ -80,8 +80,8 @@ export class AppEditorComponent implements OnInit, OnDestroy {
     }
     onCancel() {
         const dialogRef = this.dialog.open(ConfirmComponent, {data: {message: "All unsaved changes will be lost"}});
-        const sub = dialogRef.componentInstance.ok.subscribe(subscription => {
-            if (subscription) {
+        const sub = dialogRef.componentInstance.isConfirming.subscribe(isConfirmed => {
+            if (isConfirmed) {
                 this.cancel.emit(true);
             }
         });

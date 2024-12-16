@@ -46,7 +46,11 @@
             </div>
         </div>
         <div *ngIf="userRole === 'doctor' && chatId">
+            <div *ngIf="isLoading" class="loading">
+                <app-loading></app-loading>
+            </div>
             <app-chat 
+                *ngIf="!isLoading"
                 [receiverId]="receiverId" 
                 [senderId]="me.id" 
                 [chatId]="chatId"

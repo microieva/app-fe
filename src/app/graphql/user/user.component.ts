@@ -36,7 +36,7 @@ export class UserComponent implements OnInit, OnDestroy {
     user: User | null = null;
     request: DoctorRequest | null = null;
     userId:  number | null = null;
-    missingInfo: boolean = false;
+    isUpdated: boolean = false;
     id: number | undefined;
     form: FormGroup | undefined;
     formattedDate: string | undefined;
@@ -57,7 +57,10 @@ export class UserComponent implements OnInit, OnDestroy {
         @Optional() public dialogRef: MatDialogRef<UserComponent>,
         @Optional() @Inject(MAT_DIALOG_DATA) public data: any
     ){
-        this.userId = this.data?.userId || null;
+        //this.userId = this.data?.userId || null;
+        if (this.data) {
+            this.userId = this.data.userId
+        }
     }
 
     async ngOnInit() {
@@ -140,7 +143,7 @@ export class UserComponent implements OnInit, OnDestroy {
             if (response.data.me) {
                 this.formattedDate = DateTime.fromISO(response.data.me.dob).toFormat('MMM dd, yyyy') 
                 this.me = response.data.me;
-                this.missingInfo = response.data.me.updatedAt;
+                this.isUpdated = response.data.me.updatedAt;
 
                 this.buildForm();
             }
@@ -156,8 +159,8 @@ export class UserComponent implements OnInit, OnDestroy {
     async deleteUser(){
         const dialogRef = this.dialog.open(ConfirmComponent, {data: {message: "Deleting account and all associated data permanently"}})
         
-        const sub = dialogRef.componentInstance.ok.subscribe(async (subscription)=> {
-            if (subscription && this.me) {
+        const sub = dialogRef.componentInstance.isConfirming.subscribe(async (isConfirmed)=> {
+            if (isConfirmed && this.me) {
 
                 if (this.me.userRole === 'admin') {
                     this.isDeletingUser.emit(true);

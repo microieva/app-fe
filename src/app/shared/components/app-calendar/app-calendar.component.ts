@@ -279,8 +279,11 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                             title = "Pending confirmation"
                         }
                     }
-                    
-
+                    let colorStr: string | null;
+                    colorStr = appointment.start <now && appointment.doctorId ? "past": null;
+                    colorStr = appointment.start <now && !appointment.doctorId ? "missed": null;
+                    colorStr = appointment.start >now && appointment.doctorId ? "upcoming": null;
+                    colorStr = appointment.start >now && !appointment.doctorId ? "pending": null;
                     return {
                         title,
                         start,
@@ -288,7 +291,8 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                         extendedProps: {
                             dbId: appointment.id,
                             doctorId: appointment.doctorId,
-                            patientId: appointment.patientId
+                            patientId: appointment.patientId,
+                            color: colorStr
                         }
                     }
                 });
@@ -344,13 +348,15 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
 
                     const endStr = DateTime.fromISO(appointment.end).toLocal();
                     const end = endStr.toISO({includeOffset: true});
+
                     return {
                         title,
                         start,
                         end,
                         extendedProps: {
                             dbId: appointment.id,
-                            patientId: appointment.patientId
+                            patientId: appointment.patientId,
+                            color: "missed"
                         }
                     }
                 });
@@ -414,7 +420,8 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                         end,
                         extendedProps: {
                             dbId: appointment.id,
-                            doctorId: appointment.doctorId
+                            doctorId: appointment.doctorId,
+                            color: "pending"
                         }
                     }
                 });
@@ -479,7 +486,8 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                         end,
                         extendedProps: {
                             dbId: appointment.id,
-                            doctorId: appointment.doctorId
+                            doctorId: appointment.doctorId,
+                            color: "upcoming"
                         }
 
                     }
@@ -545,7 +553,8 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                         end,
                         extendedProps: {
                             dbId: appointment.id,
-                            title: 'Past'
+                            title: 'Past',
+                            color: "past"
                         }
 
                     }
@@ -580,9 +589,9 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                 const dialogRef = this.dialog.open(
                     ConfirmComponent, {data: {message: "Reserve full day?"}}
                 );
-                const sub = dialogRef.componentInstance.ok.subscribe(subscription => {
+                const sub = dialogRef.componentInstance.isConfirming.subscribe(isConfirmed => {
 
-                    if (subscription) {
+                    if (isConfirmed) {
                         calendarApi.addEvent(event);
                         this.appointment.emit({
                             start: event.start,
@@ -610,6 +619,7 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                 const sub = dialogRef.afterOpened().subscribe(() => {
                     this.dialogService.notifyDialogOpened();
                 });
+
                 const subSubmit = dialogRef.componentInstance.submit.subscribe(subscription => {
                     if (subscription) {
                         this.dialog.closeAll();
@@ -800,8 +810,8 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
 
             if (id) {
                 const ref = this.dialog.open(ConfirmComponent, {data: {message: 'This appointment booking will be cancelled'}});
-                const sub = ref.componentInstance.ok.subscribe(async (value)=> {
-                    if (value) {
+                const sub = ref.componentInstance.isConfirming.subscribe(async (isConfirmed)=> {
+                    if (isConfirmed) {
                         
                         const mutation = `mutation ($appointmentId: Int!) {
                             deleteAppointment (appointmentId: $appointmentId) {

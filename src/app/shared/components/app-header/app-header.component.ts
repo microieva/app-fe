@@ -1,13 +1,11 @@
 import {  Component, OnInit, Renderer2 } from "@angular/core";
 import { AppAuthService } from "../../services/app-auth.service";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Subscription } from "rxjs";
+import { catchError, distinctUntilChanged, filter, forkJoin, of, Subject, Subscription, switchMap, take, takeUntil, tap } from "rxjs";
 import { MatDialog } from "@angular/material/dialog";
 import { DateTime } from "luxon";
 import { environment } from "../../../../environments/environment";
 import { AppAppointmentService } from "../../services/app-appointment.service";
-import { AppCountUnreadMessagesService } from "../../services/app-count-unread.service";
-import { AppDialogService } from "../../services/app-dialog.service";
 import { AppGraphQLService } from "../../services/app-graphql.service";
 import { AppSnackbarService } from "../../services/app-snackbar.service";
 import { AppSocketService } from "../../services/app-socket.service";
@@ -19,6 +17,7 @@ import { LoadingComponent } from "../app-loading/loading.component";
 import { LoginMenuComponent } from "../app-login-menu/app-login-menu.component";
 import { User } from "../../../graphql/user/user";
 import { Appointment } from "../../../graphql/appointment/appointment";
+import { CancelledAppointmentNotification, NewAppointmentNotification, NewMessageNotification } from "../../types";
 
 @Component({
     selector: 'app-header',
@@ -26,15 +25,15 @@ import { Appointment } from "../../../graphql/appointment/appointment";
     styleUrls: ['app-header.component.scss']
 })
 export class AppHeader implements OnInit {
-    unreadMessages: string = '';
-    missedAppointments: string | undefined;
+    unreadMessages: number | null= null;
+    missedAppointments: number | null = null;
     isDisabled:boolean = true;
 
     me: User | null = null;
     nowAppointment: Appointment | null = null;
 
     remainder!: Subscription;
-    time!: string | null;
+    time: string | null = null;
     userRole: string | null = null;
     isUserUpdated: boolean = false;
 
@@ -42,8 +41,11 @@ export class AppHeader implements OnInit {
     snackbarAppointmentId: number | undefined;
     snackbarReceiverId: number | undefined;
 
+    private destroy$ = new Subject<void>();
+
     buttonClickListener!: () => void;
     private subscriptions: Subscription = new Subscription();
+
     constructor(
         private dialog: MatDialog,
         private router: Router,
@@ -55,205 +57,155 @@ export class AppHeader implements OnInit {
         private appointmentService: AppAppointmentService,
         private tabsService: AppTabsService,
         private socketService: AppSocketService,
-        private snackbarService: AppSnackbarService,
-        private dialogService: AppDialogService,
-        private countService: AppCountUnreadMessagesService
-    ){
-    }
+        private snackbarService: AppSnackbarService
+    ){}
     async ngOnInit() {
-        this.authService.isLoggedIn$.subscribe(async (isLoggedIn: boolean) => {
-            if (isLoggedIn) {
-                await this.loadMe();
-                const tokenExpire = localStorage.getItem('tokenExpire');
-                if (tokenExpire) {
-                    this.socketService.registerUser({id: this.me!.id, userRole: this.me!.userRole} as User);
-                    this.remainder = this.timerService.startTokenTimer(tokenExpire);
+        this.authService.isLoggedIn$.subscribe(is=> {
+            if (is) this.initHeader();
+        })
         
-                    const subTokenCountDown = this.timerService.tokenCountdown.subscribe(value=> {
-                        this.time = value;
-                    });
-                    const subSessionExpire = this.timerService.logout.subscribe(async value => {
-                        if (value) {
-                            this.time = null;
-                            await this.onLogOut();
-                            this.remainder.unsubscribe();
-                        }
-                    });
-                    const subSessionExpireClickedOk = this.timerService.ok.subscribe(value => {
-                        if (value) this.router.navigate(['/'])
-                    });
-                    const subNotifications = this.socketService.receiveNotification().subscribe(async (subscription: any)=> {
-                        if (subscription && subscription.receiverId) {
-                            if (this.me?.id === JSON.parse(subscription.receiverId)) {
-                                if (subscription.chatId) {
-                                    this.snackbarService.show(subscription.message, null, null, subscription.chatId, subscription.sender);
-                                    this.countService.countUnreadMessages();
-                                    if (this.userRole === 'admin') {
-                                        this.socketService.requestOnlineUsers()
-                                    }
-                                } else {
-                                    this.snackbarMessage = subscription.message;
-                                    this.snackbarAppointmentId = subscription.appointmentId;
-                                    this.snackbarReceiverId = subscription.receiverId;
-                                    this.snackbarService.show(subscription.message, subscription.appointmentId, subscription.doctorRequestId, null, null);
-                                }
-                            }
-                        } else if (subscription && subscription.message === "New appointment request") {
-                            this.snackbarMessage = subscription.message;
-                            this.snackbarAppointmentId = subscription.appointmentId;
-                            this.snackbarReceiverId = subscription.receiverId;
-                        }
-                    });
-        
-                    const subMatDialogButtons = this.dialogService.dialogOpened$.subscribe(() => {
-                        const eventComponent = document.querySelector('app-event');
-                        const confirmComponent = document.querySelector('app-confirm');
-            
-                        if (eventComponent) {
-                            const actionButton = eventComponent.querySelector('#submit-btn');
-                            if (actionButton) {
-                                this.buttonClickListener = this.renderer.listen(
-                                    actionButton,
-                                    'click',
-                                    () => { 
-                                        if (this.snackbarMessage === "New appointment request") {
-                                            this.socketService.notifyDoctors({
-                                                message: this.snackbarMessage,
-                                                appointmentId: this.snackbarAppointmentId
-                                            });
+    }
+    initHeader() {
+        this.authService.isLoggedIn$
+            .pipe(
+                filter(isLoggedIn => isLoggedIn), 
+                switchMap(async () => await this.loadMe()),  
+                switchMap(() => this.timerService.tokenCountdown$),
+                tap(countdown => this.time = countdown), 
+                switchMap(() => {
+                    if (this.me?.updatedAt) {
+                        return forkJoin({
+                            socketUpdates: this.socketService.getMissedAppointmentsCount().pipe(
+                                tap(isUpdated => this.countMissedAppointments(isUpdated)),   
+                                catchError(err => {
+                                    console.error("Error receiving socket update", err);
+                                    return of(null); 
+                                })
+                            ),
+                            notifications: this.socketService.receiveNotification().pipe(
+                                tap(async (notification: NewMessageNotification) => {
+                                    if (this.me?.id === notification.receiverId && notification.chatId) {
+                                        this.snackbarService.addSnackbar(notification)
+                                        if (this.userRole !== 'patient') {
+                                            await this.countUnreadMessages();
                                         }
+                                        if (this.userRole === 'admin') {
+                                            this.socketService.requestOnlineUsers()
+                                        }  
                                     }
-                                );
-                            }
-                        }
-                        if (confirmComponent) {
-                            const actionButton = confirmComponent.querySelector('#confirm-btn');
-                            if (actionButton) {
-                                this.buttonClickListener = this.renderer.listen(
-                                    actionButton,
-                                    'click',
-                                    () => { 
-                                        this.socketService.notifyDoctor({
-                                            message: this.snackbarMessage,
-                                            doctorId: this.snackbarReceiverId
-                                        });
+                                    return of(null)
+                                }),
+                                catchError(err => {
+                                    console.error("Error receiving socket update", err);
+                                    return of(null); 
+                                })
+                            ),
+                            newAppointemntNoti: this.socketService.newAppointmentRequest().pipe(
+                                tap((info: NewAppointmentNotification )=> {
+                                    if (this.userRole === 'doctor') {
+                                        this.snackbarService.addSnackbar(info)
                                     }
-                                );
-                            }
-                        }
-                    });
-                    const subUpdateMissedAppointmentsCount = this.socketService.getMissedAppointmentsCount()  
-                        .subscribe(async isUpdated => {
-                            if (isUpdated) {
-                                await this.countMissedAppointments();
-                            }
-                        });
-        
-                    this.subscriptions.add(subTokenCountDown); 
-                    this.subscriptions.add(subSessionExpire); 
-                    this.subscriptions.add(subSessionExpireClickedOk); 
-                    this.subscriptions.add(subNotifications); 
-                    this.subscriptions.add(subMatDialogButtons); 
-                    this.subscriptions.add(subUpdateMissedAppointmentsCount);
-        
-                    if (this.userRole === 'admin') {
-                        this.socketService.requestOnlineUsers();
-                        this.socketService.requestCountMissedAppointments();
-                        await this.countMissedAppointments();
-                    }
-        
-                    if (this.userRole === 'doctor') {
-                        await this.appointmentService.pollNextAppointment();
-        
-                        const nowAppointment = await this.appointmentService.loadNowAppointment();
-                        let isTabAdded: boolean = false;
-        
-                        if (nowAppointment) {
-                            const patientName = nowAppointment.patient.firstName+" "+nowAppointment.patient.lastName;
-                            const start = DateTime.fromISO(nowAppointment.start,  {zone: 'utc'}).setZone().toFormat('HH:mm a');
-                            isTabAdded = JSON.parse(localStorage.getItem('tabs') || '[]').find((tab: any)=> tab.id === nowAppointment?.id);
-                            let isTabCreated: boolean;
-                            
-                            const subRouteParams = this.activatedRoute.queryParams.subscribe(params => {
-                                const tab = params['tab'];
-                                if (!tab) isTabCreated = false;
-                                isTabCreated = true;
-                            });
-        
-                            if (!isTabAdded) {
-                                this.tabsService.addTab("offline start: "+start, AppointmentComponent, nowAppointment.id);
-                                this.dialog.open(AlertComponent, {data: {message: "Current appointment with "+patientName+"\nStarted at "+start}});
-                                this.nowAppointment = nowAppointment;
-                            } 
-                            this.subscriptions.add(subRouteParams);
-                        }
-        
-                        const subNextAppointmentInfo = this.appointmentService.appointmentInfo.subscribe((subscription) => {
-                            if (subscription && subscription.nextAppointment) {
-                                this.timerService.startAppointmentTimer(subscription.nextAppointment.nextStart);
-                                const start = DateTime.fromISO(subscription.nextAppointment.nextStart, { setZone: true }).setZone('Europe/Helsinki', { keepLocalTime: true }); 
+                                }),
+                                catchError(err => {
+                                    console.error("Error receiving socket update", err);
+                                    return of(null); 
+                                })
+                            ),
+                            cancelledAppointmentNoti: this.socketService.deletedAppointmentInfo().pipe(
+                                tap((info: CancelledAppointmentNotification )=> {
+                                    if (this.me?.id === info.receiverId) {
+                                        this.snackbarService.addSnackbar(info)
+                                    }
+                                    return of(null); 
+                                }),
+                                catchError(err => {
+                                    console.error("Error receiving socket update", err);
+                                    return of(null); 
+                                })
+                            ),
+                            refresh: this.socketService.refresh$.pipe(
+                                filter(isUpdated => isUpdated), 
+                                tap(async ()=> await this.ngOnInit()),
+                                catchError(err => {
+                                    console.error("Error receiving socket update", err);
+                                    return of(null); 
+                                })
+                            ),
+                            nextAppointmentInfo: this.appointmentService.appointmentInfo$.pipe(
+                                filter((info) => !!info),
+                                switchMap((info) => {
+                                    const start = DateTime.fromISO(info.nextStart, { zone: 'utc' }).setZone('utc'); 
                                 
-                                const subAppointmentCountDown = this.timerService.nextAppointmentCountdown.subscribe(async value => {
-                                    if (value === environment.triggerTime) {
-                                        const displayTime = `\n Starting at ${start.toFormat('HH:mm a')}`
-                                        const ref = this.dialog.open(AlertComponent, {data: { message: `You have an appointment in 5 min. ${displayTime}`}});    
+                                    return this.timerService.appointmentCountdown$.pipe(
+                                    distinctUntilChanged(),
+                                    take(1),
+                                    tap((value) => {
+                                        if (value === environment.triggerTime) {
+                                            const displayTime = `\n Starting at ${start.toFormat('HH:mm a')}`;
+                                            const ref = this.dialog.open(AlertComponent, { 
+                                                data: { message: `You have an appointment in 5 min. ${displayTime}` } 
+                                        });
+                                
                                         const tabs = this.tabsService.getTabs();
-        
                                         if (tabs) {
-                                            const isCreated = tabs.some(tab => tab.id === subscription.nextAppointment.nextId)
+                                            const isCreated = tabs.some((tab) => tab.id === info.nextId);
                                             if (!isCreated) {
-                                                this.tabsService.addTab(start.toFormat('HH:mm a'), AppointmentComponent, subscription.nextAppointment.nextId);
+                                                this.tabsService.addTab(start.toFormat('HH:mm a'), AppointmentComponent, info.nextId);
                                             }
-                                        } 
-                                        const subAlertClickOk = ref.componentInstance.ok.subscribe(ok => {
+                                        }
+                                
+                                        ref.componentInstance.ok.subscribe((ok) => {
                                             if (ok) {
                                                 this.dialog.closeAll();
                                                 this.router.navigate(['/home/appointments'], {
                                                     relativeTo: this.activatedRoute,
                                                     queryParams: { tab: 3 },
-                                                    queryParamsHandling: 'merge' 
+                                                    queryParamsHandling: 'merge', 
                                                 });
                                             }
                                         });
-                                        this.subscriptions.add(subAlertClickOk);
                                     }
-                                });
-                                this.subscriptions.add(subAppointmentCountDown);
-                            }
-                        });
-                        const subNewAppointmentNotification = this.socketService.newAppointmentRequest().subscribe((info: any)=> {
-                            if (info) {
-                                this.snackbarService.show(info.message, info.appointmentId, null, null, null); 
-                            }
-                        });
-                        const subDeletedAppointmentNotification = this.socketService.deletedAppointmentInfo().subscribe((info: any)=> {
-                            if (info && this.me?.id === info.doctorId) {
-                                this.snackbarService.show(info.message, null, null, null, null); 
-                            }
-                        });
-                        this.subscriptions.add(subNextAppointmentInfo);
-                        this.subscriptions.add(subNewAppointmentNotification);
-                        this.subscriptions.add(subDeletedAppointmentNotification);
-                    }
-                    
-                    if (this.me!.updatedAt) {
-                        if (this.userRole !=='patient') {
-                            this.countService.countUnreadMessages();   
-                        }
-                        const subUnreadMessagesCount = this.countService.unreadCount$.subscribe((count) => {
-                            if (count !== 0) {
-                                if (this.userRole !== 'patient') {
-                                    this.unreadMessages = count.toString();
-                                }
-                            } else {
-                                this.unreadMessages = ''
-                            }
-                        });
-                        this.subscriptions.add(subUnreadMessagesCount);
-                    }          
-                } 
-            }
-        })
+                                    })
+                                    );
+                                })
+                             )
+                                  
+                        })
+                    } 
+                    return of(null)
+                }), 
+                catchError(err => {
+                    console.error("Error in header initialization", err);
+                    return of(null); 
+                }),
+                takeUntil(this.destroy$), 
+            )
+            .subscribe()   
+
+    }
+
+    async countMissedAppointments(isUpdated: boolean) {
+        const query = `query { countMissedAppointments }`;
+        if (isUpdated) {
+            await this.graphQLService.send(query)
+                .then((response: any) => {
+                    this.missedAppointments = response.data.countMissedAppointments;
+                })
+                .catch((error) => {
+                    console.error('Error fetching unread messages count:', error);
+                });
+        }
+    }
+    async countUnreadMessages() {
+        const query = `query { countUnreadMessages }`;
+
+        await this.graphQLService.send(query)
+            .then((response: any) => {
+                this.unreadMessages = response.data.countUnreadMessages;
+            })
+            .catch((error) => {
+                console.error('Error fetching unread messages count:', error);
+            });
     }
 
     async loadMe() {
@@ -267,6 +219,7 @@ export class AppHeader implements OnInit {
                 lastName
                 streetAddress
             }
+            countMissedAppointments
         }`
         try {
             const response = await this.graphQLService.send(query);
@@ -275,6 +228,10 @@ export class AppHeader implements OnInit {
                 this.me = response.data.me;
                 this.userRole = response.data.me.userRole;
                 this.isUserUpdated = response.data.me.updatedAt;
+                this.missedAppointments = response.data.countMissedAppointments;
+                if (this.userRole !== 'patient') {
+                    await this.countUnreadMessages();
+                }
             } else {
                 localStorage.clear();
                 this.router.navigate([''])
@@ -299,34 +256,29 @@ export class AppHeader implements OnInit {
         }
     }
 
-    async countMissedAppointments() {
-        const query = `query { countMissedAppointments }`
-        try {
-            const response = await this.graphQLService.send(query);
-            if (response.data.countMissedAppointments !== 0) {
-                this.missedAppointments = response.data.countMissedAppointments.toString();
-                this.isDisabled = false;
-            } 
-        } catch (error) {
-            this.dialog.open(AlertComponent, {data: {message: error}});
-        }
-    }
+
     ngOnDestroy() {
         if (this.buttonClickListener) {
             this.buttonClickListener();
         }
         this.subscriptions.unsubscribe();
+        this.destroy$.next(); 
+        this.destroy$.complete();
     }
     onLogIn(){
         this.dialog.open(LoginMenuComponent)
     }
 
-    async onLogOut() {
+    async onLogOut() {        
+        this.timerService.cancelTokenTimer(); 
         this.dialog.open(LoadingComponent);
-        this.timerService.cancelTokenTimer();
+
         this.me = null;
-        this.subscriptions.unsubscribe();
+        this.time = null;
+        this.ngOnDestroy();
+       
         await this.authService.logOut();
     }
-      
+
 }
+      

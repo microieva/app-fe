@@ -7,6 +7,7 @@ import { AppGraphQLService } from './app-graphql.service';
 import { AlertComponent } from '../components/app-alert/app-alert.component';
 import { LoadingComponent } from '../components/app-loading/loading.component';
 import { DirectLoginInput } from '../types';
+import { AppTimerService } from './app-timer.service';
 
 @Injectable({
   providedIn: 'root'
@@ -14,11 +15,13 @@ import { DirectLoginInput } from '../types';
 export class AppAuthService {
     private loggedInSubject = new BehaviorSubject<boolean>(this.isAuth());
     isLoggedIn$ = this.loggedInSubject.asObservable();
+    
     constructor(
         private apollo: Apollo,
         private graphQLService: AppGraphQLService,
         private dialog: MatDialog,
-        private router: Router
+        private router: Router,
+        private timerService: AppTimerService
     ) {}
 
     async logIn(input: DirectLoginInput) {

@@ -1,15 +1,14 @@
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AppDialogService {
-  private dialogOpenedSource = new Subject<void>();
-
+  private dialogOpenedSource = new BehaviorSubject<boolean>(false);
   dialogOpened$ = this.dialogOpenedSource.asObservable();
 
   notifyDialogOpened() {
-    this.dialogOpenedSource.next();
+    this.dialogOpenedSource.next(true);
   }
 }

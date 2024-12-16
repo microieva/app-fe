@@ -1,4 +1,5 @@
 import { DateTime } from "luxon";
+import { AppSocketService } from "./services/app-socket.service";
 
 export const getNextAppointmentTodayTomorrowStartStr = (nextStart: any): string => {
     const startDate = DateTime.fromISO(nextStart, { setZone: true });
@@ -25,7 +26,7 @@ export const getTodayWeekdayTime = (): { weekday: string, time: string, date: st
 }
 
 export const getNextAppointmentWeekdayStart = (nextStart: any): { dayName: string, time: string, date: string} => {
-    const startDate = DateTime.fromISO(nextStart, { setZone: true });
+    const startDate = DateTime.fromISO(nextStart, { zone: 'utc' }).setZone();
     const today = DateTime.now().setZone(startDate.zone);
     const tomorrow = today.plus({ days: 1 });
 
@@ -94,7 +95,7 @@ export const getHowSoonUpcoming = (datetime: string): string => {
     if (diff.days < 1 && diff.hours > 0) {
         howSoonStr += `${diff.hours} hour${diff.hours === 1 ? '' : 's'} `;
     }
-    if (diff.days < 1 && diff.minutes > 0) {
+    if (diff.days < 1 && diff.hours < 5 && diff.minutes > 0) {
         howSoonStr += `${diff.minutes} minute${diff.minutes === 1 ? '' : 's'} `;
     }
 
@@ -126,7 +127,7 @@ export const getHowLongAgo = (datetime: string):string => {
     if (diff.months <1 && diff.days < 2 && diff.hours > 0) {
         howLongAgoStr += `${diff.hours} hour${diff.hours === 1 ? '' : 's'} `;
     }
-    if (diff.months < 1 && diff.days < 1 && diff.hours <2 && diff.minutes > 0) {
+    if (diff.months < 1 && diff.days < 1 && diff.hours <5 && diff.minutes > 0) {
         if (diff.minutes <= 5) {
             howLongAgoStr = 'Just now';
         } else {
@@ -143,6 +144,15 @@ export const getHowLongAgo = (datetime: string):string => {
         howLongAgoStr += ' ago';
     } 
     return howLongAgoStr;
+}
+
+export function initializeApp(socketService: AppSocketService) {
+    return (): Promise<void> => {
+        return new Promise(resolve => {
+            socketService.reconnectSocket(); 
+            resolve();
+        });
+    };
 }
 
 

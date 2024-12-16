@@ -1,5 +1,5 @@
 import { Subscription } from 'rxjs';
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
@@ -8,7 +8,6 @@ import { AppAuthService } from './shared/services/app-auth.service';
 import { AppSnackbarService } from './shared/services/app-snackbar.service';
 import { AppTimerService } from './shared/services/app-timer.service';
 import { LoadingComponent } from './shared/components/app-loading/loading.component';
-import { AppSnackbarContainerComponent } from './shared/components/app-snackbar/app-snackbar.component';
 
 
 @Component({
@@ -20,9 +19,8 @@ export class AppComponent implements OnInit, OnDestroy {
     title = 'Health Center';
     refresh: boolean = false;
 
-    @ViewChild('snackbarContainer') snackbarContainer!: AppSnackbarContainerComponent;
     private subscription!: Subscription;
-    private auth!: Subscription;
+    auth: Subscription = new Subscription();
 
     constructor (
         private dialog: MatDialog,
@@ -30,8 +28,8 @@ export class AppComponent implements OnInit, OnDestroy {
         private activatedRoute: ActivatedRoute,
         private authService: AppAuthService,
         private http: HttpClient,
-        private snackbarService: AppSnackbarService,
-        private timerService: AppTimerService
+        private timerService: AppTimerService,
+        public snackbarService: AppSnackbarService
     ) {}
 
     ngOnInit(): void {
@@ -52,13 +50,8 @@ export class AppComponent implements OnInit, OnDestroy {
         })
     }
 
-    ngAfterViewInit() {
-        this.snackbarService.setContainer(this.snackbarContainer);
-    }
-
     ngOnDestroy() {
         this.subscription.unsubscribe();
-        this.auth.unsubscribe();
     }
 
     exchangeCodeForToken(code: string, state: string, scope: any) {

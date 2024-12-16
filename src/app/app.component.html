@@ -1,6 +1,6 @@
 <div role="main">
     <app-header></app-header>
-    <app-snackbar #snackbarContainer></app-snackbar>
+    <app-snackbar [snackbars$]="snackbarService.snackbars$"></app-snackbar>
     <router-outlet></router-outlet>
 </div>
 

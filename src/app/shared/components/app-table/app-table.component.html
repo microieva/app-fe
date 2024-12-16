@@ -25,7 +25,14 @@
             <th mat-header-cell *matHeaderCellDef mat-sort-header disableClear class="font">{{ column.header }}</th>
             <td mat-cell *matCellDef="let element">
                 <ng-container *ngIf="column.columnDef === 'online'">
-                    <div [ngClass]="{ 'online-dot': element.online, 'offline-dot': !element.online }"></div>
+                    <div 
+                        [ngClass]="{ 'online': element.online, 'offline': !element.online }" 
+                        class="status flex-row"
+                    >
+                        <div [ngClass]="{ 'online-dot': element.online, 'offline-dot': !element.online }"></div>
+                        <p *ngIf="element.online">Active</p>
+                        <p *ngIf="!element.online">Offline</p>
+                    </div>
                 </ng-container>
                
                 <ng-container *ngIf="column.columnDef === 'actions'">
@@ -50,13 +57,46 @@
                     <div *ngIf="element.record === undefined" matTooltip="No record">-</div>
                 </ng-container>
 
-                <ng-container *ngIf="column.columnDef !== 'online' && column.columnDef !== 'message' && column.columnDef !== 'draft'  && column.columnDef !== 'record'  && column.columnDef !== 'actions'">
+                <ng-container *ngIf="column.columnDef === 'howSoonStr'">
+                    <div *ngIf="timerService.startHowSoonCountdown(element.howSoonStr) | async as countdown">
+                        <span >
+                            {{countdown}}
+                        </span>
+                     </div>
+                </ng-container>
+
+                <ng-container *ngIf="column.columnDef === 'howLongAgoStr'">
+                    <div *ngIf="timerService.startHowLongAgoCountdown(element.howLongAgoStr) | async as countdown">
+                        <span >
+                            {{countdown}}
+                        </span>
+                     </div>
+                </ng-container>
+
+                <ng-container *ngIf="column.columnDef === 'pastDate'">
+                    <div *ngIf="timerService.startHowLongAgoCountdown(element.pastDate) | async as countdown">
+                        <span >
+                            {{countdown}}
+                        </span>
+                     </div>
+                </ng-container>
+
+                <ng-container 
+                    *ngIf="
+                        column.columnDef !== 'online' && 
+                        column.columnDef !== 'message' && 
+                        column.columnDef !== 'draft'  && 
+                        column.columnDef !== 'record'  && 
+                        column.columnDef !== 'actions'&&
+                        column.columnDef !== 'howSoonStr' &&
+                        column.columnDef !== 'howLongAgoStr' &&
+                        column.columnDef !== 'pastDate'"
+                    >
                     <ng-container *ngIf="element[column.columnDef] === null || element[column.columnDef] === '' || element[column.columnDef] === 'Invalid DateTime'; else value">
                         <span>-</span>
                     </ng-container>
                     <ng-template #value>
                         <div>
-
                             <span [ngStyle]="element[column.columnDef] === 'Currently online' && {'font-style':'italic'}">{{ element[column.columnDef] }}</span>
                         </div>
                     </ng-template>

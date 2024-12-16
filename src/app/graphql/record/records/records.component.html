@@ -19,13 +19,18 @@
             <div *ngIf="isLoading" class="loading">
                 <app-loading></app-loading>
             </div>
-            <div class="page" @slideInOut *ngIf="!isLoading">
-                <div *ngIf="countRecords === 0" class="btn-block">
-                    <span class="material-symbols-outlined" id="bg-icon">
+            <div class="page" *ngIf="!isLoading && countRecords === 0">
+                <div class="btn-block">
+                    
+                    <h1>No medical records</h1>
+                    <span class="material-symbols-outlined" id="bg-icon"  >
                         folder_open
                     </span>
-                    <h1>No medical records</h1>
+
                 </div>
+            </div>
+            <div class="page" @slideInOut *ngIf="!isLoading">
+               
                 <div class="table-wrapper">
                     <app-search
                         *ngIf="dataSource && displayedColumns && countRecords>0"

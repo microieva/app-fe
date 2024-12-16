@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -153,7 +153,7 @@ import { AppAuthGuard } from './shared/services/app-auth.guard';
         provideAnimationsAsync(),
         { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' }},
         { provide: MAT_DATE_FORMATS, useValue: LUXON_DATE_FORMATS },
-        { provide: MAT_DATE_LOCALE, useValue: 'fi-FI' } 
+        { provide: MAT_DATE_LOCALE, useValue: 'fi-FI' }
     ],
 })
 

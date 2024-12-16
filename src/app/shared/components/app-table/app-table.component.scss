@@ -62,7 +62,7 @@ button {
     height: 8px;
     width: 8px;
     border-radius: 50%;
-    background-color: rgb(44 135 44);
+    background-color: rgb(44, 135, 44);
     margin-left: 0.5rem;
 }
 .offline-dot {
@@ -152,4 +152,20 @@ button {
 }
 .mat-column-pastDate {
     width: 30%
+}
+.status {
+    width: 60%;
+    height: 2rem;
+    border-radius: 17px;
+    &.offline {
+        background-color: rgb(197, 197, 197);
+    }
+    &.online {
+        background-color: rgb(182 212 179 / 89%);
+    }
+    p {
+        padding-right: 12px;
+        font-weight: 900;
+        opacity: 0.5;
+    }
 }

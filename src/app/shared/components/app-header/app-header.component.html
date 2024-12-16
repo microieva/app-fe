@@ -6,17 +6,27 @@
         <p>{{me.firstName}} {{me.lastName}}<span *ngIf="userRole === 'doctor'">, MD</span></p>
     </div>
     <span class="spacer"></span>
+  
+    <div *ngIf="me && !time"class="loading sm flex-row">
+        <app-loading></app-loading>
+    </div>
     <div *ngIf="me && time" class="flex-row"> 
         <div style="margin-top:7px;">
-            <span class="material-symbols-outlined header-icon"  (click)="openChat()" *ngIf="isUserUpdated && userRole!=='patient'" [matBadge]="unreadMessages">chat</span> 
+            <span 
+                class="material-symbols-outlined header-icon"  
+                (click)="openChat()" 
+                *ngIf="isUserUpdated && userRole!=='patient'" 
+                [matBadge]="unreadMessages === 0? '': unreadMessages"
+            >chat
+            </span> 
         </div>
         <div style="margin-top:8px;">
             <span 
                 class="material-symbols-outlined header-icon"  
                 *ngIf="isUserUpdated" 
                 (click)="openCalendar()" 
-                [matBadge]="userRole === 'admin' ? missedAppointments: ''" 
-                [ngClass]="isDisabled && userRole === 'admin' ? 'disabled': ''"
+                [matBadge]="userRole === 'admin' && missedAppointments >0 ? missedAppointments: ''" 
+                [ngClass]="missedAppointments === 0 && userRole === 'admin' ? 'disabled': ''"
             >calendar_month
             </span> 
         </div>

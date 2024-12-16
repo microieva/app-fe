@@ -42,7 +42,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     });
     messages: any[] = [];
     online: boolean = false;
-
+    isLoading: boolean = true;
     private subscriptions: Subscription = new Subscription();
 
     constructor(
@@ -65,8 +65,8 @@ export class ChatComponent implements OnInit, OnDestroy {
         await this.setIsReadToTrue();
         await this.loadMessages();
 
-        const subNotifications = this.socketService.receiveNotification().subscribe(async (subscription: any)=> {
-            if (subscription && subscription.chatId) {
+        const subNotifications = this.socketService.receiveNotification().subscribe(async (notification: any)=> {
+            if (notification && notification.chatId) {
                 await this.loadMessages();
             }
         })
@@ -114,8 +114,10 @@ export class ChatComponent implements OnInit, OnDestroy {
                         createdAt: time
                     }
                 })
+                this.isLoading = false;
             }
         } catch (error) {
+            this.isLoading = false;
             this.dialog.open(AlertComponent, {data: {message: "Error loading messages: "+error}})
         }
     }
@@ -181,8 +183,8 @@ export class ChatComponent implements OnInit, OnDestroy {
     }
     onChatDelete(){
         const ref = this.dialog.open(ConfirmComponent, {data: {message: "Deleting all messages"}});
-        ref.componentInstance.ok.subscribe(async ok => {
-            if (ok) {
+        ref.componentInstance.isConfirming.subscribe(async isConfirmed => {
+            if (isConfirmed) {
                 await this.deleteChatForParticipant();
             }
         })
