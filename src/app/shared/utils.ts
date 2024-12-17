@@ -26,7 +26,7 @@ export const getTodayWeekdayTime = (): { weekday: string, time: string, date: st
 }
 
 export const getNextAppointmentWeekdayStart = (nextStart: any): { dayName: string, time: string, date: string} => {
-    const startDate = DateTime.fromISO(nextStart, { zone: 'utc' }).setZone();
+    const startDate = DateTime.fromISO(nextStart, {setZone: true})
     const today = DateTime.now().setZone(startDate.zone);
     const tomorrow = today.plus({ days: 1 });
 

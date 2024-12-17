@@ -117,14 +117,14 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
             this.selectedIndex = tab ? +tab : 0;
         }); 
 
-        const subNextAppointmentInfo = this.appointmentService.appointmentInfo$.subscribe((subscription) => {
-            if (subscription && subscription.nextAppointment) {
-                this.nextId = subscription.nextAppointment.nextId;
+        const subNextAppointmentInfo = this.appointmentService.appointmentInfo$.subscribe((info) => {
+            if (info && info.nextAppointment) {
+                this.nextId = info.nextAppointment.nextId;
 
                 if (this.previousNextId !== this.nextId) {
                     this.previousNextId = this.nextId;
                 }
-                this.nextAppointmentStartTime = DateTime.fromISO(subscription.nextAppointment.nextStart, {zone: 'utc'}).setZone().toFormat('HH:mm a');
+                this.nextAppointmentStartTime = DateTime.fromISO(info.nextAppointment.nextStart, {setZone:true}).toFormat('HH:mm a');
             }
         });
 

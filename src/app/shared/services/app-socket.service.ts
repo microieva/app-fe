@@ -145,12 +145,11 @@ export class AppSocketService {
     notifyDoctors(newAppointemnt: any){
         if (this.socket && this.socket.connected) {
             this.socket.emit('notifyDoctors', newAppointemnt);
-        } 
-        // else {
-        //     this.reconnectSocket().then(() => {
-        //         this.socket.emit('notifyDoctors', newAppointemnt);
-        //     });
-        // }  
+        } else {
+            this.reconnectSocket().then(() => {
+                this.socket.emit('notifyDoctors', newAppointemnt);
+            });
+        }  
     }
 
     newAppointmentRequest() {

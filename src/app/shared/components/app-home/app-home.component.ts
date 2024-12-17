@@ -283,7 +283,7 @@ export class AppHomeComponent implements OnInit {
                     const previous = response.data.nextAppointment.previousAppointmentDate;
                     this.previousAppointmentDate = previous ? DateTime.fromISO(previous).toFormat('MMM dd, yyyy') : '-';
                     const nextStart = response.data.nextAppointment.nextStart;
-                    this.nextStart = nextStart && getNextAppointmentWeekdayStart(nextStart);
+                    this.nextStart = nextStart && getNextAppointmentWeekdayStart(nextStart.toISO({includeOffset: true}));
                     this.nextId = response.data.nextAppointment.nextId;
                     this.recordIds = response.data.nextAppointment.recordIds;
                     this.nextAppointmentStartTime = DateTime.fromISO(response.data.nextAppointment.nextStart, {setZone: true}).toFormat('HH:mm a, MMM dd');

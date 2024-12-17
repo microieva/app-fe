@@ -261,26 +261,21 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                 const now = DateTime.now().toISO({ includeOffset: true });
                 this.events = this.appointments.map((appointment: Appointment) => {
                     
-                    // const startStr = DateTime.fromISO(appointment.start, {zone:'utc'}).setZone().toLocal();
-                    // const start = startStr.toISO({includeOffset: true});
-
-                    // const endStr = DateTime.fromISO(appointment.end, {zone:'utc'}).setZone().toLocal();
-                    // const end = endStr.toISO({includeOffset: true});
-                    const start = appointment.start;
-                    const end = appointment.end;
+                const start = appointment.start;
+                const end = appointment.end;
 
 
-                    if (this.role !== 'patient') {
-                        title = appointment.patient.firstName+' '+appointment.patient.lastName
-                    } else if (this.role === 'patient' && appointment.doctor) {
-                        title = 'Dr. '+appointment.doctor.firstName+' '+appointment.doctor.lastName
-                    } else if (this.role === 'patient' && !appointment.doctor) {
-                          if (!appointment.doctorId && start! < now) {
-                            title = "Missed request"
-                        } else if (!appointment.doctorId && end! > now) {
-                            title = "Pending confirmation"
-                        }
+                if (this.role !== 'patient') {
+                    title = appointment.patient.firstName+' '+appointment.patient.lastName
+                } else if (this.role === 'patient' && appointment.doctor) {
+                    title = 'Dr. '+appointment.doctor.firstName+' '+appointment.doctor.lastName
+                } else if (this.role === 'patient' && !appointment.doctor) {
+                        if (!appointment.doctorId && start! < now) {
+                        title = "Missed request"
+                    } else if (!appointment.doctorId && end! > now) {
+                        title = "Pending confirmation"
                     }
+                }
 
                     return {
                         title,
@@ -340,11 +335,7 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                     } else {
                         title = "Missed request"
                     }
-                    // const startStr = DateTime.fromISO(appointment.start).toLocal();
-                    // const start = startStr.toISO({includeOffset: true});
-
-                    // const endStr = DateTime.fromISO(appointment.end).toLocal();
-                    // const end = endStr.toISO({includeOffset: true});
+       
                     const start = appointment.start;
                     const end = appointment.end;
 
@@ -406,11 +397,7 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                     } else {
                         title =  "Pending confirmation";
                     }
-                    // const startStr = DateTime.fromISO(appointment.start, {zone:'utc'}).setZone().toLocal();
-                    // const start = startStr.toISO({includeOffset: true});
-
-                    // const endStr = DateTime.fromISO(appointment.end, {zone:'utc'}).setZone().toLocal();
-                    // const end = endStr.toISO({includeOffset: true});
+        
                     const start = appointment.start;
                     const end = appointment.end;
 
@@ -473,11 +460,7 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                     } else if (this.role === 'patient' && appointment.doctor) {
                         title = 'Dr. '+appointment.doctor.firstName+' '+appointment.doctor.lastName
                     } 
-                    // const startStr = DateTime.fromISO(appointment.start, {zone:'utc'}).setZone().toLocal();
-                    // const start = startStr.toISO({includeOffset: true});
-
-                    // const endStr = DateTime.fromISO(appointment.end, {zone:'utc'}).setZone().toLocal();
-                    // const end = endStr.toISO({includeOffset: true});
+    
                     const start = appointment.start;
                     const end = appointment.end;
 
@@ -541,11 +524,7 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                     } else if (this.role === 'patient' && appointment.doctor) {
                         title = 'Dr. '+appointment.doctor.firstName+' '+appointment.doctor.lastName
                     } 
-                    // const startStr = DateTime.fromISO(appointment.start, {zone:'utc'}).setZone().toLocal();
-                    // const start = startStr.toISO({includeOffset: true});
 
-                    // const endStr = DateTime.fromISO(appointment.end, {zone:'utc'}).setZone().toLocal();
-                    // const end = endStr.toISO({includeOffset: true});
                     const start = appointment.start;
                     const end = appointment.end;
 
@@ -572,15 +551,13 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
             let start: any;
             let end: any;
 
-            // const startDateTime = DateTime.fromJSDate(arg.start, {zone:'utc'}).setZone('utc')
-            // const endDateTime = DateTime.fromJSDate(arg.end, {zone:'utc'}).setZone('utc')
             const startDateTime = DateTime.fromJSDate(arg.start)
             const endDateTime = DateTime.fromJSDate(arg.end)
 
             start = startDateTime.toISO({includeOffset: true});
             end = endDateTime.toISO({includeOffset:true});
 
-            const event: any = {
+            const event = {
                 id: createEventId(),
                 title: "New appointment",
                 start: arg.allDay ? start : arg.startStr,
@@ -783,10 +760,12 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
         calendarApi.unselect(); 
     }
 
-    isDouble(arg: any): boolean {
-        return this.appointments.some((event) => 
-            new Date(event.start).getTime() === new Date(arg.startStr).getTime()
-        );
+    isDouble(arg: DateSelectArg): boolean {
+        const argStart = DateTime.fromISO(arg.startStr, { zone: 'utc' }).startOf('minute');
+        return this.appointments.some((event) => {
+            const eventStart = DateTime.fromISO(event.start, { zone: 'utc' }).startOf('minute');   
+            return eventStart.equals(argStart);
+        });
     }
 
     isFuture(arg: any): boolean {
