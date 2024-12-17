@@ -78,11 +78,11 @@
             </div>
 
 
-            <div style="position: relative" *ngIf="userRole ==='doctor' && nextId" [ngStyle]="{'margin-top': !nextId ? '16rem':'inherit'}" @slideInOut>      
-                <span *ngIf="nextId" class="material-symbols-outlined" id="bg-icon" >
+            <div style="position: relative" *ngIf="userRole ==='doctor' && !isLoading" [ngStyle]="{'margin-top': !nextId ? '16rem':'inherit'}" @slideInOut>      
+                <span class="material-symbols-outlined" id="bg-icon" >
                     calendar_clock
                 </span>
-                <div class="flat next-appointment">
+                <div class="flat next-appointment" *ngIf="nextId">
                     <h1 class="font" style="margin-top:0;">Next appointment:</h1>
 
                     <div class="flex-row">
@@ -138,7 +138,7 @@
             </div>
 
 
-            <div style="position: relative" *ngIf="userRole ==='patient' && nextId" [ngStyle]="{'margin-top': !nextId ? '16rem':'inherit'}" @slideInOut>
+            <div style="position: relative" *ngIf="userRole ==='patient' && !isLoading" [ngStyle]="{'margin-top': !nextId ? '16rem':'inherit'}" @slideInOut>
                 <span class="material-symbols-outlined" id="bg-icon">
                     calendar_clock
                 </span>
