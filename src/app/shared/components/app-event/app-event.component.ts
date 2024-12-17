@@ -298,7 +298,6 @@ export class EventComponent implements OnInit, OnDestroy{
     async onDelete(){
         if (this.appointmentInfo.id) {
             this.delete.emit(this.appointmentInfo.id);
-            // need to move this after ConfirmDialog ok click
         }
         if (this.justCreatedId) {
             this.delete.emit(this.justCreatedId);
