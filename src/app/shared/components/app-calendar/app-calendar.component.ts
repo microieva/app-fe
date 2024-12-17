@@ -261,11 +261,13 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                 const now = DateTime.now().toISO({ includeOffset: true });
                 this.events = this.appointments.map((appointment: Appointment) => {
                     
-                    const startStr = DateTime.fromISO(appointment.start, {zone:'utc'}).setZone().toLocal();
-                    const start = startStr.toISO({includeOffset: true});
+                    // const startStr = DateTime.fromISO(appointment.start, {zone:'utc'}).setZone().toLocal();
+                    // const start = startStr.toISO({includeOffset: true});
 
-                    const endStr = DateTime.fromISO(appointment.end, {zone:'utc'}).setZone().toLocal();
-                    const end = endStr.toISO({includeOffset: true});
+                    // const endStr = DateTime.fromISO(appointment.end, {zone:'utc'}).setZone().toLocal();
+                    // const end = endStr.toISO({includeOffset: true});
+                    const start = appointment.start;
+                    const end = appointment.end;
 
 
                     if (this.role !== 'patient') {
@@ -279,11 +281,7 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                             title = "Pending confirmation"
                         }
                     }
-                    let colorStr: string | null;
-                    colorStr = appointment.start <now && appointment.doctorId ? "past": null;
-                    colorStr = appointment.start <now && !appointment.doctorId ? "missed": null;
-                    colorStr = appointment.start >now && appointment.doctorId ? "upcoming": null;
-                    colorStr = appointment.start >now && !appointment.doctorId ? "pending": null;
+
                     return {
                         title,
                         start,
@@ -291,8 +289,7 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                         extendedProps: {
                             dbId: appointment.id,
                             doctorId: appointment.doctorId,
-                            patientId: appointment.patientId,
-                            color: colorStr
+                            patientId: appointment.patientId
                         }
                     }
                 });
@@ -343,11 +340,13 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                     } else {
                         title = "Missed request"
                     }
-                    const startStr = DateTime.fromISO(appointment.start).toLocal();
-                    const start = startStr.toISO({includeOffset: true});
+                    // const startStr = DateTime.fromISO(appointment.start).toLocal();
+                    // const start = startStr.toISO({includeOffset: true});
 
-                    const endStr = DateTime.fromISO(appointment.end).toLocal();
-                    const end = endStr.toISO({includeOffset: true});
+                    // const endStr = DateTime.fromISO(appointment.end).toLocal();
+                    // const end = endStr.toISO({includeOffset: true});
+                    const start = appointment.start;
+                    const end = appointment.end;
 
                     return {
                         title,
@@ -355,8 +354,7 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                         end,
                         extendedProps: {
                             dbId: appointment.id,
-                            patientId: appointment.patientId,
-                            color: "missed"
+                            patientId: appointment.patientId
                         }
                     }
                 });
@@ -408,11 +406,13 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                     } else {
                         title =  "Pending confirmation";
                     }
-                    const startStr = DateTime.fromISO(appointment.start, {zone:'utc'}).setZone().toLocal();
-                    const start = startStr.toISO({includeOffset: true});
+                    // const startStr = DateTime.fromISO(appointment.start, {zone:'utc'}).setZone().toLocal();
+                    // const start = startStr.toISO({includeOffset: true});
 
-                    const endStr = DateTime.fromISO(appointment.end, {zone:'utc'}).setZone().toLocal();
-                    const end = endStr.toISO({includeOffset: true});
+                    // const endStr = DateTime.fromISO(appointment.end, {zone:'utc'}).setZone().toLocal();
+                    // const end = endStr.toISO({includeOffset: true});
+                    const start = appointment.start;
+                    const end = appointment.end;
 
                     return {
                         title,
@@ -420,8 +420,7 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                         end,
                         extendedProps: {
                             dbId: appointment.id,
-                            doctorId: appointment.doctorId,
-                            color: "pending"
+                            doctorId: appointment.doctorId
                         }
                     }
                 });
@@ -474,11 +473,13 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                     } else if (this.role === 'patient' && appointment.doctor) {
                         title = 'Dr. '+appointment.doctor.firstName+' '+appointment.doctor.lastName
                     } 
-                    const startStr = DateTime.fromISO(appointment.start, {zone:'utc'}).setZone().toLocal();
-                    const start = startStr.toISO({includeOffset: true});
+                    // const startStr = DateTime.fromISO(appointment.start, {zone:'utc'}).setZone().toLocal();
+                    // const start = startStr.toISO({includeOffset: true});
 
-                    const endStr = DateTime.fromISO(appointment.end, {zone:'utc'}).setZone().toLocal();
-                    const end = endStr.toISO({includeOffset: true});
+                    // const endStr = DateTime.fromISO(appointment.end, {zone:'utc'}).setZone().toLocal();
+                    // const end = endStr.toISO({includeOffset: true});
+                    const start = appointment.start;
+                    const end = appointment.end;
 
                     return {
                         title,
@@ -486,8 +487,7 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                         end,
                         extendedProps: {
                             dbId: appointment.id,
-                            doctorId: appointment.doctorId,
-                            color: "upcoming"
+                            doctorId: appointment.doctorId
                         }
 
                     }
@@ -541,11 +541,13 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                     } else if (this.role === 'patient' && appointment.doctor) {
                         title = 'Dr. '+appointment.doctor.firstName+' '+appointment.doctor.lastName
                     } 
-                    const startStr = DateTime.fromISO(appointment.start, {zone:'utc'}).setZone().toLocal();
-                    const start = startStr.toISO({includeOffset: true});
+                    // const startStr = DateTime.fromISO(appointment.start, {zone:'utc'}).setZone().toLocal();
+                    // const start = startStr.toISO({includeOffset: true});
 
-                    const endStr = DateTime.fromISO(appointment.end, {zone:'utc'}).setZone().toLocal();
-                    const end = endStr.toISO({includeOffset: true});
+                    // const endStr = DateTime.fromISO(appointment.end, {zone:'utc'}).setZone().toLocal();
+                    // const end = endStr.toISO({includeOffset: true});
+                    const start = appointment.start;
+                    const end = appointment.end;
 
                     return {
                         title,
@@ -553,8 +555,7 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                         end,
                         extendedProps: {
                             dbId: appointment.id,
-                            title: 'Past',
-                            color: "past"
+                            title: 'Past'
                         }
 
                     }
@@ -571,8 +572,10 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
             let start: any;
             let end: any;
 
-            const startDateTime = DateTime.fromJSDate(arg.start, {zone:'utc'}).setZone('utc')
-            const endDateTime = DateTime.fromJSDate(arg.end, {zone:'utc'}).setZone('utc')
+            // const startDateTime = DateTime.fromJSDate(arg.start, {zone:'utc'}).setZone('utc')
+            // const endDateTime = DateTime.fromJSDate(arg.end, {zone:'utc'}).setZone('utc')
+            const startDateTime = DateTime.fromJSDate(arg.start)
+            const endDateTime = DateTime.fromJSDate(arg.end)
 
             start = startDateTime.toISO({includeOffset: false});
             end = endDateTime.toISO({includeOffset:false});

@@ -144,8 +144,8 @@ export class EventComponent implements OnInit, OnDestroy{
             if (response.data.justCreatedAppointment) {
                 this.justCreatedId = response.data.justCreatedAppointment.id;
                 this.eventDate = DateTime.fromISO(response.data.justCreatedAppointment.start).toFormat('MMM dd, yyyy');
-                this.eventStartTime = DateTime.fromISO(response.data.justCreatedAppointment.start, {setZone: true}).setZone('Europe/Helsinki').toFormat('HH:mm a');
-                this.eventEndTime = DateTime.fromISO(response.data.justCreatedAppointment.end, {setZone: true}).setZone('Europe/Helsinki').toFormat('HH:mm a');
+                this.eventStartTime = DateTime.fromISO(response.data.justCreatedAppointment.start, {setZone: true}).toFormat('HH:mm a');
+                this.eventEndTime = DateTime.fromISO(response.data.justCreatedAppointment.end, {setZone: true}).toFormat('HH:mm a');
                 this.isLoading = false;
             }
         } catch (error) {
