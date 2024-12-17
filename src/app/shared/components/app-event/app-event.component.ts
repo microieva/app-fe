@@ -144,8 +144,8 @@ export class EventComponent implements OnInit, OnDestroy{
             if (response.data.justCreatedAppointment) {
                 this.justCreatedId = response.data.justCreatedAppointment.id;
                 this.eventDate = DateTime.fromISO(response.data.justCreatedAppointment.start).toFormat('MMM dd, yyyy');
-                this.eventStartTime = DateTime.fromISO(response.data.justCreatedAppointment.start, {zone:'utc'}).toFormat('HH:mm a');
-                this.eventEndTime = DateTime.fromISO(response.data.justCreatedAppointment.end, {zone:'utc'}).toFormat('HH:mm a');
+                this.eventStartTime = DateTime.fromISO(response.data.justCreatedAppointment.start, {zone:'utc'}).setZone('utc').toFormat('HH:mm a');
+                this.eventEndTime = DateTime.fromISO(response.data.justCreatedAppointment.end, {zone:'utc'}).setZone('utc').toFormat('HH:mm a');
                 this.isLoading = false;
             }
         } catch (error) {
@@ -251,11 +251,11 @@ export class EventComponent implements OnInit, OnDestroy{
                 const appointment = response.data.appointment;
                 this.createdAt =  DateTime.fromISO(appointment.createdAt, {setZone: true}).toFormat('MMM dd, yyyy');
                 this.patientName = appointment.patient?.firstName+" "+appointment.patient?.lastName;
-                this.patientDob = appointment.patient?.dob && DateTime.fromISO(appointment.patient.dob, {setZone: true}).toFormat('MMM dd, yyyy'); 
+                this.patientDob = appointment.patient?.dob && DateTime.fromISO(appointment.patient.dob).toFormat('MMM dd, yyyy'); 
                 this.doctorName = appointment.doctor ? appointment.doctor?.firstName+" "+appointment.doctor?.lastName : null;
-                this.eventDate = DateTime.fromISO(appointment.start, {zone: 'utc'}).setZone().toFormat('MMM dd, yyyy');
-                this.eventStartTime =  DateTime.fromISO(appointment.start, {zone: 'utc'}).setZone().toFormat('HH:mm a');
-                this.eventEndTime = DateTime.fromISO(appointment.end, {zone: 'utc'}).setZone().toFormat('HH:mm a');
+                this.eventDate = DateTime.fromISO(appointment.start, {zone: 'utc'}).setZone('utc').toFormat('MMM dd, yyyy');
+                this.eventStartTime =  DateTime.fromISO(appointment.start, {zone: 'utc'}).setZone('utc').toFormat('HH:mm a');
+                this.eventEndTime = DateTime.fromISO(appointment.end, {zone: 'utc'}).setZone('utc').toFormat('HH:mm a');
                 this.doctorMessage = appointment.doctorMessage;
                 this.patientMessage = appointment.patientMessage;
                 this.appointmentId = appointment.id;
@@ -264,10 +264,10 @@ export class EventComponent implements OnInit, OnDestroy{
                 if (this.userRole === 'admin') {
                     this.patientPhoneNr = appointment.patient.phone;
                     this.patientEmail = appointment.patient.email;
-                    this.startHour = DateTime.fromISO(appointment.start, {zone: 'utc'}).setZone().toFormat('HH');
-                    this.startMin = DateTime.fromISO(appointment.start, {zone: 'utc'}).setZone().toFormat('mm');
-                    this.endHour = DateTime.fromISO(appointment.end, {zone: 'utc'}).setZone().toFormat('HH');
-                    this.endMin = DateTime.fromISO(appointment.end, {zone: 'utc'}).setZone().toFormat('mm');
+                    this.startHour = DateTime.fromISO(appointment.start, {zone: 'utc'}).setZone('utc').toFormat('HH');
+                    this.startMin = DateTime.fromISO(appointment.start, {zone: 'utc'}).setZone('utc').toFormat('mm');
+                    this.endHour = DateTime.fromISO(appointment.end, {zone: 'utc'}).setZone('utc').toFormat('HH');
+                    this.endMin = DateTime.fromISO(appointment.end, {zone: 'utc'}).setZone('utc').toFormat('mm');
                 }
                 this.isLoading = false;
                 const now = DateTime.now().toISO();
