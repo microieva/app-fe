@@ -64,10 +64,10 @@ import {MatBadgeModule} from '@angular/material/badge';
 import { AppSearchComponent } from './shared/components/app-search/app-search.component';
 import { AppCountUnreadMessagesService } from './shared/services/app-count-unread.service';
 import { MatSelectModule } from '@angular/material/select';
-import { AppTimeZoneService } from './shared/services/app-timezone.service';
 import { AppAuthService } from './shared/services/app-auth.service';
 import { AppHeader } from './shared/components/app-header/app-header.component';
 import { AppAuthGuard } from './shared/services/app-auth.guard';
+import { AppHeaderService } from './shared/services/app-header-refresh.service';
 
 @NgModule({ 
     declarations: [
@@ -147,7 +147,7 @@ import { AppAuthGuard } from './shared/services/app-auth.guard';
         AppSnackbarService,
         AppDialogService,
         AppCountUnreadMessagesService,
-        AppTimeZoneService,
+        AppHeaderService,
         provideNativeDateAdapter(),
         provideHttpClient(withInterceptorsFromDi()), 
         provideAnimationsAsync(),

@@ -1,6 +1,6 @@
 import { EventEmitter, Injectable, Output } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
-import { BehaviorSubject, Observable, Subscription, distinctUntilChanged, finalize, interval, map, startWith, take, tap } from "rxjs";
+import { BehaviorSubject, Observable, Subscription, distinctUntilChanged, finalize, interval, map, startWith, take } from "rxjs";
 import { DateTime, Duration } from "luxon";
 import { AlertComponent } from "../components/app-alert/app-alert.component";
 import { getHowLongAgo, getHowSoonUpcoming } from "../utils";
@@ -9,7 +9,6 @@ import { getHowLongAgo, getHowSoonUpcoming } from "../utils";
     providedIn: 'root'
 })
 export class AppTimerService {   
-    //@Output() nextAppointmentCountdown = new EventEmitter<string>();
     @Output() clock = new EventEmitter<string>();
     @Output() howSoonCountdown = new EventEmitter<string>();
     @Output() howLongAgoCountdown = new EventEmitter<string>();
@@ -98,9 +97,7 @@ export class AppTimerService {
                 .subscribe({
                         next: (countdown) => {
                             this.appointmentCountdownSubject.next(countdown);
-                        },
-                        complete: () => console.log('Countdown complete'),
-                        error: (err) => console.error('Error in timer:', err),
+                        }
                 });
         }
           

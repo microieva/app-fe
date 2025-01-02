@@ -1,7 +1,7 @@
 import _ from 'lodash-es';
 import { BehaviorSubject } from 'rxjs';
 import { Injectable } from '@angular/core';
-import { AppNotification, CancelledAppointmentNotification, NewAppointmentNotification, NewMessageNotification } from '../types';
+import { AppNotification } from '../types';
 
 
 @Injectable({
@@ -16,7 +16,7 @@ export class AppSnackbarService {
         const id = Date.now(); 
         const snackbars = this.snackbarsSubject.value;
 
-        if (!snackbars.some(sn => _.isEqual(_.omit(sn, 'id'), info))) {
+        if (!snackbars.some(snackbar => _.isEqual(_.omit(snackbar, 'id'), info))) {
             const newSnackbar = { id, ...info } as AppNotification;
             this.snackbarsSubject.next([...snackbars, newSnackbar]);
 

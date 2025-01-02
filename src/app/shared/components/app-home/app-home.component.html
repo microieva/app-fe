@@ -1,44 +1,48 @@
 <mat-sidenav-container>
-    <mat-sidenav [opened]="true" mode="side" class="sidenav">
+    <mat-sidenav #sidenav [opened]="true" mode="side" class="sidenav" >
+        
         <mat-nav-list style="padding:0;">
-            <a mat-list-item [routerLink]="['/home', 'user']" *ngIf="userRole" routerLinkActive="activeLink">
+            <a mat-list-item [routerLink]="['/home', 'user']" *ngIf="userRole" routerLinkActive="activeLink" (click)="$event.stopPropagation()">
                 <div class="flex">
-                    <span>{{ 'My Account' }}</span>
-                    <span [ngStyle]="{visibility: !isUserUpdated ? 'visible':'hidden'}" class="icon material-symbols-outlined">info</span>
+                    <span class="icon material-symbols-outlined" matTooltip="My Account">account_box</span>
+                    <span style="color:#606262">{{ 'My Account' }}</span>
                 </div>
             </a>
-            <a mat-list-item (click)="onAppointmentsClick(); isHomeRoute=!isHomeRoute" [routerLink]="['/home','appointments']" *ngIf="userRole !== 'admin' && isUserUpdated" routerLinkActive="activeLink">
+            <a mat-list-item (click)="onAppointmentsClick(); isHomeRoute=!isHomeRoute; $event.stopPropagation()" [routerLink]="['/home','appointments']" *ngIf="userRole !== 'admin' && isUserUpdated" routerLinkActive="activeLink">
                 <div class="flex" >
-                    <span>{{ 'Appointments' }}</span>
-                    <span [ngStyle]="{visibility: !isUserUpdated || isNowAppointment ? 'visible':'hidden'}" class="icon material-symbols-outlined">info</span>
+                    <span class="icon material-symbols-outlined" matTooltip="Appointments">calendar_clock</span>
+                    <span style="color:#606262">{{ 'Appointments' }}</span>
                 </div>
             </a>
-            <a mat-list-item (click)="isHomeRoute=!isHomeRoute" [routerLink]="['/home','records']" *ngIf="isUserUpdated && (userRole === 'patient' && countRecords>0 || userRole==='doctor')" routerLinkActive="activeLink">
+            <a mat-list-item (click)="isHomeRoute=!isHomeRoute; $event.stopPropagation()" [routerLink]="['/home','records']" *ngIf="isUserUpdated && (userRole === 'patient' && countRecords>0 || userRole==='doctor')" routerLinkActive="activeLink">
                 <div class="flex">
-                    <span>{{ 'Medical Records' }}</span>
+                    <span class="icon material-symbols-outlined" matTooltip="Medical Records">list_alt</span>
+                    <span  style="color:#606262">{{ 'Medical Records' }}</span>
                 </div>
             </a>
-            <a mat-list-item [routerLink]="['/home','users']" (click)="isHomeRoute=!isHomeRoute" *ngIf="userRole === 'admin'" routerLinkActive="activeLink">
+            <a mat-list-item [routerLink]="['/home','users']" (click)="isHomeRoute=!isHomeRoute; $event.stopPropagation()" *ngIf="userRole === 'admin'" routerLinkActive="activeLink">
                 <div class="flex" >
-                    <span>{{ 'Doctors' }}</span>
-                    <span [ngStyle]="{visibility: countDoctorRequests>0 ? 'visible':'hidden'}" class="icon material-symbols-outlined">info</span>
+                    <span class="icon material-symbols-outlined" matTooltip="Doctors">recent_actors</span> 
+                    <span  style="color:#606262">{{ 'Doctors' }}</span>
                 </div>
             </a>
-            <a mat-list-item [routerLink]="['/home','patients']" (click)="isHomeRoute=!isHomeRoute" *ngIf="userRole === 'admin'" routerLinkActive="activeLink">
+            <a mat-list-item [routerLink]="['/home','patients']" (click)="isHomeRoute=!isHomeRoute; $event.stopPropagation()" *ngIf="userRole === 'admin'" routerLinkActive="activeLink">
                 <div class="flex">
-                    <span>{{ 'Patients' }}</span>
+                    <span class="icon material-symbols-outlined" matTooltip="Patients">patient_list</span> 
+                    <span  style="color:#606262">{{ 'Patients' }}</span>
                 </div>
             </a>
-            <a mat-list-item [routerLink]="['/home','messages']" (click)="isHomeRoute=!isHomeRoute" routerLinkActive="activeLink"  *ngIf="userRole !== 'patient' && isUserUpdated">
+            <a mat-list-item [routerLink]="['/home','messages']" (click)="isHomeRoute=!isHomeRoute; $event.stopPropagation()" routerLinkActive="activeLink"  *ngIf="userRole !== 'patient' && isUserUpdated">
                 <div class="flex">
-                    <span>{{ 'Messages' }}</span>
+                    <span class="icon material-symbols-outlined" matTooltip="Messages">chat</span> 
+                    <span  style="color:#606262">{{ 'Messages' }}</span>
                 </div>
             </a>
         </mat-nav-list>
+        <div class="resize-handle" #resize (click)="onResizeSidenav()"></div>
     </mat-sidenav>
-    <router-outlet></router-outlet>
-    <mat-sidenav-content class="content">  
-
+    
+    <mat-sidenav-content  #sidenavContent class="content">  
         <div class="btn-block"  style="margin: 12rem 18rem;" *ngIf="isHomeRoute && !isUserUpdated && !isLoading">
             <div style="margin-bottom: 2rem;">
                 <h3>Welcome!</h3>
@@ -195,5 +199,6 @@
             <router-outlet></router-outlet>
         </div>
     </mat-sidenav-content>
+    <router-outlet></router-outlet>
 </mat-sidenav-container>
 

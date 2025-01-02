@@ -77,6 +77,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
             await this.loadUnreadMessages();
             await this.loadDoctors();
             this.chats = this.tabsService.getChatTabs();
+            this.socketService.requestOnlineUsers();
             const subscriptionOnlineUsers = this.socketService.getOnlineUsers()
                 .pipe(
                     distinctUntilChanged((prev, curr)=> JSON.stringify(prev) === JSON.stringify(curr))

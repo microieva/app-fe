@@ -51,7 +51,6 @@ export class AppAuthService {
             ref.componentInstance.ok.subscribe(async subscription => {
                 if (subscription) {
                     this.dialog.closeAll();
-                    await this.logOut();
                 }
             });
         }
@@ -119,10 +118,10 @@ export class AppAuthService {
 
     async logOut() {
         try {
+            this.loggedInSubject.next(false);
             await this.graphQLService.mutate(`mutation { logOut }`, {});
             await this.apollo.client.clearStore();
             localStorage.clear();
-            this.loggedInSubject.next(false);
             this.router.navigate(['/']);
         } catch (error) {
             console.error('Error during logout process:', error);

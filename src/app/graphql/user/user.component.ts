@@ -7,6 +7,8 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dial
 import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../shared/services/app-graphql.service";
 import { AppTimerService } from "../../shared/services/app-timer.service";
+import { AppAuthService } from "../../shared/services/app-auth.service";
+import { AppHeaderService } from "../../shared/services/app-header-refresh.service";
 import { AlertComponent } from "../../shared/components/app-alert/app-alert.component";
 import { ConfirmComponent } from "../../shared/components/app-confirm/app-confirm.component";
 import { LoadingComponent } from "../../shared/components/app-loading/loading.component";
@@ -53,11 +55,12 @@ export class UserComponent implements OnInit, OnDestroy {
         private formBuilder: FormBuilder,
         private dialog: MatDialog,
         private timerService: AppTimerService,
+        private authService: AppAuthService,
+        private headerService: AppHeaderService,
 
         @Optional() public dialogRef: MatDialogRef<UserComponent>,
         @Optional() @Inject(MAT_DIALOG_DATA) public data: any
     ){
-        //this.userId = this.data?.userId || null;
         if (this.data) {
             this.userId = this.data.userId
         }
@@ -167,6 +170,7 @@ export class UserComponent implements OnInit, OnDestroy {
                     return;
                 }
                 const mutation = `mutation ($userId: Int!) {
+                    logOut
                     deleteUser(userId: $userId) {
                         success
                         message
@@ -174,16 +178,15 @@ export class UserComponent implements OnInit, OnDestroy {
                 }`
 
                 const ref = this.dialog.open(LoadingComponent);
-                try {
-                    const response = await this.graphQLService.mutate(mutation, { userId: this.me.id});
-                    if (response.data.deleteUser.success) {
-                        this.timerService.cancelTokenTimer();
-                        localStorage.clear();
-                        this.router.navigate(['']);
-                    }
-                } catch (error) {
+                const response = await this.graphQLService.mutate(mutation, { userId: this.me.id});
+                if (response.data.deleteUser.success) {
+                    this.timerService.cancelTokenTimer();
+                    await this.authService.logOut();
+                    this.router.navigate(['']);
+                    this.dialog.closeAll();
+                } else {
                     ref.close();
-                    this.dialog.open(AlertComponent, { data: {message: "Error deleting user: "+ error}})
+                    this.dialog.open(AlertComponent, { data: {message: "Error deleting user: "+ response.error}})
                 }
             }
         });
@@ -229,6 +232,7 @@ export class UserComponent implements OnInit, OnDestroy {
             const response = await this.graphQLService.mutate(mutation, { userInput: input });
             if (response.data.saveUser.success) {
                 this.router.navigate(['/home/user']);
+                this.headerService.notifyUserUpdate();
             }
         } catch (error) {
             this.dialog.open(AlertComponent, { data: {message: "Error saving user details: "+ error}})

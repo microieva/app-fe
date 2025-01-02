@@ -83,6 +83,9 @@ footer {
     color:  rgb(245,245,245);
     .flex-row {
         width: 100%;
+        h2 span {
+            margin: 2px;
+        }
     }
     h2 {
         border: 1px solid rgb(245,245,245);

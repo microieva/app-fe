@@ -314,15 +314,16 @@ export class RecordsComponent implements OnInit, OnDestroy {
     }
 
     formatDataSource(view: string) {
-        let createdAt: string;
-        let updatedAt: string;
+      
         switch (view) {
             case "records":
+                let createdAt: string;
+                let updatedAt: string;
                 this.recordDataSource = this.records.map(row => {
                     const patientDob = DateTime.fromISO(row.appointment.patient.dob,  {setZone: true}).toFormat('MMM dd, yyyy');
                     
-                    const createdDate = DateTime.fromISO(row.createdAt, { setZone: true });
-                    const updatedDate = DateTime.fromISO(row.updatedAt, { setZone: true });
+                    const createdDate = DateTime.fromISO(row.createdAt, {zone:'Europe/Helsinki'});
+                    const updatedDate = DateTime.fromISO(row.updatedAt, {zone:'Europe/Helsinki'})
                     const today = DateTime.now().setZone(createdDate.zone);
                     const yesterday = today.minus({ days: 1 });
                     
@@ -369,10 +370,12 @@ export class RecordsComponent implements OnInit, OnDestroy {
                 break;
             case "drafts":
                 this.draftDataSource = this.drafts.map(row => {
+                    let createdAt: string;
+                    let updatedAt: string;
                     const patientDob = DateTime.fromISO(row.appointment.patient.dob,  {setZone: true}).toFormat('MMM dd, yyyy');
                        
-                    const createdDate = DateTime.fromISO(row.createdAt, { setZone: true });
-                    const updatedDate = DateTime.fromISO(row.updatedAt, { setZone: true });
+                    const createdDate = DateTime.fromISO(row.createdAt);
+                    const updatedDate = row.updatedAt ? DateTime.fromISO(row.updatedAt) : createdDate;
                     const today = DateTime.now().setZone(createdDate.zone);
                     const yesterday = today.minus({ days: 1 });
                     

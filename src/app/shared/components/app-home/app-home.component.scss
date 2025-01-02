@@ -48,16 +48,16 @@ button {
     background-color: rgb(172,188,207);
     border-right: 0.8px solid darkgray;
     width: 18rem;
+    min-width: 60px;
+    max-width:  18rem; 
 }
 .title {
     color: rgb(139,149,161);
     margin-bottom:1rem;
 }
 
-mat-sidenav {
-    border-right: 1px solid rgb(229,238,245);
-}
 mat-nav-list{
+    margin-top: 1px;
     a {
         border-radius:0;
         border-bottom: 1px solid rgb(130, 128, 128);
@@ -77,19 +77,16 @@ button {
 }
 .flex {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    font-weight: 900;
 }
 .icon {
     border-radius: 50%;
     padding: 3px;
     opacity: 0.6;
+    margin-right: 1rem;
 }
-a:hover .icon {
-    background: rgb(139, 149, 161);
-    border-radius: 50%;
-    padding: 3px;
-}
+
 .next-appointment {
     margin: 0.2rem;
     margin-bottom: 3rem;
@@ -147,4 +144,23 @@ a:hover .icon {
 .disabled {
     pointer-events: none;
 }
+  
+  .resize-handle {
+    opacity:0;
+    width: 15px;
+    cursor: ew-resize;
+    height: 100%;
+    position: absolute;
+    right: 0;
+    top: 0;
+    border-right: 5px solid rgba(0, 0, 0, 0.2);
+    &:hover, &:active {
+        opacity: 1;
+    }
+  }
+
+  .content {
+    flex-grow: 1;
+    overflow: hidden;
+  }
 

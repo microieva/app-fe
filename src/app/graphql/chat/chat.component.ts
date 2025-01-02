@@ -11,6 +11,7 @@ import { AlertComponent } from "../../shared/components/app-alert/app-alert.comp
 import { ConfirmComponent } from "../../shared/components/app-confirm/app-confirm.component";
 import { AppCountUnreadMessagesService } from "../../shared/services/app-count-unread.service";
 import { Subscription } from "rxjs";
+import { AppHeaderService } from "../../shared/services/app-header-refresh.service";
 
 @Component({
     selector: 'app-chat',
@@ -52,7 +53,8 @@ export class ChatComponent implements OnInit, OnDestroy {
         private activatedRoute: ActivatedRoute,
         private tabsService: AppTabsService,
         private router: Router,
-        private countService: AppCountUnreadMessagesService
+        private countService: AppCountUnreadMessagesService,
+        private headerService: AppHeaderService
     ){}
     
     async ngOnInit(){    
@@ -79,6 +81,7 @@ export class ChatComponent implements OnInit, OnDestroy {
         if (!this.userRole) {
             this.countService.countUnreadMessages();
         }
+        this.headerService.notifyUnreadCountUpdate();
         this.subscriptions.add(subRouterParams);
         this.subscriptions.add(subNotifications);
         this.subscriptions.add(subIsUserOnline);
@@ -165,6 +168,7 @@ export class ChatComponent implements OnInit, OnDestroy {
             try {
                 const response = await this.graphQLService.mutate(mutation, variables);
                 if (response.data) {
+                    await this.setIsReadToTrue();
                     await this.loadMessages();
                 }
             } catch (error) {
