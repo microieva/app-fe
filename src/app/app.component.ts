@@ -17,7 +17,6 @@ import { LoadingComponent } from './shared/components/app-loading/loading.compon
 })
 export class AppComponent implements OnInit, OnDestroy {
     title = 'Health Center';
-    refresh: boolean = false;
 
     private subscription!: Subscription;
     auth: Subscription = new Subscription();

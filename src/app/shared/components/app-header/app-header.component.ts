@@ -1,4 +1,4 @@
-import {  Component, OnInit, Renderer2 } from "@angular/core";
+import {  Component, OnInit } from "@angular/core";
 import { AppAuthService } from "../../services/app-auth.service";
 import { ActivatedRoute, Router } from "@angular/router";
 import { catchError, distinctUntilChanged, filter, forkJoin, of, Subject, Subscription, switchMap, take, takeUntil, tap } from "rxjs";
@@ -10,6 +10,7 @@ import { AppGraphQLService } from "../../services/app-graphql.service";
 import { AppSnackbarService } from "../../services/app-snackbar.service";
 import { AppSocketService } from "../../services/app-socket.service";
 import { AppTabsService } from "../../services/app-tabs.service";
+import { AppHeaderService } from "../../services/app-header-refresh.service";
 import { AppTimerService } from "../../services/app-timer.service";
 import { AppointmentComponent } from "../../../graphql/appointment/appointment.component";
 import { AlertComponent } from "../app-alert/app-alert.component";
@@ -49,7 +50,6 @@ export class AppHeader implements OnInit {
     constructor(
         private dialog: MatDialog,
         private router: Router,
-        private renderer: Renderer2,
         private activatedRoute: ActivatedRoute,
         private authService: AppAuthService,
         private graphQLService: AppGraphQLService,
@@ -57,14 +57,31 @@ export class AppHeader implements OnInit {
         private appointmentService: AppAppointmentService,
         private tabsService: AppTabsService,
         private socketService: AppSocketService,
-        private snackbarService: AppSnackbarService
+        private snackbarService: AppSnackbarService,
+        private headerService: AppHeaderService
     ){}
     async ngOnInit() {
-        this.authService.isLoggedIn$.subscribe(is=> {
-            if (is) this.initHeader();
-        })
-        
+        this.me = null;
+        this.time = null;
+        this.authService.isLoggedIn$.subscribe(isLoggedIn => {
+            if (isLoggedIn) {
+                const sub = this.headerService.isUserUpdated.subscribe(async () => {
+                    await this.loadMe() 
+                });
+                const subCount = this.headerService.isCountUpdated.subscribe(async()=> {
+                    await this.countUnreadMessages();
+                });
+                this.subscriptions.add(sub);
+                this.subscriptions.add(subCount);
+                this.initHeader();
+            }
+            else {
+                this.me = null;
+                this.time = null;
+            }
+        })    
     }
+    
     initHeader() {
         this.authService.isLoggedIn$
             .pipe(
@@ -88,6 +105,7 @@ export class AppHeader implements OnInit {
                                         this.snackbarService.addSnackbar(notification)
                                         if (this.userRole !== 'patient') {
                                             await this.countUnreadMessages();
+                                           
                                         }
                                         if (this.userRole === 'admin') {
                                             this.socketService.requestOnlineUsers()
@@ -118,14 +136,6 @@ export class AppHeader implements OnInit {
                                     }
                                     return of(null); 
                                 }),
-                                catchError(err => {
-                                    console.error("Error receiving socket update", err);
-                                    return of(null); 
-                                })
-                            ),
-                            refresh: this.socketService.refresh$.pipe(
-                                filter(isUpdated => isUpdated), 
-                                tap(async ()=> await this.ngOnInit()),
                                 catchError(err => {
                                     console.error("Error receiving socket update", err);
                                     return of(null); 
@@ -176,12 +186,13 @@ export class AppHeader implements OnInit {
                 }), 
                 catchError(err => {
                     console.error("Error in header initialization", err);
+                    this.me = null;
+                    this.time = null;
                     return of(null); 
                 }),
                 takeUntil(this.destroy$), 
             )
             .subscribe()   
-
     }
 
     async countMissedAppointments(isUpdated: boolean) {

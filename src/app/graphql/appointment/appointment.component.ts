@@ -89,7 +89,7 @@ export class AppointmentComponent implements OnInit, OnDestroy {
                 this.record = response.data.appointment.record;
                 this.recordId = response.data.appointment.record?.id || null;
                 this.formattedDate = DateTime.fromISO(response.data.appointment.patient.dob).toFormat('MMM dd, yyyy');
-                this.startTime = DateTime.fromISO(response.data.appointment.start).toFormat('HH:mm a');
+                this.startTime = DateTime.fromISO(response.data.appointment.start, {zone:"utc"}).setZone('utc').toFormat('HH:mm a');
                 this.date = DateTime.fromISO(response.data.appointment.start).toFormat('MMM dd, yyyy');
             }
         } catch (error) {

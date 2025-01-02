@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, ElementRef, OnInit, Renderer2, ViewChild } from "@angular/core";
 import { Subscription } from "rxjs";
 import { MatDialog } from "@angular/material/dialog";
 import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
@@ -33,6 +33,7 @@ import { User } from "../../../graphql/user/user";
     ]
 })
 export class AppHomeComponent implements OnInit {
+
     isHomeRoute: boolean = true;
     isLoading: boolean = true;
     userRole!: string;
@@ -63,6 +64,12 @@ export class AppHomeComponent implements OnInit {
     recordIds: number[] = [];
     private subscriptions: Subscription = new Subscription();
 
+    @ViewChild('sidenav', { read: ElementRef }) sidenavElement!: ElementRef;
+    @ViewChild('resize', { read: ElementRef }) resizeElement!: ElementRef;
+    @ViewChild('sidenavContent', { read: ElementRef }) sidenavContent!: ElementRef;
+    isResizing = false;
+    lastDownX = 60;
+
     constructor(
         private activatedRoute: ActivatedRoute,
         private dialog: MatDialog,
@@ -73,7 +80,8 @@ export class AppHomeComponent implements OnInit {
         private countService: AppCountUnreadMessagesService,
         private socketService: AppSocketService,
         private authService: AppAuthService,
-        private tabsService: AppTabsService
+        private tabsService: AppTabsService,
+        private renderer: Renderer2
     ){}
 
     async ngOnInit() {
@@ -88,6 +96,9 @@ export class AppHomeComponent implements OnInit {
                         await this.loadData();
                     }
                 });
+                this.socketService.refresh$.subscribe(async isUpdated => {
+                    if (isUpdated) await this.ngOnInit();   
+                })
                 this.subscriptions.add(sub); 
     
                 if (this.userRole !== 'patient') {
@@ -98,7 +109,6 @@ export class AppHomeComponent implements OnInit {
                     this.today = getTodayWeekdayTime();
                     const now = DateTime.now().setZone('Europe/Helsinki').toISO();
 
-                    this.socketService.requestOnlineUsers();
                     this.socketService.requestCountMissedAppointments();
 
                     this.timerService.startClock(now!);
@@ -152,11 +162,59 @@ export class AppHomeComponent implements OnInit {
                         this.subscriptions.add(subRouteParams);
                     }
                 }
-            } 
+            } else {
+                this.router.navigate([''])
+            }
 
     }
+
+    ngAfterViewInit() {
+        this.renderer.listen(this.resizeElement.nativeElement, 'click', (event: MouseEvent) => {
+            event.stopPropagation(); 
+        });
+          
+        this.renderer.listen(this.sidenavElement.nativeElement, 'mousedown', (event: MouseEvent) => this.onMouseDown(event));
+        this.renderer.listen(document, 'mousemove', (event: MouseEvent) => this.onMouseMove(event));
+        this.renderer.listen(document, 'mouseup', () => this.onMouseUp());
+    }
+
+    onMouseDown(event: MouseEvent) {
+        event.stopPropagation();
+        this.isResizing = true;
+        this.lastDownX = event.clientX;
+    }
+
+    onMouseMove(event: MouseEvent) {
+        event.stopPropagation();
+        if (this.isResizing) {
+            const newWidth = event.clientX;
+            const adjustedWidth = Math.max(20, Math.min(newWidth, 288));
+            this.renderer.setStyle(this.sidenavElement.nativeElement, 'width', `${adjustedWidth}px`);
+            if (adjustedWidth > 55) {
+                this.renderer.setStyle(this.sidenavContent.nativeElement, 'margin-left', `${adjustedWidth}px`);
+            } else {
+                this.renderer.setStyle(this.sidenavContent.nativeElement, 'margin-left', `60px`);
+            }
+        } 
+    }
+
+    onMouseUp() {
+        this.isResizing = false;
+    }
+
     ngOnDestroy(): void {
         this.subscriptions.unsubscribe();
+    }
+    onResizeSidenav(){
+        const isResized = this.sidenavElement.nativeElement.offsetWidth === 60;
+
+        if (isResized) {
+            this.renderer.setStyle(this.sidenavElement.nativeElement, 'width', '288px');
+            this.renderer.setStyle(this.sidenavContent.nativeElement, 'margin-left', '288px');
+        } else {
+            this.renderer.setStyle(this.sidenavElement.nativeElement, 'width', '60px');
+            this.renderer.setStyle(this.sidenavContent.nativeElement, 'margin-left', '60px');
+        }    
     }
 
     async loadData(){
