@@ -82,8 +82,8 @@ export class MessagesComponent implements OnInit, OnDestroy {
                 .pipe(
                     distinctUntilChanged((prev, curr)=> JSON.stringify(prev) === JSON.stringify(curr))
                 )
-                .subscribe(async users => {
-                    this.onlineDoctors = users.filter(user => user.userRole === 'doctor') || [];
+                .subscribe(async (users: any[])=> {
+                    this.onlineDoctors = users
                     await this.loadUnreadMessages();
                     await this.loadDoctors();
                 });

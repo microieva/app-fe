@@ -87,7 +87,7 @@ export class AppHomeComponent implements OnInit {
     async ngOnInit() {
             await this.loadMe();
             if (this.me) {
-                this.socketService.registerUser({ id: this.me.id, userRole: this.me.userRole } as User);
+                
                 await this.loadData();
 
                 const sub = this.router.events.subscribe(async (event) => {
@@ -118,6 +118,7 @@ export class AppHomeComponent implements OnInit {
                     this.subscriptions.add(sub); 
                 }
                 if (this.userRole === 'doctor') {
+                    this.socketService.userLogin({ id: this.me.id, userRole: this.me.userRole } as User);
                     await this.appointmentService.pollNextAppointment();
                     const sub = this.appointmentService.appointmentInfo$.subscribe(async (info:any) => {
                         if (info && info.nextAppointment) {

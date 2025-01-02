@@ -280,7 +280,10 @@ export class AppHeader implements OnInit {
         this.dialog.open(LoginMenuComponent)
     }
 
-    async onLogOut() {        
+    async onLogOut() {   
+        if (this.userRole === 'doctor') {
+            this.socketService.userLogout(this.me!.id);
+        }     
         this.timerService.cancelTokenTimer(); 
         this.dialog.open(LoadingComponent);
 

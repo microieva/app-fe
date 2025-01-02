@@ -52,13 +52,24 @@ export class AppSocketService {
             }
         });
     }
-    registerUser(user: User) {
+
+    userLogin(user: User) {
         if (this.socket && this.socket.connected) {
             this.socket.emit('registerUser', user);
         } else {
             console.error('Socket not connected');
             this.reconnectSocket().then(() => {
                 this.socket.emit('registerUser', user);
+            });
+        }
+    }
+    userLogout(userId: number) {
+        if (this.socket && this.socket.connected) {
+            this.socket.emit('userLogout', userId);
+        } else {
+            console.error('Socket not connected');
+            this.reconnectSocket().then(() => {
+                this.socket.emit('userLogout', userId);
             });
         }
     }
