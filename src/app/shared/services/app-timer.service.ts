@@ -103,14 +103,14 @@ export class AppTimerService {
           
     startHowSoonCountdown(datetime: string): Observable<string> {
         return interval(1000).pipe(
-          startWith(0), 
-          map(() => getHowSoonUpcoming(datetime))
+            startWith(0), 
+            map(() => getHowSoonUpcoming(datetime))
         );
     }
     startHowLongAgoCountdown(datetime: string): Observable<string> {
         return interval(1000).pipe(
-          startWith(0), 
-          map(() => getHowLongAgo(datetime))
+            startWith(0), 
+            map(() => getHowLongAgo(datetime))
         );
     }
 

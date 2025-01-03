@@ -18,7 +18,6 @@ import { ConfirmComponent } from "../../../shared/components/app-confirm/app-con
 import { EventComponent } from "../../../shared/components/app-event/app-event.component";
 import { AppointmentDataSource } from "../../../shared/types";
 import { Appointment } from "../appointment";
-import { getHowLongAgo, getHowSoonUpcoming } from "../../../shared/utils";
 import { AppSocketService } from "../../../shared/services/app-socket.service";
 
 @Component({
@@ -324,10 +323,6 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                             firstName
                             lastName
                         }
-                        doctor {
-                            firstName
-                            lastName
-                        }
                     }    
                 }
             }
@@ -502,29 +497,6 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
     }
 
     formatDataSource(view: string) {
-        const allButtons = [
-            {
-                text: 'Cancel Appointment',
-                disabled: false
-            }, {
-                text: 'Accept Appointment',
-                disabled: false
-            }, {
-                text: 'View In Calendar',
-                disabled: false
-            }];
-        const cancelButton = [
-            {
-                text: 'Cancel Appointment',
-                disabled: false
-            }
-        ]
-        const deleteButton = [
-            {
-                text: 'Delete Appointment',
-                disabled: false
-            }
-        ]
         let date: string;
         switch (view) {
             case "pending":
@@ -544,9 +516,8 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
 
                     return {
                         id: row.id,
-                        howLongAgoStr: howLongAgoStr,
+                        howLongAgoStr,
                         title: this.userRole === 'patient' ? "Pending doctor confirmation" : "",
-                        buttons: this.userRole === 'doctor' ? allButtons : cancelButton,
                         date: DateTime.fromISO(row.start, {setZone: true}).toFormat('MMM dd, yyyy'),
                         start: date+`, ${DateTime.fromISO(row.start, {zone: 'utc'}).setZone('utc').toFormat('HH:mm a')}`,
                         end: DateTime.fromISO(row.end, {zone: 'utc'}).setZone('utc').toFormat('HH:mm a'),
@@ -569,7 +540,7 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                 break;
             case "upcoming":
                 this.upcomingDataSource = this.upcomingAppointments.map(row => {
-                    const howSoonStr = row.start 
+                    const howSoonStr = row.start;
                     const startDate = DateTime.fromISO(row.start, { setZone: true });
                     const today = DateTime.now().setZone(startDate.zone);
                     const tomorrow = today.plus({ days: 1 });
@@ -586,7 +557,6 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                         id: row.id,
                         howSoonStr,
                         title: this.userRole === 'patient' ? "Confirmed appointment" : undefined,
-                        buttons: cancelButton,
                         date: DateTime.fromISO(row.start, {setZone: true}).toFormat('MMM dd, yyyy'),
                         start: date+`, ${DateTime.fromISO(row.start, {zone: 'utc'}).setZone('utc').toFormat('HH:mm a')}`,
                         end: DateTime.fromISO(row.end, {zone: 'utc'}).setZone('utc').toFormat('HH:mm a'),
@@ -606,7 +576,7 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                 break;
             case "past":
                 this.pastDataSource = this.pastAppointments.map(row => {
-                    const howLongAgoStr = row.start;
+                    const howLongAgoStr = row.end;
                     const startDate = DateTime.fromISO(row.start, { setZone: true });
                     const today = DateTime.now().setZone(startDate.zone);
                     const yesterday = today.minus({ days: 1 });
@@ -623,7 +593,6 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                         id: row.id,
                         pastDate: howLongAgoStr,
                         title: this.userRole === 'patient' ? "View details": undefined,
-                        buttons: deleteButton,
                         date: DateTime.fromISO(row.start, {zone: 'utc'}).setZone('utc').toFormat('MMM dd, yyyy'),
                         start: date+`, ${DateTime.fromISO(row.start, {zone: 'utc'}).setZone('utc').toFormat('HH:mm a')}`,
                         end: DateTime.fromISO(row.end, {zone: 'utc'}).setZone('utc').toFormat('HH:mm a'),

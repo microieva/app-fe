@@ -11,6 +11,7 @@ import { AppGraphQLService } from "../../services/app-graphql.service";
 import { AlertComponent } from "../app-alert/app-alert.component";
 import { ConfirmComponent } from "../app-confirm/app-confirm.component";
 import { AppointmentInput } from "../../../graphql/appointment/appointment.input";
+import { AppTimerService } from "../../services/app-timer.service";
 
 @Component({
     selector: 'app-event',
@@ -86,6 +87,7 @@ export class EventComponent implements OnInit, OnDestroy{
         private graphQLService: AppGraphQLService,
         private activatedRoute: ActivatedRoute,
         private socketService: AppSocketService,
+        private timerService: AppTimerService,
 
         public dialogRef: MatDialogRef<EventComponent>,
         @Inject(MAT_DIALOG_DATA) public data: any
@@ -233,7 +235,6 @@ export class EventComponent implements OnInit, OnDestroy{
                 }
                 doctorId
                 doctor {
-
                     firstName
                     lastName
                 }
@@ -250,7 +251,7 @@ export class EventComponent implements OnInit, OnDestroy{
                 this.createdAt =  DateTime.fromISO(appointment.createdAt, {setZone: true}).toFormat('MMM dd, yyyy');
                 this.patientName = appointment.patient?.firstName+" "+appointment.patient?.lastName;
                 this.patientDob = appointment.patient?.dob && DateTime.fromISO(appointment.patient.dob).toFormat('MMM dd, yyyy'); 
-                this.doctorName = appointment.doctor ? appointment.doctor?.firstName+" "+appointment.doctor?.lastName : null;
+                this.doctorName = appointment.doctor ? appointment.doctor.firstName+" "+appointment.doctor.lastName : null;
                 this.eventDate = DateTime.fromISO(appointment.start, {zone: 'utc'}).setZone('utc').toFormat('MMM dd, yyyy');
                 this.eventStartTime =  DateTime.fromISO(appointment.start, {zone: 'utc'}).setZone('utc').toFormat('HH:mm a');
                 this.eventEndTime = DateTime.fromISO(appointment.end, {zone: 'utc'}).setZone('utc').toFormat('HH:mm a');
@@ -362,7 +363,7 @@ export class EventComponent implements OnInit, OnDestroy{
                             const response = await this.graphQLService.mutate(mutation, {appointmentId: id});
                             if (response.data.acceptAppointment.success) {
                                 const start = response.data.acceptAppointment.data.start;
-                                //this.timerService.startAppointmentTimer(start);
+                                this.timerService.startAppointmentTimer(start);
                                 this.isAccepting.emit(true);
                                 this.dialog.closeAll();
                             }
@@ -399,24 +400,22 @@ export class EventComponent implements OnInit, OnDestroy{
             const { date, startHour, startMin, endHour, endMin } = this.appointmentTimeForm.value;
 
             const year = date.getFullYear();
-            const month = date.getMonth(); 
+            const month = date.getMonth()+1; 
             const day = date.getDate();
 
-            const start = new Date(year, month, day, parseInt(startHour, 10), parseInt(startMin, 10), 0)
-            const end = new Date(year, month, day, parseInt(endHour, 10), parseInt(endMin, 10), 0)
-            const startDateTime = DateTime.fromJSDate(start).toLocal()
-            const endDateTime = DateTime.fromJSDate(end).toLocal()
+            const startDateTime = DateTime.fromObject(
+                { year, month, day, hour: parseInt(startHour, 10)+2, minute: parseInt(startMin, 10) }
+              );
+              
+              const endDateTime = DateTime.fromObject(
+                { year, month, day, hour: parseInt(endHour, 10)+2, minute: parseInt(endMin, 10) }
+              );
 
-            if (
-                date && startDateTime && endDateTime && 
-                start !== new Date(this.eventStartTime!) && 
-                end !== new Date(this.eventEndTime!) && 
-                date !== this.eventDate
-            ) {
+            if (date && startDateTime && endDateTime) {
                 const appointmentInput = {
                     id: this.appointmentInfo.id,
                     start: startDateTime.toISO() as string,
-                    end: endDateTime.toISO() as string, 
+                    end: endDateTime.toISO() as string,
                     allDay: false
                 }
                 this.isEditting = false;

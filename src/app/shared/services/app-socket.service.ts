@@ -52,7 +52,6 @@ export class AppSocketService {
             }
         });
     }
-
     userLogin(user: User) {
         if (this.socket && this.socket.connected) {
             this.socket.emit('registerUser', user);

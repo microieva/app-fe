@@ -546,6 +546,9 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
     }
 
     handleAddEvent(arg: any){
+        if (this.role === 'admin' && !this.patientId) {
+            arg.unselect();
+        }
         if (arg.view.type === 'timeGridWeek' || arg.view.type === 'timeGridDay') {
             const calendarApi = arg.view.calendar;
             let start: any;
@@ -721,6 +724,7 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                 || target.classList.contains('fc-day-sun') 
                 || target.classList.contains('fc-day-sat') 
             )
+            || (this.role === 'admin' && !this.patientId)
         ) {
             return;
         } else {
@@ -785,7 +789,7 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
             id: clickInfo.event.extendedProps['dbId']
         }
         const event = this.events.find((event: any)=> event.extendedProps.dbId === eventInfo.id)
-        const samePatient = !this.patientId ? true : event.extendedProps.patientId === this.patientId;
+        const samePatient:boolean = !this.patientId ? true : event.extendedProps.patientId === this.patientId;
         const dialogRef = this.dialog.open(EventComponent, {data: {eventInfo, samePatient}});
 
         const subDelete = dialogRef.componentInstance.delete.subscribe(id => {
