@@ -76,13 +76,18 @@ export const getLastLogOutStr = (timestamp: string): string => {
     }
 };
 
+export const getNow = () => {
+    const now  = DateTime.now().toJSDate();
+    const offset = now.getTimezoneOffset() * 60000;
+    return new Date(now.getTime() - offset); 
+}
+
 export const getHowSoonUpcoming = (datetime: string): string => {
-    const now = DateTime.now().setZone('Europe/Helsinki');
-    const inputDate = DateTime.fromISO(datetime, { zone: 'utc' }).setZone();
+    const now = getNow();
+    const inputDate = DateTime.fromISO(datetime).setZone();
+    const diff = inputDate.diff(DateTime.fromJSDate(now), ['years', 'months', 'days', 'hours', 'minutes', 'seconds']);
 
-    const diff = inputDate.diff(now, ['years', 'months', 'days', 'hours', 'minutes', 'seconds']);
     let howSoonStr = 'in ';
-
     if (diff.years > 0) {
         howSoonStr += `${diff.years} year${diff.years === 1 ? '' : 's'} `;
     }
@@ -101,17 +106,14 @@ export const getHowSoonUpcoming = (datetime: string): string => {
 
     howSoonStr = howSoonStr.trim();
 
-    if (!howSoonStr || howSoonStr === 'in') {
-        howSoonStr = 'now';
-    }
+    return howSoonStr === 'in' ? 'now' : howSoonStr;
+};
 
-    return howSoonStr;
-}
 
 export const getHowLongAgo = (datetime: string):string => {
-    const now = DateTime.now().setZone('Europe/Helsinki');
-    const inputDate = DateTime.fromISO(datetime, { zone: 'utc' }).setZone();
-    const diff = now.diff(inputDate, ['years', 'months', 'days', 'hours', 'minutes', 'seconds']);
+    const now = getNow();
+    const inputDate = DateTime.fromISO(datetime)
+    const diff = DateTime.fromJSDate(now).diff(inputDate, ['years', 'months', 'days', 'hours', 'minutes', 'seconds']);
 
     let howLongAgoStr = '';
 

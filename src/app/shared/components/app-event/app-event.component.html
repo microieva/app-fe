@@ -146,19 +146,12 @@
                 <span class="material-icons" style="color:rgb(175 111 174 / 90%);">close</span>
             </div>
         </div>
-        <div 
-            [ngClass]="isOpened ? '': 'title-hover'"
-            class="icon-btn" 
-            (click)="onOpenAppointmentTab(appointmentInfo.id)" 
-            *ngIf="userRole === 'doctor' && !isOpened && doctorName"
-        >
-            <span class="material-icons">open_in_new</span><p>Open appointment workspace</p>
-        </div>
         <div *ngIf="(!doctorMessage && userRole === 'doctor') || (!patientMessage && userRole === 'patient') || (!patientMessage && userRole === 'admin' && samePatient)">
             <div type="button" class="icon-btn title-hover" (click)="onAddClick(); showInput =!showInput" *ngIf="!showInput">
                 <span class="material-icons">add</span><p>Additional information</p>
             </div>
         </div>
+       
         <div class="event-wrapper" *ngIf="showInput" style="position: relative;">
             <p class="event-title">{{ 'Additional Information' }}</p>
             <mat-form-field style="width:100%;margin:1rem 0;">
@@ -174,6 +167,14 @@
                     <span class="material-icons" style="color:rgb(175 111 174 / 90%);">close</span>
                 </div>
             </div>
+        </div>
+         <div 
+            [ngClass]="isOpened ? '': 'title-hover'"
+            class="icon-btn" 
+            (click)="onOpenAppointmentTab(appointmentInfo.id)" 
+            *ngIf="userRole === 'doctor' && !isOpened && doctorName"
+        >
+            <span class="material-icons">open_in_new</span><p>Open appointment workspace</p>
         </div>
         <mat-dialog-actions align="end">
             <button id="submit-btn" mat-button type="submit" [mat-dialog-close]="true" cdkFocusInitial (click)="onSubmit()" *ngIf="!appointmentInfo.title">{{'Confirm'}}</button>

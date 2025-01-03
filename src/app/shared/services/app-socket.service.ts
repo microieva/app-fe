@@ -52,12 +52,7 @@ export class AppSocketService {
             }
         });
     }
-<<<<<<< Updated upstream
-
-    registerUser(user: User) {
-=======
     userLogin(user: User) {
->>>>>>> Stashed changes
         if (this.socket && this.socket.connected) {
             this.socket.emit('registerUser', user);
         } else {

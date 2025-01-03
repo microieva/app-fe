@@ -145,7 +145,7 @@ export class AppHomeComponent implements OnInit {
     
                     if (nowAppointment) {
                         const patientName = nowAppointment.patient.firstName+" "+nowAppointment.patient.lastName;
-                        const start = DateTime.fromISO(nowAppointment.start).toFormat('HH:mm a');
+                        const start = DateTime.fromISO(nowAppointment.start, {zone:'utc'}).setZone('utc').toFormat('HH:mm a');
                         isTabAdded = JSON.parse(localStorage.getItem('tabs') || '[]').find((tab: any)=> tab.id === nowAppointment?.id);
                         let isTabCreated: boolean;
                         
@@ -157,7 +157,7 @@ export class AppHomeComponent implements OnInit {
     
                         if (!isTabAdded) {
                             this.tabsService.addTab("offline start: "+start, AppointmentComponent, nowAppointment.id);
-                            this.dialog.open(AlertComponent, {data: {message: "Current appointment with "+patientName+"\nStarted at "+start}});
+                            this.dialog.open(AlertComponent, {data: {message: "Current appointment with "+patientName+", started at "+start}});
                             this.nowAppointment = nowAppointment;
                         } 
                         this.subscriptions.add(subRouteParams);
@@ -342,7 +342,7 @@ export class AppHomeComponent implements OnInit {
                     const previous = response.data.nextAppointment.previousAppointmentDate;
                     this.previousAppointmentDate = previous ? DateTime.fromISO(previous).toFormat('MMM dd, yyyy') : '-';
                     const nextStart = response.data.nextAppointment.nextStart;
-                    this.nextStart = nextStart && getNextAppointmentWeekdayStart(nextStart.toISO({includeOffset: true}));
+                    this.nextStart = nextStart && getNextAppointmentWeekdayStart(nextStart);
                     this.nextId = response.data.nextAppointment.nextId;
                     this.recordIds = response.data.nextAppointment.recordIds;
                     this.nextAppointmentStartTime = DateTime.fromISO(response.data.nextAppointment.nextStart, {setZone: true}).toFormat('HH:mm a, MMM dd');

@@ -285,6 +285,7 @@ export class AppHeader implements OnInit {
             this.socketService.userLogout(this.me!.id);
         }     
         this.timerService.cancelTokenTimer(); 
+        this.snackbarService.clearSnackbars();
         this.dialog.open(LoadingComponent);
 
         this.me = null;

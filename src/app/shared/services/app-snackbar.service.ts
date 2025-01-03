@@ -28,4 +28,8 @@ export class AppSnackbarService {
         const snackbars = this.snackbarsSubject.value.filter(snack => snack?.id !== id);
         this.snackbarsSubject.next(snackbars);
     }
+
+    clearSnackbars(){
+        this.snackbarsSubject.next([]);
+    }
 }
