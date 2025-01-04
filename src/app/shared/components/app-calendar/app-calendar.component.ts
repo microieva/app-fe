@@ -16,6 +16,8 @@ import { ConfirmComponent } from "../app-confirm/app-confirm.component";
 import { createEventId } from "../../constants";
 import { Appointment } from "../../../graphql/appointment/appointment";
 import { AppointmentInput } from "../../../graphql/appointment/appointment.input";
+import { getNow } from "../../utils";
+import { AppAppointmentService } from "../../services/app-appointment.service";
 
 @Component({
     selector: 'app-calendar',
@@ -46,7 +48,8 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
         private graphQLService: AppGraphQLService,
         private router: Router,
         private activatedRoute: ActivatedRoute,
-        private dialogService: AppDialogService
+        private dialogService: AppDialogService,
+        private appointmentService: AppAppointmentService
     ){
        
     }
@@ -152,53 +155,44 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
     onDatesSet(dateInfo: DatesSetArg) {
         this.monthStart = dateInfo.start;
         this.monthEnd = dateInfo.end;
-        if (this.role === 'admin') {
-            this.loadEvents();
-        }
         this.loadEvents();
     }
 
-    handleEventDrop(arg: any) {
-        const now = new Date()
-        if (arg.event.start < now) {
+    async handleEventDrop(arg: any) {
+        const now = getNow();
+        const isFuture = this.isFuture(arg);
+        const isDouble = this.isDouble(arg);
+        const isOverlapping = this.isOverlapping(arg);
+
+        if (!isFuture) {
             arg.revert();
+            return;
         }
+        if (isDouble || isOverlapping) {
+            arg.revert();
+            return;
+        }
+
         if (this.role === 'patient') {
-            if (arg.event.extendedProps.doctorId) {
+            if (arg.event.extendedProps.doctorId && arg.event.startStr > now) {
                 this.dialog.open(AlertComponent, {data: {message: "Cannot change the appointment time since it has been already accepted by a doctor... Consider cancelling appointment and creating a new one."}});
                 arg.revert();
-            } else if (arg.event.extendedProps.title)  {
-                this.dialog.open(AlertComponent, {data: {message: "The appointment already past"}});
+                return;
+            } 
+            if (arg.event.endStr < now)  {
+                this.dialog.open(AlertComponent, {data: {message: "The appointment time has already past"}});
                 arg.revert();
+                return;
             }
         } else if (this.role = 'doctor'){
-            if (!arg.event.extendedProps.doctorId) {
+            if (!arg.event.extendedProps.doctorId || arg.event.endStr < now) {
                 arg.revert();
+                return;
             }
         }
-        let newStart;
-        let newEnd;
 
-        const startDateTime = DateTime.fromISO(arg.event.start).toLocal()
-        const endDateTime = DateTime.fromISO(arg.event.end).toLocal()
-
-        newStart = startDateTime.toISO()
-        newEnd = endDateTime.toISO();
-
-        if (arg.view = 'dayGridMonth') {
-            const oldStartTime = arg.oldEvent.start;
-            const oldEndTime = arg.oldEvent.end;    
-            const newDay = arg.event.start;       
-
-            const start = new Date(newDay); 
-            start.setHours(oldStartTime.getHours(), oldStartTime.getMinutes(), oldStartTime.getSeconds(), oldStartTime.getMilliseconds());
-
-            const end = new Date(newDay);
-            end.setHours(oldEndTime.getHours(), oldEndTime.getMinutes(), oldEndTime.getSeconds(), oldEndTime.getMilliseconds());
-
-            newStart = start;
-            newEnd = end;
-        }
+        const newStart = arg.event.start;
+        const newEnd = arg.event.end;
         
         const event: any = {
             id: arg.event.extendedProps.dbId,
@@ -207,7 +201,32 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
             allDay: false,
             patientId: arg.event.extendedProps.patientId
         }
-        this.appointment.emit(event);
+        await this.saveAppointment(event);
+        await this.loadEvents();
+    }
+
+    async saveAppointment(appointmentInput: AppointmentInput){
+        const mutation = `
+            mutation ($appointmentInput: AppointmentInput!) {
+                saveAppointment (appointmentInput: $appointmentInput) {
+                    success
+                    message
+                }
+            }
+        `  
+        try {
+            const response = await this.graphQLService.mutate(mutation, {appointmentInput});
+
+            if (response.data.saveAppointment.success) {
+                if (this.role === 'doctor') {
+                    this.appointmentService.pollNextAppointment();
+                }
+            } else {
+                this.dialog.open(AlertComponent, {data: {message:response.data.saveAppointment.message}});
+            }
+        } catch (error) {
+            this.dialog.open(AlertComponent, {data: {message: "Error saving appointment: "+error}});
+        }
     }
 
     onCheckboxChange(value: string) {
@@ -545,9 +564,10 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
         }
     }
 
-    handleAddEvent(arg: any){
+    async handleAddEvent(arg: any){
         if (this.role === 'admin' && !this.patientId) {
             arg.unselect();
+            return;
         }
         if (arg.view.type === 'timeGridWeek' || arg.view.type === 'timeGridDay') {
             const calendarApi = arg.view.calendar;
@@ -572,15 +592,16 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                 const dialogRef = this.dialog.open(
                     ConfirmComponent, {data: {message: "Reserve full day?"}}
                 );
-                const sub = dialogRef.componentInstance.isConfirming.subscribe(isConfirmed => {
+                const sub = dialogRef.componentInstance.isConfirming.subscribe(async isConfirmed => {
 
                     if (isConfirmed) {
                         calendarApi.addEvent(event);
-                        this.appointment.emit({
+                        const input = {
                             start: event.start,
                             end: event.end,
                             allDay: event.allDay
-                        });
+                        }
+                        await this.saveAppointment(input);
                     }
                     calendarApi.changeView('dayGridMonth', arg.start);
                 });
@@ -591,12 +612,13 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                     end: DateTime.fromISO(arg.endStr).toFormat('HH:mm a'),
                     date: DateTime.fromJSDate(new Date(arg.start)).toFormat('MMM dd, yyyy')
                 }
-                this.appointment.emit({
+                const input = {
                     start,
                     end,
                     allDay: arg.allDay,
                     patientId: this.patientId || undefined
-                });
+                }
+                await this.saveAppointment(input);
                 
                 const dialogRef = this.dialog.open(EventComponent, {disableClose: true, data: { eventInfo }});
                 const sub = dialogRef.afterOpened().subscribe(() => {
@@ -764,17 +786,53 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
         calendarApi.unselect(); 
     }
 
-    isDouble(arg: DateSelectArg): boolean {
-        const argStart = DateTime.fromISO(arg.startStr, { zone: 'utc' }).startOf('minute');
+    isDouble(arg: DateSelectArg | EventDropArg): boolean {
+        const startStr1 = DateTime.fromISO((arg as DateSelectArg)?.startStr, { zone: 'utc' }).startOf('minute')        
+        const startStr2 = DateTime.fromISO((arg as EventDropArg).event?.startStr, { zone: 'utc' }).startOf('minute') 
+
+        const argStart = startStr1.isValid ? startStr1 : startStr2
+
         return this.appointments.some((event) => {
-            const eventStart = DateTime.fromISO(event.start, { zone: 'utc' }).startOf('minute');   
+            const eventStart = DateTime.fromISO(event.start, { zone: 'utc' }).startOf('minute'); 
+            const eventEnd = DateTime.fromISO(event.end, { zone: 'utc' }).startOf('minute'); 
+
             return eventStart.equals(argStart);
         });
     }
+    isOverlapping = (arg: DateSelectArg | EventDropArg): boolean => {
+        const startStr1 = DateTime.fromISO((arg as DateSelectArg).startStr, { zone: 'utc' }).startOf('minute')        
+        const startStr2 = DateTime.fromISO((arg as EventDropArg).event.startStr, { zone: 'utc' }).startOf('minute') 
 
-    isFuture(arg: any): boolean {
+        const argStart = startStr1.isValid ? startStr1 : startStr2;
+
+        const endStr1 = DateTime.fromISO((arg as DateSelectArg).endStr, { zone: 'utc' }).startOf('minute')        
+        const endStr2 = DateTime.fromISO((arg as EventDropArg).event.endStr, { zone: 'utc' }).startOf('minute') 
+
+        const argEnd =  endStr1.isValid ? endStr1 : endStr2;
+
+        // const newStart = DateTime.fromISO(argStart, { zone: 'utc' }).startOf('minute');
+        // const newEnd = DateTime.fromISO(argEnd, { zone: 'utc' }).startOf('minute');
+        const newDuration = argEnd.diff(argStart, 'minutes').minutes;
+    
+        return this.appointments.some((event) => {
+            const eventStart = DateTime.fromISO(event.start, { zone: 'utc' }).startOf('minute');
+            const eventEnd = DateTime.fromISO(event.end, { zone: 'utc' }).startOf('minute');
+            const eventDuration = eventEnd.diff(eventStart, 'minutes').minutes;
+    
+            if (newDuration > eventDuration) {
+                // New event is longer: Check if existing event is completely within the new event
+                return eventStart >= argStart && eventEnd <= argEnd;
+            } else {
+                // New event is shorter or equal: Check if new event is completely within the existing event
+                return argStart >= eventStart && argEnd <= eventEnd;
+            }
+        });
+    };
+
+    isFuture(arg: DateSelectArg | EventDropArg): boolean {
         const now = new Date();
-        return new Date(arg.startStr) > now;
+        const isFuture = (arg as DateSelectArg).startStr || (arg as EventDropArg).event.startStr;
+        return new Date(isFuture) > now;
     }
 
     isBusinessHours(date: any): boolean {
