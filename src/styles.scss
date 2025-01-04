@@ -125,7 +125,9 @@ mat-form-field {
   --fc-event-bg-color: rgb(175 111 174 / 40%); //  COLOR FOR DETAIL
   --fc-event-border-color: rgb(111, 143, 175, 40%);
   --fc-event-text-color: rgb(68, 65, 65);
-
+}
+.fc-view-harness-active {
+  height: 45rem!important;
 }
 .fc-daygrid-frame {
   height: 8rem;

@@ -157,7 +157,10 @@ export class AppHomeComponent implements OnInit {
     
                         if (!isTabAdded) {
                             this.tabsService.addTab("offline start: "+start, AppointmentComponent, nowAppointment.id);
-                            this.dialog.open(AlertComponent, {data: {message: "Current appointment with "+patientName+", started at "+start}});
+                            const ref = this.dialog.open(AlertComponent, {data: {message: "Current appointment with "+patientName+", started at "+start}});
+                            ref.componentInstance.ok.subscribe(isOk => {
+                                if (isOk) this.router.navigate(['/home/appointments'])
+                            })
                             this.nowAppointment = nowAppointment;
                         } 
                         this.subscriptions.add(subRouteParams);

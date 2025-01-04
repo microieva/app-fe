@@ -7,6 +7,7 @@ import { AppGraphQLService } from "../../../shared/services/app-graphql.service"
 import { AlertComponent } from "../../../shared/components/app-alert/app-alert.component";
 import { AppointmentInput } from "../appointment.input";
 import { User } from "../../user/user";
+import { AppAppointmentService } from "../../../shared/services/app-appointment.service";
 
 @Component({
     selector: 'calendar-component',
@@ -23,7 +24,7 @@ export class CalendarComponent implements OnInit, OnDestroy{
         private graphQLService: AppGraphQLService,
         private dialog: MatDialog,
         private activatedRoute: ActivatedRoute,
-        private location: Location,
+        private location: Location
     ){}
 
     async ngOnInit() {
@@ -68,22 +69,6 @@ export class CalendarComponent implements OnInit, OnDestroy{
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Patient not found "+error}})
-        }
-    }
-
-    async saveAppointment(appointmentInput: AppointmentInput){
-        const mutation = `
-            mutation ($appointmentInput: AppointmentInput!) {
-                saveAppointment (appointmentInput: $appointmentInput) {
-                    success
-                    message
-                }
-            }
-        `  
-        try {
-            await this.graphQLService.mutate(mutation, {appointmentInput});
-        } catch (error) {
-            this.dialog.open(AlertComponent, {data: {message: "Error saving appointment: "+error}});
         }
     }
 

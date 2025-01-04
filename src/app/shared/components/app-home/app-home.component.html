@@ -20,16 +20,16 @@
                     <span  style="color:#606262">{{ 'Medical Records' }}</span>
                 </div>
             </a>
-            <a mat-list-item [routerLink]="['/home','users']" (click)="isHomeRoute=!isHomeRoute; $event.stopPropagation()" *ngIf="userRole === 'admin'" routerLinkActive="activeLink">
-                <div class="flex" >
-                    <span class="icon material-symbols-outlined" matTooltip="Doctors">recent_actors</span> 
-                    <span  style="color:#606262">{{ 'Doctors' }}</span>
-                </div>
-            </a>
             <a mat-list-item [routerLink]="['/home','patients']" (click)="isHomeRoute=!isHomeRoute; $event.stopPropagation()" *ngIf="userRole === 'admin'" routerLinkActive="activeLink">
                 <div class="flex">
                     <span class="icon material-symbols-outlined" matTooltip="Patients">patient_list</span> 
                     <span  style="color:#606262">{{ 'Patients' }}</span>
+                </div>
+            </a>
+            <a mat-list-item [routerLink]="['/home','users']" (click)="isHomeRoute=!isHomeRoute; $event.stopPropagation()" *ngIf="userRole === 'admin'" routerLinkActive="activeLink">
+                <div class="flex" >
+                    <span class="icon material-symbols-outlined" matTooltip="Doctors">recent_actors</span> 
+                    <span  style="color:#606262">{{ 'Doctors' }}</span>
                 </div>
             </a>
             <a mat-list-item [routerLink]="['/home','messages']" (click)="isHomeRoute=!isHomeRoute; $event.stopPropagation()" routerLinkActive="activeLink"  *ngIf="userRole !== 'patient' && isUserUpdated">
