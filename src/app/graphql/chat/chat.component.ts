@@ -187,10 +187,8 @@ export class ChatComponent implements OnInit, OnDestroy {
     }
     onChatDelete(){
         const ref = this.dialog.open(ConfirmComponent, {data: {message: "Deleting all messages"}});
-        ref.componentInstance.isConfirming.subscribe(async isConfirmed => {
-            if (isConfirmed) {
-                await this.deleteChatForParticipant();
-            }
+        ref.componentInstance.isConfirming.subscribe(async () => {
+            await this.deleteChatForParticipant();
         })
     }
     async deleteChatForParticipant() {

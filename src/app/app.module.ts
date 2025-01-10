@@ -1,4 +1,4 @@
-import { APP_INITIALIZER, NgModule } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -68,6 +68,8 @@ import { AppAuthService } from './shared/services/app-auth.service';
 import { AppHeader } from './shared/components/app-header/app-header.component';
 import { AppAuthGuard } from './shared/services/app-auth.guard';
 import { AppHeaderService } from './shared/services/app-header-refresh.service';
+import { AppointmentMessageComponent } from './shared/components/app-appointment-message/app-appointment-message.component';
+
 
 @NgModule({ 
     declarations: [
@@ -94,6 +96,7 @@ import { AppHeaderService } from './shared/services/app-header-refresh.service';
         AlertComponent,
         LoginComponent,
         EventComponent,
+        AppointmentMessageComponent,
         LoginMenuComponent,
         ChatComponent
     ],
@@ -135,7 +138,8 @@ import { AppHeaderService } from './shared/services/app-header-refresh.service';
         MatSelectModule,
         TextFieldModule,
         MatTooltipModule,
-        MatBadgeModule
+        MatBadgeModule,
+        MatCheckboxModule
     ], 
     providers: [
         AppAuthGuard,

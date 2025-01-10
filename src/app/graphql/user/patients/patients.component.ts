@@ -6,7 +6,7 @@ import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
 import { AlertComponent } from "../../../shared/components/app-alert/app-alert.component";
 import { UserComponent } from "../user.component";
-import { UserDataSource } from "../../../shared/types";
+import { AppTableDisplayedColumns, UserDataSource } from "../../../shared/types";
 import { User } from "../user";
 
 @Component({
@@ -28,7 +28,7 @@ import { User } from "../user";
 })
 export class PatientsComponent implements OnInit {
     dataSource: MatTableDataSource<UserDataSource> | null = null;
-    displayedColumns: Array<{ columnDef: string, header: string }> = [];
+    displayedColumns: AppTableDisplayedColumns[] = []
     userRole: string = 'admin'
     length: number = 0;
     patients: User[] = [];
@@ -155,9 +155,9 @@ export class PatientsComponent implements OnInit {
         });
         this.dataSource = new MatTableDataSource<UserDataSource>(data);
         this.displayedColumns = [ 
-            {header: 'Name', columnDef: 'name'},
-            {header: 'Date of birth', columnDef: 'dob'},
-            {header: 'Email', columnDef: 'email'}
+            {header: 'Name', columnDef: 'name', sort:true},
+            {header: 'Date of birth', columnDef: 'dob', sort:true},
+            {header: 'Email', columnDef: 'email', sort:true}
         ]
     }
 

@@ -7,7 +7,6 @@ import { AppGraphQLService } from './app-graphql.service';
 import { AlertComponent } from '../components/app-alert/app-alert.component';
 import { LoadingComponent } from '../components/app-loading/loading.component';
 import { DirectLoginInput } from '../types';
-import { AppTimerService } from './app-timer.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,8 +19,7 @@ export class AppAuthService {
         private apollo: Apollo,
         private graphQLService: AppGraphQLService,
         private dialog: MatDialog,
-        private router: Router,
-        private timerService: AppTimerService
+        private router: Router
     ) {}
 
     async logIn(input: DirectLoginInput) {
@@ -48,10 +46,8 @@ export class AppAuthService {
             }
         } catch (error) {
             const ref = this.dialog.open(AlertComponent, {data: {message: error}});
-            ref.componentInstance.ok.subscribe(async subscription => {
-                if (subscription) {
-                    this.dialog.closeAll();
-                }
+            ref.componentInstance.ok.subscribe(() => {
+                this.dialog.closeAll();
             });
         }
     }
@@ -79,10 +75,8 @@ export class AppAuthService {
             }
         } catch (error) {
             const ref = this.dialog.open(AlertComponent, {data: { message:  "AuthService: "+error}});
-            ref.componentInstance.ok.subscribe(subscription => {
-                if (subscription) {
-                    this.dialog.closeAll(); 
-                }
+            ref.componentInstance.ok.subscribe(() => {
+                this.dialog.closeAll(); 
             })
         }
     }
@@ -107,10 +101,8 @@ export class AppAuthService {
             }
         } catch (error) {
             const ref = this.dialog.open(AlertComponent, {data: { message:  "AuthService: "+error}});
-            ref.componentInstance.ok.subscribe(subscription => {
-                if (subscription) {
-                    this.dialog.closeAll(); 
-                }
+            ref.componentInstance.ok.subscribe(() => {
+                this.dialog.closeAll(); 
             });
             this.router.navigate(['/']);
         }

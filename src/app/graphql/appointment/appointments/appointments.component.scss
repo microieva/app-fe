@@ -2,7 +2,6 @@
     border-top: 1px solid rgb(111, 143, 175, 40%);
 }
 .page {
-    max-width: 75%;
     min-height: calc(100vh - 16rem);
 }
 mat-panel-description {
@@ -25,6 +24,7 @@ mat-panel-description {
     align-items: start;
 }
 .btn-block {
+    width: 50rem;
     margin-top: 8rem;
     position:relative;
     h1 {

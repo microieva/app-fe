@@ -164,15 +164,13 @@ export class AppHeader implements OnInit {
                                             }
                                         }
                                 
-                                        ref.componentInstance.ok.subscribe((ok) => {
-                                            if (ok) {
-                                                this.dialog.closeAll();
-                                                this.router.navigate(['/home/appointments'], {
-                                                    relativeTo: this.activatedRoute,
-                                                    queryParams: { tab: 3 },
-                                                    queryParamsHandling: 'merge', 
-                                                });
-                                            }
+                                        ref.componentInstance.ok.subscribe(() => {      
+                                            this.dialog.closeAll();
+                                            this.router.navigate(['/home/appointments'], {
+                                                relativeTo: this.activatedRoute,
+                                                queryParams: { tab: 3 },
+                                                queryParamsHandling: 'merge', 
+                                            });
                                         });
                                     }
                                     })
@@ -250,8 +248,8 @@ export class AppHeader implements OnInit {
         } catch (error) {
             localStorage.clear();
             const ref = this.dialog.open(AlertComponent, {data: {message: error}});
-            ref.componentInstance.ok.subscribe(ok => {
-                if (ok)  this.router.navigate([''])
+            ref.componentInstance.ok.subscribe(() => {
+                this.router.navigate(['/'])
             })
         }
     }

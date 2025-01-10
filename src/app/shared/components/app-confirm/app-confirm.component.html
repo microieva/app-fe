@@ -1,9 +1,16 @@
 
-<mat-dialog-content [ngClass]="addClass && 'app-confirm'">
-    <h2 mat-dialog-title>{{ title }}</h2>
-    <p>{{message}}</p>
+<mat-dialog-content>
+    <h2 *ngIf="title" mat-dialog-title class="event-title">{{title}}</h2>
+    <div class="flex-row">
+        <div style="margin-right:1rem;">
+            <span class="material-symbols-outlined">help</span>
+        </div>
+        <div style="width:62%; font-size:larger;">
+            <div [innerHTML]="message"></div>
+        </div>
+    </div>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-    <button mat-button id="confirm-btn" [mat-dialog-close]="true" cdkFocusInitial (click)="onOkClick()">Ok</button>
-    <button mat-button (click)="onCancel()">Cancel</button>
+    <button mat-stroked-button [mat-dialog-close]="true" cdkFocusInitial (click)="onConfirmClick()">Confirm</button>
+    <button mat-stroked-button (click)="onCancel()">Cancel</button>
 </mat-dialog-actions>

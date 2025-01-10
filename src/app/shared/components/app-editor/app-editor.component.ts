@@ -1,12 +1,12 @@
 import { Editor, Toolbar, ToolbarItem } from 'ngx-editor';
 import { Subscription } from 'rxjs';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
-import { FormGroup, FormControl, FormBuilder, Validators } from "@angular/forms";
+import { FormGroup, FormControl, FormBuilder } from "@angular/forms";
 import { MatDialog } from '@angular/material/dialog';
 import { DomSanitizer } from "@angular/platform-browser";
+import { ConfirmComponent } from '../app-confirm/app-confirm.component';
 import { Record } from "../../../graphql/record/record";
 import { RecordInput } from "../../../graphql/record/record.input";
-import { ConfirmComponent } from '../app-confirm/app-confirm.component';
 
 @Component({
     selector: 'app-editor',
@@ -80,10 +80,8 @@ export class AppEditorComponent implements OnInit, OnDestroy {
     }
     onCancel() {
         const dialogRef = this.dialog.open(ConfirmComponent, {data: {message: "All unsaved changes will be lost"}});
-        const sub = dialogRef.componentInstance.isConfirming.subscribe(isConfirmed => {
-            if (isConfirmed) {
-                this.cancel.emit(true);
-            }
+        const sub = dialogRef.componentInstance.isConfirming.subscribe(() => {
+            this.cancel.emit(true);
         });
         this.subscriptions.add(sub);
     }

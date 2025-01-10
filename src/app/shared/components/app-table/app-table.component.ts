@@ -1,10 +1,11 @@
 import { Subscription } from "rxjs";
-import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Inject, Input, OnDestroy, OnInit, Optional, Output, SimpleChanges, ViewChild } from "@angular/core";
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, Inject, Input, OnDestroy, OnInit, Optional, Output, SimpleChanges, ViewChild } from "@angular/core";
 import { animate, state, style, transition, trigger } from "@angular/animations";
 import { MatTableDataSource } from "@angular/material/table";
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
+import { SelectionModel } from "@angular/cdk/collections";
 import { DateTime } from "luxon";
 import { AppTimerService } from "../../services/app-timer.service";
 import { AppSocketService } from "../../services/app-socket.service";
@@ -12,7 +13,7 @@ import { AppGraphQLService } from "../../services/app-graphql.service";
 import { RecordComponent } from "../../../graphql/record/record.component";
 import { AlertComponent } from "../app-alert/app-alert.component";
 import { Record } from "../../../graphql/record/record";
-import { AdvancedSearchInput, AppDataSource, UserDataSource } from "../../types";
+import { AdvancedSearchInput, AppDataSource, AppTableDisplayedColumns, UserDataSource } from "../../types";
 
 
 @Component({
@@ -29,17 +30,20 @@ import { AdvancedSearchInput, AppDataSource, UserDataSource } from "../../types"
 })
 export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
     isLoading: boolean = false;
+    isActionsDisabled:boolean = false;
+    checkedCount: number = 0;
 
     @Output() pageChange = new EventEmitter<{pageIndex: number, pageLimit: number}>();
     @Output() sortChange = new EventEmitter<{active: string, direction: string}>();
     @Output() rowClick= new EventEmitter<{id: number, title?: string}>();
-    @Output() action= new EventEmitter<{id: number, text: string}>();
+    @Output() action = new EventEmitter<{ids: number[], text: string, message?:string}>();
 
+    columnNames: string[] = [];
     @Input() dataSource!: MatTableDataSource<AppDataSource>;
-    @Input() displayedColumns: Array<{ columnDef: string, header: string }> =[];
+    @Input() displayedColumns: AppTableDisplayedColumns[] = []
+    @Input() buttons: any[] | null = null;
 
     @Input() length: number = 0;
-    @Input() reset: boolean = false;
     @Input() userRole!: string;
     @Input() markAppointmentId: number | null = null;
     senders: any[] =[];
@@ -49,14 +53,13 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
     @ViewChild(MatPaginator, {read: true}) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
     @ViewChild('input', { static: false }) input!: ElementRef;
+    selection = new SelectionModel<any>(true, []);
 
     pageLimit: number = 10;
     pageIndex: number = 0;
     advancedSearchInput: AdvancedSearchInput | null = null;
     filterValue: string | null = null;
 
-    howSoonStr: string | undefined;
-    columnNames: string[] = [];
     
     @HostListener('matSortChange', ['$event'])
     onSortChange(event: any) {
@@ -75,6 +78,7 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
         private socketService: AppSocketService,
         private graphQLService: AppGraphQLService,
         private dialog: MatDialog,
+        private cd: ChangeDetectorRef,
 
         @Optional() public dialogRef: MatDialogRef<AppTableComponent>,
         @Optional() @Inject(MAT_DIALOG_DATA) public data: { recordIds: number[], userRole: string}  
@@ -156,6 +160,37 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
     }
 
+    isAllSelected() {
+        const numSelected = this.selection.selected.length;
+        this.checkedCount = numSelected;
+        const numRows = this.dataSource.data.length;
+        if (!this.selection.hasValue() || this.checkedCount < 2) {
+            this.isActionsDisabled = true;
+        } else {
+            this.isActionsDisabled = false;
+        }
+        return numSelected === numRows;
+    }
+    isChecked(element: any): void {
+        if (this.selection.isSelected(element)) {
+          this.selection.deselect(element);
+          this.checkedCount--;
+        } else {
+          this.selection.select(element);
+          this.checkedCount++;
+        }
+    }
+
+    toggleAllRows() {
+        if (this.isAllSelected()) {
+        this.cd.detectChanges(); 
+        this.selection.clear();
+        return;
+        }
+
+        this.selection.select(...this.dataSource.data);
+    }
+
     formatDataSourceAndColumnsForRecords(records: any[]) {
         this.injectedData = records.map((record: Record) => {
             let createdAt: string;
@@ -194,17 +229,17 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
                 
         if (this.userRole === 'doctor') {
             this.displayedColumns = [ 
-                {header: 'Title', columnDef: 'title'},
-                {header: `Doctor's name`, columnDef: 'name'},
-                {header: 'First created', columnDef: 'createdAt'},
-                {header: 'Final save', columnDef: 'updatedAt'}
+                {header: 'Title', columnDef: 'title', sort:true},
+                {header: `Doctor's name`, columnDef: 'name', sort:true},
+                {header: 'First created', columnDef: 'createdAt', sort:true},
+                {header: 'Final save', columnDef: 'updatedAt', sort:true}
             ]
 
         } else {
             this.displayedColumns = [ 
-                {header: 'Title', columnDef: 'title'},
-                {header: `Doctor's name`, columnDef: 'name'},
-                {header: 'Date', columnDef: 'updatedAt'}
+                {header: 'Title', columnDef: 'title', sort:true},
+                {header: `Doctor's name`, columnDef: 'name', sort:true},
+                {header: 'Date', columnDef: 'updatedAt', sort:true}
             ]
         }
         this.dataSource = new MatTableDataSource<any>(this.injectedData);
@@ -232,24 +267,27 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
             this.dataSource.paginator = this.paginator;
             this.sort.disableClear = true;
             this.dataSource.sort = this.sort;
-        }
+        }    
     }
 
-    ngOnChanges(changes: SimpleChanges): void {  
-        if (changes['displayedColumns']) {   
+    ngOnChanges(changes: SimpleChanges): void { 
+        if (changes['displayedColumns'] || changes['buttons']) {   
             const change = changes['displayedColumns'];
             if (!change.firstChange) {
                 this.displayedColumns = [...change.currentValue];
-                this.columnNames = this.displayedColumns.map(column => column.columnDef);      
+                this.columnNames = this.displayedColumns.map(column => column.columnDef);          
             } 
         }
     
         if (changes['dataSource'] && changes['length'] ) {
             if (this.dataSource && this.paginator) {
                 this.dataSource.paginator = this.paginator;
-                this.dataSource.paginator.firstPage();
+                this.dataSource.paginator.firstPage();   
             }
         }
+        
+        this.checkedCount = 0;
+        this.selection.clear();
     } 
     ngOnDestroy(): void {
         if (this.subscription) {
@@ -301,8 +339,15 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
     isUnreadChat(element: any){
         return element.unreadMessages !== undefined && element.unreadMessages !== null;
     }
-    onActionClick(text: string, id: number) {
-        this.action.emit({text, id});
+    onActionClick(text: string, id?:number) {
+        if (id) {
+            this.action.emit({text, ids: [id]});
+        } else {
+            const ids:number[] = this.selection.selected.map(row=>row.id);
+            this.action.emit({text, ids});
+        }
+        this.ngOnDestroy();
+        this.ngOnInit();
     }
     onAdvancedSearch(value: any){
         this.filterValue = value.searchInput;

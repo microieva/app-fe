@@ -111,23 +111,30 @@ button {
     }
 }
 
-.mat-column-actions {
-    display:flex;
-    flex-direction: row;
-    line-height: 4rem;
-    button {
-        margin-right: 15px;
-    }
+.action {
+    display:inline-flex;
+    padding-top:5px;
+    width: 2.5rem;
 }
 
 .bold-row {
     font-weight: 900;
 }
-
-.mat-column-online, 
+.mat-column-checkbox {
+    max-width: 3rem;
+}
 .mat-column-unreadMessages,
 .mat-column-draft {
-    width: 15%;
+    max-width: 4rem;
+}
+.mat-column-online {
+    min-width: 4rem;
+    padding-left: 2rem;
+}
+
+.mat-column-actions {
+    max-width: 7rem;
+    border-right: 0.5px solid #cbcbcb;
 }
 .mat-column-unreadMessages.mat-mdc-cell {
     text-align: center;
@@ -135,13 +142,17 @@ button {
 .mat-column-name, 
 .mat-column-lastOnline, 
 .mat-column-email, 
+.mat-column-createdAt, 
+.mat-column-howLogAgoStr,
+.mat-column-pastDate,
+.mat-column-start,
 .mat-column-title {
-    width: 30%;
+    min-width: 10rem;
+    padding-left:2rem;
 }
 .mat-column-name.mat-mdc-cell {
     display: flex;
     flex-direction: row;
-    width: inherit;
     align-items: center;
     line-height: 3rem;
     .icon {
@@ -150,11 +161,9 @@ button {
         padding-top: 15px;
     }
 }
-.mat-column-pastDate {
-    width: 30%
-}
+
 .status {
-    width: 60%;
+    width: 4.5rem;
     height: 2rem;
     border-radius: 17px;
     &.offline {
@@ -169,3 +178,15 @@ button {
         opacity: 0.5;
     }
 }
+.action-btns{
+    max-width: fit-content;
+    margin-bottom:1rem;
+    button {
+        margin-right: 5px;
+    }
+}
+.disabled-action {
+    pointer-events: none;
+    opacity: 0.5;
+}
+  

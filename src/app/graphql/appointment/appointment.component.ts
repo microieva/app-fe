@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { Subscription } from "rxjs";
 import { Appointment } from "./appointment";
 import { AppGraphQLService } from "../../shared/services/app-graphql.service";
 import { MatDialog } from "@angular/material/dialog";
@@ -6,7 +7,6 @@ import { DateTime } from "luxon";
 import { ConfirmComponent } from "../../shared/components/app-confirm/app-confirm.component";
 import { AlertComponent } from "../../shared/components/app-alert/app-alert.component";
 import { Record } from "../record/record"; 
-import { Subscription } from "rxjs";
 
 @Component({
     selector: 'app-appointment',
@@ -45,10 +45,8 @@ export class AppointmentComponent implements OnInit, OnDestroy {
     }
     closeTab(){
         const dialogref = this.dialog.open(ConfirmComponent, {data: { message: "All unsaved data will be lost"}});
-        this.subscription = dialogref.componentInstance.isConfirming.subscribe(isConfirmed => {
-            if (isConfirmed) {
-                this.close.emit(this.id)
-            }
+        this.subscription = dialogref.componentInstance.isConfirming.subscribe(() => {
+            this.close.emit(this.id)
         })
     }
 

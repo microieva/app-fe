@@ -16,10 +16,10 @@
                 <h3 *ngIf="countRequests === 0">No new account activation requests at the moment</h3> 
                 <span>{{' '}}</span>
             </div>
-            <div *ngIf="!countRequests && countRequests !== 0" class="loading">
+            <div *ngIf="isLoading" class="loading">
                 <app-loading></app-loading>
             </div>
-            <div class="page" #scrollView @slideInOut >
+            <div class="page" #scrollView @slideInOut *ngIf="!isLoading">
                 <div>
                     <h2 class="font">Account activation requests:</h2>
                     <p *ngIf="countRequests === 1">Currently there is {{countRequests}} doctor account activation request.</p>
@@ -35,6 +35,7 @@
                         *ngIf="dataSource && displayedColumns && countRequests>0"
                         [dataSource]="dataSource" 
                         [displayedColumns]="displayedColumns"
+                        [buttons]="actions"
                         [length]="requestsLength"
                         [userRole]="userRole"
                         (pageChange)="onPageChange($event)"
@@ -57,10 +58,10 @@
                 <h3>Active doctor accounts</h3>
                 <span>{{' '}}</span>
             </div>
-            <div *ngIf="!countDoctors && countDoctors !==0" class="loading">
+            <div *ngIf="isLoading" class="loading">
                 <app-loading></app-loading>
             </div>
-            <div class="page">
+            <div class="page" *ngIf="!isLoading">
                 <div>
                     <h2 class="font">Doctors:</h2>
                     <p *ngIf="countDoctors === 1">Currently there is {{countDoctors}} doctor in this health center.</p>
@@ -76,11 +77,13 @@
                         *ngIf="dataSource && displayedColumns && countDoctors > 0"
                         [dataSource]="dataSource" 
                         [displayedColumns]="displayedColumns"
+                        [buttons]="actions"
                         [length]="doctorsLength"
                         [userRole]="userRole"
                         (pageChange)="onPageChange($event)"
                         (sortChange)="onSortChange($event)"
                         (rowClick)="onUserClick($event, async)"
+                        (action)="onActionClick($event, async)"
                     >
                     </app-table>
                 </div>

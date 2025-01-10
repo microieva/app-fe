@@ -7,9 +7,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
     styleUrls: ['app-alert.component.scss']
 })
 export class AlertComponent {
-    title= "Alert" ;  
-    @Output() ok = new EventEmitter<boolean>(false);
-
+    @Output() ok = new EventEmitter<void>();
     message: string;
 
     constructor(
@@ -19,7 +17,7 @@ export class AlertComponent {
         this.message = data.message;
     }
     onOkClick(){
-        this.ok.emit(true);
+        this.ok.emit();
         this.dialogRef.close();
     }
 }

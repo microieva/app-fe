@@ -75,13 +75,16 @@
                         *ngIf="dataSource && displayedColumns && countPendingAppointments > 0"
                         [dataSource]="dataSource" 
                         [displayedColumns]="displayedColumns" 
+                        [buttons]="actions"
                         [length]="length"
                         [userRole]="userRole"
                         [markAppointmentId]="routedAppointmentId"
+                        
                         (pageChange)="onPageChange($event)"
                         (sortChange)="onSortChange($event)"
                         (filterValue)="onFilterValueChange($event, async)"
                         (rowClick)="onAppointmentClick($event, async)"
+                        (action)="onActionClick($event, async)"
                     >
                     </app-table>
                 </div>
@@ -145,13 +148,15 @@
                         *ngIf="dataSource && displayedColumns && countUpcomingAppointments > 0"
                         [dataSource]="dataSource" 
                         [displayedColumns]="displayedColumns" 
+                        [buttons]="actions"
                         [length]="length"
                         [userRole]="userRole"
-                        [markAppointmentId]="routedAppointmentId"
+                        [markAppointmentId]="routedAppointmentId"    
                         (pageChange)="onPageChange($event)"
                         (sortChange)="onSortChange($event)"
                         (filterValue)="onFilterValueChange($event, async)"
                         (rowClick)="onAppointmentClick($event, async)"
+                        (action)="onActionClick($event, async)"
                     >
                     </app-table>
                 </div>
@@ -209,6 +214,7 @@
                         *ngIf="dataSource && displayedColumns && countPastAppointments > 0"
                         [dataSource]="dataSource" 
                         [displayedColumns]="displayedColumns" 
+                        [buttons]="actions"
                         [length]="length"
                         [userRole]="userRole"
                         [markAppointmentId]="routedAppointmentId"
@@ -216,6 +222,7 @@
                         (sortChange)="onSortChange($event)"
                         (filterValue)="onFilterValueChange($event, async)"
                         (rowClick)="onAppointmentClick($event, async)"
+                        (action)="onActionClick($event, async)"
                     >
                     </app-table>
                 </div>

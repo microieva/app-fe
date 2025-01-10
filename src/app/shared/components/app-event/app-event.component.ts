@@ -8,10 +8,10 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dial
 import { overTimeValidator, timeRangeValidator, weekendValidator } from "../../validators";
 import { AppSocketService } from "../../services/app-socket.service";
 import { AppGraphQLService } from "../../services/app-graphql.service";
+import { AppTimerService } from "../../services/app-timer.service";
 import { AlertComponent } from "../app-alert/app-alert.component";
 import { ConfirmComponent } from "../app-confirm/app-confirm.component";
 import { AppointmentInput } from "../../../graphql/appointment/appointment.input";
-import { AppTimerService } from "../../services/app-timer.service";
 
 @Component({
     selector: 'app-event',
@@ -38,6 +38,7 @@ export class EventComponent implements OnInit, OnDestroy{
     isClickable: boolean = false;
     isLoadingDetails: boolean = false;
     isDisabled: boolean = true;
+    isPast: boolean = false;
     samePatient: boolean = false;
     
     createdAt: string | undefined;
@@ -53,12 +54,15 @@ export class EventComponent implements OnInit, OnDestroy{
     endHour: string | undefined;
     endMin: string | undefined;
     
-    @Output() submit = new EventEmitter<string>();
-    @Output() delete = new EventEmitter<number>();
+    @Output() isSubmitting = new EventEmitter<string>();
+    @Output() isDeleting = new EventEmitter<number>();
     @Output() update = new EventEmitter<boolean>();
     @Output() message = new EventEmitter<string>();
     @Output() deleteMessage = new EventEmitter<number>();
-    @Output() isAccepting = new EventEmitter<boolean>(false);
+    @Output() isMessageSaved = new EventEmitter<boolean>(false);
+    @Output() isMessageDeleted = new EventEmitter<boolean>(false);
+    @Output() isAccepting = new EventEmitter<number>();
+    @Output() isUnaccepting = new EventEmitter<number>();
     @Output() isOpeningTab = new EventEmitter<number>();
 
     @ViewChild('el') el: ElementRef | undefined;
@@ -188,6 +192,7 @@ export class EventComponent implements OnInit, OnDestroy{
             if (response.data.saveAppointmentMessage.success) {
                 await this.loadAppointment();
                 await this.ngOnInit();
+                this.isMessageSaved.emit(true);
             }
         } catch (error) {
             this.dialog.open(AlertComponent, { data: {message: "Error saving appointment message: "+ error}})
@@ -197,25 +202,24 @@ export class EventComponent implements OnInit, OnDestroy{
     }
     async onDeleteMessage(){
         const dialogRef = this.dialog.open(ConfirmComponent, {data: {message: "Remove message"}});
-        const sub = dialogRef.componentInstance.isConfirming.subscribe(async isConfirmed => {
-            if (isConfirmed) {
-                const mutation = `mutation ($appointmentId: Int!) {
-                    deleteAppointmentMessage (appointmentId: $appointmentId) {
-                        success
-                        message
-                    }
-                }`
-                const id = this.appointmentInfo.id || this.appointmentId
-                try {
-                    const response = await this.graphQLService.mutate(
-                        mutation, { appointmentId:  id}
-                    );
-                    if (response.data.deleteAppointmentMessage.success) {
-                        await this.loadAppointment();
-                    }
-                } catch (error) {
-                    this.dialog.open(AlertComponent, { data: {message: "Error removing appointment message: "+ error}})
+        const sub = dialogRef.componentInstance.isConfirming.subscribe(async () => {
+            const mutation = `mutation ($appointmentId: Int!) {
+                deleteAppointmentMessage (appointmentId: $appointmentId) {
+                    success
+                    message
                 }
+            }`
+            const id = this.appointmentInfo.id || this.appointmentId
+            try {
+                const response = await this.graphQLService.mutate(
+                    mutation, { appointmentId:  id}
+                );
+                if (response.data.deleteAppointmentMessage.success) {
+                    await this.loadAppointment();
+                    this.isMessageDeleted.emit(true);
+                }
+            } catch (error) {
+                this.dialog.open(AlertComponent, { data: {message: "Error removing appointment message: "+ error}})
             }
         });
         this.subscriptions.add(sub);
@@ -259,7 +263,7 @@ export class EventComponent implements OnInit, OnDestroy{
                 this.patientMessage = appointment.patientMessage;
                 this.appointmentId = appointment.id;
                 this.doctorId = appointment.doctorId;
-
+                
                 if (this.userRole === 'admin') {
                     this.patientPhoneNr = appointment.patient.phone;
                     this.patientEmail = appointment.patient.email;
@@ -270,6 +274,7 @@ export class EventComponent implements OnInit, OnDestroy{
                 }
                 this.isLoading = false;
                 const now = DateTime.now().toISO();
+                this.isPast = appointment.end < now;
 
                 if (!appointment.doctor) {
                     if (appointment.end < now) this.title = "Missed request";
@@ -289,19 +294,20 @@ export class EventComponent implements OnInit, OnDestroy{
 
     onSubmit(){
         const value = this.form.value;
-        if (value.input) this.submit.emit(value.input);
+        if (value.input) this.isSubmitting.emit(value.input);
 
         this.socketService.notifyDoctors({
             message: "New appointment request",
             appointmentId: this.justCreatedId
         });
     }
-    async onDelete(){
+
+    onDeleteAppointment(){
         if (this.appointmentInfo.id) {
-            this.delete.emit(this.appointmentInfo.id);
+            this.isDeleting.emit(this.appointmentInfo.id);
         }
         if (this.justCreatedId) {
-            this.delete.emit(this.justCreatedId);
+            this.isDeleting.emit(this.justCreatedId);
         }
     }
 
@@ -336,44 +342,17 @@ export class EventComponent implements OnInit, OnDestroy{
             this.isOpened = true;
         } else {
             const ref = this.dialog.open(AlertComponent, {data: {message: "Workspace open"}});
-            const sub = ref.componentInstance.ok.subscribe(subscription => {
-                if (subscription) this.dialog.closeAll();
+            const sub = ref.componentInstance.ok.subscribe(() => {
+                this.dialog.closeAll();
             });
             this.subscriptions.add(sub);
         }
     }
-    onAcceptAppointment(id: number){
-
-            if (id) {
-                const mutation = `mutation ($appointmentId: Int!) {
-                    acceptAppointment(appointmentId: $appointmentId) {
-                        success
-                        message
-                        data {
-                            ... on Appointment {
-                                start
-                            }
-                        }
-                    }
-                }`
-                const ref = this.dialog.open(ConfirmComponent, {data: {message: "Appointment will be added to your calendar"}});
-                ref.componentInstance.isConfirming.subscribe(async isConfirmed => {
-                    if (isConfirmed) {
-                        try {   
-                            const response = await this.graphQLService.mutate(mutation, {appointmentId: id});
-                            if (response.data.acceptAppointment.success) {
-                                const start = response.data.acceptAppointment.data.start;
-                                this.timerService.startAppointmentTimer(start);
-                                this.isAccepting.emit(true);
-                                this.dialog.closeAll();
-                            }
-                        } catch (error) {
-                            this.dialog.open(AlertComponent, {data: {message: `Unexpected error: ${error}`}});
-                        }
-                    }
-                })
-            }
-        
+    onAcceptAppointment(){
+        this.isAccepting.emit(this.appointmentInfo.id);
+    }
+    onCancelAppointment() {
+        this.isUnaccepting.emit(this.appointmentInfo.id);
     }
     onUpdate(){
         this.isEditting = true;

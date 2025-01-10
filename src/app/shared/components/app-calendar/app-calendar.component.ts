@@ -10,6 +10,7 @@ import { Subscription } from "rxjs";
 import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../services/app-graphql.service";
 import { AppDialogService } from "../../services/app-dialog.service";
+import { AppAppointmentService } from "../../services/app-appointment.service";
 import { AlertComponent } from "../app-alert/app-alert.component";
 import { EventComponent } from "../app-event/app-event.component";
 import { ConfirmComponent } from "../app-confirm/app-confirm.component";
@@ -17,7 +18,6 @@ import { createEventId } from "../../constants";
 import { Appointment } from "../../../graphql/appointment/appointment";
 import { AppointmentInput } from "../../../graphql/appointment/appointment.input";
 import { getNow } from "../../utils";
-import { AppAppointmentService } from "../../services/app-appointment.service";
 
 @Component({
     selector: 'app-calendar',
@@ -592,17 +592,14 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                 const dialogRef = this.dialog.open(
                     ConfirmComponent, {data: {message: "Reserve full day?"}}
                 );
-                const sub = dialogRef.componentInstance.isConfirming.subscribe(async isConfirmed => {
-
-                    if (isConfirmed) {
-                        calendarApi.addEvent(event);
-                        const input = {
-                            start: event.start,
-                            end: event.end,
-                            allDay: event.allDay
-                        }
-                        await this.saveAppointment(input);
+                const sub = dialogRef.componentInstance.isConfirming.subscribe(async () => {
+                    calendarApi.addEvent(event);
+                    const input = {
+                        start: event.start,
+                        end: event.end,
+                        allDay: event.allDay
                     }
+                    await this.saveAppointment(input);
                     calendarApi.changeView('dayGridMonth', arg.start);
                 });
                 this.subscriptions.add(sub);
@@ -625,14 +622,14 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                     this.dialogService.notifyDialogOpened();
                 });
 
-                const subSubmit = dialogRef.componentInstance.submit.subscribe(subscription => {
+                const subSubmit = dialogRef.componentInstance.isSubmitting.subscribe(subscription => {
                     if (subscription) {
                         this.dialog.closeAll();
                         calendarApi.addEvent(event);
                         calendarApi.changeView('dayGridMonth');
                     }
                 });
-                const subDelete = dialogRef.componentInstance.delete.subscribe(async id => {
+                const subDelete = dialogRef.componentInstance.isDeleting.subscribe(async id => {
 
                     if (id) {
                         const mutation = `mutation ($appointmentId: Int!) {
@@ -810,8 +807,6 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
 
         const argEnd =  endStr1.isValid ? endStr1 : endStr2;
 
-        // const newStart = DateTime.fromISO(argStart, { zone: 'utc' }).startOf('minute');
-        // const newEnd = DateTime.fromISO(argEnd, { zone: 'utc' }).startOf('minute');
         const newDuration = argEnd.diff(argStart, 'minutes').minutes;
     
         return this.appointments.some((event) => {
@@ -820,10 +815,8 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
             const eventDuration = eventEnd.diff(eventStart, 'minutes').minutes;
     
             if (newDuration > eventDuration) {
-                // New event is longer: Check if existing event is completely within the new event
                 return eventStart >= argStart && eventEnd <= argEnd;
             } else {
-                // New event is shorter or equal: Check if new event is completely within the existing event
                 return argStart >= eventStart && argEnd <= eventEnd;
             }
         });
@@ -850,30 +843,27 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
         const samePatient:boolean = !this.patientId ? true : event.extendedProps.patientId === this.patientId;
         const dialogRef = this.dialog.open(EventComponent, {data: {eventInfo, samePatient}});
 
-        const subDelete = dialogRef.componentInstance.delete.subscribe(id => {
+        const subDelete = dialogRef.componentInstance.isDeleting.subscribe(id => {
 
             if (id) {
                 const ref = this.dialog.open(ConfirmComponent, {data: {message: 'This appointment booking will be cancelled'}});
-                const sub = ref.componentInstance.isConfirming.subscribe(async (isConfirmed)=> {
-                    if (isConfirmed) {
-                        
-                        const mutation = `mutation ($appointmentId: Int!) {
-                            deleteAppointment (appointmentId: $appointmentId) {
-                                success
-                                message
-                            }
-                        }`
-        
-                        try {
-                            const response = await this.graphQLService.mutate(mutation, { appointmentId: id});
-                            if (response.data.deleteAppointment.success) {
-                                this.dialog.closeAll();
-                                clickInfo.event.remove();
-                                this.ngOnInit();
-                            }
-                        } catch (error) {
-                            this.dialog.open(AlertComponent, { data: { message: "Error deleting appointment: "+ error}})
+                const sub = ref.componentInstance.isConfirming.subscribe(async ()=> {       
+                    const mutation = `mutation ($appointmentId: Int!) {
+                        deleteAppointment (appointmentId: $appointmentId) {
+                            success
+                            message
                         }
+                    }`
+    
+                    try {
+                        const response = await this.graphQLService.mutate(mutation, { appointmentId: id});
+                        if (response.data.deleteAppointment.success) {
+                            this.dialog.closeAll();
+                            clickInfo.event.remove();
+                            this.ngOnInit();
+                        }
+                    } catch (error) {
+                        this.dialog.open(AlertComponent, { data: { message: "Error deleting appointment: "+ error}})
                     }
                 });
                 this.subscriptions.add(sub); 
