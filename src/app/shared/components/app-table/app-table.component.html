@@ -12,6 +12,18 @@
         <app-loading></app-loading>
     </div>
 
+    <div class="flex-row action-btns" *ngIf="!isLoading && buttons">
+        <span *ngFor="let btn of buttons">
+            <button 
+                (click)="onActionClick(btn.text, null)"
+                mat-stroked-button 
+                [ngStyle]="{backgroundColor: (!selection.hasValue() || checkedCount < 2) ? '':'rgba(115, 72, 114, 0.4)'}" 
+                [disabled]="!selection.hasValue() || checkedCount < 2"    
+            >{{btn.text}}
+            </button>
+        </span>
+     </div>
+
     <table 
         *ngIf="!isLoading"
         mat-table 
@@ -22,7 +34,24 @@
         (matSortChange)="onSortChange($event)"
     >
         <ng-container *ngFor="let column of displayedColumns" [matColumnDef]="column.columnDef" >
-            <th mat-header-cell *matHeaderCellDef mat-sort-header disableClear class="font">{{ column.header }}</th>
+            <th 
+                mat-header-cell 
+                *matHeaderCellDef 
+                [mat-sort-header]="column.sort ? column.columnDef : null" 
+                [disabled]="!column.sort"
+                disableClear
+                class="font"
+            >
+                <span  *ngIf="column.header === 'checkbox'">
+                    <mat-checkbox 
+                        (click)="$event.stopPropagation()"
+                        (change)="$event ? toggleAllRows() : null"
+                        [checked]="selection.hasValue() && isAllSelected()"
+                    >
+                    </mat-checkbox>
+                </span>
+                <span *ngIf="column.header !== 'checkbox'">{{ column.header }}</span>
+            </th>
             <td mat-cell *matCellDef="let element">
                 <ng-container *ngIf="column.columnDef === 'online'">
                     <div 
@@ -36,11 +65,20 @@
                 </ng-container>
                
                 <ng-container *ngIf="column.columnDef === 'actions'">
-                    <div *ngFor="let action of element.actions">
-                        <span matTooltip="Activate account" style="margin-right: 20px;" class="material-symbols-outlined" *ngIf="action.text === 'Activate Account'" (click)="onActionClick(action.text, column.id)">bookmark_check</span>
-                        <span matTooltip="Cancel request" class="material-symbols-outlined" *ngIf="action.text === 'Cancel Request'" (click)="onActionClick(action.text, column.id)">close</span>
-                    </div>
+                    <span *ngFor="let action of element.actions" class="action">
+                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'" style="margin-right: 20px;" class="material-symbols-outlined icon" *ngIf="action.text === 'Accept'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()" >calendar_add_on</span>
+                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'" style="margin-right: 20px;" class="material-symbols-outlined icon" *ngIf="action.text === 'Add message'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">add_comment</span>
+                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'" style="margin-right: 20px;" class="material-symbols-outlined icon" *ngIf="action.text === 'Cancel'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">event_busy</span>
+                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'" style="margin-right: 20px;" class="material-symbols-outlined icon" *ngIf="action.text === 'Delete'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">delete</span>
+                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'" style="margin-right: 20px;" class="material-symbols-outlined icon" *ngIf="action.text === 'Save as final'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">task</span>
+                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'" style="margin-right: 20px;" class="material-symbols-outlined icon" *ngIf="action.text === 'Delete messages'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">chat_error</span>
+                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'" style="margin-right: 20px;" class="material-symbols-outlined icon" *ngIf="action.text === 'Activate account'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">person_add</span>
+                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'" style="margin-right: 20px;" class="material-symbols-outlined icon" *ngIf="action.text === 'Deactivate account'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">person_remove</span>
+                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'" style="margin-right: 20px;" class="material-symbols-outlined icon" *ngIf="action.text === 'Cancel request'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">no_accounts</span>
+    
+                    </span>
                 </ng-container>
+
                 <ng-container *ngIf="column.columnDef === 'draft'">
                     <div *ngIf="element.draft !== undefined">
                         <span *ngIf="element.draft" class="material-symbols-outlined" matTooltip="Saved as draft">draft</span>
@@ -71,6 +109,18 @@
                             {{countdown}}
                         </span>
                      </div>
+                </ng-container>
+
+                <ng-container *ngIf="column.columnDef === 'checkbox'">
+                    <div>
+
+                        <mat-checkbox 
+                            (click)="$event.stopPropagation()"
+                            [checked]="selection.isSelected(element)"
+                            (change)="isChecked(element)"
+                        >
+                        </mat-checkbox>
+                    </div>
                 </ng-container>
 
                 <ng-container *ngIf="column.columnDef === 'pastDate'">

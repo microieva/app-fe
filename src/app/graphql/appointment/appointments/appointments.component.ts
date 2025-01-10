@@ -1,24 +1,25 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, QueryList, SimpleChanges, ViewChild, ViewChildren, ViewContainerRef, signal } from "@angular/core";
+import { Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, QueryList, ViewChild, ViewChildren, ViewContainerRef, signal } from "@angular/core";
 import { trigger, state, style, transition, animate } from "@angular/animations";
 import { ActivatedRoute, Router } from "@angular/router";
 import { MatTableDataSource } from "@angular/material/table";
 import { MatTabGroup } from "@angular/material/tabs";
 import { MatDialog } from "@angular/material/dialog";
 import { DateTime } from "luxon";
-import { Subscription, take, tap } from "rxjs";
+import { Subscription } from "rxjs";
 import { environment } from '../../../../environments/environment';
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
 import { AppAppointmentService } from "../../../shared/services/app-appointment.service";
 import { AppDialogService } from "../../../shared/services/app-dialog.service";
 import { AppTimerService } from "../../../shared/services/app-timer.service";
-import { AppointmentComponent } from "../appointment.component";
 import { AppTabsService } from "../../../shared/services/app-tabs.service";
+import { AppSocketService } from "../../../shared/services/app-socket.service";
+import { AppointmentComponent } from "../appointment.component";
+import { AppointmentMessageComponent } from "../../../shared/components/app-appointment-message/app-appointment-message.component";
 import { AlertComponent } from "../../../shared/components/app-alert/app-alert.component";
 import { ConfirmComponent } from "../../../shared/components/app-confirm/app-confirm.component";
 import { EventComponent } from "../../../shared/components/app-event/app-event.component";
-import { AppointmentDataSource } from "../../../shared/types";
+import { AppointmentDataSource, AppTableDisplayedColumns } from "../../../shared/types";
 import { Appointment } from "../appointment";
-import { AppSocketService } from "../../../shared/services/app-socket.service";
 
 @Component({
     selector: 'app-appointments',
@@ -53,6 +54,7 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
     @ViewChildren('tabContent', { read: ViewContainerRef }) tabContents!: QueryList<ViewContainerRef>;
     tabs: any[] | null = null;
     @ViewChild('tabGroup', { static: true }) tabGroup!: MatTabGroup;
+    actions: any[] | null = null;
 
     countPendingAppointments: number = 0;
     countUpcomingAppointments: number = 0;
@@ -67,7 +69,7 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
     pastAppointments: Appointment[] = [];
     isReservedDay: boolean = false;
     dataSource: MatTableDataSource<AppointmentDataSource> | null = null;
-    displayedColumns: Array<{ columnDef: string, header: string }> = [];
+    displayedColumns: AppTableDisplayedColumns[] = [];
 
     @Output() activeTab = new EventEmitter<string>();
     @ViewChild('scrollView') scrollView!: ElementRef;
@@ -81,8 +83,6 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
     sortDirection: string | null = null;
     sortActive: string | null= null;
     filterInput: string | null = null;
-
-    //initialized:boolean = false;
 
     constructor(
         private graphQLService: AppGraphQLService,
@@ -106,12 +106,12 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
         }
         this.isLoading = false;
 
-        const subRouterParamsId = this.activatedRoute.queryParams.subscribe(async (params)=> {
+        const subRouterParamsId = this.activatedRoute.queryParams.subscribe((params)=> {
             const id = params['id']; 
             if (id) this.routedAppointmentId = +id;
         });
         
-        const subRouterParamsTab = this.activatedRoute.queryParams.subscribe(async params => {
+        const subRouterParamsTab = this.activatedRoute.queryParams.subscribe(params => {
             const tab = params['tab'];
             this.selectedIndex = tab ? +tab : 0;
         }); 
@@ -151,8 +151,6 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
             }
         });
            
-        
-
         this.subscriptions.add(subRouterParamsId);
         this.subscriptions.add(subRouterParamsTab);
         this.subscriptions.add(subNextAppointmentInfo);
@@ -496,6 +494,310 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
         }
     }
 
+    async onActionClick(event: {text:string, ids:number[]}){
+        switch (event.text) {
+            case 'Accept':
+                await this.acceptAppointmentsByIds(event.ids);    
+                break;
+            case 'Cancel':
+                await this.unacceptAppointmentsByIds(event.ids);
+                break;
+            case 'Delete':
+                await this.deleteAppointmentsByIds(event.ids);
+                break;
+            case 'Add message':
+                await this.addMessageToAppointmentsByIds(event.ids);
+                break;
+            case 'Delete messages':
+                await this.deleteMessagesFromAppointmentsByIds(event.ids);
+                break;
+            default:
+                break;
+        }
+    }
+    async deleteMessagesFromAppointmentsByIds(ids:number[]){
+        let appointmentsWithMessages:number[];
+
+        if (this.selectedIndex === 1) {
+            if (this.userRole === 'doctor') {
+                appointmentsWithMessages = this.upcomingAppointments
+                    .filter(apt => apt.doctorMessage && ids.includes(apt.id))
+                    .map(apt => apt.id); 
+            } 
+                appointmentsWithMessages = this.upcomingAppointments
+                    .filter(apt => apt.patientMessage && ids.includes(apt.id))
+                    .map(apt => apt.id); 
+        } else {
+            appointmentsWithMessages = this.pendingAppointments
+                .filter(apt => apt.patientMessage && ids.includes(apt.id))
+                .map(apt => apt.id);    
+        } 
+
+        const message = `${appointmentsWithMessages.length} / ${ids.length} selected have added message. Delete message(s)?`
+        
+        const ref = this.dialog.open(ConfirmComponent, {width: "30rem", data: {message}});
+        
+        ref.componentInstance.isConfirming.subscribe(async ()=> {
+            const mutation = `mutation ($appointmentIds: [Int!]) {
+                deleteMessagesFromAppointmentsByIds(appointmentIds: $appointmentIds) {
+                    success
+                    message   
+                }
+            }`
+            const response = await this.graphQLService.mutate(mutation, {appointmentIds:ids});
+                if (response.data.deleteMessagesFromAppointmentsByIds.success) {
+                    this.dialog.open(AlertComponent, {data: {message:response.data.deleteMessagesFromAppointmentsByIds.message}})
+                    this.ngOnDestroy();
+                    await this.ngOnInit();
+                } else {
+                    this.dialog.open(AlertComponent, {data: {message:response.data.deleteMessagesFromAppointmentsByIds.message}});
+                }
+        });
+        ref.componentInstance.isCancelling.subscribe(async ()=> {
+            this.ngOnDestroy();
+            await this.ngOnInit();
+        })
+
+    }
+    async addMessageToAppointmentsByIds(ids:number[]) {
+        let appointmentsWithMessages:number[];
+
+        if (this.selectedIndex === 1) {
+            if (this.userRole === 'doctor') {
+                appointmentsWithMessages = this.upcomingAppointments
+                    .filter(apt => apt.doctorMessage && ids.includes(apt.id))
+                    .map(apt => apt.id); 
+            } 
+                appointmentsWithMessages = this.upcomingAppointments
+                    .filter(apt => apt.patientMessage && ids.includes(apt.id))
+                    .map(apt => apt.id); 
+        } else {
+            appointmentsWithMessages = this.pendingAppointments
+                .filter(apt => apt.patientMessage && ids.includes(apt.id))
+                .map(apt => apt.id);    
+        } 
+
+        if (appointmentsWithMessages.length === 0) {
+            await this.addMessage(ids);
+        } else {
+            const message = `<p>${appointmentsWithMessages.length} / ${ids.length} selected already have messages. <br>Proceed to add new or overwrite?</p>`;
+            const ref = this.dialog.open(ConfirmComponent, {width:"34rem", data:{message}});
+
+            ref.componentInstance.isConfirming.subscribe(async () => {
+                let message:string;
+                if (appointmentsWithMessages.length !== ids.length) {
+                    const title = "Overwrite with new message?"
+                    message = `<p><strong>Confirm:</strong> will overwrite existing messages in ${appointmentsWithMessages.length} appointment(s);<span style="margin-bottom:10px;"><br></span><br><strong>Cancel:</strong> will add new message only in empty appointments (${ids.length - appointmentsWithMessages.length});</p>`;
+                     const ref = this.dialog.open(ConfirmComponent, {width:"34rem", data:{message, title}});
+                    ref.componentInstance.isConfirming.subscribe(async ()=> {
+                        await this.addMessage(ids);
+                    });
+                    ref.componentInstance.isCancelling.subscribe(async () => {
+                        const validIds = ids.filter(id => !appointmentsWithMessages.includes(id));
+                        await  this.addMessage(validIds);
+                    })
+                } else {
+                    await this.addMessage(ids);
+                }
+            });
+            ref.componentInstance.isCancelling.subscribe(async ()=> {
+                this.ngOnDestroy();
+                await this.ngOnInit();
+            })
+        }
+    }
+    async addMessage(ids:number[]) {
+        const msgRef = this.dialog.open(AppointmentMessageComponent, {
+                disableClose: true, 
+                width:"35rem",
+            });
+        
+        msgRef.componentInstance.isSaving.subscribe(message => {
+            const mutation = `mutation ($appointmentIds: [Int!], $message: String!) {
+                addMessageToAppointmentsByIds(appointmentIds: $appointmentIds, message: $message) {
+                    success
+                    message   
+                }
+            }`
+    
+            const ref = this.dialog.open(ConfirmComponent, {
+                disableClose: true, 
+                width:"30rem",
+                data: {
+                    message: `<p>Message "${message}" will be added to ${ids.length} appointment(s)</p>`
+                }});
+    
+            ref.componentInstance.isConfirming.subscribe(async () => {
+                const response = await this.graphQLService.mutate(mutation, {appointmentIds:ids, message});
+    
+                if (response.data.addMessageToAppointmentsByIds.success) {
+                    this.ngOnDestroy();
+                    await this.ngOnInit();
+                    this.dialog.open(AlertComponent, {data: {message:response.data.addMessageToAppointmentsByIds.message}})    
+                } else {
+                    this.dialog.open(AlertComponent, {data: {message:response.data.addMessageToAppointmentsByIds.message}});
+                }
+    
+            });
+            ref.componentInstance.isCancelling.subscribe(async () => {
+                this.ngOnDestroy();
+                await this.ngOnInit();
+            });
+
+        });
+        msgRef.componentInstance.isCancelling.subscribe(async ()=> {
+            this.ngOnDestroy();
+            await this.ngOnInit();
+        })
+    }
+    async deleteAppointmentsByIds(ids: number[]) {
+        let appointmentsToDelete:number[];
+        let message:string;
+
+        if (this.selectedIndex === 2) {
+            appointmentsToDelete = this.pastAppointments
+                .filter(apt => apt.record && ids.includes(apt.id))
+                .map(apt => apt.id);    
+        } else {
+            appointmentsToDelete = ids;   
+        }  
+
+        if (appointmentsToDelete.length === 0) {
+            if (this.userRole==='doctor') {
+                message = ids.length === 1 ? "Selected appointment has no record yet, and cannot be deleted" : "Selected appointments have no records yet, and cannot be deleted";
+            } else {
+                message = ids.length === 1 ? "Selected appointment cannot be deleted at this time" : "Selected appointments cannot be deleted at this time";
+            }
+            this.dialog.open(AlertComponent, {data: {message}, width:"30rem"});
+        } else {
+            const isAllValidForDeletion = ids.length === appointmentsToDelete.length;
+            const str = isAllValidForDeletion ? '' : ` ${ids.length-appointmentsToDelete.length} / ${ids.length} selected, do not have medical record created yet, therefor will not be deleted at this time`
+            
+            if (this.userRole==='patient' && appointmentsToDelete.length === 1) {
+                if (this.selectedIndex === 1) {
+                    message = 'Cancel appointment?'
+                } else if (this.selectedIndex === 2){
+                    message = 'Delete appointment?'
+                } else {
+                    message = 'Cancel appointment request?'
+                }
+            } else if (this.userRole==='patient' && appointmentsToDelete.length >1) {
+                if (this.selectedIndex === 1) {
+                    message = `Cancel ${appointmentsToDelete.length} appointments?`
+                } else if (this.selectedIndex === 2){
+                    message = `Delete ${appointmentsToDelete.length} appointments?`
+                } else {
+                    message = `Cancel ${appointmentsToDelete.length} appointment requests?`
+
+                }
+               
+            } else {
+                message = `${appointmentsToDelete.length} appointment(s) will be deleted`
+            }
+
+            const ref = this.dialog.open(ConfirmComponent, {
+                disableClose: true, 
+                width:"30rem",
+                data: {
+                    message: `<p>${message+str}</p>`
+                }});
+    
+            ref.componentInstance.isConfirming.subscribe(async () => {
+                const mutation = `mutation ($appointmentIds: [Int!]) {
+                    deleteAppointmentsByIds(appointmentIds: $appointmentIds) {
+                        success
+                        message   
+                    }
+                }`
+                const response = await this.graphQLService.mutate(mutation, {appointmentIds:ids});
+    
+                if (response.data.deleteAppointmentsByIds.success) {
+                    this.closeTabs(ids);
+                    this.ngOnDestroy();
+                    await this.ngOnInit();
+                    if (this.selectedIndex===2) {
+                        await this.loadPastAppointments();
+                    }
+                } else {
+                    this.dialog.open(AlertComponent, {width:"30rem", data: {message:response.data.deleteAppointmentsByIds.message}});
+                }
+    
+            });
+            ref.componentInstance.isCancelling.subscribe(async () => {
+                this.ngOnDestroy();
+                await this.ngOnInit();
+            })
+        }
+        
+    }
+    async unacceptAppointmentsByIds(ids: number[]) {
+        const mutation = `mutation ($appointmentIds: [Int!]) {
+            unacceptAppointmentsByIds(appointmentIds: $appointmentIds) {
+                success
+                message   
+            }
+        }`
+        const ref = this.dialog.open(ConfirmComponent, {disableClose: true, data: {message: `${ids.length} Appointment(s) will be removed from your calendar`}});
+        ref.componentInstance.isConfirming.subscribe(async () => {
+            this.dialog.closeAll();
+            try {   
+                const response = await this.graphQLService.mutate(mutation, {appointmentIds:ids});
+                if (response.data.unacceptAppointmentsByIds.success) {
+                    this.ngOnDestroy();
+                    this.appointmentService.pollNextAppointment();
+                    await this.ngOnInit();
+                    
+                } else {
+                    this.dialog.open(AlertComponent, {data: {message:response.data.unacceptAppointmentsByIds.message}, width:"30rem"});
+                }
+            } catch (error) {
+                this.dialog.open(AlertComponent, {width:"30rem", data: {message: `Unexpected error: ${error}`}});
+            }
+        });
+        ref.componentInstance.isCancelling.subscribe(async () => {
+            this.ngOnDestroy();
+            await this.ngOnInit();
+        })
+    }
+
+    closeTabs(ids:number[]) {
+        this.tabs?.map(tab => {
+            if (ids.includes(tab.id)){
+                this.tabsService.closeTab(tab.id)
+            }})
+    }
+
+    async acceptAppointmentsByIds(appointmentIds: number[]) {
+        const mutation = `mutation ($appointmentIds: [Int!]) {
+            acceptAppointmentsByIds(appointmentIds: $appointmentIds) {
+                success
+                message
+               
+            }
+        }`
+        const ref = this.dialog.open(ConfirmComponent, {disableClose: true, data: {message: `${appointmentIds.length} Appointment(s) will be added to your calendar`}});
+        ref.componentInstance.isConfirming.subscribe(async () => {
+            this.dialog.closeAll();
+            try {   
+                const response = await this.graphQLService.mutate(mutation, {appointmentIds});
+                if (response.data.acceptAppointmentsByIds.success) {
+                    this.ngOnDestroy();
+                    this.appointmentService.pollNextAppointment();
+                    await this.ngOnInit();
+                }  else {
+                    this.dialog.open(AlertComponent, {data: {message:response.data.acceptAppointmentsByIds.message}, width:"30rem"});
+                }
+            } catch (error) {
+                this.dialog.open(AlertComponent, {data: {message: `Unexpected error: ${error}`}});
+            }
+
+        });
+        ref.componentInstance.isCancelling.subscribe(async () => {
+            this.ngOnDestroy();
+            await this.ngOnInit();
+        })
+    }
+
     formatDataSource(view: string) {
         let date: string;
         switch (view) {
@@ -513,6 +815,28 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                     } else {
                         date = startDate.toFormat('MMM dd, yyyy'); 
                     }
+                    const doctorActions = [
+                        {
+                            text: "Accept"
+                        }
+                    ]
+                    const patientActions = [
+                        {
+                            text: "Delete"
+                        },
+                        {
+                            text: "Add message"
+                        },
+                        {
+                            text: "Delete messages"
+                        }
+                    ]
+
+                    if (this.userRole === 'doctor') {
+                        this.actions = doctorActions
+                    } else if (this.userRole === 'patient') {
+                        this.actions = patientActions
+                    }
 
                     return {
                         id: row.id,
@@ -522,19 +846,24 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                         start: date+`, ${DateTime.fromISO(row.start, {zone: 'utc'}).setZone('utc').toFormat('HH:mm a')}`,
                         end: DateTime.fromISO(row.end, {zone: 'utc'}).setZone('utc').toFormat('HH:mm a'),
                         name: this.userRole==='doctor' ? `${row.patient.firstName} ${row.patient.lastName}` : undefined,
-                        message: this.userRole==='doctor' ? row.patientMessage : undefined
+                        message: this.userRole==='doctor' ? row.patientMessage : undefined,
+                        actions:this.actions
                     } 
                 });
                 if (this.userRole === 'patient') {
                     this.displayedColumns = [ 
-                        {header: 'Appointment time', columnDef: 'start'},
-                        {header: 'Request created', columnDef: 'howLongAgoStr'}
+                        {header: 'checkbox', columnDef: 'checkbox', sort: false},
+                        {header: 'Actions', columnDef: 'actions',  sort: false},
+                        {header: 'Appointment time', columnDef: 'start', sort:true},
+                        {header: 'Request created', columnDef: 'howLongAgoStr', sort:true}
                     ]
                 } else {
                     this.displayedColumns = [ 
-                        {header: 'Appointment time', columnDef: 'start'},
-                        {header: `Patient's name`, columnDef: 'name'},
-                        {header: 'Request created', columnDef: 'howLongAgoStr'}
+                        {header: 'checkbox', columnDef: 'checkbox', sort: false},
+                        {header: 'Actions', columnDef: 'actions',  sort: false},
+                        {header: 'Appointment time', columnDef: 'start',  sort: true},
+                        {header: `Patient's name`, columnDef: 'name',  sort: true},
+                        {header: 'Request created', columnDef: 'howLongAgoStr',  sort: true}
                     ]
                 }
                 break;
@@ -552,6 +881,35 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                     } else {
                         date = startDate.toFormat('MMM dd, yyyy');
                     }
+
+                    const doctorActions = [
+                        {
+                            text: "Cancel"
+                        },
+                        {
+                            text: "Add message"
+                        },
+                        {
+                            text: "Delete messages"
+                        }
+                    ]
+                    const patientActions = [
+                        {
+                            text: "Delete"
+                        },
+                        {
+                            text: "Add message"
+                        },
+                        {
+                            text: "Delete messages"
+                        }
+                    ]
+
+                    if (this.userRole === 'doctor') {
+                        this.actions = doctorActions
+                    } else if (this.userRole === 'patient') {
+                        this.actions = patientActions
+                    }
   
                     return {
                         id: row.id,
@@ -564,14 +922,17 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                         message: this.userRole==='doctor' ? row.patientMessage : row.doctorMessage,
                         draft: this.userRole==='doctor' && row.record ? row.record.draft : undefined,
                         record: this.userRole==='patient' && row.record && !row.record.draft ? true : undefined,
+                        actions: this.actions
                     };
                 });
 
                 this.displayedColumns = [ 
-                    {header: 'Appointment time', columnDef: 'start'},
-                    {header: this.userRole==='doctor' ? `Patient's name`:`Doctor's name`, columnDef: 'name'},
-                    {header: 'Starts', columnDef: 'howSoonStr'},
-                    {header: 'Record', columnDef: this.userRole==='doctor' ? 'draft': 'record'}
+                    {header: 'checkbox', columnDef: 'checkbox', sort: false},
+                    {header: 'Actions', columnDef: 'actions',  sort: false},
+                    {header: 'Appointment time', columnDef: 'start', sort:true},
+                    {header: this.userRole==='doctor' ? `Patient's name`:`Doctor's name`, columnDef: 'name', sort:true},
+                    {header: 'Starts', columnDef: 'howSoonStr', sort:true},
+                    {header: 'Record', columnDef: this.userRole==='doctor' ? 'draft': 'record', sort:true}
                 ]
                 break;
             case "past":
@@ -589,6 +950,12 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                       date = startDate.toFormat('MMM dd, yyyy'); 
                     }  
 
+                    this.actions = [
+                        {
+                            text: "Delete"
+                        }
+                    ]
+
                     return {
                         id: row.id,
                         pastDate: howLongAgoStr,
@@ -600,14 +967,17 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                         message: this.userRole==='doctor' ? row.patientMessage : row.doctorMessage,
                         draft: this.userRole==='doctor' && row.record ? row.record.draft : undefined,
                         record: this.userRole==='patient' && row.record ? !row.record.draft : undefined,
+                        actions: this.actions
                     };
                 });
 
                 this.displayedColumns = [ 
-                    {header: 'Appointment time', columnDef: 'start'},
-                    {header: this.userRole==='doctor' ? `Patient's name`:`Doctor's name`, columnDef: 'name'},
-                    {header: 'Ended', columnDef: 'pastDate'},
-                    {header: 'Record', columnDef: this.userRole==='doctor' ? 'draft': 'record'}
+                    {header: 'checkbox', columnDef: 'checkbox', sort: false},
+                    {header: 'Actions', columnDef: 'actions',  sort: false},
+                    {header: 'Appointment time', columnDef: 'start', sort:true},
+                    {header: this.userRole==='doctor' ? `Patient's name`:`Doctor's name`, columnDef: 'name',sort:true},
+                    {header: 'Ended', columnDef: 'pastDate',sort:true},
+                    {header: 'Record', columnDef: this.userRole==='doctor' ? 'draft': 'record',sort:true}
                 ]
                 break;
             default:
@@ -619,11 +989,10 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
         this.router.navigate(['home/appointments/calendar'])
     }
 
-    deleteAppointment(id: number) {
-        const dialogRef = this.dialog.open(ConfirmComponent, {data: {message: "This appointment booking will be cancelled"}})
+    async deleteAppointment(id: number) {
+        const dialogRef = this.dialog.open(ConfirmComponent, {data: {message: "This appointment booking will be deleted"}})
 
-        dialogRef.componentInstance.isConfirming.subscribe(async (isConfirmed)=> {
-            if (isConfirmed) {
+        dialogRef.componentInstance.isConfirming.subscribe(async ()=> {
                 try {
                     const mutation = `mutation ($appointmentId: Int!) {
                         deleteAppointment (appointmentId: $appointmentId) {
@@ -658,28 +1027,40 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                 } catch (error) {
                     this.dialog.open(AlertComponent, {data: {message: "Unexpected error while deleting appointment: "+error}})
                 }
-            }
         });  
     }
-
 
     onAppointmentClick(eventInfo: {id: string, title: string}){
         if (!eventInfo.title && this.userRole === 'doctor') {
             eventInfo.title = 'Appointment Info'
         }
-        const dialogRef = this.dialog.open(EventComponent, {data: {eventInfo, samePatient: true}});
-        dialogRef.componentInstance.delete.subscribe(async id => {
+        const eventRef = this.dialog.open(EventComponent, {data: {eventInfo, samePatient: true}});
+        eventRef.componentInstance.isMessageSaved.subscribe(async ()=> {
+            this.ngOnDestroy();
+            await this.ngOnInit();
+        })
+        eventRef.componentInstance.isMessageDeleted.subscribe(async ()=> {
+            this.ngOnDestroy();
+            await this.ngOnInit();
+        })
+        eventRef.componentInstance.isDeleting.subscribe(async id => {
             if (id) {
-                this.deleteAppointment(id);
+                await this.deleteAppointmentsByIds([id]);
             }
         })
-        dialogRef.componentInstance.isAccepting.subscribe(isAccepted => {
-            if (isAccepted) {
-                this.ngOnInit();
+        eventRef.componentInstance.isAccepting.subscribe(async id => {
+            if (id) {
+                await this.acceptAppointmentsByIds([id]);
                 this.appointmentService.pollNextAppointment();
             }
         })
-        dialogRef.componentInstance.isOpeningTab.subscribe(id => {
+        eventRef.componentInstance.isUnaccepting.subscribe(async id => {
+            if (id) {
+                await this.unacceptAppointmentsByIds([id]);
+                this.appointmentService.pollNextAppointment();
+            }
+        })
+        eventRef.componentInstance.isOpeningTab.subscribe(id => {
             if (id) {
                 this.createAppointmentTab(id);
                 this.dialog.closeAll();

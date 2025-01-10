@@ -1,6 +1,6 @@
 import { DateTime } from "luxon";
 import { Subscription } from "rxjs";
-import { AfterViewInit, Component, OnDestroy, OnInit, signal } from "@angular/core";
+import { Component, OnDestroy, OnInit, signal } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { MatTableDataSource } from "@angular/material/table";
 import { MatDialog } from "@angular/material/dialog";
@@ -8,7 +8,8 @@ import { trigger, state, style, transition, animate } from "@angular/animations"
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
 import { RecordComponent } from "../record.component";
 import { AlertComponent } from "../../../shared/components/app-alert/app-alert.component";
-import { AdvancedSearchInput, AppSearchInput, RecordDataSource } from "../../../shared/types";
+import { ConfirmComponent } from "../../../shared/components/app-confirm/app-confirm.component";
+import { AdvancedSearchInput, AppSearchInput, AppTableDisplayedColumns, RecordDataSource } from "../../../shared/types";
 import { Record } from "../record";
 
 @Component({
@@ -41,14 +42,14 @@ import { Record } from "../record";
 export class RecordsComponent implements OnInit, OnDestroy {
     selectedIndex!: number;
     dataSource: MatTableDataSource<RecordDataSource> | null = null;
-    displayedColumns: Array<{ columnDef: string, header: string }> = [];
+    displayedColumns: AppTableDisplayedColumns[] = [];
+    actions: any[] | null = null;
     readonly panelOpenState = signal(false);
     private subscriptions: Subscription = new Subscription();
     records: Record[] = [];
     drafts: Record[] = [];
     draftsLength: number = 0;
     recordsLength: number = 0;
-    ready = false;
     
     recordDataSource: RecordDataSource[] | undefined;
     draftDataSource: RecordDataSource[] | undefined;
@@ -74,7 +75,7 @@ export class RecordsComponent implements OnInit, OnDestroy {
     ){}
     async ngOnInit() {  
         await this.loadMe();
-        await this.loadStatic().then(()=>this.ready = true);
+        await this.loadStatic()
 
         const sub = this.activatedRoute.queryParams.subscribe(async params => {
             const tab = params['tab'];
@@ -83,7 +84,7 @@ export class RecordsComponent implements OnInit, OnDestroy {
         }); 
         this.subscriptions.add(sub);
     }
-    setReady(){ this.ready = true}
+
     async loadStatic(){
         let query = '';
         if (this.userRole === 'doctor') {
@@ -106,8 +107,7 @@ export class RecordsComponent implements OnInit, OnDestroy {
                 }
             }
         } catch (error) {
-            console.error(error);
-            this.router.navigate(['/home'])
+            this.dialog.open(AlertComponent, {width:"35rem", data:{message:error}})
         }
     }
 
@@ -122,8 +122,7 @@ export class RecordsComponent implements OnInit, OnDestroy {
                 this.userRole = response.data.me.userRole;
             }
         } catch (error) {
-            console.error(error);
-            this.router.navigate(['/home'])
+            this.dialog.open(AlertComponent, {width:"35rem", data:{message:error}})
         }
     }
 
@@ -164,6 +163,88 @@ export class RecordsComponent implements OnInit, OnDestroy {
         this.filterInput = value;
         await this.loadData();
     }
+
+    async onActionClick(event: {text:string, ids:number[]}){
+        switch (event.text) {
+            case 'Delete':
+                await this.deleteRecordsByIds(event.ids);
+                break;
+            case 'Save as final':
+                await this.saveRecordsAsFinalByIds(event.ids);
+                break;
+            default:
+                break;
+        }
+    }
+    async saveRecordsAsFinalByIds(ids:number[]) {
+        const ref = this.dialog.open(ConfirmComponent, {width: "30rem", data: {message: `${ids.length} record(s) will be saved as final version. This cannot be reversed.`}});
+            ref.componentInstance.isConfirming.subscribe(async ()=> {
+                const mutation = `mutation ($recordIds: [Int!]) {
+                    saveRecordsAsFinalByIds(recordIds: $recordIds) {
+                        success
+                        message   
+                    }
+                }`
+                try {
+                    const response = await this.graphQLService.mutate(mutation, {recordIds: ids});
+                    if (response.data.saveRecordsAsFinalByIds.success) {
+                        this.ngOnDestroy();
+                        await this.ngOnInit();
+                    } else {
+                        this.dialog.open(AlertComponent, {data: {message:response.data.saveRecordsAsFinalByIds.message}});
+                    }
+                } catch (error) {
+                    this.dialog.open(AlertComponent, {data: {message:error}});
+                }
+              
+            });
+            ref.componentInstance.isCancelling.subscribe(async ()=> {
+                this.ngOnDestroy();
+                await this.ngOnInit();
+            })
+    }
+    async deleteRecordsByIds(ids:number[]) {
+        let recordsWithAppointments: number[];
+        if (this.selectedIndex === 1) {
+            recordsWithAppointments= this.drafts
+                .filter(apt => apt.appointmentId && ids.includes(apt.id))
+                .map(apt => apt.id); 
+        } else {
+            recordsWithAppointments= this.records
+            .filter(apt => apt.appointmentId && ids.includes(apt.id))
+            .map(apt => apt.id); 
+        }
+
+        if (recordsWithAppointments.length === 0) {
+            const ref = this.dialog.open(AlertComponent, {data: {message:"Selected records can be deleted only by the patient"}});
+            ref.componentInstance.ok.subscribe(async ()=> {
+                this.ngOnDestroy();
+                await this.ngOnInit();
+            })
+        } else {
+            const ref = this.dialog.open(ConfirmComponent, {width: "30rem", data: {message: `${recordsWithAppointments.length} / ${ids.length} record(s) can be deleted`}});
+            ref.componentInstance.isConfirming.subscribe(async ()=> {
+                const mutation = `mutation ($recordIds: [Int!]) {
+                    deleteRecordsByIds(recordIds: $recordIds) {
+                        success
+                        message   
+                    }
+                }`
+                const response = await this.graphQLService.mutate(mutation, {recordIds: recordsWithAppointments});
+                if (response.data.deleteRecordsByIds.success) {
+                    this.ngOnDestroy();
+                    await this.ngOnInit();
+                } else {
+                    this.dialog.open(AlertComponent, {data: {message:response.data.deleteRecordsByIds.message}});
+                }
+            });
+            ref.componentInstance.isCancelling.subscribe(async ()=> {
+                this.ngOnDestroy();
+                await this.ngOnInit();
+            })
+        }
+
+    }
     
     async loadData() {
         switch (this.selectedIndex) {
@@ -202,18 +283,17 @@ export class RecordsComponent implements OnInit, OnDestroy {
                         title
                         createdAt
                         updatedAt
-                        appointment {
-                            id
-                            patient {
-                                firstName
-                                lastName
-                                dob
+                        appointmentId
+                        patient {
+                            firstName
+                            lastName
+                            dob
                             }
-                            doctor {
-                                firstName
-                                lastName
-                            }
+                        doctor {
+                            firstName
+                            lastName
                         }
+                        
                     }
                 }
             }
@@ -267,13 +347,11 @@ export class RecordsComponent implements OnInit, OnDestroy {
                         title
                         createdAt
                         updatedAt
-                        appointment {
-                            id
-                            patient {
-                                firstName
-                                lastName
-                                dob
-                            }
+                        appointmentId
+                        patient {
+                            firstName
+                            lastName
+                            dob
                         }
                     }
                 }
@@ -313,14 +391,13 @@ export class RecordsComponent implements OnInit, OnDestroy {
         this.subscriptions.add(sub);
     }
 
-    formatDataSource(view: string) {
-      
+    formatDataSource(view: string) { 
         switch (view) {
             case "records":
                 let createdAt: string;
                 let updatedAt: string;
                 this.recordDataSource = this.records.map(row => {
-                    const patientDob = DateTime.fromISO(row.appointment.patient.dob,  {setZone: true}).toFormat('MMM dd, yyyy');
+                    const patientDob = DateTime.fromISO(row.patient.dob,  {setZone: true}).toFormat('MMM dd, yyyy');
                     
                     const createdDate = DateTime.fromISO(row.createdAt, {zone:'Europe/Helsinki'});
                     const updatedDate = DateTime.fromISO(row.updatedAt, {zone:'Europe/Helsinki'})
@@ -343,28 +420,44 @@ export class RecordsComponent implements OnInit, OnDestroy {
                         updatedAt = createdDate.toFormat('MMM dd, yyyy'); 
                     } 
 
+                    let name:string;
+                    if (this.userRole === 'patient') {
+                        name = row.doctor ? row.doctor.firstName+" "+row.doctor.lastName : 'Unknown'
+                    } else {
+                        name = row.patient.firstName+" "+row.patient.lastName 
+                    }
+
+                    this.actions = [
+                        {
+                            text: "Delete"
+                        }
+                    ]
+
                     return {
                         id: row.id,
                         createdAt: createdAt+`, ${createdDate.toFormat('HH:mm a')}`,
                         title: row.title,
                         updatedAt: updatedAt+`, ${updatedDate.toFormat('HH:mm a')}`,
-                        name: this.userRole === 'doctor' ? row.appointment.patient.firstName+" "+row.appointment.patient.lastName : row.appointment.doctor?.firstName+" "+row.appointment.doctor?.lastName,
-                        patientDob
+                        name,
+                        patientDob,
+                        actions: this.actions
                     } 
                 });
                 if (this.userRole === 'doctor') {
                     this.displayedColumns = [ 
-                        {header: 'Title', columnDef: 'title'},
-                        {header: `Patient's name`, columnDef: 'name'},
-                        {header: 'First created', columnDef: 'createdAt'},
-                        {header: 'Final save', columnDef: 'updatedAt'}
+                        {header: 'checkbox', columnDef: 'checkbox', sort: false},
+                        {header: 'Actions', columnDef: 'actions',  sort: false},
+                        {header: 'Title', columnDef: 'title', sort:true},
+                        {header: `Patient's name`, columnDef: 'name',  sort:true},
+                        {header: 'First created', columnDef: 'createdAt',  sort:true},
+                        {header: 'Final save', columnDef: 'updatedAt',  sort:true}
                     ]
 
                 } else {
                     this.displayedColumns = [ 
-                        {header: 'Title', columnDef: 'title'},
-                        {header: `Doctor's name`, columnDef: 'name'},
-                        {header: 'Date', columnDef: 'updatedAt'}
+                        {header: 'Title', columnDef: 'title', sort:true},
+                        {header: `Doctor's name`, columnDef: 'name', sort:true},
+                        {header: 'Date', columnDef: 'updatedAt', sort:true}
                     ]
                 }
                 break;
@@ -372,7 +465,7 @@ export class RecordsComponent implements OnInit, OnDestroy {
                 this.draftDataSource = this.drafts.map(row => {
                     let createdAt: string;
                     let updatedAt: string;
-                    const patientDob = DateTime.fromISO(row.appointment.patient.dob,  {setZone: true}).toFormat('MMM dd, yyyy');
+                    const patientDob = DateTime.fromISO(row.patient.dob,  {setZone: true}).toFormat('MMM dd, yyyy');
                        
                     const createdDate = DateTime.fromISO(row.createdAt);
                     const updatedDate = row.updatedAt ? DateTime.fromISO(row.updatedAt) : createdDate;
@@ -394,20 +487,33 @@ export class RecordsComponent implements OnInit, OnDestroy {
                     } else {
                         updatedAt = createdDate.toFormat('MMM dd, yyyy'); 
                     } 
+
+                    this.actions = [
+                        {
+                            text: "Save as final"
+                        },
+                        {
+                            text: "Delete"
+                        }
+                    ]
+
                     return {
                         id: row.id,
                         createdAt: createdAt+`, ${createdDate.toFormat('HH:mm a')}`,
                         title: row.title,
                         updatedAt: updatedAt+`, ${updatedDate.toFormat('HH:mm a')}`,
-                        name: row.appointment.patient.firstName+" "+row.appointment.patient.lastName,
-                        patientDob   
+                        name: row.patient.firstName+" "+row.patient.lastName,
+                        patientDob,
+                        actions:this.actions   
                     } 
                 });
                 this.displayedColumns = [ 
-                    {header: 'Title', columnDef: 'title'},
-                    {header: `Patient's name`, columnDef: 'name'},
-                    {header: 'First created', columnDef: 'createdAt'},
-                    {header: 'Last updated', columnDef: 'updatedAt'}
+                    {header: 'checkbox', columnDef: 'checkbox', sort: false},
+                    {header: 'Actions', columnDef: 'actions',  sort: false},
+                    {header: 'Title', columnDef: 'title', sort:true},
+                    {header: `Patient's name`, columnDef: 'name', sort:true},
+                    {header: 'First created', columnDef: 'createdAt', sort:true},
+                    {header: 'Last updated', columnDef: 'updatedAt', sort:true}
                 ]
                 break;
             default:

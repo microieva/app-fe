@@ -38,6 +38,14 @@ $custom-theme-theme: mat.define-light-theme((
   --mdc-circular-progress-active-indicator-color:  rgb(175 111 174); 
   --mat-badge-background-color: rgba(115, 72, 114, 0.7);
   --mat-form-field-error-text-color: orange;
+  --mdc-checkbox-selected-icon-color: rgba(115, 72, 114, 0.7);
+  --mdc-checkbox-selected-icon-color:rgba(115, 72, 114, 0.7);
+  --mdc-checkbox-selected-hover-icon-color:rgba(115, 72, 114, 0.7);
+  --mdc-checkbox-selected-hover-state-layer-color: rgba(115, 72, 114, 0.7);
+  --mdc-checkbox-selected-pressed-icon-color:rgba(115, 72, 114, 0.7);
+  --mdc-checkbox-selected-focus-state-layer-color:rgba(115, 72, 114, 0.7);
+  --mdc-checkbox-selected-focus-icon-color:rgba(115, 72, 114, 0.7);
+  --mdc-checkbox-selected-pressed-state-layer-color:rgba(115, 72, 114, 0.7);
 }
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; color: rgb(68, 65, 65); }
@@ -60,8 +68,8 @@ app-sidenav {
 .page { 
   padding: 2rem;
   padding-top: 0;
-  max-width: 90%;
-  width: 70%;
+  width: max-content;
+  min-width: 70%;
   margin: auto;
   margin-top: 4rem;
   margin-bottom: 4rem;

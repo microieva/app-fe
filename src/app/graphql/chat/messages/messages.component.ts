@@ -14,7 +14,7 @@ import { AppCountUnreadMessagesService } from "../../../shared/services/app-coun
 import { AlertComponent } from "../../../shared/components/app-alert/app-alert.component";
 import { ChatComponent } from "../chat.component";
 import { User } from "../../user/user";
-import { UserDataSource } from "../../../shared/types";
+import { AppTableDisplayedColumns, UserDataSource } from "../../../shared/types";
 
 @Component({
     selector: 'app-messages',
@@ -39,7 +39,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
     userRole!: string;
     me!: Partial<User>;
     dataSource: MatTableDataSource<any> | null = null;
-    displayedColumns: Array<{ columnDef: string, header: string }> = [];
+    displayedColumns: AppTableDisplayedColumns[] = []
     formatted: UserDataSource[] | undefined;
     onlineDoctors: any[] = [];
     chatId: number | undefined = 0;
@@ -173,10 +173,10 @@ export class MessagesComponent implements OnInit, OnDestroy {
 
                 this.dataSource = new MatTableDataSource<UserDataSource>(this.formatted);
                 this.displayedColumns = [ 
-                    {header: 'Status', columnDef: 'online'},
-                    {header: 'Name', columnDef: 'name'},
-                    {header: 'Last online', columnDef: 'lastLogOutAt'},
-                    {header: 'Unread', columnDef: 'unreadMessages'},
+                    {header: 'Status', columnDef: 'online', sort:true},
+                    {header: 'Name', columnDef: 'name', sort:true},
+                    {header: 'Last online', columnDef: 'lastLogOutAt', sort:true},
+                    {header: 'Unread', columnDef: 'unreadMessages', sort:true}
                 ]  
             }
         } catch (error) {

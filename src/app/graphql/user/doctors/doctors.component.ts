@@ -9,7 +9,7 @@ import { AppGraphQLService } from "../../../shared/services/app-graphql.service"
 import { AlertComponent } from "../../../shared/components/app-alert/app-alert.component";
 import { ConfirmComponent } from "../../../shared/components/app-confirm/app-confirm.component";
 import { UserComponent } from "../user.component";
-import { UserDataSource } from "../../../shared/types";
+import { AppTableDisplayedColumns, UserDataSource } from "../../../shared/types";
 import { User } from "../user";
 
 @Component({
@@ -30,9 +30,11 @@ import { User } from "../user";
     ]
 })
 export class DoctorsComponent implements OnInit, OnDestroy {
+    isLoading: boolean = true;
     selectedIndex: number = 0;
     dataSource: MatTableDataSource<UserDataSource> | null = null;
-    displayedColumns: Array<{ columnDef: string, header: string }> = [];
+    displayedColumns: AppTableDisplayedColumns[] = []
+    actions: any[] | null= null;
 
     requests: User[] = [];
     requestsLength: number = 0;
@@ -60,7 +62,6 @@ export class DoctorsComponent implements OnInit, OnDestroy {
     ){}
 
     async ngOnInit() {
-        await this.loadStatic();
         await this.loadData();
         const sub = this.activatedRoute.queryParams.subscribe(async params => {
             const tab = params['tab'];
@@ -75,12 +76,17 @@ export class DoctorsComponent implements OnInit, OnDestroy {
             countDoctorRequests
             countDoctors
         }`
-        const response = await this.graphQLService.send(query);
-        this.countRequests = response.data.countDoctorRequests;
-        this.countDoctors = response.data.countDoctors;
+        try {
+            const response = await this.graphQLService.send(query);
+            this.countRequests = response.data.countDoctorRequests;
+            this.countDoctors = response.data.countDoctors;
+        } catch (error) {
+            this.dialog.open(AlertComponent, {width:"35rem", data:{message:error}})
+        }
     }
 
     async loadData() {
+        await this.loadStatic();
         switch (this.selectedIndex) {
             case 0:
                 await this.loadRequests();
@@ -138,7 +144,7 @@ export class DoctorsComponent implements OnInit, OnDestroy {
                 if (this.requestsDataSource) {
                     this.dataSource = new MatTableDataSource<UserDataSource>(this.requestsDataSource);
                 }
-
+                this.isLoading = false;
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading requests: "+error}})
@@ -190,7 +196,7 @@ export class DoctorsComponent implements OnInit, OnDestroy {
                 if (this.doctorsDataSource) {
                     this.dataSource = new MatTableDataSource<UserDataSource>(this.doctorsDataSource);  
                 }
-
+                this.isLoading = false;
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading requests: "+error}})
@@ -198,17 +204,6 @@ export class DoctorsComponent implements OnInit, OnDestroy {
     }
 
     formatDataSource(view: string){
-        const requestsButtons = [
-            {
-                text: "Activate Account",
-                disabled: false
-            },
-            {
-                text: "Cancel Request",
-                disabled: false
-            }
-        ]
-
         switch (view) {
             case "requests":
                 this.requestsDataSource = this.requests.map((row) => {
@@ -219,37 +214,54 @@ export class DoctorsComponent implements OnInit, OnDestroy {
                         createdAt,
                         email: row.email,
                         name: row.firstName+' '+row.lastName,
-                        actions: requestsButtons,
+                        actions: this.actions,
                         updatedAt: '-',
                         isRequest: true
                     } 
                 });
 
+                this.actions = [
+                    {
+                        text: "Activate account",
+                    },
+                    {
+                        text: "Cancel request",
+                    }
+                ]
+
                 this.displayedColumns = [ 
-                    {header: 'Name', columnDef: 'name'},
-                    {header: 'Email', columnDef: 'email'},
-                    {header: 'Request created', columnDef: 'createdAt'},
-                    {header: 'Actions', columnDef: 'actions'}
+                    {header: 'checkbox', columnDef: 'checkbox', sort: false},
+                    {header: 'Actions', columnDef: 'actions',  sort: false},
+                    {header: 'Name', columnDef: 'name', sort:true},
+                    {header: 'Email', columnDef: 'email', sort:true},
+                    {header: 'Request created', columnDef: 'createdAt', sort:true},
                 ]
                 break;
             case "doctors":
                 this.doctorsDataSource = this.doctors.map((row) => {
                     const createdAt = DateTime.fromISO(row.createdAt, {setZone: true}).toFormat('MMM dd, yyyy');
                     const updatedAt = DateTime.fromISO(row.updatedAt, {setZone: true}).toFormat('MMM dd, yyyy');
-
+                    this.actions = [
+                        {
+                            text: "Deactivate account",
+                        }
+                    ]
                     return {
                         id: row.id,
                         createdAt,
                         email: row.email,
                         name: row.firstName+' '+row.lastName,
                         updatedAt: updatedAt.includes('1970') ? '-' : updatedAt,
-                        isRequest: false   
+                        isRequest: false,
+                        actions:this.actions  
                     } 
                 });
                 this.displayedColumns = [ 
-                    {header: 'Name', columnDef: 'name'},
-                    {header: 'Email', columnDef: 'email'},
-                    {header: 'Account activated', columnDef: 'createdAt'}
+                    {header: 'checkbox', columnDef: 'checkbox', sort: false},
+                    {header: 'Actions', columnDef: 'actions',  sort: false},
+                    {header: 'Name', columnDef: 'name', sort:true},
+                    {header: 'Email', columnDef: 'email', sort:true},
+                    {header: 'Account activated', columnDef: 'createdAt', sort:true}
                 ]
                 break;
             default:
@@ -316,71 +328,6 @@ export class DoctorsComponent implements OnInit, OnDestroy {
         this.subscriptions.add(sub);
     }
 
-    async onButtonClick(value: any){
-        const { text, id } = value;
-        switch (text) {
-            case 'Activate Account':
-                await this.activateAccount(id);
-                break;
-            case 'Cancel Request':
-                this.deleteDoctorRequest(id);
-                break;
-            default:
-                break;
-        }
-    }
-    async activateAccount(doctorRequestId: number) {
-        const dialogRef = this.dialog.open(ConfirmComponent, {data: {message: "The user details will be moved to active accounts (user db) and request deleted"}});
-
-        const sub = dialogRef.componentInstance.isConfirming.subscribe(async isConfirmed => {
-            if (isConfirmed) {
-                const mutation = `mutation ($doctorRequestId: Int!) {
-                    saveDoctor(doctorRequestId: $doctorRequestId) {
-                        success
-                        message
-                    }
-                }`
-        
-                try {   
-                    const response = await this.graphQLService.mutate(mutation, {doctorRequestId});
-        
-                    if (response.data.saveDoctor.success) {
-                        this.dialog.open(AlertComponent, {data: {message: "Doctor account activated"}});
-                        this.ngOnInit();
-                    }
-                } catch (error) {
-                    this.dialog.open(AlertComponent, {data: {message: `Activating error: ${error}`}});
-                }
-            }
-        });
-        this.subscriptions.add(sub);
-    }
-    deleteDoctorRequest(doctorRequestId: number){
-        const dialogRef = this.dialog.open(ConfirmComponent, {data: {message: "Permanently deleting doctor request"}});
-
-        dialogRef.componentInstance.isConfirming.subscribe(async isConfirmed => {
-            if (isConfirmed) {
-                const mutation = `mutation ($doctorRequestId: Int!) {
-                    deleteDoctorRequest(doctorRequestId: $doctorRequestId) {
-                        success
-                        message
-                    }
-                }`
-        
-                try {   
-                    const response = await this.graphQLService.mutate(mutation, {doctorRequestId});
-        
-                    if (response.data.deleteDoctorRequest.success) {
-                        this.dialog.open(AlertComponent, {data: {message: "Doctor request deleted"}});
-                        this.ngOnInit();
-                    }
-                } catch (error) {
-                    this.dialog.open(AlertComponent, {data: {message: error}});
-                }
-
-            }
-        })
-    }
     async deleteUser(id: number){
         const mutation = `mutation ($userId: Int!) {
             deleteUser(userId: $userId) {
@@ -399,15 +346,143 @@ export class DoctorsComponent implements OnInit, OnDestroy {
             this.dialog.open(AlertComponent, { data: {message: "Error deleting user: "+ error}});
         }
     }
-    async onActionClick(value: {text: string, id: number}) {
-        switch (value.text) {
-            case 'Activate Account':
-                await this.activateAccount(value.id);
+    async onActionClick(event: {text: string, ids: number[]}) {
+        switch (event.text) {
+            case 'Deactivate account':
+                await this.deactivateDoctorAccountsByIds(event.ids);
                 break;
-            case 'Cancel Request':
-                this.deleteDoctorRequest(value.id);
+            case 'Activate account':
+                await this.activateDoctorAccountsByIds(event.ids);
+                break;
+            case 'Cancel request':
+                await this.deleteDoctorRequestsByIds(event.ids);
+                break;
+            default: 
                 break;
         }
+    }
+    async deleteDoctorRequestsByIds(ids:number[]) {
+        let message:string;
+        if (ids.length === 1) {
+            message = "Permanently delete this doctor account activation request?"
+        } else {
+            message = `${ids.length} doctor account activation requests will be permanently deleted`
+        }
+        const ref = this.dialog.open(ConfirmComponent, {disableClose:true, width:"34rem", data:{message}});
+        ref.componentInstance.isConfirming.subscribe(async ()=> {
+            const mutation = `mutation ($userIds: [Int!]) {
+                deleteDoctorRequestsByIds(userIds: $userIds) {
+                    success
+                    message
+                }
+            }`
+            try {
+                const response = await this.graphQLService.mutate(mutation, {userIds:ids})
+                if (response.data.deleteDoctorRequestsByIds.success) {
+                    this.ngOnDestroy();
+                    await this.ngOnInit();
+                    this.dialog.open(AlertComponent, {data: {message:response.data.deleteDoctorRequestsByIds.message}})    
+                } else {
+                    const ref = this.dialog.open(AlertComponent, {data: {message:response.data.deleteDoctorRequestsByIds.message}});
+                    ref.componentInstance.ok.subscribe(async ()=> {
+                        this.ngOnDestroy();
+                        await this.ngOnInit();
+                    })
+                }
+            } catch (error) {
+                const ref = this.dialog.open(AlertComponent, {data: {message:error}});
+                ref.componentInstance.ok.subscribe(async ()=> {
+                    this.ngOnDestroy();
+                    await this.ngOnInit();
+                })
+            }
+        });
+        ref.componentInstance.isCancelling.subscribe(async () => {
+            this.ngOnDestroy();
+            await this.ngOnInit();
+        })
+    }
+    async activateDoctorAccountsByIds(ids:number[]) {
+        let message:string;
+        if (ids.length === 1) {
+            message = "Activate this account request?"
+        } else {
+            message = `${ids.length} accounts will be activated`
+        }
+        const ref = this.dialog.open(ConfirmComponent, {disableClose:true, width:"34rem", data:{message}});
+        ref.componentInstance.isConfirming.subscribe(async ()=> {
+            const mutation = `mutation ($userIds: [Int!]) {
+                saveDoctorsByIds(userIds: $userIds) {
+                    success
+                    message
+                }
+            }`
+            try {
+                const response = await this.graphQLService.mutate(mutation, {userIds:ids})
+                if (response.data.saveDoctorsByIds.success) {
+                    this.ngOnDestroy();
+                    await this.ngOnInit();
+                    this.dialog.open(AlertComponent, {data: {message:response.data.saveDoctorsByIds.message}})    
+                } else {
+                    const ref = this.dialog.open(AlertComponent, {data: {message:response.data.saveDoctorsByIds.message}});
+                    ref.componentInstance.ok.subscribe(async ()=> {
+                        this.ngOnDestroy();
+                        await this.ngOnInit();
+                    })
+                }
+            } catch (error) {
+                const ref = this.dialog.open(AlertComponent, {data: {message:error}});
+                ref.componentInstance.ok.subscribe(async ()=> {
+                    this.ngOnDestroy();
+                    await this.ngOnInit();
+                })
+            }
+        });
+        ref.componentInstance.isCancelling.subscribe(async () => {
+            this.ngOnDestroy();
+            await this.ngOnInit();
+        });
+    }
+    async deactivateDoctorAccountsByIds(ids:number[]){
+        let message:string;
+        if (ids.length === 1) {
+            message = "The account will be deactivated and moved into account request list"
+        } else {
+            message = `${ids.length} accounts will be deactivated and moved to request list`
+        }
+        const ref = this.dialog.open(ConfirmComponent, {disableClose:true, width:"34rem", data:{message}});
+        ref.componentInstance.isConfirming.subscribe(async ()=> {
+            const mutation = `mutation ($userIds: [Int!]) {
+                deactivateDoctorAccountsByIds(userIds: $userIds) {
+                    success
+                    message
+                }
+            }`
+            try {
+                const response = await this.graphQLService.mutate(mutation, {userIds:ids})
+                if (response.data.deactivateDoctorAccountsByIds.success) {
+                    this.ngOnDestroy();
+                    await this.ngOnInit();
+                    this.dialog.open(AlertComponent, {data: {message:response.data.deactivateDoctorAccountsByIds.message}})    
+                } else {
+                    const ref = this.dialog.open(AlertComponent, {data: {message:response.data.deactivateDoctorAccountsByIds.message}});
+                    ref.componentInstance.ok.subscribe(async ()=> {
+                        this.ngOnDestroy();
+                        await this.ngOnInit();
+                    })
+                }
+            } catch (error) {
+                const ref = this.dialog.open(AlertComponent, {data: {message:error}});
+                ref.componentInstance.ok.subscribe(async ()=> {
+                    this.ngOnDestroy();
+                    await this.ngOnInit();
+                })
+            }
+        });
+        ref.componentInstance.isCancelling.subscribe(async () => {
+            this.ngOnDestroy();
+            await this.ngOnInit();
+        })
     }
 
     onSearchReset(value: boolean){}

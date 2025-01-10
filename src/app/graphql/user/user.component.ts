@@ -162,8 +162,8 @@ export class UserComponent implements OnInit, OnDestroy {
     async deleteUser(){
         const dialogRef = this.dialog.open(ConfirmComponent, {data: {message: "Deleting account and all associated data permanently"}})
         
-        const sub = dialogRef.componentInstance.isConfirming.subscribe(async (isConfirmed)=> {
-            if (isConfirmed && this.me) {
+        const sub = dialogRef.componentInstance.isConfirming.subscribe(async ()=> {
+            if (this.me) {
 
                 if (this.me.userRole === 'admin') {
                     this.isDeletingUser.emit(true);

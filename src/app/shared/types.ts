@@ -79,6 +79,12 @@ export interface UserDataSource {
 }
 export type AppDataSource = AppointmentDataSource | RecordDataSource | UserDataSource;
 
+export interface AppTableDisplayedColumns {
+    columnDef: string
+    header: string
+    sort: boolean 
+}
+
 export type AppSearchInput = {
     searchInput: string
     advancedSearchInput: AdvancedSearchInput
@@ -106,4 +112,4 @@ export type NewMessageNotification = Omit<AppNotification, 'appointmentId' | 'do
 export type NewDoctorRequestNotification = Omit<AppNotification, 'appointmentId' | 'chatId' | 'senderName'>
 export type CancelledAppointmentNotification = Omit<AppNotification, 'chatId' | 'doctorRequestId' | 'senderName' | 'appointmentId'>
 
-  
+

@@ -1,11 +1,11 @@
 import { Component, EventEmitter, Inject, Input, OnInit, Optional, Output } from "@angular/core";
 import { DateTime } from "luxon";
+import { Router } from "@angular/router";
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { AppGraphQLService } from "../../shared/services/app-graphql.service";
 import { AlertComponent } from "../../shared/components/app-alert/app-alert.component";
 import { ConfirmComponent } from "../../shared/components/app-confirm/app-confirm.component";
 import { Record } from "./record"; 
-import { Router } from "@angular/router";
 
 @Component({
     selector: 'app-record',
@@ -75,10 +75,10 @@ export class RecordComponent implements OnInit {
                 draft
                 appointment {
                     id
-                    patient {
-                        firstName
-                        lastName
-                    }
+                }
+                patient {
+                    firstName
+                    lastName
                 }
             }
         }`
@@ -86,12 +86,12 @@ export class RecordComponent implements OnInit {
             const response = await this.graphQLService.send(query, {recordId: this.id});
             if (response.data.record) {
                 this.record = response.data.record;
-                this.aptId = response.data.record.appointment.id;
+                this.aptId = response.data.record.appointment?.id;
                 this.isCreating = false;
                 this.updated = DateTime.fromISO(response.data.record.updatedAt).toFormat('MMM dd, yyyy'); 
                 this.created = DateTime.fromISO(response.data.record.createdAt).toFormat('MMM dd, yyyy'); 
                 if (this.record) {
-                    this.patientName = this.record?.appointment.patient.firstName+' '+this.record?.appointment.patient.lastName
+                    this.patientName = this.record.patient.firstName+' '+this.record.patient.lastName
                 }
             }
         } catch (error) {
@@ -103,24 +103,22 @@ export class RecordComponent implements OnInit {
     }
     deleteRecord() {
         const dialogref = this.dialog.open(ConfirmComponent, {data: {message: "This will delete the record permanently"}});
-        dialogref.componentInstance.isConfirming.subscribe(async isConfirmed => {
-            if (isConfirmed) {
-                const mutation = `mutation ($recordId: Int!) {
-                    deleteRecord(recordId: $recordId) {
-                        success
-                        message
-                    }
-                }`
-                try {
-                    const response = await this.graphQLService.mutate(mutation, {recordId: this.id});
-                    if (response.data.deleteRecord.success) {
-                        this.dialog.closeAll(); 
-                        await this.loadRecord();
-                        this.reload.emit(true);
-                    }
-                } catch (error) {
-                    this.dialog.open(AlertComponent, {data: {message: "Unexpected error deleting record: "+error}})
+        dialogref.componentInstance.isConfirming.subscribe(async () => {
+            const mutation = `mutation ($recordId: Int!) {
+                deleteRecord(recordId: $recordId) {
+                    success
+                    message
                 }
+            }`
+            try {
+                const response = await this.graphQLService.mutate(mutation, {recordId: this.id});
+                if (response.data.deleteRecord.success) {
+                    this.dialog.closeAll(); 
+                    await this.loadRecord();
+                    this.reload.emit(true);
+                }
+            } catch (error) {
+                this.dialog.open(AlertComponent, {data: {message: "Unexpected error deleting record: "+error}})
             }
         })
     }

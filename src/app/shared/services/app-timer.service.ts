@@ -40,7 +40,7 @@ export class AppTimerService {
             finalize(() => this.onLogout.next(true))
         );
 
-        this.tokenTimerSubscription = source.subscribe((val) => {
+        this.tokenTimerSubscription = source.subscribe(async (val) => {
             const remainingSeconds = duration - val;
             const seconds = Duration.fromObject({ seconds: remainingSeconds });
 
@@ -55,14 +55,12 @@ export class AppTimerService {
             }
 
             if (tokenCountdown === '00:05') {
-            const dialogRef = this.dialog.open(AlertComponent, { data: { message: "Session expired, please login to renew" } });
+                const dialogRef = this.dialog.open(AlertComponent, { data: { message: "Session expired, please login to renew" } });
 
-            dialogRef.componentInstance.ok.subscribe((value) => {
-                if (value) {
+                dialogRef.componentInstance.ok.subscribe(async () => {
                     this.onLogout.next(true);
                     this.dialog.closeAll();
-                }
-            });
+                });
             }
 
             if (tokenCountdown === '00:00') {
