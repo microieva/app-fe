@@ -50,6 +50,7 @@ export class AppHomeComponent implements OnInit {
     countPendingAppointments: number = 0;
     countRecords: number = 0;
     countTodayAppointments: number = 0;
+    countUnreadFeedback:number = 0;
     countTotalHoursToday: string | undefined;
 
     nextId: number | null = null;
@@ -267,6 +268,7 @@ export class AppHomeComponent implements OnInit {
             countDoctors
             countPatients
             countMissedAppointments
+            countUnreadFeedback
         }`
         try {
             const response = await this.graphQLService.send(query);
@@ -276,6 +278,7 @@ export class AppHomeComponent implements OnInit {
                 this.countDoctors = response.data.countDoctors;
                 this.countPatients = response.data.countPatients;
                 this.countMissedAppointments = response.data.countMissedAppointments;
+                this.countUnreadFeedback = response.data.countUnreadFeedback;
                 this.isLoading = false;
             }
         } catch (error) {

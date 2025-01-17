@@ -2,8 +2,8 @@
     <div class="img-wrapper">
         <img src="assets/front-page.jpg"/>
     </div>
-    <div class="page" style="width:70%">
-        <div @slideInOut [ngStyle]="{'transform': 'translateY(' + scrollOffset + 'px)'}" class="slide-block">
+    <div class="page" >
+        <div @slideInOut  class="slide-block" [ngStyle]="{'transform': 'translateY(' + scrollOffset + 'px)'}">
             <div class="slide-div txt">
                 <div style="position: absolute; top: -66px;">
                     <h1 style="margin-bottom: 1rem;" class="title bg">Empathic health care center for all</h1>
@@ -106,47 +106,171 @@
                 </div>
             </div>
         </div>
-        <div class="text-block" id="animation-wrapper">
-            <div class="typing-container">
-                <span @typingAnimation>{{ displayedText }}</span><span @cursorAnimation>|</span>
-            </div>
-            <div style="width: 100%; text-align: center;">
-                <h1>Your email address</h1>
-                <mat-form-field class="input">
-                    <mat-label>{{ 'Tyep here' }}</mat-label>
-                    <input matInput name="email" [formControl]="email">
-                </mat-form-field>
-            </div>
+        <div class="text-block" >
+            <mat-accordion class="visible-wrapper" >
+                <div class="section flex-row" [ngClass]="setVisible1 ? 'visible':''">
+                    <div class="text">
+                        <h2>Emergency line</h2>
+                        <h3 class="font">040 50 500</h3>
+                    </div>
+                    <div class="dotted-border"></div>
+                    <div class="section-icon" style="margin-right:8px;">
+                        <span class="material-symbols-outlined">phone_enabled</span>
+                    </div>
+                </div>
+                <mat-expansion-panel (opened)="!panelOpenState = !panelOpenState " (closed)="panelOpenState = !panelOpenState" #feedbackPanel class="section flex-row" hideToggle style="box-shadow:none;border-radius:none;" [ngClass]="setVisible2 ? 'visible':''">
+                    <mat-expansion-panel-header style="padding:0">
+
+                        <div class="text">
+                            <h2>Leave feedback</h2>
+                            <h3 class="font">Share comments / complaints</h3>
+                        </div>
+                        <div class="dotted-border"></div>
+                        <div class="section-icon">
+                            <span class="material-symbols-outlined">feedback</span>
+                        </div>
+                        
+                    </mat-expansion-panel-header>
+                    <div class="expansion-content flex-column" [ngClass]="{ 'open': panelOpenState }" >
+                        <div *ngIf="isSendingFeedback && !feedback" class="loading">
+                            <app-loading></app-loading>
+                        </div>
+                        <div *ngIf="feedback && !isSendingFeedback" class="feedback">
+                            <h3 style="color:white; line-height:6rem;">{{feedback}}</h3>
+                        </div>
+                        <div class="flex-column" [formGroup]="feedbackForm" *ngIf="!isSendingFeedback && !feedback">
+
+                            <mat-form-field style="width:100%;margin:1rem 0;" >
+                                <mat-label>{{ 'Add message' }}</mat-label>
+                                <textarea 
+                                    matInput 
+                                    maxlength="1000" 
+                                    [rows]="rows" 
+                                    formControlName="text"
+                                    [errorStateMatcher]="matcher"
+                                    #text
+                                ></textarea>
+
+                                <mat-hint align="end">{{text.value.length}} / 1000</mat-hint>
+                                <mat-hint *ngIf="feedbackForm.get('text')?.touched && feedbackForm.get('text')?.hasError('required')">Required</mat-hint>
+                                <mat-hint *ngIf="feedbackForm.get('text')?.hasError('maxlength')">Message exceeds 1000 characters.</mat-hint>
+ 
+                            </mat-form-field>
+                            <div class="flex-row" >
+                                <div class="flex-row hover" style="max-width:fit-content;">
+                                    <mat-checkbox 
+                                      (click)="$event.stopPropagation()"
+                                      (change)="toggleChangeAnonymous($event)"
+                                      [checked]="isAnonymous"
+                                    >
+                                    Anonymous
+                                    </mat-checkbox>
+                                </div>
+                                  
+                                <div class="flex-row hover" style="max-width:fit-content;padding-right:8px;">   
+                                    <mat-checkbox 
+                                        (click)="$event.stopPropagation()"
+                                        (change)="toggleChangeContact($event)"
+                                        [disabled]="isAnonymous"
+                                        [checked]="requireContact"
+                                    >
+                                    Contact me
+                                    </mat-checkbox>
+                                </div>
+                            </div>
+                            <div class="flex-row" >
+                                <mat-form-field class="input" *ngIf="!isAnonymous" style="width:28rem;" >
+                                    <mat-label>{{ 'Your name' }}</mat-label>
+                                    <input matInput name="name" formControlName="name" required [errorStateMatcher]="matcher" >
+                                    <mat-hint *ngIf="feedbackForm.get('name')?.touched && feedbackForm.get('name')?.hasError('required')">Name is required if not anonymous</mat-hint>
+                                    <mat-hint *ngIf="feedbackForm.get('name')?.hasError('pattern')">Invalid characters</mat-hint>
+ 
+                                </mat-form-field>
+                                
+                                <mat-form-field class="input" *ngIf="requireContact && !isAnonymous" style="width:28rem;">
+                                    <mat-label>{{ 'Your email' }}</mat-label>
+                                    <input matInput name="email" formControlName="email" required [errorStateMatcher]="matcher">
+                                    <mat-hint *ngIf="feedbackForm.get('email')?.touched && feedbackForm.get('email')?.hasError('required')">Email is required for contacting</mat-hint>
+                                    <mat-hint *ngIf="feedbackForm.get('email')?.hasError('pattern')">Invalid email format</mat-hint>
+ 
+                                </mat-form-field>
+                            </div>
+                            <div class="icons right">
+                                <div type="submit" (click)="onSendFeedback()" [ngClass]="feedbackForm.invalid ? 'disabled':''">
+                                    <span matTooltip="Send" class="material-symbols-outlined" >send</span>
+                                </div>
+                                <div (click)="onCancelFeedback(feedbackPanel)">
+                                    <span matTooltip="Cancel" class="material-symbols-outlined">cancel</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </mat-expansion-panel>
+                <mat-expansion-panel (opened)="!panelOpenState = !panelOpenState " (closed)="panelOpenState = !panelOpenState" #newsletterPanel class="section flex-row" hideToggle style="box-shadow:none;border-radius:none;" [ngClass]="setVisible3 ? 'visible':''">
+                    <mat-expansion-panel-header style="padding:0">
+                        <div class="text">
+                            <h2>Sign up for our Nerwsletter</h2>
+                            <h3>Your email address</h3>
+                        </div>
+                        <div class="dotted-border"></div>
+                        <div class="section-icon">
+                            <span class="material-symbols-outlined">mail</span>
+                        </div>
+                    </mat-expansion-panel-header>
+                    <div class="expansion-content" [ngClass]="{ 'open': panelOpenState }">
+                        <div *ngIf="!isSent" class="flex-row" style="margin-top:0.5rem;">
+                            <mat-form-field class="input">
+                                <mat-label>{{ 'Type here ..' }}</mat-label>
+                                <input matInput [formControl]="newsletter">
+                                <mat-hint *ngIf="newsletter.errors && newsletter.value && newsletter.touched">Invalid email format</mat-hint>
+                            </mat-form-field>
+                            <div class="icons">
+                                <div type="button" (click)="onSendSubscription(newsletterPanel)" [ngClass]="(newsletter.errors || !newsletter.value) ? 'disabled':''">
+                                    <span matTooltip="Send" class="material-symbols-outlined">send</span>
+                                </div>
+                                <div (click)="onCancelSubscribe(newsletterPanel)">
+                                    <span matTooltip="Cancel" class="material-symbols-outlined">cancel</span>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div *ngIf="isSent" class="center">
+                            <h3>Thank you for subscribing!</h3>
+                        </div>
+                    </div>
+                </mat-expansion-panel>
+            </mat-accordion>         
         </div>
     </div>
+    <footer>
+        <div class="footer">
+            <div class="flex-row">
+                <div class="flex-column">
+                    <em>Helsinki</em>
+                    <span>Mon-Fri: 8:00 - 18:00</span>
+                    <span>0 40 50 6001</span>
+                    <span>Josefatinkatu 12</span>
+                </div>
+                <div class="flex-column">
+                    <em>Espoo </em>
+                    <span>Mon-Fri: 8:00 - 18:00</span>
+                    <span>0 40 50 6002</span>
+                    <span>Johansenkatu 10</span>
+                </div>
+                <div class="flex-column">
+                    <em>Tampere</em>
+                    <span>Mon-Fri: 8:00 - 18:00</span>
+                    <span>0 40 50 6003</span>
+                    <span>Tampereen valtatie 35</span>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>Lorem ipsum odor amet, consectetuer adipiscing elit. Quam maecenas tortor integer commodo posuere commodo, blandit consequat. Metus inceptos viverra taci ti mag ti tellus. </p>
+                <br>
+                <p>Lorem ipsum odor amet, consectetuer adipiscing elit. Quam maecenas tortor integer commodo posuere commodo, blandit consequat. Metus inceptos viverra taciti magna justo mattis tellus. </p>
+            </div>
+            <div style="float:right;">by Ieva Vyliaudaite, Helsinki 2024</div>
+        </div>
+    </footer>
 </div>
-<footer>
-    <div class="footer">
-        <div class="flex-row">
-            <div class="flex-column">
-                <em>Helsinki</em>
-                <span>Mon-Fri: 8:00 - 18:00</span>
-                <span>0 40 50 6001</span>
-                <span>Josefatinkatu 12</span>
-            </div>
-            <div class="flex-column">
-                <em>Espoo </em>
-                <span>Mon-Fri: 8:00 - 18:00</span>
-                <span>0 40 50 6002</span>
-                <span>Johansenkatu 10</span>
-            </div>
-            <div class="flex-column">
-                <em>Tampere</em>
-                <span>Mon-Fri: 8:00 - 18:00</span>
-                <span>0 40 50 6003</span>
-                <span>Tampereen valtatie 35</span>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>Lorem ipsum odor amet, consectetuer adipiscing elit. Quam maecenas tortor integer commodo posuere commodo, blandit consequat. Metus inceptos viverra taci ti mag ti tellus. </p>
-            <br>
-            <p>Lorem ipsum odor amet, consectetuer adipiscing elit. Quam maecenas tortor integer commodo posuere commodo, blandit consequat. Metus inceptos viverra taciti magna justo mattis tellus. </p>
-        </div>
-        <div style="float:right;">by Ieva Vyliaudaite, Helsinki 2024</div>
-    </div>
-</footer>

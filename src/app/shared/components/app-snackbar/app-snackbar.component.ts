@@ -1,8 +1,10 @@
 import { Component, Input } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AppNotification, NewAppointmentNotification, NewDoctorRequestNotification, NewMessageNotification } from '../../types';
+import { AppNotification, NewAppointmentNotification, NewDoctorRequestNotification, NewFeedbackNotification, NewMessageNotification } from '../../types';
 import { Observable } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
 import { AppSnackbarService } from '../../services/app-snackbar.service';
+import { FeedbackComponent } from '../../../graphql/feedback/feedback/feedback.component';
 
 @Component({
     selector: 'app-snackbar',
@@ -13,7 +15,8 @@ export class AppSnackbarContainerComponent {
     constructor(
         private router: Router,
         private activatedRoute: ActivatedRoute,
-        private snackbarService: AppSnackbarService
+        private snackbarService: AppSnackbarService,
+        private dialog: MatDialog
     ){}
 
     @Input() snackbars$!: Observable<Partial<AppNotification[]>>;
@@ -23,6 +26,8 @@ export class AppSnackbarContainerComponent {
             this.showDoctorRequest(snackbar);
         } else if (snackbar.chatId) {
             this.showChat(snackbar);
+        } else if (snackbar.feedbackId) {
+            this.showFeedback(snackbar);
         } else {
             if (snackbar.message === 'New appointment request') {
                 if (this.router.url.endsWith('appointments')) {
@@ -54,6 +59,10 @@ export class AppSnackbarContainerComponent {
     }
     showChat(snackbar: NewMessageNotification) {
         this.router.navigate(['/home/messages']); 
+        this.snackbarService.removeSnackbar(snackbar.id);
+    }
+    showFeedback(snackbar: NewFeedbackNotification) {
+        this.dialog.open(FeedbackComponent, {data:{feedbackId:snackbar.feedbackId}});
         this.snackbarService.removeSnackbar(snackbar.id);
     }
 }

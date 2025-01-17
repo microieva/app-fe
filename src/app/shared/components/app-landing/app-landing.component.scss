@@ -1,15 +1,78 @@
+@import '../../../../mixins';
+
+.mat-accordion {
+    --mat-expansion-container-background-color: transparent;
+    --mat-expansion-header-collapsed-state-height:100%;
+    --mat-expansion-header-expanded-state-height:100%;
+    --mat-expansion-header-hover-state-layer-color:none;
+    --mat-expansion-container-shape:none;
+    --mat-expansion-container-text-color: rgb(214, 222, 230);
+    --mdc-outlined-text-field-outline-color:rgb(214, 222, 230);
+    --mdc-outlined-text-field-focus-outline-color:rgb(214, 222, 230);
+
+    --mdc-filled-text-field-focus-label-text-color:rgb(214, 222, 230);
+    --mdc-filled-text-field-focus-active-indicator-color:rgb(214, 222, 230);
+    --mdc-outlined-text-field-label-text-color:rgb(214, 222, 230);
+    --mdc-outlined-text-field-focus-label-text-color:rgb(214, 222, 230);
+    --mdc-outlined-text-field-input-text-color:rgb(214, 222, 230);
+    --mdc-outlined-text-field-caret-color:rgb(214, 222, 230);
+    --mat-form-field-container-text-weight:900;
+    --mat-form-field-container-text-size:22px;
+
+    --mdc-checkbox-selected-icon-color: rgb(214, 222, 230);
+    --mdc-checkbox-selected-icon-color:rgb(214, 222, 230);
+    --mdc-checkbox-selected-hover-icon-color:rgb(214, 222, 230);
+    --mdc-checkbox-selected-hover-state-layer-color: rgb(214, 222, 230);
+    --mdc-checkbox-selected-pressed-icon-color:rgb(214, 222, 230);
+    --mdc-checkbox-selected-focus-state-layer-color:rgb(214, 222, 230);
+    --mdc-checkbox-selected-focus-icon-color:rgb(214, 222, 230);
+    --mdc-checkbox-selected-pressed-state-layer-color:rgb(214, 222, 230);
+    --mdc-checkbox-unselected-icon-color:rgb(214, 222, 230);
+    --mdc-checkbox-unselected-focus-icon-color:rgb(214, 222, 230);
+    --mdc-checkbox-unselected-focus-state-layer-color:rgb(214, 222, 230);
+    --mdc-checkbox-unselected-hover-state-layer-color:rgb(214, 222, 230);
+
+    --mdc-checkbox-disabled-selected-icon-color:darkgrey;
+    --mdc-checkbox-disabled-selected-checkmark-color:transparent;
+    --mdc-checkbox-disabled-unselected-icon-color:rgb(174,182,188);
+    --mat-checkbox-disabled-label-color:rgb(174,182,188);
+
+    --mdc-outlined-text-field-error-focus-label-text-color:orange;
+    --mdc-outlined-text-field-error-label-text-color:orange;
+    --mdc-outlined-text-field-error-caret-color:rgb(214, 222, 230);
+    --mdc-outlined-text-field-error-outline-color:rgb(214, 222, 230);
+    --mdc-outlined-text-field-error-focus-outline-color:rgb(214, 222, 230);
+    --mdc-outlined-text-field-error-hover-label-text-color:rgb(214, 222, 230);
+    --mdc-outlined-text-field-error-hover-outline-color:orange;
+
+    --mdc-filled-text-field-error-active-indicator-color: orange;
+    --mdc-filled-text-field-error-focus-active-indicator-color: orange;
+    --mdc-filled-text-field-error-hover-active-indicator-color: orange;
+}
+.mat-mdc-checkbox {
+    --mdc-form-field-label-text-size:18px;
+    --mdc-form-field-label-text-weight:900;
+    --mdc-form-field-label-text-color:rgb(214, 222, 230)!important;
+}
+
 .page {
-    max-height: calc(100vh + 65rem);
-    margin-bottom: 6rem;
+    width: 70%;
+    height:100%;
 }
 .content-view-wrapper {
     display: flex; 
-    flex-direction: row;
-    height: 100%;
+    flex-direction: column;
+    height: 220vh;
     background-color:rgb(188, 198, 210);
+
+    z-index: 1;
+    position:absolute;
+    overflow: hidden;
 }
-.container {
-    width: calc(100vw - 18rem); 
+
+.slide-block {
+    position: relative;
+    z-index: 2;
 }
 
 .slide-div {
@@ -26,11 +89,15 @@
 footer {
     background-color: #F5F5F5;
     height: 25rem;
+    position:relative;
+    z-index: 3;
+    bottom:33rem;
 }
 .footer {
     padding-top: 4rem;
     width: 65%;
     margin: 0 auto;
+    
 }
 
 .footer-bottom {
@@ -39,21 +106,27 @@ footer {
 .text-block {
     border-radius: 5px;
     width: 70%;
-    height: 54rem;
-    margin-bottom: 12rem;
+    height: 120vh;
     position: absolute;
     top: 512px; 
-    background: linear-gradient(to bottom, transparent 0%, rgb(158,176,197));
-    opacity: 0.5;
-    transition: top 0.1s ease-out; 
+    background: linear-gradient(to bottom, transparent 0%, rgb(138 155 174));
+    opacity: 0.8;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+}
+.visible-wrapper {
+    width:80%;
+    margin-bottom:4rem;
+    
 }
 .img-wrapper {
     position: absolute;
     z-index: 0;
     mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
     img {
-        width: 100%;
         opacity: 0.8;
+        width: 100%;
     }
 }
 .bg {
@@ -103,15 +176,7 @@ footer {
 #top {
     margin-top: 8rem;
 }
-#animation-wrapper {
-    margin-top: 4rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: center;
-    height: 95rem;
 
-}
 #personel {
     margin-top: 6rem;
     text-align: center;
@@ -145,6 +210,7 @@ footer {
         height: 100%;
         object-fit: cover;
         border-radius: 50%;
+        opacity:0.8;
     }
 }
 .row {
@@ -155,6 +221,7 @@ footer {
         height: 8rem;
         border-radius: 50%;
         margin: 1rem;
+        opacity:0.8;
         img {
             width: 100%;
             height: 100%;
@@ -185,25 +252,114 @@ footer {
 h1 {
     font-size: 2.8rem;
 }
+.icons {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    margin-left:1rem;
+    width: 8rem;
+    &>div:hover{
+        filter: brightness(1.8); 
+        cursor: pointer;
+    }
+    .material-symbols-outlined {
+        color:  rgb(214, 222, 230);
+        font-size: 3rem;
+        font-variation-settings:
+            'FILL' 1,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+    }
+    &.right{
+        margin-top:2rem;
+        align-self: flex-end;
 
-.typing-container {
-    font-size: 4rem;
-    font-family: "Special Elite", system-ui;
-    display: inline-block;
-    white-space: nowrap;
-    margin:auto;
-    margin-bottom: 6rem;
+    }
 }
-.input {
-    width: 80%;
-    margin:0;
-    margin-bottom: 6rem;
-    margin-top: 4rem;
+mat-hint {
+    font-size: 16px;
 }
+
+.section {
+    margin-bottom:1rem;
+    padding-left:1rem;
+    transition: opacity 0.2s ease-in;
+    .dotted-border {
+        flex: 1;
+        align-self:center;
+        margin: 0 0.5rem 0 4rem; 
+        border-bottom: dotted 5px rgba(115, 72, 114, 0.7);
+    }
+    .text {
+        flex: auto 1 0; 
+        max-width: fit-content;
+        color:  rgb(239 239 239);
+    }
+    .section-icon {
+        flex: 0 0 7rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        height: 7rem;
+        width:7rem;
+        border-radius: 50%;
+        background-color: rgba(115, 72, 114, 0.8); 
+    
+        .material-symbols-outlined {
+            color:  rgb(214, 222, 230);
+            font-size: 3rem;
+            font-variation-settings:
+                'FILL' 1,
+                'wght' 400,
+                'GRAD' 0,
+                'opsz' 24
+        }
+    }
+    &.visible {
+        opacity: 1;
+    }
+    opacity:0;
+    border-left: solid 0.5px rgb(239 239 239);
+}
+mat-expansion-panel-header:hover{
+    filter: brightness(1.8); 
+    cursor: pointer;
+}
+.expansion-content{
+    transition: height 0.2s ease-in;
+}
+.expansion-content.flex-row {
+   
+    &.mdc-label {
+        color: rgb(239 239 239)!important;
+    }
+    margin-top:2rem;
+    justify-content: flex-start;
+    align-items: center;
+    &.hover:hover {
+        filter: brightness(1.8); 
+        cursor: pointer;
+    }
+    .material-symbols-outlined {
+        color:  rgb(214, 222, 230);
+        font-size: 3rem;
+        font-variation-settings:
+            'FILL' 1,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+    }
+}
+
 .follow-us {
     width: 70%;
     margin:auto;
 
+}
+.input {
+    width:80%;
 }
 .click {
     font-family: "Special Elite", system-ui;
@@ -228,3 +384,47 @@ h1 {
         cursor: pointer;
     }
 }
+
+textarea {
+    resize: none;
+    overflow: hidden;
+    height:max-content;
+}
+.disabled {
+    pointer-events: none;
+    filter: brightness(0.8);
+}
+
+.feedback{
+    align-self: center;
+    height: 6rem;
+    display: flex;
+    height:6rem;
+    justify-content: center;
+    transition: height 0.4s ease-in-out;
+}
+.loading {
+    padding:0;
+}
+.size {
+    @include spinner-size(3rem);
+    &.loading {
+        height:6rem;
+        transition: height 0.4s ease-in-out;
+    }
+}
+
+.expansion-content {
+    overflow: hidden;
+    height: 0;
+    transition: height 0.4s ease-in-out;
+  
+    &.open {
+      height: auto; 
+    }
+  }
+  .center {
+    height: 4rem;
+    text-align: center;
+    line-height: 4rem;
+  }

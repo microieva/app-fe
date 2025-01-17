@@ -69,6 +69,8 @@ import { AppHeader } from './shared/components/app-header/app-header.component';
 import { AppAuthGuard } from './shared/services/app-auth.guard';
 import { AppHeaderService } from './shared/services/app-header-refresh.service';
 import { AppointmentMessageComponent } from './shared/components/app-appointment-message/app-appointment-message.component';
+import { FeedbacksComponent } from './graphql/feedback/feedbacks/feedbacks.component';
+import { FeedbackComponent } from './graphql/feedback/feedback/feedback.component';
 
 
 @NgModule({ 
@@ -98,7 +100,9 @@ import { AppointmentMessageComponent } from './shared/components/app-appointment
         EventComponent,
         AppointmentMessageComponent,
         LoginMenuComponent,
-        ChatComponent
+        ChatComponent,
+        FeedbacksComponent,
+        FeedbackComponent
     ],
     bootstrap: [AppComponent], 
     imports: [
@@ -139,7 +143,8 @@ import { AppointmentMessageComponent } from './shared/components/app-appointment
         TextFieldModule,
         MatTooltipModule,
         MatBadgeModule,
-        MatCheckboxModule
+        MatCheckboxModule,
+        MatExpansionModule
     ], 
     providers: [
         AppAuthGuard,

@@ -1,0 +1,18 @@
+<mat-dialog-content>
+    <div *ngIf="isLoading" class="loading">
+        <app-loading></app-loading>
+    </div>
+    <div *ngIf="feedback && !isLoading">
+        <h2 mat-dialog-title class="event-title">{{'Feedback'}}</h2>
+        <div class="flex-column">
+            <p>Date: {{feedback.createdAt}}</p>
+            <p>Name: {{feedback.name || '-'}}</p>
+            <p>Email: {{feedback.email || '-'}}</p>
+            <br>
+            <em>{{feedback.text}}</em>
+        </div>
+    </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+    <button mat-stroked-button (click)="onDelete()">Delete</button>
+</mat-dialog-actions>

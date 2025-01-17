@@ -90,6 +90,9 @@ mat-form-field {
 .mat-mdc-dialog-content {
   min-width: 30rem;
 }
+.mat-accordion.mat-expansion-panel:not([class*='mat-elevation-z']) {
+  box-shadow: none !important;
+} 
 
 .mat-mdc-radio-button.mat-accent {
   --mdc-radio-disabled-selected-icon-color: black;

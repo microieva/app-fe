@@ -130,7 +130,7 @@ export const getHowLongAgo = (datetime: string):string => {
         howLongAgoStr += `${diff.hours} hour${diff.hours === 1 ? '' : 's'} `;
     }
     if (diff.months < 1 && diff.days < 1 && diff.hours <5 && diff.minutes > 0) {
-        if (diff.minutes <= 5) {
+        if (diff.months ===0 && diff.days ===0 && diff.hours === 0 && diff.minutes <= 2) {
             howLongAgoStr = 'Just now';
         } else {
             howLongAgoStr += `${diff.minutes} minute${diff.minutes === 1 ? '' : 's'} `;
