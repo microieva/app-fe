@@ -57,14 +57,13 @@
 
 .page {
     width: 70%;
-    height:100%;
+    height:auto;
 }
 .content-view-wrapper {
     display: flex; 
     flex-direction: column;
-    height: 220vh;
+    height: calc(185vh + 25rem);
     background-color:rgb(188, 198, 210);
-
     z-index: 1;
     position:absolute;
     overflow: hidden;
@@ -89,15 +88,15 @@
 footer {
     background-color: #F5F5F5;
     height: 25rem;
-    position:relative;
-    z-index: 3;
-    bottom:33rem;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
 }
 .footer {
     padding-top: 4rem;
     width: 65%;
     margin: 0 auto;
-    
+    height: 100%;
 }
 
 .footer-bottom {
@@ -181,10 +180,6 @@ footer {
     margin-top: 6rem;
     text-align: center;
     padding: 0 4rem;
-    h1 {
-        align-self: center; 
-        margin: 12rem auto 6rem auto;
-    }
     .flex-row {
         width: 100%;
     }
@@ -232,13 +227,9 @@ footer {
     }
     margin: 0.5rem 0;
 }
-#feedback {
+#displayed-feedback {
     margin-top: 8rem;
     padding: 0 1rem;
-    h1 {
-        align-self: center; 
-        margin: 12rem auto 6rem auto;
-    }
     .flex-row {
         width: 100%;
         justify-content: space-between;
@@ -251,6 +242,8 @@ footer {
 } 
 h1 {
     font-size: 2.8rem;
+    align-self: center; 
+    margin: 12rem auto 6rem auto;
 }
 .icons {
     display: flex;
@@ -327,9 +320,7 @@ mat-expansion-panel-header:hover{
     filter: brightness(1.8); 
     cursor: pointer;
 }
-.expansion-content{
-    transition: height 0.2s ease-in;
-}
+
 .expansion-content.flex-row {
    
     &.mdc-label {
