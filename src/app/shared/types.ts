@@ -77,7 +77,14 @@ export interface UserDataSource {
     isRequest?: boolean
     online?:boolean
 }
-export type AppDataSource = AppointmentDataSource | RecordDataSource | UserDataSource;
+export interface FeedbackDataSource {
+    id: number
+    createdAt:string
+    name:string
+    email:string
+    isRead:boolean
+}
+export type AppDataSource = AppointmentDataSource | RecordDataSource | UserDataSource | FeedbackDataSource;
 
 export interface AppTableDisplayedColumns {
     columnDef: string
@@ -105,11 +112,12 @@ export interface AppNotification {
     receiverId: number
     chatId: number
     senderName: string
+    feedbackId:number
 }
 
 export type NewAppointmentNotification = Omit<AppNotification, 'receiverId' | 'senderName' | 'doctorRequestId' | 'chatId'>;
 export type NewMessageNotification = Omit<AppNotification, 'appointmentId' | 'doctorRequestId'>
 export type NewDoctorRequestNotification = Omit<AppNotification, 'appointmentId' | 'chatId' | 'senderName'>
 export type CancelledAppointmentNotification = Omit<AppNotification, 'chatId' | 'doctorRequestId' | 'senderName' | 'appointmentId'>
-
+export type NewFeedbackNotification = Omit<AppNotification, 'chatId' | 'doctorRequestId' | 'senderName' | 'appointmentId'| 'doctorRequestId' | 'receiverId' >
 

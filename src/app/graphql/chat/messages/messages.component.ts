@@ -264,19 +264,19 @@ export class MessagesComponent implements OnInit, OnDestroy {
         });
     }
 
-    onOpenChat(value:{id: number, title?:string}) {
+    async onOpenChat(value:{id: number, title?:string}) {
         this.receiverId = value.id;
         const chatReceiver = this.dataSource?.data.find(row => row.id === this.receiverId);
         this.createChatTab(chatReceiver);
         this.countService.countUnreadMessages();
-        this.loadUnreadMessages();
+        await this.loadUnreadMessages();
     }
 
-    onChatClose(id: number){
+    async onChatClose(id: number){
         this.tabsService.closeChatTab(id);
         this.chats = this.tabsService.getChatTabs();
         this.countService.countUnreadMessages();
-        this.loadUnreadMessages();
+        await this.loadUnreadMessages();
     }
     
     async createChatTab(chatReceiver: any) {

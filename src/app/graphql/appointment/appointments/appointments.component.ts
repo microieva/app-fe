@@ -502,7 +502,7 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
             case 'Cancel':
                 await this.unacceptAppointmentsByIds(event.ids);
                 break;
-            case 'Delete':
+            case 'Delete appointment':
                 await this.deleteAppointmentsByIds(event.ids);
                 break;
             case 'Add message':
@@ -668,7 +668,12 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
             } else {
                 message = ids.length === 1 ? "Selected appointment cannot be deleted at this time" : "Selected appointments cannot be deleted at this time";
             }
-            this.dialog.open(AlertComponent, {data: {message}, width:"30rem"});
+            const ref = this.dialog.open(AlertComponent, {data: {message}, width:"30rem"});
+            ref.componentInstance.ok.subscribe(async ()=> {
+                this.ngOnDestroy();
+                await this.ngOnInit();
+
+            })
         } else {
             const isAllValidForDeletion = ids.length === appointmentsToDelete.length;
             const str = isAllValidForDeletion ? '' : ` ${ids.length-appointmentsToDelete.length} / ${ids.length} selected, do not have medical record created yet, therefor will not be deleted at this time`
@@ -719,7 +724,12 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                         await this.loadPastAppointments();
                     }
                 } else {
-                    this.dialog.open(AlertComponent, {width:"30rem", data: {message:response.data.deleteAppointmentsByIds.message}});
+                    const ref = this.dialog.open(AlertComponent, {width:"30rem", data: {message:response.data.deleteAppointmentsByIds.message}});
+                    ref.componentInstance.ok.subscribe(async ()=> {
+                        this.ngOnDestroy();
+                        await this.ngOnInit();
+        
+                    })
                 }
     
             });
@@ -748,7 +758,12 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                     await this.ngOnInit();
                     
                 } else {
-                    this.dialog.open(AlertComponent, {data: {message:response.data.unacceptAppointmentsByIds.message}, width:"30rem"});
+                    const ref = this.dialog.open(AlertComponent, {data: {message:response.data.unacceptAppointmentsByIds.message}, width:"30rem"});
+                    ref.componentInstance.ok.subscribe(async ()=> {
+                        this.ngOnDestroy();
+                        await this.ngOnInit();
+        
+                    })
                 }
             } catch (error) {
                 this.dialog.open(AlertComponent, {width:"30rem", data: {message: `Unexpected error: ${error}`}});
@@ -785,7 +800,12 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                     this.appointmentService.pollNextAppointment();
                     await this.ngOnInit();
                 }  else {
-                    this.dialog.open(AlertComponent, {data: {message:response.data.acceptAppointmentsByIds.message}, width:"30rem"});
+                    const ref = this.dialog.open(AlertComponent, {data: {message:response.data.acceptAppointmentsByIds.message}, width:"30rem"});
+                    ref.componentInstance.ok.subscribe(async ()=> {
+                        this.ngOnDestroy();
+                        await this.ngOnInit();
+        
+                    })
                 }
             } catch (error) {
                 this.dialog.open(AlertComponent, {data: {message: `Unexpected error: ${error}`}});
@@ -936,6 +956,7 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                 ]
                 break;
             case "past":
+                const isAllBlocked = this.pastAppointments.every(appointment => !appointment.record)
                 this.pastDataSource = this.pastAppointments.map(row => {
                     const howLongAgoStr = row.end;
                     const startDate = DateTime.fromISO(row.start, { setZone: true });
@@ -952,7 +973,8 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
 
                     this.actions = [
                         {
-                            text: "Delete"
+                            text: "Delete appointment",
+                            disabled: isAllBlocked
                         }
                     ]
 

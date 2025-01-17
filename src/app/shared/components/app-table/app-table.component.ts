@@ -31,6 +31,7 @@ import { AdvancedSearchInput, AppDataSource, AppTableDisplayedColumns, UserDataS
 export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
     isLoading: boolean = false;
     isActionsDisabled:boolean = false;
+    //isAllRead:boolean = false;
     checkedCount: number = 0;
 
     @Output() pageChange = new EventEmitter<{pageIndex: number, pageLimit: number}>();
@@ -363,6 +364,17 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
             this.filterValue = null;
             this.advancedSearchInput = null;
             this.loadMedicalRecords();
+        }
+    }
+    onHeaderCheckboxClick(){
+        const showInfo = this.buttons?.some(btn => btn.disabled);
+        if (showInfo && this.buttons?.length === 1) {
+            const action = this.buttons[0].text;
+            const ref = this.dialog.open(AlertComponent, {disableClose:true, data: {message:`Forbidden action: ${action}`}});
+            ref.componentInstance.ok.subscribe(()=> {
+                this.checkedCount = 0;
+                this.selection.clear();
+            })
         }
     }
 }

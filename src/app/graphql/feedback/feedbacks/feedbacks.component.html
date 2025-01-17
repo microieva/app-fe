@@ -1,0 +1,50 @@
+<mat-tab-group 
+    mat-stretch-tabs="false" 
+    mat-align-tabs="start" 
+    class="content" 
+>
+    <mat-tab label="feedback">
+        <ng-template mat-tab-label>
+            <span class="tab-label">Customer Feedback</span>
+        </ng-template>
+        <div>
+            <div class="flex-row wrapper info">
+                <span class="icon material-symbols-outlined">info</span>
+                <h3 *ngIf="countFeedback > 0">Feedback from Health Center website</h3> 
+                <h3 *ngIf="countFeedback === 0">No feedback yet</h3> 
+                <span>{{' '}}</span>
+            </div>
+            <div *ngIf="isLoading" class="loading">
+                <app-loading></app-loading>
+            </div>
+            <div *ngIf="countFeedback ===0" class="btn-block">
+                <span class="material-symbols-outlined" id="bg-icon">
+                    folder_open
+                </span>
+                <h1>No feedback yet</h1>
+            </div>
+            <div class="page" @slideInOut *ngIf="!isLoading && countFeedback>0">
+                <div>
+                    <h2 class="font">Customer feedback ({{countFeedback}}):</h2>
+                    <p>Unread: {{countUnread}}</p>
+                </div>
+                <div class="table-wrapper">
+                    <app-table 
+                        *ngIf="!isLoading"
+                        [dataSource]="dataSource" 
+                        [displayedColumns]="displayedColumns"
+                        [buttons]="actions"
+                        [length]="length"
+                        [userRole]="userRole"
+                        (pageChange)="onPageChange($event)"
+                        (sortChange)="onSortChange($event)"
+                        (filterValue)="onFilterValueChange($event, async)"
+                        (action)="onActionClick($event)"
+                        (rowClick)="onFeedbackClick($event, async)"
+                    >
+                    </app-table>
+                </div>
+            </div>
+        </div>
+    </mat-tab>
+</mat-tab-group>

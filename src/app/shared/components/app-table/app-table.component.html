@@ -18,7 +18,7 @@
                 (click)="onActionClick(btn.text, null)"
                 mat-stroked-button 
                 [ngStyle]="{backgroundColor: (!selection.hasValue() || checkedCount < 2) ? '':'rgba(115, 72, 114, 0.4)'}" 
-                [disabled]="!selection.hasValue() || checkedCount < 2"    
+                [disabled]="!selection.hasValue() || checkedCount < 2 || btn.disabled"    
             >{{btn.text}}
             </button>
         </span>
@@ -44,7 +44,7 @@
             >
                 <span  *ngIf="column.header === 'checkbox'">
                     <mat-checkbox 
-                        (click)="$event.stopPropagation()"
+                        (click)="onHeaderCheckboxClick(); $event.stopPropagation()"
                         (change)="$event ? toggleAllRows() : null"
                         [checked]="selection.hasValue() && isAllSelected()"
                     >
@@ -65,17 +65,18 @@
                 </ng-container>
                
                 <ng-container *ngIf="column.columnDef === 'actions'">
-                    <span *ngFor="let action of element.actions" class="action">
+                    <span *ngFor="let action of element.actions" class="action" >
                         <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'" style="margin-right: 20px;" class="material-symbols-outlined icon" *ngIf="action.text === 'Accept'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()" >calendar_add_on</span>
                         <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'" style="margin-right: 20px;" class="material-symbols-outlined icon" *ngIf="action.text === 'Add message'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">add_comment</span>
                         <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'" style="margin-right: 20px;" class="material-symbols-outlined icon" *ngIf="action.text === 'Cancel'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">event_busy</span>
                         <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'" style="margin-right: 20px;" class="material-symbols-outlined icon" *ngIf="action.text === 'Delete'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">delete</span>
+                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'" style="margin-right: 20px;" class="material-symbols-outlined icon" *ngIf="action.text === 'Delete appointment'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()" [ngClass]="element.draft === undefined ? 'disabled-action':''">delete</span>
                         <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'" style="margin-right: 20px;" class="material-symbols-outlined icon" *ngIf="action.text === 'Save as final'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">task</span>
                         <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'" style="margin-right: 20px;" class="material-symbols-outlined icon" *ngIf="action.text === 'Delete messages'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">chat_error</span>
                         <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'" style="margin-right: 20px;" class="material-symbols-outlined icon" *ngIf="action.text === 'Activate account'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">person_add</span>
                         <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'" style="margin-right: 20px;" class="material-symbols-outlined icon" *ngIf="action.text === 'Deactivate account'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">person_remove</span>
                         <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'" style="margin-right: 20px;" class="material-symbols-outlined icon" *ngIf="action.text === 'Cancel request'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">no_accounts</span>
-    
+                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'" style="margin-right: 20px;" class="material-symbols-outlined icon" *ngIf="action.text === 'Mark as read'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()" [ngClass]="element.isRead ? 'disabled-action':''">mark_chat_read</span>
                     </span>
                 </ng-container>
 
@@ -165,7 +166,7 @@
             *matRowDef="let row; columns: columnNames"
             (click)="onRowClick(row.id, row.title || undefined)"
             [ngStyle]="{backgroundColor: (markAppointmentId && markAppointmentId === row.id) ? 'aqua': '' }"
-            [ngClass]="{'blinking': isNewSender(row), 'bold-row': isUnreadChat(row)}">
+            [ngClass]="{'blinking': isNewSender(row), 'bold-row': isUnreadChat(row)|| row.isRead === false} ">
         </tr>
         <tr class="mat-row" *matNoDataRow>
             <td class="mat-cell" colspan="4">No data matching current search parameters</td>

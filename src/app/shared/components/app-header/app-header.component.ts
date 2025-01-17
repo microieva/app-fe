@@ -18,7 +18,7 @@ import { LoadingComponent } from "../app-loading/loading.component";
 import { LoginMenuComponent } from "../app-login-menu/app-login-menu.component";
 import { User } from "../../../graphql/user/user";
 import { Appointment } from "../../../graphql/appointment/appointment";
-import { CancelledAppointmentNotification, NewAppointmentNotification, NewMessageNotification } from "../../types";
+import { CancelledAppointmentNotification, NewAppointmentNotification, NewFeedbackNotification, NewMessageNotification } from "../../types";
 
 @Component({
     selector: 'app-header',
@@ -176,8 +176,18 @@ export class AppHeader implements OnInit {
                                     })
                                     );
                                 })
-                             )
-                                  
+                            ),
+                            newFeedbackNoti: this.socketService.newFeedback().pipe(
+                                tap((info: NewFeedbackNotification )=> {
+                                    if (this.userRole === 'admin') {
+                                        this.snackbarService.addSnackbar(info)
+                                    }
+                                }),
+                                catchError(err => {
+                                    console.error("Error receiving socket update", err);
+                                    return of(null); 
+                                })
+                            ),    
                         })
                     } 
                     return of(null)

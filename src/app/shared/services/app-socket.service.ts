@@ -169,6 +169,13 @@ export class AppSocketService {
             });
         });
     }
+    newFeedback() {
+        return new Observable<any>((observer) => {
+            this.socket.on('newFeedback', (info: any) => {
+                observer.next(info);
+            });
+        });
+    }
 
     notifyDoctor(info: any){
         if (this.socket && this.socket.connected) {
