@@ -78,6 +78,7 @@ export class AppHeader implements OnInit {
             else {
                 this.me = null;
                 this.time = null;
+                this.subscriptions.unsubscribe();
             }
         })    
     }

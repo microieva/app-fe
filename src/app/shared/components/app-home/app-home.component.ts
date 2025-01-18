@@ -102,11 +102,11 @@ export class AppHomeComponent implements OnInit {
                 })
                 this.subscriptions.add(sub); 
     
-                if (this.userRole !== 'patient') {
+                if (this.me && this.userRole !== 'patient') {
                     this.countService.countUnreadMessages();
                 }
                 
-                if (this.userRole === 'admin') {
+                if (this.me && this.userRole === 'admin') {
                     this.today = getTodayWeekdayTime();
                     const now = DateTime.now().setZone('Europe/Helsinki').toISO();
 
@@ -118,7 +118,7 @@ export class AppHomeComponent implements OnInit {
                     });
                     this.subscriptions.add(sub); 
                 }
-                if (this.userRole === 'doctor') {
+                if (this.me && this.userRole === 'doctor') {
                     this.socketService.userLogin({ id: this.me.id, userRole: this.me.userRole } as User);
                     await this.appointmentService.pollNextAppointment();
                     const sub = this.appointmentService.appointmentInfo$.subscribe(async (info:any) => {
@@ -248,17 +248,13 @@ export class AppHomeComponent implements OnInit {
                 lastLogOutAt
             }
         }`
-        try {
-            const response = await this.graphQLService.send(query);
-            if (response.data.me) {
-                this.me = response.data.me;
-                this.userRole = response.data.me.userRole;
-                const str = getLastLogOutStr(response.data.me.lastLogOutAt);
-                this.lastLogOut = str !== 'Invalid DateTime' ? str : '-'
-                this.isUserUpdated = response.data.me.updatedAt;
-            }
-        } catch (error) {
-            this.dialog.open(AlertComponent, {data: {message: "No user, "+error}})
+        const response = await this.graphQLService.send(query);
+        if (response.data.me) {
+            this.me = response.data.me;
+            this.userRole = response.data.me.userRole;
+            const str = getLastLogOutStr(response.data.me.lastLogOutAt);
+            this.lastLogOut = str !== 'Invalid DateTime' ? str : '-'
+            this.isUserUpdated = response.data.me.updatedAt;
         }
     }
 
