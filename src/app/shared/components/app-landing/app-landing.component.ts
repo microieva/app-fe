@@ -61,9 +61,9 @@ export class AppLandingComponent implements OnInit, OnDestroy{
       
       const scrollHeight = document.documentElement.scrollHeight;
       const clientHeight = document.documentElement.clientHeight;  
-      this.setVisible1 = scrollPosition + clientHeight >= (scrollHeight-450);
-      this.setVisible2 = scrollPosition + clientHeight >= (scrollHeight-500);
-      this.setVisible3 = scrollPosition + clientHeight >= (scrollHeight-550);
+      this.setVisible1 = scrollPosition + clientHeight >= (scrollHeight-575);
+      this.setVisible2 = scrollPosition + clientHeight >= (scrollHeight-625);
+      this.setVisible3 = scrollPosition + clientHeight >= (scrollHeight-685);
     }
 
     constructor (
