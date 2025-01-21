@@ -205,7 +205,7 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
 
     async loadUserRole() {
         const query = `query { 
-            me { userRole }
+            me { id userRole }
         }`
 
         try {
@@ -503,6 +503,9 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                 await this.unacceptAppointmentsByIds(event.ids);
                 break;
             case 'Delete appointment':
+                await this.deleteAppointmentsByIds(event.ids);
+                break;
+            case 'Delete':
                 await this.deleteAppointmentsByIds(event.ids);
                 break;
             case 'Add message':

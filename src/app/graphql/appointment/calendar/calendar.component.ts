@@ -42,7 +42,7 @@ export class CalendarComponent implements OnInit, OnDestroy{
     }
 
     async loadUserRole() {
-        const query = `query { me { userRole }}`
+        const query = `query { me { id userRole }}`
         try {
             const response = await this.graphQLService.send(query);
             if (response.data.me) {

@@ -14,6 +14,7 @@ import { RecordComponent } from "../../../graphql/record/record.component";
 import { AlertComponent } from "../app-alert/app-alert.component";
 import { Record } from "../../../graphql/record/record";
 import { AdvancedSearchInput, AppDataSource, AppTableDisplayedColumns, UserDataSource } from "../../types";
+import { isDate } from "lodash-es";
 
 
 @Component({

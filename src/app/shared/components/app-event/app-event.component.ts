@@ -159,7 +159,7 @@ export class EventComponent implements OnInit, OnDestroy{
     async loadMe() {
         const query = `query { me { id userRole }}`
         try {
-            const response = await this.graphQLService.send(query);
+            const response = await this.graphQLService.send(query, true);
             if (response.data.me.userRole) {
                 this.userRole =response.data.me.userRole;
                 this.id = response.data.me.id;
