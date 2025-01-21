@@ -330,7 +330,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
         }`
 
         try {
-            const response = await this.graphQLService.send(query);
+            const response = await this.graphQLService.send(query, true);
             if (response.data) {
                 this.userRole = response.data.me.userRole;
                 this.me = response.data.me;

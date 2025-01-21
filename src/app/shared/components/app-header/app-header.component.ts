@@ -229,18 +229,26 @@ export class AppHeader implements OnInit {
     }
 
     async loadMe() {
-        const query = `query {
-            me {
-                id
-                email
-                userRole
-                updatedAt
-                firstName
-                lastName
-                streetAddress
+        const query = `
+            query {
+                me {
+                    id
+                    userRole
+                    firstName
+                    lastName
+                    dob
+                    phone
+                    email
+                    streetAddress
+                    city
+                    postCode
+                    updatedAt
+                    lastLogOutAt
+                }
+                countMissedAppointments
             }
-            countMissedAppointments
-        }`
+        `;
+
         try {
             const response = await this.graphQLService.send(query);
 

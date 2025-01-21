@@ -248,7 +248,7 @@ export class AppHomeComponent implements OnInit {
                 lastLogOutAt
             }
         }`
-        const response = await this.graphQLService.send(query);
+        const response = await this.graphQLService.send(query, {}, true);
         if (response.data.me) {
             this.me = response.data.me;
             this.userRole = response.data.me.userRole;

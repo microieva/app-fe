@@ -142,7 +142,7 @@ export class UserComponent implements OnInit, OnDestroy {
         }`
 
         try {
-            const response = await this.graphQLService.send(query);
+            const response = await this.graphQLService.send(query, true);
             if (response.data.me) {
                 this.formattedDate = DateTime.fromISO(response.data.me.dob).toFormat('MMM dd, yyyy') 
                 this.me = response.data.me;

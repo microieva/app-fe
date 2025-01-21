@@ -113,11 +113,11 @@ export class RecordsComponent implements OnInit, OnDestroy {
 
     async loadMe() {
         const query = `query { 
-            me { userRole }
+            me { id userRole }
         }`
 
         try {
-            const response = await this.graphQLService.send(query);
+            const response = await this.graphQLService.send(query, true);
             if (response.data) {
                 this.userRole = response.data.me.userRole;
             }

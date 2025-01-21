@@ -1,20 +1,24 @@
 import { Injectable } from '@angular/core';
 import { Apollo, gql } from 'apollo-angular';
 import { firstValueFrom } from 'rxjs';
+import { client } from '../../apollo.config';
 
 @Injectable({
     providedIn: 'root'
 })
+
 export class AppGraphQLService {
     constructor(private apollo: Apollo) {}
 
-    async send(query: string, variables?: Object): Promise<any> {
+    async send(query: string, variables?: Object, useCache = false): Promise<any> {  
+        const fetchPolicy = useCache ? 'cache-first' : 'network-only';
         const result = this.apollo.watchQuery({
             query: gql`${query}`,
             variables,
-            fetchPolicy: 'network-only',
-            pollInterval: 3000
+            fetchPolicy: fetchPolicy,
+            pollInterval: 3000 
         }).valueChanges;
+    
         return firstValueFrom(result);
     }
 

@@ -25,9 +25,18 @@ export const client = new ApolloClient({
     typePolicies: {
       Query: {
         fields: {
-          slice: offsetLimitPagination(),  // (BP auth note) without this, the initial query fetches the right data but fetchMore() doesn't cause the observable to be hit
+          slice: offsetLimitPagination(),
+          me: {
+            merge(existing, incoming) {
+              return { ...existing, ...incoming };
+            },
+            read(existing) {
+              return existing;
+            }
+          }
         }
       }
     }
   })
 });
+
