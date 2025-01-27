@@ -67,14 +67,16 @@ import { MatSelectModule } from '@angular/material/select';
 import { AppAuthService } from './shared/services/app-auth.service';
 import { AppHeader } from './shared/components/app-header/app-header.component';
 import { AppAuthGuard } from './shared/services/app-auth.guard';
-import { AppHeaderService } from './shared/services/app-header-refresh.service';
+import { AppHeaderService } from './shared/services/app-header.service';
 import { AppointmentMessageComponent } from './shared/components/app-appointment-message/app-appointment-message.component';
 import { FeedbacksComponent } from './graphql/feedback/feedbacks/feedbacks.component';
 import { FeedbackComponent } from './graphql/feedback/feedback/feedback.component';
+import { AppLineBreaksPipe } from './shared/pipes/app-line-breaks.pipe';
 
 
 @NgModule({ 
     declarations: [
+        AppLineBreaksPipe,
         AppComponent,
         AppHeader,
         AppHomeComponent,
@@ -164,6 +166,9 @@ import { FeedbackComponent } from './graphql/feedback/feedback/feedback.componen
         { provide: MAT_DATE_FORMATS, useValue: LUXON_DATE_FORMATS },
         { provide: MAT_DATE_LOCALE, useValue: 'fi-FI' }
     ],
+    exports: [
+        AppLineBreaksPipe
+    ]
 })
 
 export class AppModule { }

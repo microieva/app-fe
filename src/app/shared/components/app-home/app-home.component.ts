@@ -3,6 +3,7 @@ import { Subscription } from "rxjs";
 import { MatDialog } from "@angular/material/dialog";
 import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
 import { animate, state, style, transition, trigger } from "@angular/animations";
+import { BreakpointObserver } from "@angular/cdk/layout";
 import { DateTime } from "luxon";
 import { AppAuthService } from "../../services/app-auth.service";
 import { AppSocketService } from "../../services/app-socket.service";
@@ -11,6 +12,7 @@ import { AppAppointmentService } from "../../services/app-appointment.service";
 import { AppTimerService } from "../../services/app-timer.service";
 import { AppTabsService } from "../../services/app-tabs.service";
 import { AppCountUnreadMessagesService } from "../../services/app-count-unread.service";
+import { AppHeaderService } from "../../services/app-header.service";
 import { getTodayWeekdayTime, getNextAppointmentWeekdayStart, getLastLogOutStr } from "../../utils";
 import { AlertComponent } from "../app-alert/app-alert.component";
 import { AppTableComponent } from "../app-table/app-table.component";
@@ -65,11 +67,14 @@ export class AppHomeComponent implements OnInit {
     recordIds: number[] = [];
     private subscriptions: Subscription = new Subscription();
 
-    @ViewChild('sidenav', { read: ElementRef }) sidenavElement!: ElementRef;
+    @ViewChild('sidenav', { read: ElementRef }) sidenavElement: ElementRef | undefined;
     @ViewChild('resize', { read: ElementRef }) resizeElement!: ElementRef;
-    @ViewChild('sidenavContent', { read: ElementRef }) sidenavContent!: ElementRef;
+    @ViewChild('sidenavContent', { read: ElementRef }) sidenavContent: ElementRef | undefined;
     isResizing = false;
     lastDownX = 60;
+    isDesktop: boolean = false; 
+    isCompact: boolean = false; 
+    showSidenav:boolean = false;
 
     constructor(
         private activatedRoute: ActivatedRoute,
@@ -82,95 +87,117 @@ export class AppHomeComponent implements OnInit {
         private socketService: AppSocketService,
         private authService: AppAuthService,
         private tabsService: AppTabsService,
-        private renderer: Renderer2
+        private renderer: Renderer2,
+        private breakpointObserver: BreakpointObserver,
+        private headerService: AppHeaderService
     ){}
 
     async ngOnInit() {
-            await this.loadMe();
-            if (this.me) {
-                
-                await this.loadData();
+        this.headerService.toggleSidenav.subscribe((toggle:boolean)=> {
+            this.showSidenav = toggle
+            if (this.showSidenav) {
+                this.renderer.setStyle(this.sidenavElement?.nativeElement, 'width', `288px`);
+            } 
+        });
 
-                const sub = this.router.events.subscribe(async (event) => {
-                    this.isHomeRoute = this.router.url === '/home' || (event as NavigationEnd).url === '/home';
-                    if (this.isHomeRoute) {  
-                        await this.loadData();
-                    }
-                });
-                this.socketService.refresh$.subscribe(async isUpdated => {
-                    if (isUpdated) await this.ngOnInit();   
-                })
-                this.subscriptions.add(sub); 
-    
-                if (this.me && this.userRole !== 'patient') {
-                    this.countService.countUnreadMessages();
+        await this.loadMe();
+        if (this.me) {
+            
+            await this.loadData();
+
+            const sub = this.router.events.subscribe(async (event) => {
+                this.isHomeRoute = this.router.url === '/home' || (event as NavigationEnd).url === '/home';
+                if (this.isHomeRoute) {  
+                    await this.loadData();
                 }
-                
-                if (this.me && this.userRole === 'admin') {
-                    this.today = getTodayWeekdayTime();
-                    const now = DateTime.now().setZone('Europe/Helsinki').toISO();
+            });
+            this.socketService.refresh$.subscribe(async isUpdated => {
+                if (isUpdated) await this.ngOnInit();   
+            })
+            this.subscriptions.add(sub); 
 
-                    this.socketService.requestCountMissedAppointments();
-
-                    this.timerService.startClock(now!);
-                    const sub = this.timerService.clock.subscribe(value=> {
-                        this.clock = value;
-                    });
-                    this.subscriptions.add(sub); 
-                }
-                if (this.me && this.userRole === 'doctor') {
-                    this.socketService.userLogin({ id: this.me.id, userRole: this.me.userRole } as User);
-                    await this.appointmentService.pollNextAppointment();
-                    const sub = this.appointmentService.appointmentInfo$.subscribe(async (info:any) => {
-                        if (info && info.nextAppointment) {
-                            this.nextId = info.nextAppointment.nextId;
-                            if (this.previousNextId !== this.nextId) {
-                                this.previousNextId = this.nextId;
-                            } 
-                            const nextStart = info.nextAppointment.nextStart;
-                            this.timerService.startAppointmentTimer(nextStart);
-                            this.nextAppointmentStartTime = ''
-                            this.nextStart = getNextAppointmentWeekdayStart(nextStart);
-                            this.nextAppointmentName = info.nextAppointment.patient.firstName+' '+info.nextAppointment.patient.lastName;
-                            this.nextAppointmentPatientDob = DateTime.fromISO(info.nextAppointment.patient.dob).toFormat('MMM dd, yyyy');
-                            const str = DateTime.fromISO(info.nextAppointment.previousAppointmentDate).toFormat('MMM dd, yyyy'); 
-                            this.previousAppointmentDate = str !== 'Invalid DateTime' ? str : '-';
-                            this.recordIds = info.nextAppointment.recordIds;
-                           
-                        } 
-                    });  
-                    this.subscriptions.add(sub);  
-
-                    const nowAppointment = await this.appointmentService.loadNowAppointment();
-                    let isTabAdded: boolean = false;
-    
-                    if (nowAppointment) {
-                        const patientName = nowAppointment.patient.firstName+" "+nowAppointment.patient.lastName;
-                        const start = DateTime.fromISO(nowAppointment.start, {zone:'utc'}).setZone('utc').toFormat('HH:mm a');
-                        isTabAdded = JSON.parse(localStorage.getItem('tabs') || '[]').find((tab: any)=> tab.id === nowAppointment?.id);
-                        let isTabCreated: boolean;
-                        
-                        const subRouteParams = this.activatedRoute.queryParams.subscribe(params => {
-                            const tab = params['tab'];
-                            if (!tab) isTabCreated = false;
-                            isTabCreated = true;
-                        });
-    
-                        if (!isTabAdded) {
-                            this.tabsService.addTab("offline start: "+start, AppointmentComponent, nowAppointment.id);
-                            const ref = this.dialog.open(AlertComponent, {data: {message: "Current appointment with "+patientName+", started at "+start}});
-                            ref.componentInstance.ok.subscribe(() => {
-                                this.router.navigate(['/home/appointments'])
-                            })
-                            this.nowAppointment = nowAppointment;
-                        } 
-                        this.subscriptions.add(subRouteParams);
-                    }
-                }
-            } else {
-                this.router.navigate([''])
+            if (this.me && this.userRole !== 'patient') {
+                this.countService.countUnreadMessages();
             }
+            
+            if (this.me && this.userRole === 'admin') {
+                this.today = getTodayWeekdayTime();
+                const now = DateTime.now().setZone('Europe/Helsinki').toISO();
 
+                this.socketService.requestCountMissedAppointments();
+
+                this.timerService.startClock(now!);
+                const sub = this.timerService.clock.subscribe(value=> {
+                    this.clock = value;
+                });
+                this.subscriptions.add(sub); 
+            }
+            if (this.me && this.userRole === 'doctor') {
+                this.socketService.userLogin({ id: this.me.id, userRole: this.me.userRole } as User);
+                await this.appointmentService.pollNextAppointment();
+                const sub = this.appointmentService.appointmentInfo$.subscribe(async (info:any) => {
+                    if (info && info.nextAppointment) {
+                        this.nextId = info.nextAppointment.nextId;
+                        if (this.previousNextId !== this.nextId) {
+                            this.previousNextId = this.nextId;
+                        } 
+                        const nextStart = info.nextAppointment.nextStart;
+                        this.timerService.startAppointmentTimer(nextStart);
+                        this.nextAppointmentStartTime = ''
+                        this.nextStart = getNextAppointmentWeekdayStart(nextStart);
+                        this.nextAppointmentName = info.nextAppointment.patient.firstName+' '+info.nextAppointment.patient.lastName;
+                        this.nextAppointmentPatientDob = DateTime.fromISO(info.nextAppointment.patient.dob).toFormat('MMM dd, yyyy');
+                        const str = DateTime.fromISO(info.nextAppointment.previousAppointmentDate).toFormat('MMM dd, yyyy'); 
+                        this.previousAppointmentDate = str !== 'Invalid DateTime' ? str : '-';
+                        this.recordIds = info.nextAppointment.recordIds;
+                        
+                    } 
+                });  
+                this.subscriptions.add(sub);  
+
+                const nowAppointment = await this.appointmentService.loadNowAppointment();
+                let isTabAdded: boolean = false;
+
+                if (nowAppointment) {
+                    const patientName = nowAppointment.patient.firstName+" "+nowAppointment.patient.lastName;
+                    const start = DateTime.fromISO(nowAppointment.start, {zone:'utc'}).setZone('utc').toFormat('HH:mm a');
+                    isTabAdded = JSON.parse(localStorage.getItem('tabs') || '[]').find((tab: any)=> tab.id === nowAppointment?.id);
+                    let isTabCreated: boolean;
+                    
+                    const subRouteParams = this.activatedRoute.queryParams.subscribe(params => {
+                        const tab = params['tab'];
+                        if (!tab) isTabCreated = false;
+                        isTabCreated = true;
+                    });
+
+                    if (!isTabAdded) {
+                        this.tabsService.addTab("offline start: "+start, AppointmentComponent, nowAppointment.id);
+                        const ref = this.dialog.open(AlertComponent, {data: {message: "Current appointment with "+patientName+", started at "+start}});
+                        ref.componentInstance.ok.subscribe(() => {
+                            this.router.navigate(['/home/appointments'])
+                        })
+                        this.nowAppointment = nowAppointment;
+                    } 
+                    this.subscriptions.add(subRouteParams);
+                }
+            }
+        } else {
+            this.router.navigate([''])
+        }
+        this.breakpointObserver.observe(['(min-width: 1024px)', '(max-width: 1431px)']).subscribe(result => {
+            this.isDesktop = this.breakpointObserver.isMatched('(min-width: 1024px)');
+            if (this.isDesktop) {   
+                const isCompact = this.breakpointObserver.isMatched('(max-width: 1431px)');
+                if (isCompact) {
+                    this.renderer.setStyle(this.sidenavContent?.nativeElement, 'margin-left', `90px`);
+                    this.renderer.setStyle(this.sidenavElement?.nativeElement, 'width', `90px`);
+                    this.renderer.setStyle(this.resizeElement?.nativeElement, 'pointer-events', 'none');
+                } else {
+                    this.renderer.setStyle(this.sidenavContent?.nativeElement, 'margin-left', `288px`);
+                    this.renderer.setStyle(this.sidenavElement?.nativeElement, 'width', `288px`);
+                }
+            } 
+        });
     }
 
     ngAfterViewInit() {
@@ -178,7 +205,7 @@ export class AppHomeComponent implements OnInit {
             event.stopPropagation(); 
         });
           
-        this.renderer.listen(this.sidenavElement.nativeElement, 'mousedown', (event: MouseEvent) => this.onMouseDown(event));
+        this.renderer.listen(this.sidenavElement?.nativeElement, 'mousedown', (event: MouseEvent) => this.onMouseDown(event));
         this.renderer.listen(document, 'mousemove', (event: MouseEvent) => this.onMouseMove(event));
         this.renderer.listen(document, 'mouseup', () => this.onMouseUp());
     }
@@ -194,11 +221,11 @@ export class AppHomeComponent implements OnInit {
         if (this.isResizing) {
             const newWidth = event.clientX;
             const adjustedWidth = Math.max(20, Math.min(newWidth, 288));
-            this.renderer.setStyle(this.sidenavElement.nativeElement, 'width', `${adjustedWidth}px`);
+            this.renderer.setStyle(this.sidenavElement?.nativeElement, 'width', `${adjustedWidth}px`);
             if (adjustedWidth > 55) {
-                this.renderer.setStyle(this.sidenavContent.nativeElement, 'margin-left', `${adjustedWidth}px`);
+                this.renderer.setStyle(this.sidenavContent?.nativeElement, 'margin-left', `${adjustedWidth}px`);
             } else {
-                this.renderer.setStyle(this.sidenavContent.nativeElement, 'margin-left', `60px`);
+                this.renderer.setStyle(this.sidenavContent?.nativeElement, 'margin-left', `60px`);
             }
         } 
     }
@@ -211,14 +238,14 @@ export class AppHomeComponent implements OnInit {
         this.subscriptions.unsubscribe();
     }
     onResizeSidenav(){
-        const isResized = this.sidenavElement.nativeElement.offsetWidth === 60;
+        const isResized = this.sidenavElement?.nativeElement.offsetWidth === 60;
 
         if (isResized) {
-            this.renderer.setStyle(this.sidenavElement.nativeElement, 'width', '288px');
-            this.renderer.setStyle(this.sidenavContent.nativeElement, 'margin-left', '288px');
+            this.renderer.setStyle(this.sidenavElement?.nativeElement, 'width', '288px');
+            this.renderer.setStyle(this.sidenavContent?.nativeElement, 'margin-left', '288px');
         } else {
-            this.renderer.setStyle(this.sidenavElement.nativeElement, 'width', '60px');
-            this.renderer.setStyle(this.sidenavContent.nativeElement, 'margin-left', '60px');
+            this.renderer.setStyle(this.sidenavElement?.nativeElement, 'width', '60px');
+            this.renderer.setStyle(this.sidenavContent?.nativeElement, 'margin-left', '60px');
         }    
     }
 
@@ -370,5 +397,13 @@ export class AppHomeComponent implements OnInit {
     }
     onOpenRecords(){
         this.dialog.open(AppTableComponent, {data: {recordIds: this.recordIds, userRole: this.userRole}});
+    }
+    onClickNavLink(){
+        if (!this.isDesktop) {
+            this.showSidenav = !this.showSidenav;
+            if (!this.showSidenav) {
+                this.headerService.openSidenav(false);
+            }
+        }
     }
 }

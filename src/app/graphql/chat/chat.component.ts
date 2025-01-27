@@ -1,17 +1,17 @@
+import { Subscription } from "rxjs";
 import { trigger, state, style, transition, animate } from "@angular/animations";
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { MatDialog } from "@angular/material/dialog";
 import { ActivatedRoute, Router } from "@angular/router";
 import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../shared/services/app-graphql.service";
 import { AppTabsService } from "../../shared/services/app-tabs.service";
+import { AppHeaderService } from "../../shared/services/app-header.service";
 import { AppSocketService } from "../../shared/services/app-socket.service";
+import { AppCountUnreadMessagesService } from "../../shared/services/app-count-unread.service";
 import { AlertComponent } from "../../shared/components/app-alert/app-alert.component";
 import { ConfirmComponent } from "../../shared/components/app-confirm/app-confirm.component";
-import { AppCountUnreadMessagesService } from "../../shared/services/app-count-unread.service";
-import { Subscription } from "rxjs";
-import { AppHeaderService } from "../../shared/services/app-header-refresh.service";
 
 @Component({
     selector: 'app-chat',
@@ -37,10 +37,15 @@ export class ChatComponent implements OnInit, OnDestroy {
     @Input() receiverId: number | undefined;
     @Input() userRole: 'admin' | undefined;
     @Output() close = new EventEmitter<number>();
+    @ViewChild('textarea') textarea: ElementRef | undefined;
 
     form = new FormGroup({
         message: new FormControl<string>('')
     });
+    minRows = 2; 
+    lineHeight = 24; 
+    textareaHeight = this.minRows * this.lineHeight; 
+
     messages: any[] = [];
     online: boolean = false;
     isLoading: boolean = true;
@@ -90,6 +95,10 @@ export class ChatComponent implements OnInit, OnDestroy {
     ngOnDestroy(){
         this.subscriptions.unsubscribe();
     }
+    get characterCount(): number {
+        const message = this.form.get('message')?.value || '';
+        return message.replace(/\n/g, '').length; 
+    }
 
     async loadMessages(){
         const query = `query ($chatId: Int!) {
@@ -117,6 +126,7 @@ export class ChatComponent implements OnInit, OnDestroy {
                         createdAt: time
                     }
                 })
+                console.log('MSGS: ', this.messages)
                 this.isLoading = false;
             }
         } catch (error) {
@@ -181,10 +191,36 @@ export class ChatComponent implements OnInit, OnDestroy {
     }
     onDeleteMessage(){
         this.form.get('message')?.reset(); 
+        this.textareaHeight = this.minRows * this.lineHeight; 
     }
     onChatClose(){
         this.close.emit(this.chatId)
     }
+    adjustHeight(event:any) {
+        const textarea = event.target as HTMLTextAreaElement;
+        textarea.style.height = 'auto';
+        textarea.style.height = `${textarea.scrollHeight}px`;
+    }
+    async onKeyDown(event: KeyboardEvent) {
+        const textarea = event.target as HTMLTextAreaElement;
+      
+        if (event.key === 'Enter') {
+            if (event.shiftKey || event.ctrlKey) {
+                event.preventDefault(); 
+                const cursorPosition = textarea.selectionStart;
+                const textBeforeCursor = textarea.value.substring(0, cursorPosition);
+                const textAfterCursor = textarea.value.substring(cursorPosition);
+                textarea.value = `${textBeforeCursor}\n${textAfterCursor}`;
+                textarea.selectionStart = textarea.selectionEnd = cursorPosition + 1;
+                this.form.controls['message'].setValue(textarea.value); 
+                this.adjustHeight({ target: textarea });
+            } else {
+                event.preventDefault();
+                await this.onSendMessage();
+            }
+        }
+    }
+      
     onChatDelete(){
         const ref = this.dialog.open(ConfirmComponent, {data: {message: "Deleting all messages"}});
         ref.componentInstance.isConfirming.subscribe(async () => {

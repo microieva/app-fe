@@ -1,6 +1,6 @@
 import { Subscription } from "rxjs";
 import { trigger, transition, style, animate, state } from "@angular/animations";
-import { Component, HostListener, OnDestroy, OnInit } from "@angular/core";
+import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { MatExpansionPanel } from "@angular/material/expansion";
 import { MatDialog } from "@angular/material/dialog";
@@ -9,6 +9,7 @@ import { LoginMenuComponent } from "../app-login-menu/app-login-menu.component";
 import { AlertComponent } from "../app-alert/app-alert.component";
 import { FeedbackInput } from "../../../graphql/feedback/feedback.input";
 import { AppErrorStateMatcher } from "../../errorStateMatcher";
+import { BreakpointObserver } from "@angular/cdk/layout";
 
 @Component({
     selector: 'app-landing',
@@ -28,6 +29,9 @@ import { AppErrorStateMatcher } from "../../errorStateMatcher";
     ]
 })
 export class AppLandingComponent implements OnInit, OnDestroy{
+    isDesktop:boolean = true;
+    isTablet:boolean = false;
+
     scrollOffset: number = 0;
     setVisible1:boolean = false;
     setVisible2:boolean = false;
@@ -52,6 +56,7 @@ export class AppLandingComponent implements OnInit, OnDestroy{
     matcher = new AppErrorStateMatcher();
 
     private subscriptions: Subscription = new Subscription();
+    @ViewChild('textarea') textarea: ElementRef | undefined;
 
     @HostListener('window:scroll', [])
     onWindowScroll(): void {
@@ -69,10 +74,19 @@ export class AppLandingComponent implements OnInit, OnDestroy{
     constructor (
         private dialog: MatDialog,
         private graphQLService: AppGraphQLService,
-        private formBuilder: FormBuilder
+        private formBuilder: FormBuilder,
+        private breakpointObserver: BreakpointObserver
     ) {}
 
     async ngOnInit() {
+        this.breakpointObserver.observe(['(min-width: 1024px)']).subscribe(result => {
+            this.isDesktop = result.matches;
+            if (!this.isDesktop) {
+                //this.scrollOffset = 0;
+                this.isTablet = this.breakpointObserver.isMatched('(min-width: 768px) and (max-width: 1023px)');
+            }
+
+        });
         this.dialog.closeAll();
         this.buildFeebackForm();
     }
@@ -141,6 +155,15 @@ export class AppLandingComponent implements OnInit, OnDestroy{
                 }
             }
         }
+    }
+    get characterCount(): number {
+        const characters = this.feedbackForm.get('text')?.value || '';
+        return characters.replace(/\n/g, '').length; 
+    }
+    adjustHeight(event:any){
+        const el = event.target as HTMLTextAreaElement;
+        el.style.height='auto';
+        el.style.height =`${el.scrollHeight}px`;
     }
 
     toggleChangeAnonymous(event: any): void {

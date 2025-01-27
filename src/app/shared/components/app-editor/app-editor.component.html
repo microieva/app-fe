@@ -6,6 +6,8 @@
     <div class="editor">
         <ngx-editor-menu [editor]="editor" [toolbar]="toolbar" class="NgxEditor__MenuBar"> </ngx-editor-menu>
         <ngx-editor 
+            #editorDiv
+            (keyup)="adjustHeight()"
             [editor]="editor" 
             [(ngModel)]="editorText" 
             [ngModelOptions]="{standalone: true}" 

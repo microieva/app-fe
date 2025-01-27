@@ -1,15 +1,15 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    <div class="flex-row">
+    <div class="flex-row top-wrapper">
         <mat-form-field appearance="outline" id="input" [ngStyle]="{width: useAdvanced ? '70%':'100%'}">
           <mat-label>Search by name</mat-label>
           <input matInput type="text" formControlName="searchInput" />
           <span class="material-symbols-outlined" style="float:right;" (click)="resetSearchInput()">close</span> 
         </mat-form-field>
         <div class="actions flex-row" *ngIf="useAdvanced">
-            <button matTooltip="Reset search" type="button" mat-stroked-button class="btn" (click)="onReset()" style="background-color:rgb(203 210 218);" [ngStyle]="{visibility: showAdvanced ? 'visible':'hidden'}">
+            <button matTooltip="Reset search" type="button" mat-stroked-button class="btn" (click)="onReset()" style="background-color:rgb(203 210 218);" [ngStyle]="{display: showAdvanced ? 'block':'none'}">
               <span class="material-symbols-outlined">restart_alt</span>
             </button>
-            <button matTooltip="Search" type="submit" mat-stroked-button class="btn" style="background-color: rgb(175 111 174 / 40%);" [ngStyle]="{visibility: showAdvanced ? 'visible':'hidden'}">
+            <button matTooltip="Search" type="submit" mat-stroked-button class="btn" style="background-color: rgb(175 111 174 / 40%);" [ngStyle]="{display: showAdvanced ? 'block':'none'}">
                 <span class="material-symbols-outlined">search
                 </span>
             </button>
@@ -54,4 +54,120 @@
     </fieldset>
   
   </form>
-  
+<!-- 
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="search-form">
+    <div class="flex-row">
+        <mat-form-field
+            appearance="outline"
+            class="search-form__input"
+            [ngStyle]="{ width: useAdvanced ? '70%' : '100%' }"
+        >
+            <mat-label>Search by name</mat-label>
+            <input matInput type="text" formControlName="searchInput" />
+            <span
+                class="search-form__clear-icon material-symbols-outlined"
+                (click)="resetSearchInput()"
+            >
+                close
+            </span>
+        </mat-form-field>
+        <div class="search-form__actions flex-row" *ngIf="useAdvanced">
+            <button
+                matTooltip="Reset search"
+                type="button"
+                mat-stroked-button
+                class="search-form__button search-form__button--reset"
+                (click)="onReset()"
+                [ngStyle]="{ visibility: showAdvanced ? 'visible' : 'hidden' }"
+            >
+                <span class="material-symbols-outlined">restart_alt</span>
+            </button>
+            <button
+                matTooltip="Search"
+                type="submit"
+                mat-stroked-button
+                class="search-form__button search-form__button--submit"
+                [ngStyle]="{ visibility: showAdvanced ? 'visible' : 'hidden' }"
+            >
+                <span class="material-symbols-outlined">search</span>
+            </button>
+            <div
+                type="button"
+                (click)="showAdvanced = !showAdvanced"
+                class="search-form__toggle-advanced icon-btn title-hover"
+                *ngIf="useAdvanced"
+            >
+                <span
+                    class="material-symbols-outlined"
+                    *ngIf="!showAdvanced"
+                >
+                    add
+                </span>
+                <span
+                    class="material-symbols-outlined"
+                    *ngIf="showAdvanced"
+                >
+                    remove
+                </span>
+                <p>Advanced search options</p>
+            </div>
+        </div>
+    </div>
+
+    <fieldset
+        formGroupName="advancedSearchInput"
+        class="search-form__advanced-search"
+        *ngIf="showAdvanced"
+    >
+        <legend class="search-form__legend">Advanced Search</legend>
+
+        <mat-form-field
+            appearance="outline"
+            class="search-form__field search-form__field--full-width"
+        >
+            <mat-label>Saved after</mat-label>
+            <input matInput [matDatepicker]="rangeStartPicker" formControlName="rangeStart" />
+            <mat-datepicker-toggle
+                matSuffix
+                [for]="rangeStartPicker"
+            ></mat-datepicker-toggle>
+            <mat-datepicker #rangeStartPicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field
+            appearance="outline"
+            class="search-form__field search-form__field--full-width"
+        >
+            <mat-label>Saved before</mat-label>
+            <input matInput [matDatepicker]="rangeEndPicker" formControlName="rangeEnd" />
+            <mat-datepicker-toggle
+                matSuffix
+                [for]="rangeEndPicker"
+            ></mat-datepicker-toggle>
+            <mat-datepicker #rangeEndPicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field
+            appearance="outline"
+            class="search-form__field search-form__field--full-width"
+        >
+            <mat-label>Includes in title..</mat-label>
+            <input matInput type="text" formControlName="titleLike" />
+        </mat-form-field>
+
+        <mat-form-field
+            appearance="outline"
+            class="search-form__field search-form__field--full-width"
+        >
+            <mat-label>Includes in text..</mat-label>
+            <input matInput type="text" formControlName="textLike" />
+        </mat-form-field>
+
+        <mat-error
+            *ngIf="form.get('advancedSearchInput')?.hasError('isDateRangeValid')"
+            class="search-form__error"
+        >
+            The start date cannot be after the end date.
+        </mat-error>
+    </fieldset>
+</form> -->

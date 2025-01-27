@@ -7,6 +7,10 @@
     .NgxEditor__Content {
         --ngx-editor-background-color: transparent;
         border: none;
+        &:not(mat-hint) {font-size:1.2rem;}
+    }
+    mat-hint {
+        font-size:0.8rem;
     }
 }
 .actions {

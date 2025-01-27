@@ -1,8 +1,29 @@
+@import '../../../shared/scss/breakpoints';
+
 .content {
     border-top: 1px solid rgb(111, 143, 175, 40%);
 }
 .page {
     min-height: calc(100vh - 16rem);
+    @include respond-to(desktop-5x){ 
+        margin:auto;
+        margin-top:10%;
+        width:85%;
+    }
+    @include respond-to(tablet){
+        margin:auto;
+        margin-top:10%;
+        width:85%;
+    }
+    @include respond-to(mobile){ 
+        width:95%;
+        max-width:90%;
+    }
+    // @include respond-to(small-mobile-x){ 
+    //     width:95%;
+    //     max-width:95%;
+    //     padding:0;
+    // }
 }
 mat-panel-description {
     justify-content: flex-end;
@@ -10,10 +31,14 @@ mat-panel-description {
         text-indent: 1rem;
     }
 }
-.info {
-    height: 2.5rem;
-    margin-top: 1px;
-}
+// .info {
+//     height: 2.5rem;
+//     margin-top: 1px;
+//     @include respond-to(desktop-5x){
+//         height:3.7rem;
+//         font-size:1.5rem;
+//       }
+// }
 .column {
     display: flex;
     flex-direction: column;

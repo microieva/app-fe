@@ -7,7 +7,7 @@
     >    
     </app-search>
 </div>
-<div [ngClass]="injectedData && 'dialog-table'">
+<div [ngClass]="injectedData && 'table'">
     <div *ngIf="isLoading" class="loading">
         <app-loading></app-loading>
     </div>
@@ -17,8 +17,8 @@
             <button 
                 (click)="onActionClick(btn.text, null)"
                 mat-stroked-button 
-                [ngStyle]="{backgroundColor: (!selection.hasValue() || checkedCount < 2) ? '':'rgba(115, 72, 114, 0.4)'}" 
-                [disabled]="!selection.hasValue() || checkedCount < 2 || btn.disabled"    
+                [ngStyle]="getButtonStyle(btn)" 
+                [disabled]="isDisabled(btn)"    
             >{{btn.text}}
             </button>
         </span>
@@ -66,17 +66,17 @@
                
                 <ng-container *ngIf="column.columnDef === 'actions'">
                     <span *ngFor="let action of element.actions" class="action" >
-                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'" style="margin-right: 20px;" class="material-symbols-outlined icon" *ngIf="action.text === 'Accept'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()" >calendar_add_on</span>
-                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'" style="margin-right: 20px;" class="material-symbols-outlined icon" *ngIf="action.text === 'Add message'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">add_comment</span>
-                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'" style="margin-right: 20px;" class="material-symbols-outlined icon" *ngIf="action.text === 'Cancel'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">event_busy</span>
-                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'" style="margin-right: 20px;" class="material-symbols-outlined icon" *ngIf="action.text === 'Delete'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">delete</span>
-                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'" style="margin-right: 20px;" class="material-symbols-outlined icon" *ngIf="action.text === 'Delete appointment'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()" [ngClass]="element.draft === undefined ? 'disabled-action':''">delete</span>
-                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'" style="margin-right: 20px;" class="material-symbols-outlined icon" *ngIf="action.text === 'Save as final'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">task</span>
-                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'" style="margin-right: 20px;" class="material-symbols-outlined icon" *ngIf="action.text === 'Delete messages'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">chat_error</span>
-                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'" style="margin-right: 20px;" class="material-symbols-outlined icon" *ngIf="action.text === 'Activate account'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">person_add</span>
-                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'" style="margin-right: 20px;" class="material-symbols-outlined icon" *ngIf="action.text === 'Deactivate account'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">person_remove</span>
-                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'" style="margin-right: 20px;" class="material-symbols-outlined icon" *ngIf="action.text === 'Cancel request'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">no_accounts</span>
-                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'" style="margin-right: 20px;" class="material-symbols-outlined icon" *ngIf="action.text === 'Mark as read'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()" [ngClass]="element.isRead ? 'disabled-action':''">mark_chat_read</span>
+                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'"  class="material-symbols-outlined icon" *ngIf="action.text === 'Accept'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()" >calendar_add_on</span>
+                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'"  class="material-symbols-outlined icon" *ngIf="action.text === 'Add message'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">add_comment</span>
+                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'"  class="material-symbols-outlined icon" *ngIf="action.text === 'Cancel'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">event_busy</span>
+                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'"  class="material-symbols-outlined icon" *ngIf="action.text === 'Delete'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">delete</span>
+                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'"  class="material-symbols-outlined icon" *ngIf="action.text === 'Delete appointment'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()" [ngClass]="element.draft === undefined ? 'disabled-action':''">delete</span>
+                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'"  class="material-symbols-outlined icon" *ngIf="action.text === 'Save as final'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">task</span>
+                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'"  class="material-symbols-outlined icon" *ngIf="action.text === 'Delete messages'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">chat_error</span>
+                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'"  class="material-symbols-outlined icon" *ngIf="action.text === 'Activate account'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">person_add</span>
+                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'"  class="material-symbols-outlined icon" *ngIf="action.text === 'Deactivate account'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">person_remove</span>
+                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'"  class="material-symbols-outlined icon" *ngIf="action.text === 'Cancel request'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">no_accounts</span>
+                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'"  class="material-symbols-outlined icon" *ngIf="action.text === 'Mark as read'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()" [ngClass]="element.isRead ? 'disabled-action':''">mark_chat_read</span>
                     </span>
                 </ng-container>
 
@@ -180,6 +180,7 @@
         [pageIndex]="pageIndex"
         [pageSize]="pageLimit"
         [pageSizeOptions]="[10, 20, 50, 100]"
-        (page)="onPageChange($event)">
+        (page)="onPageChange($event)"
+        [hidePageSize]="isMobile">
     </mat-paginator>
 </div>

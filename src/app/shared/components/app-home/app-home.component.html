@@ -1,44 +1,54 @@
 <mat-sidenav-container>
-    <mat-sidenav #sidenav [opened]="true" mode="side" class="sidenav" >
-        
+    <mat-sidenav 
+        #sidenav 
+        [opened]="isDesktop || showSidenav" 
+        class="sidenav" 
+        [mode]="!isDesktop ? 'over' : 'side'"
+    >    
         <mat-nav-list style="padding:0;">
-            <a mat-list-item [routerLink]="['/home', 'user']" *ngIf="userRole" routerLinkActive="activeLink" (click)="$event.stopPropagation()">
+            <a [routerLinkActiveOptions]="{ exact: true }" mat-list-item [routerLink]="['/home']" *ngIf="!isDesktop" routerLinkActive="activeLink" (click)="$event.stopPropagation(); onClickNavLink();">
+                <div class="flex">
+                    <span class="icon material-symbols-outlined" matTooltip="Home">home</span>
+                    <span style="color:#606262">{{ 'Home' }}</span>
+                </div>
+            </a>
+            <a [routerLinkActiveOptions]="{ exact: false }" mat-list-item [routerLink]="['/home', 'user']" routerLinkActive="activeLink" (click)="$event.stopPropagation(); onClickNavLink();">
                 <div class="flex">
                     <span class="icon material-symbols-outlined" matTooltip="My Account">account_box</span>
                     <span style="color:#606262">{{ 'My Account' }}</span>
                 </div>
             </a>
-            <a mat-list-item (click)="onAppointmentsClick(); isHomeRoute=!isHomeRoute; $event.stopPropagation()" [routerLink]="['/home','appointments']" *ngIf="userRole !== 'admin' && isUserUpdated" routerLinkActive="activeLink">
+            <a mat-list-item (click)="onClickNavLink(); $event.stopPropagation();" [routerLink]="['/home','appointments']" *ngIf="userRole !== 'admin' && isUserUpdated" routerLinkActive="activeLink">
                 <div class="flex" >
                     <span class="icon material-symbols-outlined" matTooltip="Appointments">calendar_clock</span>
                     <span style="color:#606262">{{ 'Appointments' }}</span>
                 </div>
             </a>
-            <a mat-list-item (click)="isHomeRoute=!isHomeRoute; $event.stopPropagation()" [routerLink]="['/home','records']" *ngIf="isUserUpdated && (userRole === 'patient' && countRecords>0 || userRole==='doctor')" routerLinkActive="activeLink">
+            <a mat-list-item (click)="onClickNavLink(); $event.stopPropagation();" [routerLink]="['/home','records']" *ngIf="isUserUpdated && (userRole === 'patient' && countRecords>0 || userRole==='doctor')" routerLinkActive="activeLink">
                 <div class="flex">
                     <span class="icon material-symbols-outlined" matTooltip="Medical Records">list_alt</span>
                     <span  style="color:#606262">{{ 'Medical Records' }}</span>
                 </div>
             </a>
-            <a mat-list-item [routerLink]="['/home','patients']" (click)="isHomeRoute=!isHomeRoute; $event.stopPropagation()" *ngIf="userRole === 'admin'" routerLinkActive="activeLink">
+            <a mat-list-item [routerLink]="['/home','patients']" (click)="onClickNavLink(); $event.stopPropagation();" *ngIf="userRole === 'admin'" routerLinkActive="activeLink">
                 <div class="flex">
                     <span class="icon material-symbols-outlined" matTooltip="Patients">patient_list</span> 
                     <span  style="color:#606262">{{ 'Patients' }}</span>
                 </div>
             </a>
-            <a mat-list-item [routerLink]="['/home','users']" (click)="isHomeRoute=!isHomeRoute; $event.stopPropagation()" *ngIf="userRole === 'admin'" routerLinkActive="activeLink">
+            <a mat-list-item [routerLink]="['/home','users']" (click)="onClickNavLink(); $event.stopPropagation();" *ngIf="userRole === 'admin'" routerLinkActive="activeLink">
                 <div class="flex" >
                     <span class="icon material-symbols-outlined" matTooltip="Doctors">recent_actors</span> 
                     <span  style="color:#606262">{{ 'Doctors' }}</span>
                 </div>
             </a>
-            <a mat-list-item [routerLink]="['/home','messages']" (click)="isHomeRoute=!isHomeRoute; $event.stopPropagation()" routerLinkActive="activeLink"  *ngIf="userRole !== 'patient' && isUserUpdated">
+            <a mat-list-item [routerLink]="['/home','messages']" (click)="onClickNavLink(); $event.stopPropagation();" routerLinkActive="activeLink"  *ngIf="userRole !== 'patient' && isUserUpdated">
                 <div class="flex">
                     <span class="icon material-symbols-outlined" matTooltip="Messages">forum</span> 
                     <span  style="color:#606262">{{ 'Messages' }}</span>
                 </div>
             </a>
-            <a mat-list-item [routerLink]="['/home','feedback']" (click)="isHomeRoute=!isHomeRoute; $event.stopPropagation()" routerLinkActive="activeLink"  *ngIf="userRole === 'admin'">
+            <a mat-list-item [routerLink]="['/home','feedback']" (click)="onClickNavLink(); $event.stopPropagation();" routerLinkActive="activeLink"  *ngIf="userRole === 'admin'">
                 <div class="flex"  id="feedback">
                     <span class="icon material-symbols-outlined" matTooltip="Feedback">feedback</span> 
                     <span style="color:#606262">{{ 'Feedback' }}</span>
@@ -58,10 +68,12 @@
             <button mat-stroked-button style="width:14rem;"><a [routerLink]="['/home','user']">{{'Update Information'}}</a></button>
         </div>
         
-        <div *ngIf="isLoading" class="loading">
-            <app-loading></app-loading>
-        </div>
+        
         <div class="page" *ngIf="isHomeRoute && !isLoading && isUserUpdated" >
+            <div *ngIf="isLoading" class="loading">
+                <app-loading></app-loading>
+            </div>
+            <!-- ADMIN -->
             <div style="position: relative" *ngIf="userRole ==='admin' && clock" @slideInOut>
                 <div class="flat next-appointment">
                     <span *ngIf="today" class="material-symbols-outlined" id="bg-icon">
@@ -88,24 +100,24 @@
                 </div>
             </div>
 
-
+            <!-- DOCTOR -->
             <div style="position: relative" *ngIf="userRole ==='doctor' && !isLoading" [ngStyle]="{'margin-top': !nextId ? '16rem':'inherit'}" @slideInOut>      
                 <span class="material-symbols-outlined" id="bg-icon" >
                     calendar_clock
                 </span>
-                <div class="flat next-appointment" *ngIf="nextId">
-                    <h1 class="font" style="margin-top:0;">Next appointment:</h1>
+                <div class="flat next-appointment" *ngIf="nextId"  [ngStyle]="{height: !isDesktop && '50%'}">
+                    <h1 class="font" [ngClass]="!isDesktop && 'next-appointment__title'">Next appointment</h1>
 
-                    <div class="flex-row">
-                        <div class="flex-column">
-                            <p class="title" style="font-size:medium;">Appoinment time</p>
-                            <div class="time-wrapper" style="font-size: 3.5rem;">
+                    <div [ngClass]="isDesktop ? 'flex-row': 'flex-column'">
+                        <div class="flex-column" [ngClass]="!isDesktop && 'next-appointment__responsive'">
+                            <p class="title">Appoinment time</p>
+                            <div class="time-wrapper">
                                 <h3>{{nextStart.dayName}},</h3>
                                 <h1>{{nextStart.time}}</h1>
                                 <p style="font-size:smaller;"><em>{{nextStart.date}}</em></p>
                             </div>
                         </div>
-                        <div class="flex-column" id="patient-details">
+                        <div class="flex-column" id="patient-details" [ngStyle]="{width: !isDesktop ? '100%':'52%'}">
                             <p class="title">Patient's information</p>
                             <div class="block">
                                 <div class="flex-row">
@@ -117,7 +129,7 @@
                                     <h2><span>{{nextAppointmentPatientDob}}</span></h2>
                                 </div>
                                 <div class="flex-row">
-                                    <h2 class="font">Previous appointment</h2>
+                                    <h2 class="font">Previous visit</h2>
                                     <h2><span>{{previousAppointmentDate}}</span></h2>
                                 </div>
                                 <div class="flex-row" [ngClass]="recordIds.length> 0 && 'clickable'" (click)="recordIds.length> 0 && onOpenRecords()" >
@@ -148,7 +160,7 @@
 
             </div>
 
-
+            <!-- PATIENT -->
             <div style="position: relative" *ngIf="userRole ==='patient' && !isLoading" [ngStyle]="{'margin-top': !nextId ? '16rem':'inherit'}" @slideInOut>
                 <span class="material-symbols-outlined" id="bg-icon">
                     calendar_clock
@@ -173,7 +185,7 @@
                                     <h2><span>{{nextAppointmentName}}</span></h2>
                                 </div>
                                 <div class="flex-row">
-                                    <h2 class="font">Previous appointment</h2>
+                                    <h2 class="font">Previous visit</h2>
                                     <h2><span>{{previousAppointmentDate}}</span></h2>
                                 </div>
                                 <div class="flex-row" [ngClass]="recordIds.length> 0 && 'clickable'" (click)="recordIds.length> 0 && onOpenRecords()" >
@@ -202,7 +214,7 @@
                   </div>
             </div>
         </div> 
-        <div *ngIf="!isHomeRoute">
+        <div *ngIf="!isHomeRoute" style="width:100%;">
             <router-outlet></router-outlet>
         </div>
     </mat-sidenav-content>

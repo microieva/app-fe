@@ -3,6 +3,7 @@ import { AppAuthService } from "../../services/app-auth.service";
 import { ActivatedRoute, Router } from "@angular/router";
 import { catchError, distinctUntilChanged, filter, forkJoin, of, Subject, Subscription, switchMap, take, takeUntil, tap } from "rxjs";
 import { MatDialog } from "@angular/material/dialog";
+import { BreakpointObserver } from "@angular/cdk/layout";
 import { DateTime } from "luxon";
 import { environment } from "../../../../environments/environment";
 import { AppAppointmentService } from "../../services/app-appointment.service";
@@ -10,7 +11,7 @@ import { AppGraphQLService } from "../../services/app-graphql.service";
 import { AppSnackbarService } from "../../services/app-snackbar.service";
 import { AppSocketService } from "../../services/app-socket.service";
 import { AppTabsService } from "../../services/app-tabs.service";
-import { AppHeaderService } from "../../services/app-header-refresh.service";
+import { AppHeaderService } from "../../services/app-header.service";
 import { AppTimerService } from "../../services/app-timer.service";
 import { AppointmentComponent } from "../../../graphql/appointment/appointment.component";
 import { AlertComponent } from "../app-alert/app-alert.component";
@@ -26,6 +27,9 @@ import { CancelledAppointmentNotification, NewAppointmentNotification, NewFeedba
     styleUrls: ['app-header.component.scss']
 })
 export class AppHeader implements OnInit {
+    isDesktop: boolean = false; 
+    expand:boolean = false;
+
     unreadMessages: number | null= null;
     missedAppointments: number | null = null;
     isDisabled:boolean = true;
@@ -58,9 +62,13 @@ export class AppHeader implements OnInit {
         private tabsService: AppTabsService,
         private socketService: AppSocketService,
         private snackbarService: AppSnackbarService,
-        private headerService: AppHeaderService
+        private headerService: AppHeaderService,
+        private breakpointObserver: BreakpointObserver
     ){}
     async ngOnInit() {
+        this.breakpointObserver.observe([`(min-width: 1024px)`]).subscribe(result => {
+            this.isDesktop = result.matches;
+        });
         this.me = null;
         this.time = null;
         this.authService.isLoggedIn$.subscribe(isLoggedIn => {
@@ -71,6 +79,10 @@ export class AppHeader implements OnInit {
                 const subCount = this.headerService.isCountUpdated.subscribe(async()=> {
                     await this.countUnreadMessages();
                 });
+                const subToggle = this.headerService.toggleSidenav.subscribe(
+                    toggle => this.expand = toggle
+                )
+                this.subscriptions.add(subToggle);
                 this.subscriptions.add(sub);
                 this.subscriptions.add(subCount);
                 this.initHeader();
@@ -91,6 +103,7 @@ export class AppHeader implements OnInit {
                 switchMap(() => this.timerService.tokenCountdown$),
                 tap(countdown => this.time = countdown), 
                 switchMap(() => {
+                    
                     if (this.me?.updatedAt) {
                         return forkJoin({
                             socketUpdates: this.socketService.getMissedAppointmentsCount().pipe(
@@ -274,6 +287,7 @@ export class AppHeader implements OnInit {
     }
     openChat() {
         this.router.navigate(['/home/messages']);
+        if (this.expand) this.headerService.openSidenav(!this.expand);
     }
     openCalendar() {
         if (this.userRole === 'admin') {
@@ -282,6 +296,7 @@ export class AppHeader implements OnInit {
 
             this.router.navigate(['/home/appointments/calendar']);
         }
+        if (this.expand) this.headerService.openSidenav(!this.expand);
     }
 
 
@@ -310,6 +325,9 @@ export class AppHeader implements OnInit {
         this.ngOnDestroy();
        
         await this.authService.logOut();
+    }
+    toggleSidenav(){
+        this.headerService.openSidenav(!this.expand);
     }
 
 }

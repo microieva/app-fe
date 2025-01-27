@@ -1,3 +1,5 @@
+@import '../../scss/breakpoints';
+
 table {
     button {
         background-color: rgb(139,149,161);
@@ -7,6 +9,12 @@ table {
         text-wrap:nowrap;
     }
     box-shadow: none;
+    @include respond-to(mobile-xx) {
+        *:not(.material-symbols-outlined){font-size:0.8rem;}
+    }
+    @include respond-to(small-mobile-x) {
+        *:not(.material-symbols-outlined){font-size:11px;}
+    }
 }
 mat-form-field {
     width: 100%;
@@ -91,14 +99,28 @@ button {
 
 .material-symbols-outlined{
     color: rgb(119, 134, 154);
+    @include respond-to(mobile-xx) {
+        font-size:1.2rem;
+    }
 }
-.dialog-table {
+.table {
     padding: 2rem;
     width: 65rem;
     height: 35rem;
     table {
         background-color: transparent;
     }
+ 
+}
+// .mat-mdc-paginator-container .mat-mdc-paginator-page-size{
+//     @include respond-to(small-mobile-x) {
+//       display:none!important;
+//     }
+//   }
+
+.mat-mdc-icon-button{
+    padding: 0 !important;
+    
 }
 
 .mat-mdc-header-row {
@@ -107,7 +129,9 @@ button {
         --mat-table-row-item-outline-color: rgb(78, 84, 90);
         font-weight: 800;
         line-height: 4rem;
-       
+        @include respond-to(small-mobile-x){    
+            line-height: 2rem;
+        }
     }
 }
 
@@ -122,10 +146,14 @@ button {
 }
 .mat-column-checkbox {
     max-width: 3rem;
+ 
 }
 .mat-column-unreadMessages,
 .mat-column-draft {
     max-width: 4rem;
+    @include respond-to(small-mobile-x) {
+        text-align: center;
+    }
 }
 .mat-column-online {
     min-width: 4rem;
@@ -135,6 +163,12 @@ button {
 .mat-column-actions {
     max-width: 7rem;
     border-right: 0.5px solid #cbcbcb;
+    @include respond-to(desktop-6x) {
+        border-right:none;
+    }
+    @include respond-to(mobile) {
+        display:none; 
+    }
 }
 .mat-column-unreadMessages.mat-mdc-cell {
     text-align: center;
@@ -149,6 +183,10 @@ button {
 .mat-column-title {
     min-width: 10rem;
     padding-left:2rem;
+    @include respond-to(desktop-6x) {
+        padding-left:0.5rem;
+        min-width:6rem;
+    }
 }
 .mat-column-name.mat-mdc-cell {
     display: flex;

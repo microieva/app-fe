@@ -12,6 +12,8 @@ import { AppTimerService } from "../../services/app-timer.service";
 import { AlertComponent } from "../app-alert/app-alert.component";
 import { ConfirmComponent } from "../app-confirm/app-confirm.component";
 import { AppointmentInput } from "../../../graphql/appointment/appointment.input";
+import { AppTabsService } from "../../services/app-tabs.service";
+import { AppointmentComponent } from "../../../graphql/appointment/appointment.component";
 
 @Component({
     selector: 'app-event',
@@ -20,7 +22,7 @@ import { AppointmentInput } from "../../../graphql/appointment/appointment.input
 })
 export class EventComponent implements OnInit, OnDestroy{
     form = new FormGroup({
-        input: new FormControl<string>('')
+        input: new FormControl<string | null>(null)
     });
     appointmentTimeForm = new FormGroup({
         date: new FormControl(),
@@ -66,6 +68,7 @@ export class EventComponent implements OnInit, OnDestroy{
     @Output() isOpeningTab = new EventEmitter<number>();
 
     @ViewChild('el') el: ElementRef | undefined;
+    @ViewChild('textarea') textarea: ElementRef | undefined;
 
     appointmentInfo: any;
     title: string = ''
@@ -92,6 +95,7 @@ export class EventComponent implements OnInit, OnDestroy{
         private activatedRoute: ActivatedRoute,
         private socketService: AppSocketService,
         private timerService: AppTimerService,
+        private tabsService:AppTabsService,
 
         public dialogRef: MatDialogRef<EventComponent>,
         @Inject(MAT_DIALOG_DATA) public data: any
@@ -133,6 +137,10 @@ export class EventComponent implements OnInit, OnDestroy{
             !this.appointmentTimeForm.errors
         );
     }
+    get characterCount(): number {
+        const characters = this.textarea?.nativeElement.value || '';
+        return characters.replace(/\n/g, '').length; 
+    }
 
     async loadJustCreatedAppointment(patientId: number){
         const query = `query ($patientId: Int!) {
@@ -155,6 +163,11 @@ export class EventComponent implements OnInit, OnDestroy{
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Appointment failed "+error}})
         }
+    }
+    adjustHeight(event:any){
+        const el = event.target as HTMLTextAreaElement;
+        el.style.height='auto';
+        el.style.height =`${el.scrollHeight}px`;
     }
     async loadMe() {
         const query = `query { me { id userRole }}`
@@ -334,10 +347,19 @@ export class EventComponent implements OnInit, OnDestroy{
         }
     }
     onOpenAppointmentTab(appointmentId: number){
-        const tabs = JSON.parse(localStorage.getItem('tabs') || '[]');
+        const tabs = this.tabsService.getTabs();
         const isCreated = tabs.find((tab: any) => tab.id === appointmentId);
 
         if (!isCreated) {
+            if (this.router.url.includes('calendar')) {
+                this.tabsService.addTab('Appointment Workspace', AppointmentComponent, appointmentId);
+                this.router.navigate(['/home/appointments'], {
+                    relativeTo: this.activatedRoute,
+                    queryParams: { tab: 3},
+                    queryParamsHandling: 'merge' 
+                });
+                this.dialog.closeAll();
+            }
             this.isOpeningTab.emit(appointmentId);
             this.isOpened = true;
         } else {

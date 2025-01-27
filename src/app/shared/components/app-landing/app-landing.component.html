@@ -3,7 +3,7 @@
         <img src="assets/front-page.jpg"/>
     </div>
     <div class="page" >
-        <div @slideInOut  class="slide-block" [ngStyle]="{'transform': 'translateY(' + scrollOffset + 'px)'}">
+        <div @slideInOut  class="slide-block" [ngStyle]="{transform: isDesktop ? 'translateY(' + scrollOffset + 'px)':''}">
             <div class="slide-div txt">
                 <div class="flex-column" style="height:100%;">
                     <h1 class="title bg">Empathic health care center for all</h1>
@@ -12,12 +12,12 @@
                 </div>
                 <div class="flex-row clickable click" (click)="onLogIn()">
                     <h2 class="font">Log in to your account</h2>
-                    <h2 style="height: 1.7rem;"><span class="material-symbols-outlined">
+                    <h2><span class="material-symbols-outlined">
                     arrow_right
                     </span></h2>
                 </div>
             </div>
-            <div class="slide-div block font" style="margin-top:14rem;">
+            <div class="slide-div block font" id="responsive">
                 <div class="flex-row"><h2>Same day appointments on call</h2><h2><span class="material-icons">
                     call_outlined
                     </span></h2></div>
@@ -45,7 +45,7 @@
                     hearing_aid
                     </span></h2></div>
             </div>
-            <div class="block" id="personel" style="margin:16rem auto;">
+            <div class="block" id="personel">
                 <h1>Our personel always there to help</h1>
                 <div class="flex-row">
                     <div class="flex-column card">
@@ -75,25 +75,28 @@
                         <div class="row-img-wrapper">
                             <img src="assets/cust-1.jpeg"/>
                         </div>
-                        <p>Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt vulputate ad. Adipiscing morbi dapibus amet nec potenti mus suscipit dui. Ultricies auctor tempor interdum et ridiculus volutpat proin tortor erat. Gravida amet diam molestie sociosqu himenaeos nisl posuere habitasse.</p>
+                        <p *ngIf="isDesktop">Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt vulputate ad. Adipiscing morbi dapibus amet nec potenti mus suscipit dui. Ultricies auctor tempor interdum et ridiculus volutpat proin tortor erat. Gravida amet diam molestie sociosqu himenaeos nisl posuere habitasse.</p>
+                        <p *ngIf="isTablet">Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt.. <em>Read more...</em></p>
                     </div>
                     <div class="flex-row row">
                         <div class="row-img-wrapper">
                             <img src="assets/cust-2.png"/>
                         </div>
-                        <p>Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt vulputate ad. Adipiscing morbi dapibus amet nec potenti mus suscipit dui. Ultricies auctor tempor interdum et ridiculus volutpat proin tortor erat. Gravida amet diam molestie sociosqu himenaeos nisl posuere habitasse.</p>
+                        <p *ngIf="isDesktop">Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt vulputate ad. Adipiscing morbi dapibus amet nec potenti mus suscipit dui. Ultricies auctor tempor interdum et ridiculus volutpat proin tortor erat. Gravida amet diam molestie sociosqu himenaeos nisl posuere habitasse.</p>
+                        <p *ngIf="isTablet">Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt.. <em>Read more...</em></p>
                     </div>
                     <div class="flex-row row">
                         <div class="row-img-wrapper">
                             <img src="assets/cust-3.png"/>
                         </div>
-                        <p>Some lorem ipsum lorem ipsum. A couple of sentences to fill this card space. Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt vulputate ad. Adipiscing morbi dapibus amet nec potenti mus suscipit dui. Ultricies auctor tempor interdum et ridiculus volutpat proin tortor erat. Gravida amet diam molestie sociosqu himenaeos nisl posuere habitasse.</p>
+                        <p *ngIf="isDesktop">Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt vulputate ad. Adipiscing morbi dapibus amet nec potenti mus suscipit dui. Ultricies auctor tempor interdum et ridiculus volutpat proin tortor erat. Gravida amet diam molestie sociosqu himenaeos nisl posuere habitasse.</p>
+                        <p *ngIf="isTablet">Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt.. <em>Read more...</em></p>
                     </div>
                     <div class="flex-row row">
                         <div class="row-img-wrapper">
                             <img src="assets/cust-4.jpeg"/>
                         </div>
-                        <p>Some lorem ipsum lorem ipsum. A couple of sentences to fill this card space. Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt vulputate ad. Adipiscing morbi dapibus amet nec potenti mus suscipit dui. Ultricies auctor tempor interdum et ridiculus volutpat proin tortor erat. Gravida amet diam molestie sociosqu himenaeos nisl posuere habitasse.</p>
+                        <p style="align-self:flex-start; padding-top:0.5rem;">Some lorem ipsum lorem ipsum!</p>
                     </div>
                 </div>
             </div>
@@ -149,9 +152,11 @@
                                     formControlName="text"
                                     [errorStateMatcher]="matcher"
                                     #text
+                                    #textarea
+                                    (input)="adjustHeight($event)"
                                 ></textarea>
 
-                                <mat-hint align="end">{{text.value.length}} / 1000</mat-hint>
+                                <mat-hint align="end">{{characterCount}} / 1000</mat-hint>
                                 <mat-hint *ngIf="feedbackForm.get('text')?.touched && feedbackForm.get('text')?.hasError('required')">Required</mat-hint>
                                 <mat-hint *ngIf="feedbackForm.get('text')?.hasError('maxlength')">Message exceeds 1000 characters.</mat-hint>
  
@@ -211,7 +216,7 @@
                     <mat-expansion-panel-header style="padding:0">
                         <div class="text">
                             <h2>Sign up for our Nerwsletter</h2>
-                            <h3>Your email address</h3>
+                            <h3 class="font">Your email address</h3>
                         </div>
                         <div class="dotted-border"></div>
                         <div class="section-icon">

@@ -1,6 +1,7 @@
 
 @use '@angular/material' as mat;
-@import 'mixins';
+@import './app/shared/scss/mixins';
+@import './app/shared/scss/breakpoints';
 
 
 @include mat.core();
@@ -46,10 +47,33 @@ $custom-theme-theme: mat.define-light-theme((
   --mdc-checkbox-selected-focus-state-layer-color:rgba(115, 72, 114, 0.7);
   --mdc-checkbox-selected-focus-icon-color:rgba(115, 72, 114, 0.7);
   --mdc-checkbox-selected-pressed-state-layer-color:rgba(115, 72, 114, 0.7);
+
+  @include respond-to(desktop-5x){
+    --mdc-outlined-button-label-text-size:18px;
+
+  } 
+  @include respond-to(desktop-5x){
+    --mdc-form-field-label-text-size:1.5rem;
+  }
+  @include respond-to(mobile-xx) {
+    --mat-table-row-item-label-text-size:0.7rem;
+  }
+  @include respond-to(small-mobile-x) {
+    --mdc-icon-button-state-layer-size:40px;
+    --mat-paginator-container-text-size:11px;
+    //--mat-paginator-select-trigger-text-size:11px;
+    --mat-tab-header-label-text-size:12px;
+    --mdc-outlined-button-label-text-size:12px;
+  }
 }
-html, body { height: 100%; }
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+}
 body { 
-  margin: 0; 
   font-family: Roboto, "Helvetica Neue", sans-serif; 
   color: rgb(68, 65, 65); 
 }
@@ -77,6 +101,15 @@ app-sidenav {
   margin: auto;
   margin-top: 4rem;
   margin-bottom: 4rem;
+  @include respond-to(small-mobile-x){ 
+    width:95%;
+    max-width:95%;
+    padding:0;
+    margin:auto;
+    &__text-block {
+      font-size:0.8rem;
+    }
+}
 }
 .actions {
   margin: 1rem 0;
@@ -90,13 +123,35 @@ app-sidenav {
 mat-form-field {
   margin: 0 0.5rem;
 }
-
-.mat-mdc-dialog-content {
-  min-width: 30rem;
+.mdc-data-table__cell, .mdc-data-table__header-cell{
+  @include respond-to(desktop-6x) {
+    padding:0!important;
+  }
 }
+.mat-mdc-paginator-range-label {
+  @include respond-to(small-mobile-x) {
+    margin: 0 !important;
+  }
+}
+.mdc-checkbox {
+  @include respond-to(small-mobile-x) {
+    height:10px;
+    width: 10px;
+  }
+}
+
+// .mat-mdc-dialog-content { // passing width dinamicly i n the open() call ? :/
+//   min-width: 30rem;
+// }
+
 .mat-accordion.mat-expansion-panel:not([class*='mat-elevation-z']) {
   box-shadow: none !important;
 } 
+mat-hint {
+  @include respond-to(desktop-5x){
+    font-size: 1rem;
+  }
+}
 
 .mat-mdc-radio-button.mat-accent {
   --mdc-radio-disabled-selected-icon-color: black;
@@ -113,8 +168,23 @@ mat-form-field {
   --mat-radio-disabled-label-color: rgba(0, 0, 0, 0.38);
 }
 .mat-mdc-tab.mdc-tab {
-  width: 16rem;
+  width: 16rem; 
   &--active  {background-color: rgb(139,149,161);}
+  @include respond-to(desktop-5x){
+    width: auto;
+    flex-grow: 1!important; 
+  } 
+  @include respond-to(small-mobile-x){
+    width:12rem;
+    font-size:12px;
+  } 
+  
+}
+.mat-mdc-tab-header {
+  @include respond-to(desktop-5x){
+    --mdc-secondary-navigation-tab-container-height:4rem;
+    --mat-tab-header-label-text-size:1.1rem;
+  } 
 }
 
 .tab-label{
@@ -135,14 +205,22 @@ mat-form-field {
 }
 .mat-mdc-form-field-infix{
   display: flex;
+  @include respond-to(desktop-5x){
+   // --mat-form-field-container-height: 8rem; // this is making many imputs stretched up
+    font-size: 1.5rem;
+  }
 }
+
 .fc {
   --fc-event-bg-color: rgb(175 111 174 / 40%); //  COLOR FOR DETAIL
   --fc-event-border-color: rgb(111, 143, 175, 40%);
   --fc-event-text-color: rgb(68, 65, 65);
 }
 .fc-view-harness-active {
-  height: 45rem!important;
+  min-height: 45rem!important;
+  @include respond-to(desktop-5x){
+    height:61rem;
+  }
 }
 .fc-daygrid-frame {
   height: 8rem;
@@ -192,6 +270,13 @@ mat-form-field {
 .fc-daygrid-day {
   height: 6rem; 
   overflow: hidden; 
+  @include respond-to(desktop-5x){
+    height: 10rem; 
+    .fc-event-main {
+      height:1.5rem;
+      font-size:larger;
+    }
+  }
 }
 
 .fc-button-primary{
@@ -218,7 +303,8 @@ mat-form-field {
   flex-direction: column;
 }
 .wrapper {
-  min-width: 40rem;
+  //width:100%;
+  //min-width: 40rem;
   border: 1px solid rgb(111, 143, 175, 40%);
   border-radius: 3px;
   margin: 1rem;
@@ -243,7 +329,20 @@ mat-form-field {
       background: rgb(139, 149, 161);
       border-radius: 50%;
       padding: 3px;
+      @include respond-to(desktop-5x){
+        font-size:2rem;
+      }
+      @include respond-to(small-mobile-x){
+        font-size:1rem;
+      } 
   }
+  @include respond-to(desktop-5x){
+    height:3.7rem;
+    font-size:1.5rem;
+  }
+  @include respond-to(small-mobile-x){
+    font-size:14px;
+  } 
 }
 
 .title, em{
@@ -296,38 +395,34 @@ em {
       font-size: smaller;
   }
 }
-.next-appointment {
-  padding: 1.5rem;
-  border: 1px solid  rgb(68, 65, 65);
-  & h2 {
-    border: none;
-  }
-}
 
 // header
 
 
 .me {
-  margin-left: 1rem;
-  font-size: small;
-  color: gray;
+  // margin-left: 1rem;
+  // font-size: small;
+  // color: gray;
 }
 .time {
-  border: 1px solid darkgray;
-  border-radius: 3px;
-  color: darkgray;
-  padding: 0 1rem;
-  margin-right: 1rem;
-  margin-left: 1rem;
+  // border: 1px solid darkgray;
+  // border-radius: 3px;
+  // color: darkgray;
+  // padding: 0 1rem;
+  // margin-right: 1rem;
+  // margin-left: 1rem;
   p {
       margin: 0;
   }
 }
 .spacer {
-  flex: 1 1 auto;
+  // flex: 1 1 auto;
 }
 .table-wrapper {
   margin-top: 4rem;
+  .table {
+   
+  }
 }
 .icon-btn {
   position: relative;

@@ -1,5 +1,18 @@
+@import '../../../shared/scss/breakpoints';
+
 full-calendar {
     max-width: 600px;
     margin: 40px auto;
+   
+}
+
+.page {
+    @include respond-to(desktop-5x){
+        margin-top:4rem;
+        height:100%;
+    }
+    @include respond-to(tablet){ 
+        margin-top:8rem;
+    }
 }
 

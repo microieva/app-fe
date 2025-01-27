@@ -5,7 +5,7 @@
 <div class="flex-column" *ngIf="!isLoading">
     <div class="legend">
         <mat-radio-group
-            class="flex-column"
+            
             [(ngModel)]="selectedAppointments"
             >
             @for (appointmentSelection of appointmentSelections; track appointmentSelection) {

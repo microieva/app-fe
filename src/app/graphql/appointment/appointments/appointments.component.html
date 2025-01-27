@@ -36,7 +36,7 @@
                         <button mat-stroked-button (click)="openCalendar()">{{ 'Make an Appointment' }}</button>
                     </div>
     
-                    <div *ngIf="countPendingAppointments > 0">  
+                    <div *ngIf="countPendingAppointments > 0" class="page__text-block">  
                         <div style="margin-bottom: 8rem;">
                             <h2 class="font">Book appointment:</h2>
                             <p>Appointment confirmation will be sent by email. Make sure you have provided your correct email address. You can always find your account details on <a [routerLink]="['/home/user']">My Account</a> page.</p>
@@ -49,7 +49,7 @@
                     </div>
 
                 </div>
-                <div *ngIf="userRole === 'doctor'">
+                <div *ngIf="userRole === 'doctor'" >
                     <div *ngIf="countPendingAppointments === 0" class="btn-block">
                         <span class="material-symbols-outlined" id="bg-icon">
                             folder_open
@@ -57,7 +57,7 @@
                         <h1>No appointment requests</h1>
                     </div>
                     
-                    <div *ngIf="countPendingAppointments > 0">  
+                    <div *ngIf="countPendingAppointments > 0" class="page__text-block">  
                         <div>
                             <h2 class="font">Appointment requests ({{countPendingAppointments}}):</h2>
                             <p>Currently there are {{countPendingAppointments}} appointment requests waiting for confirmation. Please prioritize soonest requests.</p>
@@ -110,7 +110,7 @@
 
             <div class="page">
                 <div *ngIf="userRole === 'patient'">   
-                    <div *ngIf="countUpcomingAppointments > 0;">
+                    <div *ngIf="countUpcomingAppointments > 0;" class="page__text-block">
                         <h2 class="font">Confirmed appointments:</h2>
                         <p *ngIf="countUpcomingAppointments===1">Currently you have {{countUpcomingAppointments}} upcoming appointment.</p>
                         <p *ngIf="countUpcomingAppointments>1">Currently you have {{countUpcomingAppointments}} upcoming appointments.</p>
@@ -123,7 +123,7 @@
                     </div>
                 </div>
                 <div *ngIf="userRole === 'doctor'">  
-                    <div *ngIf="countUpcomingAppointments > 0">
+                    <div *ngIf="countUpcomingAppointments > 0" class="page__text-block">
                         <h2 class="font">Next appointments:</h2>
                         <p *ngIf="countUpcomingAppointments === 1">Currently there is {{countUpcomingAppointments}} upcoming appointment in your calendar.</p>
                         <p *ngIf="countUpcomingAppointments > 1">Currently there are {{countUpcomingAppointments}} upcoming appointments in your calendar.</p>
@@ -178,8 +178,8 @@
         <div>
             <div class="page">
                 <div *ngIf="userRole === 'patient'">   
-                    <div *ngIf="countPastAppointments === 0">
-                        <h2 class="font">Previous appointments:</h2>
+                    <div *ngIf="countPastAppointments === 0" class="page__text-block">
+                        <h2 class="font">Previous visits:</h2>
                         <p *ngIf="countPastAppointments===1">You had {{countPastAppointments}} appointment.</p>
                         <p *ngIf="countPastAppointments>1">Previously you had {{countPastAppointments}} appointments.</p>
                     </div>
@@ -197,10 +197,10 @@
                         </span>
                         <h1>No appointments</h1>
                     </div>
-                    <div *ngIf="countPastAppointments>0">
+                    <div *ngIf="countPastAppointments>0" class="page__text-block">
                         <h2 class="font">Previous appointments:</h2>
-                        <p *ngIf="countPastAppointments===1">{{countPastAppointments}} appointment in the archive.</p>
-                        <p *ngIf="countPastAppointments>1">{{countPastAppointments}} appointments in the archive.</p>
+                        <p *ngIf="countPastAppointments===1">{{countPastAppointments}} appointment in the archive. Appointments without medical record are blocked from deleting.</p>
+                        <p *ngIf="countPastAppointments>1">{{countPastAppointments}} appointments in the archive. Appointments without medical record are blocked from deleting.</p>
                     </div>
                 </div>
                 <div class="table-wrapper">
@@ -229,9 +229,7 @@
             </div>
         </div>
     </mat-tab>
-    <mat-tab 
-        *ngFor="let tab of tabs"
-    >
+    <mat-tab *ngFor="let tab of tabs">
         <ng-template mat-tab-label><span class="tab-label">{{ tab.title }}</span></ng-template>
         <ng-template matTabContent>
             <app-appointment [id]="tab.id" (close)="onTabClose($event)"></app-appointment>
