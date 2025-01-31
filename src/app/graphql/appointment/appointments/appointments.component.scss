@@ -19,11 +19,11 @@
         width:95%;
         max-width:90%;
     }
-    // @include respond-to(small-mobile-x){ 
-    //     width:95%;
-    //     max-width:95%;
-    //     padding:0;
-    // }
+    @include respond-to(mobile-6x){ 
+        width:95%;
+        max-width:95%;
+        padding:0;
+    }
 }
 mat-panel-description {
     justify-content: flex-end;
@@ -31,14 +31,7 @@ mat-panel-description {
         text-indent: 1rem;
     }
 }
-// .info {
-//     height: 2.5rem;
-//     margin-top: 1px;
-//     @include respond-to(desktop-5x){
-//         height:3.7rem;
-//         font-size:1.5rem;
-//       }
-// }
+
 .column {
     display: flex;
     flex-direction: column;

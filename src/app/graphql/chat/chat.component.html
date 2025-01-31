@@ -13,7 +13,7 @@
     </span>
     <div class="chat-wrapper flex-column">
 
-        <form class="form-wrapper" [formGroup]="form" (ngSubmit)="onSendMessage()">
+        <form class="flex-column" [formGroup]="form" (ngSubmit)="onSendMessage()">
             <mat-form-field>
                 <textarea 
                     #textarea
@@ -27,7 +27,7 @@
                 ></textarea>
                 <mat-hint align="start">{{ characterCount }} / 700</mat-hint>
             </mat-form-field>
-            <div class="icons flex-row" style="float: right;">
+            <div class="icons flex-row">
                 <div (click)="onDeleteMessage()">
                     <span class="material-icons" matTooltip="Delete" style="color:rgb(175 111 174 / 90%);">close</span>
                 </div>

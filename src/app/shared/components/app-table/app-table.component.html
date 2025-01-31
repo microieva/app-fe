@@ -58,9 +58,9 @@
                         [ngClass]="{ 'online': element.online, 'offline': !element.online }" 
                         class="status flex-row"
                     >
-                        <div [ngClass]="{ 'online-dot': element.online, 'offline-dot': !element.online }"></div>
-                        <p *ngIf="element.online">Active</p>
-                        <p *ngIf="!element.online">Offline</p>
+                        <div [ngClass]="{ 'online-dot': element.online, 'offline-dot': !element.online }" *ngIf="!isMobile"></div>
+                        <p [ngStyle]="{paddingRight: !isMobile ? '12px':'0'}" *ngIf="element.online">Active</p>
+                        <p [ngStyle]="{paddingRight: !isMobile ? '12px':'0'}" *ngIf="!element.online">Offline</p>
                     </div>
                 </ng-container>
                

@@ -384,7 +384,7 @@ export class RecordsComponent implements OnInit, OnDestroy {
     }
     onRecordClick(value: {id: number, title?:string}){
         const recordId = value.id;
-        const dialogRef = this.dialog.open(RecordComponent, {data: {recordId, width: "45rem"}});
+        const dialogRef = this.dialog.open(RecordComponent, {width: "45rem", data: {recordId}});
         const sub = dialogRef.componentInstance.reload.subscribe(async subscription => {
             if (subscription) await this.ngOnInit();
         });

@@ -1,5 +1,5 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    <div class="flex-row top-wrapper">
+    <div class="flex-row top-wrapper" [ngStyle]="{flexDirection: useAdvanced && isMobile ? 'column':'row'}">
         <mat-form-field appearance="outline" id="input" [ngStyle]="{width: useAdvanced ? '70%':'100%'}">
           <mat-label>Search by name</mat-label>
           <input matInput type="text" formControlName="searchInput" />

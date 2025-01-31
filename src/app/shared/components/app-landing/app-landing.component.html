@@ -1,4 +1,4 @@
-<div class="content-view-wrapper">
+<div class="content-view-wrapper" #viewContainer>
     <div class="img-wrapper">
         <img src="assets/front-page.jpg"/>
     </div>
@@ -12,9 +12,7 @@
                 </div>
                 <div class="flex-row clickable click" (click)="onLogIn()">
                     <h2 class="font">Log in to your account</h2>
-                    <h2><span class="material-symbols-outlined">
-                    arrow_right
-                    </span></h2>
+                    <h2><span class="material-symbols-outlined">arrow_right</span></h2>
                 </div>
             </div>
             <div class="slide-div block font" id="responsive">
@@ -76,21 +74,21 @@
                             <img src="assets/cust-1.jpeg"/>
                         </div>
                         <p *ngIf="isDesktop">Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt vulputate ad. Adipiscing morbi dapibus amet nec potenti mus suscipit dui. Ultricies auctor tempor interdum et ridiculus volutpat proin tortor erat. Gravida amet diam molestie sociosqu himenaeos nisl posuere habitasse.</p>
-                        <p *ngIf="isTablet">Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt.. <em>Read more...</em></p>
+                        <p *ngIf="!isDesktop">Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt.. <em>Read more...</em></p>
                     </div>
                     <div class="flex-row row">
                         <div class="row-img-wrapper">
                             <img src="assets/cust-2.png"/>
                         </div>
                         <p *ngIf="isDesktop">Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt vulputate ad. Adipiscing morbi dapibus amet nec potenti mus suscipit dui. Ultricies auctor tempor interdum et ridiculus volutpat proin tortor erat. Gravida amet diam molestie sociosqu himenaeos nisl posuere habitasse.</p>
-                        <p *ngIf="isTablet">Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt.. <em>Read more...</em></p>
+                        <p *ngIf="!isDesktop">Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt.. <em>Read more...</em></p>
                     </div>
                     <div class="flex-row row">
                         <div class="row-img-wrapper">
                             <img src="assets/cust-3.png"/>
                         </div>
                         <p *ngIf="isDesktop">Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt vulputate ad. Adipiscing morbi dapibus amet nec potenti mus suscipit dui. Ultricies auctor tempor interdum et ridiculus volutpat proin tortor erat. Gravida amet diam molestie sociosqu himenaeos nisl posuere habitasse.</p>
-                        <p *ngIf="isTablet">Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt.. <em>Read more...</em></p>
+                        <p *ngIf="!isDesktop">Lorem ipsum odor amet, consectetuer adipiscing elit. Pellentesque dis facilisis libero ante aliquam vel cras est nec. Habitasse duis accumsan at duis justo tincidunt.. <em>Read more...</em></p>
                     </div>
                     <div class="flex-row row">
                         <div class="row-img-wrapper">
@@ -109,7 +107,7 @@
                 </div>
             </div>
         </div>
-        <div class="text-block" >
+        <div class="text-block" #textBlock>
             <mat-accordion class="visible-wrapper" >
                 <div class="section flex-row" [ngClass]="setVisible1 ? 'visible':''">
                     <div class="text">
@@ -121,7 +119,7 @@
                         <span class="material-symbols-outlined">phone_enabled</span>
                     </div>
                 </div>
-                <mat-expansion-panel (opened)="!panelOpenState = !panelOpenState " (closed)="panelOpenState = !panelOpenState" #feedbackPanel class="section flex-row" hideToggle style="box-shadow:none;border-radius:none;" [ngClass]="setVisible2 ? 'visible':''">
+                <mat-expansion-panel (opened)="!isPanelOpen = !isPanelOpen; " (closed)="isPanelOpen = !isPanelOpen" #feedbackPanel class="section flex-row" hideToggle style="box-shadow:none;border-radius:none;" [ngClass]="setVisible2 ? 'visible':''">
                     <mat-expansion-panel-header style="padding:0">
 
                         <div class="text">
@@ -134,7 +132,7 @@
                         </div>
                         
                     </mat-expansion-panel-header>
-                    <div class="expansion-content flex-column" [ngClass]="{ 'open': panelOpenState }" >
+                    <div class="expansion-content flex-column" [ngClass]="{ 'open': isPanelOpen }" >
                         <div *ngIf="isSendingFeedback && !feedback" class="loading">
                             <app-loading></app-loading>
                         </div>
@@ -212,7 +210,7 @@
 
                     </div>
                 </mat-expansion-panel>
-                <mat-expansion-panel (opened)="!panelOpenState = !panelOpenState " (closed)="panelOpenState = !panelOpenState" #newsletterPanel class="section flex-row" hideToggle style="box-shadow:none;border-radius:none;" [ngClass]="setVisible3 ? 'visible':''">
+                <mat-expansion-panel (opened)="!isPanelOpen = !isPanelOpen; " (closed)="isPanelOpen = !isPanelOpen" #newsletterPanel class="section flex-row" hideToggle style="box-shadow:none;border-radius:none;" [ngClass]="setVisible3 ? 'visible':''">
                     <mat-expansion-panel-header style="padding:0">
                         <div class="text">
                             <h2>Sign up for our Nerwsletter</h2>
@@ -223,7 +221,7 @@
                             <span class="material-symbols-outlined">mail</span>
                         </div>
                     </mat-expansion-panel-header>
-                    <div class="expansion-content" [ngClass]="{ 'open': panelOpenState }">
+                    <div class="expansion-content" [ngClass]="{ 'open': isPanelOpen }">
                         <div *ngIf="!isSent" class="flex-row" style="margin-top:0.5rem;">
                             <mat-form-field class="input">
                                 <mat-label>{{ 'Type here ..' }}</mat-label>

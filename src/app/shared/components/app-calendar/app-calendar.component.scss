@@ -16,6 +16,12 @@
         top:86px;
         left:36px;
     }
+    @include respond-to(mobile-6x){ 
+        width:min-content;
+        top:86px;
+        left:0;
+        font-size:10px;
+    }
 }
 full-calendar {
     @include respond-to(desktop-5x){
@@ -26,5 +32,8 @@ full-calendar {
     }
     @include respond-to(tablet){
         width:42rem;
+    }
+    @include respond-to(mobile-6x){
+        width:26rem;
     }
 }

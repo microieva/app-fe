@@ -339,7 +339,7 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
     onRowClick(id: number, title?: string){
         if (this.recordIds) {
-            this.dialog.open(RecordComponent, {data: {recordId: id, width: "45rem", noDelete: true}});
+            this.dialog.open(RecordComponent, {width: "45rem", data: {recordId: id, noDelete: true}});
         }
         this.markAppointmentId = null;
         if (id) {

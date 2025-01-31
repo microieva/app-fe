@@ -1,12 +1,13 @@
 $mobile-min: 300px;
-$small-mobile-x:450px;
-$small-mobile-max: 480px;
+$small-mobile:410px;
+$small-mobile-x:430px;
+$small-mobile-max: 450px;
 $mobile-5x:500px;
 $mobile-xxxx:550px;
 $mobile-xxx:600px;
 $mobile-xx:612px;
-$mobile-x:686px;
-$mobile-max: 767px;
+$mobile-x:686px; //mobile
+$mobile-max: 767px; // mobile
 
 $tablet-min: 768px;
 $tablet-max: 1023px;
@@ -22,12 +23,12 @@ $desktop-x: 1684px;
 
 @mixin respond-to($breakpoint) {
 @if $breakpoint == small-mobile {
-    @media (max-width: $small-mobile-max) {
+    @media (max-width: $small-mobile) {
         @content;
     }
 }
-@else if $breakpoint == small-mobile {
-    @media (max-width: $small-mobile-max) {
+@else if $breakpoint == mobile-6x { //iPhone14
+    @media (max-width: $small-mobile-x) {
         @content;
     }
 } @else if $breakpoint == mobile-5x {
@@ -51,7 +52,7 @@ $desktop-x: 1684px;
         @content;
     }
 } @else if $breakpoint == mobile {
-    @media (min-width: $mobile-min) and (max-width: $mobile-max) {
+    @media (min-width: $mobile-x) and (max-width: $mobile-max) {
         @content;
     }
     // } @else if $breakpoint == large-mobile {

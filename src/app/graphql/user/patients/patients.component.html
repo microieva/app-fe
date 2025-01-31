@@ -7,7 +7,7 @@
     <app-loading></app-loading>
 </div>
 <div class="page" @slideInOut>
-    <div>
+    <div class="page__text-block">
         <h2 class="font">Registered patients:</h2>
         <p *ngIf="countPatients === 1">Currently there is {{countPatients}} patient registered in this health center.</p>
         <p *ngIf="countPatients > 1">Currently there are {{countPatients}} patients registered in this Health Center.</p>

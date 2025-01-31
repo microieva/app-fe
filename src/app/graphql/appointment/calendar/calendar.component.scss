@@ -14,5 +14,8 @@ full-calendar {
     @include respond-to(tablet){ 
         margin-top:8rem;
     }
+    @include respond-to(mobile-6x){ 
+        margin-top:16rem;
+    }
 }
 

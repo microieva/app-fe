@@ -15,6 +15,9 @@ table {
     @include respond-to(small-mobile-x) {
         *:not(.material-symbols-outlined){font-size:11px;}
     }
+    @include respond-to(mobile-6x) {
+        *:not(.material-symbols-outlined){font-size:0.7rem;}
+    }
 }
 mat-form-field {
     width: 100%;
@@ -112,11 +115,6 @@ button {
     }
  
 }
-// .mat-mdc-paginator-container .mat-mdc-paginator-page-size{
-//     @include respond-to(small-mobile-x) {
-//       display:none!important;
-//     }
-//   }
 
 .mat-mdc-icon-button{
     padding: 0 !important;
@@ -129,7 +127,7 @@ button {
         --mat-table-row-item-outline-color: rgb(78, 84, 90);
         font-weight: 800;
         line-height: 4rem;
-        @include respond-to(small-mobile-x){    
+        @include respond-to(mobile-6x){    
             line-height: 2rem;
         }
     }
@@ -154,7 +152,11 @@ button {
     @include respond-to(small-mobile-x) {
         text-align: center;
     }
+    @include respond-to(mobile-6x) {
+        text-align: center;
+    }
 }
+
 .mat-column-online {
     min-width: 4rem;
     padding-left: 2rem;
@@ -166,7 +168,7 @@ button {
     @include respond-to(desktop-6x) {
         border-right:none;
     }
-    @include respond-to(mobile) {
+    @include respond-to(mobile-6x) {
         display:none; 
     }
 }
@@ -204,6 +206,11 @@ button {
     width: 4.5rem;
     height: 2rem;
     border-radius: 17px;
+    align-items: center;
+    justify-content: space-evenly;
+    @include respond-to(mobile-6x) {
+        width:3.5rem;
+    }
     &.offline {
         background-color: rgb(197, 197, 197);
     }
@@ -211,7 +218,7 @@ button {
         background-color: rgb(182 212 179 / 89%);
     }
     p {
-        padding-right: 12px;
+        //padding-right: 12px;
         font-weight: 900;
         opacity: 0.5;
     }

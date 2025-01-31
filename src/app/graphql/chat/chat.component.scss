@@ -18,8 +18,6 @@
     @include respond-to(tablet) {
         margin-top: 2rem;
         height:42rem;
-    }
-    @include respond-to(mobile-and-tablet){
         width:80%;
     }
     @include respond-to(mobile-x) {
@@ -28,14 +26,11 @@
         margin:auto;
         margin-top:5%;
     }
-    // @include respond-to(mobile-xx){    
-    //     max-width:95%;
-    //    //width:95%;
-    // }
-    // @include respond-to(small-mobile){    
-    //     max-width:95%;
-    //     //width:95%;
-    // }
+    @include respond-to(mobile-6x) {
+        width:95%;
+        margin:auto;
+        margin-top:5%;
+    }
     .chat-wrapper{
         width:100%;
         height:100%;
@@ -48,9 +43,13 @@ mat-form-field {
     @include respond-to(desktop-5x){
         font-size: 1.5rem;
     }
-    @include respond-to(small-mobile){    
-        width:95%;
-        margin:auto 3px auto 8px;
+    @include respond-to(tablet){    
+        width: 95%;
+        margin: 0 auto;
+    }
+    @include respond-to(mobile-6x){    
+        width: 95%;
+        margin: 0 auto;
     }
 }
 .messages-wrapper {
@@ -115,10 +114,21 @@ mat-form-field {
     float: inline-end;
 }
 .icons {
+    justify-content: flex-end;
     span {
         @include respond-to(desktop-5x){
             font-size: 2.5rem;
             margin-left:1rem;
+        }
+        @include respond-to(tablet){
+            font-size: 2rem;
+            margin: 1rem auto;
+            margin-right:1rem;
+        }
+        @include respond-to(mobile-6x){
+            font-size: 2rem;
+            margin: 1rem auto;
+            margin-right:1rem;
         }
     }
 }
@@ -170,4 +180,5 @@ mat-form-field {
 textarea{
     overflow: hidden;
     resize: none;
+    width:100%;
 }

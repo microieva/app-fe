@@ -55,6 +55,10 @@
         @include respond-to(mobile-5x){    
             font-size:11px;
         }
+        @include respond-to(mobile-6x){    
+            padding: 0.4rem 5px;
+            margin:1px;
+        }
         @include respond-to(small-mobile-x){    
             font-size:10px;
         }
@@ -74,10 +78,6 @@
         }
     }
 }
-// * {
-//     color: rgb(53, 52, 52); 
-// }
-
 
 .content {
     @include respond-to(desktop-5x){    

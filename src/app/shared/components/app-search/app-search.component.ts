@@ -3,6 +3,7 @@ import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angu
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { AppSearchInput } from "../../types";
 import { dateRangeValidator } from "../../validators";
+import { BreakpointObserver } from "@angular/cdk/layout";
 
 @Component({
     selector: 'app-search',
@@ -11,6 +12,7 @@ import { dateRangeValidator } from "../../validators";
 })
 export class AppSearchComponent implements OnInit, OnDestroy{
     form!: FormGroup;
+    isMobile:boolean = false;
 
     @Input() useAdvanced: boolean = false;
     @Output() advancedSearchValue = new EventEmitter<AppSearchInput | null>
@@ -20,7 +22,7 @@ export class AppSearchComponent implements OnInit, OnDestroy{
     showAdvanced: boolean = false;
     private subscriptions: Subscription = new Subscription();
     
-    constructor(private formBuilder: FormBuilder){
+    constructor(private formBuilder: FormBuilder,  private breakpointObserver: BreakpointObserver){
         this.buildForm();
         const subRangeStart = this.form.get('advancedSearchInput.rangeStart')?.valueChanges.subscribe(() => {
             this.form.get('advancedSearchInput')?.updateValueAndValidity();
@@ -42,6 +44,10 @@ export class AppSearchComponent implements OnInit, OnDestroy{
             }
         );
         this.subscriptions.add(sub);
+        this.breakpointObserver.observe(['(min-width: 1024px)']).subscribe(result => {
+            this.isMobile =  this.breakpointObserver.isMatched('(max-width: 430px)');
+            //this.isMobileSmall = this.breakpointObserver.isMatched('(max-width: 410px)');
+        });
     }
 
     ngOnDestroy(): void {

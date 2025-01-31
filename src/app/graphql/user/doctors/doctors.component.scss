@@ -1,5 +1,16 @@
+@import '../../../shared/scss/breakpoints';
+
 .page {
     max-width: 75%;
     position: relative;
     will-change: transform;
+    @include respond-to(tablet) {
+        max-width:85%;
+    }
+    @include respond-to(mobile-6x) {
+        max-width:95%;
+        width:95%;
+        padding:0;
+        margin:4rem auto;
+    }
 }

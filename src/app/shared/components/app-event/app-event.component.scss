@@ -21,6 +21,9 @@
             margin-top:2rem!important;
         }
     }
+    @include respond-to(mobile-6x) {
+        width:auto;
+    }
 }
 .message {
     padding: 0 1rem;

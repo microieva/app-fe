@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Inject, Input, OnInit, Optional, Output } from "@angular/core";
 import { DateTime } from "luxon";
 import { Router } from "@angular/router";
+import { BreakpointObserver } from "@angular/cdk/layout";
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { AppGraphQLService } from "../../shared/services/app-graphql.service";
 import { AlertComponent } from "../../shared/components/app-alert/app-alert.component";
@@ -13,6 +14,8 @@ import { Record } from "./record";
     styleUrls: ['./record.component.scss']
 })
 export class RecordComponent implements OnInit {
+    isMobile:boolean = false; 
+
     isCreating: boolean = false;
     isEditting: boolean = false;
 
@@ -31,13 +34,13 @@ export class RecordComponent implements OnInit {
 
     recId: number | undefined;
     id: number | undefined;
-    width: string | undefined;
     noDelete: boolean = false;
 
     constructor(
         private dialog: MatDialog,
         private graphQLService: AppGraphQLService,
         private router: Router,
+        private breakpointObserver: BreakpointObserver,
 
         @Optional() public dialogRef: MatDialogRef<RecordComponent>,
         @Optional() @Inject(MAT_DIALOG_DATA) public data: any
@@ -45,7 +48,6 @@ export class RecordComponent implements OnInit {
         if (this.data) {
             this.recId = this.data.recordId;
             this.aptId = this.data.appointmentId;
-            this.width = this.data.width;
             this.noDelete = this.data.noDelete;
         }
     }
@@ -62,6 +64,12 @@ export class RecordComponent implements OnInit {
         } else {
             this.isCreating = false;
         }
+        this.breakpointObserver.observe(['(max-width: 1024px)']).subscribe(result => {
+            //this.isTablet = this.breakpointObserver.isMatched('(min-width: 768px) and (max-width: 1023px)');
+            this.isMobile =  this.breakpointObserver.isMatched('(max-width: 430px)');
+            //this.isMobileSmall = this.breakpointObserver.isMatched('(max-width: 410px)');
+            //if (this.isMobile) this.width = '35rem';
+        });
     }
     
     async loadRecord(){

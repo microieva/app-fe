@@ -1,4 +1,3 @@
-
 @use '@angular/material' as mat;
 @import './app/shared/scss/mixins';
 @import './app/shared/scss/breakpoints';
@@ -61,9 +60,12 @@ $custom-theme-theme: mat.define-light-theme((
   @include respond-to(small-mobile-x) {
     --mdc-icon-button-state-layer-size:40px;
     --mat-paginator-container-text-size:11px;
-    //--mat-paginator-select-trigger-text-size:11px;
     --mat-tab-header-label-text-size:12px;
     --mdc-outlined-button-label-text-size:12px;
+  }
+  @include respond-to(mobile-6x) {
+    --mdc-outlined-button-label-text-size:12px;
+    --mat-paginator-container-text-size:11px;
   }
 }
 html, body {
@@ -71,7 +73,7 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow-x: hidden; /* Prevent horizontal scroll */
+  overflow-x: hidden; 
 }
 body { 
   font-family: Roboto, "Helvetica Neue", sans-serif; 
@@ -98,18 +100,20 @@ app-sidenav {
   padding-top: 0;
   width: max-content;
   min-width: 70%;
-  margin: auto;
-  margin-top: 4rem;
-  margin-bottom: 4rem;
-  @include respond-to(small-mobile-x){ 
+  margin: 4rem auto;
+  @include respond-to(tablet) {
     width:95%;
     max-width:95%;
     padding:0;
-    margin:auto;
+  }
+
+  @include respond-to(mobile-6x) {
+    width:95%;
+    max-width:95%;
     &__text-block {
       font-size:0.8rem;
     }
-}
+  }
 }
 .actions {
   margin: 1rem 0;
@@ -140,16 +144,18 @@ mat-form-field {
   }
 }
 
-// .mat-mdc-dialog-content { // passing width dinamicly i n the open() call ? :/
-//   min-width: 30rem;
-// }
-
 .mat-accordion.mat-expansion-panel:not([class*='mat-elevation-z']) {
   box-shadow: none !important;
+
 } 
 mat-hint {
   @include respond-to(desktop-5x){
     font-size: 1rem;
+  }
+}
+.mat-expansion-panel-body {
+  @include respond-to(mobile-6x){
+    padding:0!important;
   }
 }
 
@@ -206,7 +212,6 @@ mat-hint {
 .mat-mdc-form-field-infix{
   display: flex;
   @include respond-to(desktop-5x){
-   // --mat-form-field-container-height: 8rem; // this is making many imputs stretched up
     font-size: 1.5rem;
   }
 }
@@ -220,6 +225,16 @@ mat-hint {
   min-height: 45rem!important;
   @include respond-to(desktop-5x){
     height:61rem;
+  }
+}
+.fc-toolbar-title {
+  @include respond-to(mobile-6x) {
+  font-size:smaller;
+  }
+}
+.fc-header-toolbar {
+  @include respond-to(mobile-6x) {
+    font-size: small;
   }
 }
 .fc-daygrid-frame {
@@ -303,8 +318,6 @@ mat-hint {
   flex-direction: column;
 }
 .wrapper {
-  //width:100%;
-  //min-width: 40rem;
   border: 1px solid rgb(111, 143, 175, 40%);
   border-radius: 3px;
   margin: 1rem;
@@ -335,6 +348,9 @@ mat-hint {
       @include respond-to(small-mobile-x){
         font-size:1rem;
       } 
+      @include respond-to(mobile-6x){
+        font-size:0.8rem;
+      } 
   }
   @include respond-to(desktop-5x){
     height:3.7rem;
@@ -342,6 +358,9 @@ mat-hint {
   }
   @include respond-to(small-mobile-x){
     font-size:14px;
+  } 
+  @include respond-to(mobile-6x){
+    font-size:13px;
   } 
 }
 
@@ -396,33 +415,8 @@ em {
   }
 }
 
-// header
-
-
-.me {
-  // margin-left: 1rem;
-  // font-size: small;
-  // color: gray;
-}
-.time {
-  // border: 1px solid darkgray;
-  // border-radius: 3px;
-  // color: darkgray;
-  // padding: 0 1rem;
-  // margin-right: 1rem;
-  // margin-left: 1rem;
-  p {
-      margin: 0;
-  }
-}
-.spacer {
-  // flex: 1 1 auto;
-}
 .table-wrapper {
   margin-top: 4rem;
-  .table {
-   
-  }
 }
 .icon-btn {
   position: relative;
@@ -433,6 +427,12 @@ em {
       top:0;
   }
 }
+.mat-mdc-dialog-content.app-login-menu{
+  @include respond-to(mobile-6x) {
+    --mdc-dialog-supporting-text-size:0.8rem;
+  }
+}
+
 .mat-mdc-dialog-content.app-event {
 
   .mat-mdc-text-field-wrapper{

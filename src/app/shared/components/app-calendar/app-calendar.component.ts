@@ -202,68 +202,59 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
             //     });
             // }
             eventDidMount: (info: any) => {
-                let isDragging = false; // Flag to track if a drag is happening
+                let isDragging = false; 
               
                 info.el.addEventListener('touchstart', (event: TouchEvent) => {
-                  const touchStartX = event.touches[0].clientX;
-                  const touchStartY = event.touches[0].clientY;
-                  const startTime = new Date().getTime(); // Track touch start time
-              
-                  // Reset isDragging to false at the start of a touch interaction
-                  isDragging = false;
-              
-                  const handleTouchMove = (moveEvent: TouchEvent) => {
-                    const touchEndX = moveEvent.touches[0].clientX;
-                    const touchEndY = moveEvent.touches[0].clientY;
-              
-                    // Calculate movement distances
-                    const deltaX = touchEndX - touchStartX;
-                    const deltaY = touchEndY - touchStartY;
-              
-                    // Detect drag based on movement threshold
-                    if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
-                      isDragging = true;
-              
-                      // Simulate EventDropArg for drag
-                      const eventDropArg = {
-                        event: info.event, // The FullCalendar event object
-                        oldEvent: { ...info.event }, // Simulated old event state
-                        relatedEvents: [], // Related events (if any)
-                        jsEvent: moveEvent, // The native touch event
-                        view: info.view // Current view
-                    
-                      };
-              
-                      this.handleEventDrop(eventDropArg); // Handle drag-and-drop
-                      document.removeEventListener('touchmove', handleTouchMove); // Cleanup
+                    const touchStartX = event.touches[0].clientX;
+                    const touchStartY = event.touches[0].clientY;
+                    const startTime = new Date().getTime(); 
+                
+                    isDragging = false;
+                
+                    const handleTouchMove = (moveEvent: TouchEvent) => {
+                        const touchEndX = moveEvent.touches[0].clientX;
+                        const touchEndY = moveEvent.touches[0].clientY;
+                        const deltaX = touchEndX - touchStartX;
+                        const deltaY = touchEndY - touchStartY;
+                
+                        if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
+                        isDragging = true;
+                
+                        const eventDropArg = {
+                            event: info.event, 
+                            oldEvent: { ...info.event },
+                            relatedEvents: [], 
+                            jsEvent: moveEvent, 
+                            view: info.view 
+                        
+                        };
+                
+                        this.handleEventDrop(eventDropArg); 
+                        document.removeEventListener('touchmove', handleTouchMove); 
                     }
-                  };
+                };
               
-                  // Detect touchend to differentiate between click and drag
-                  const handleTouchEnd = () => {
-                    const touchEndTime = new Date().getTime(); // Track touch end time
+                const handleTouchEnd = () => {
+                    const touchEndTime = new Date().getTime(); 
                     const touchDuration = touchEndTime - startTime;
               
-                    // If not dragging and the touch duration is short, treat as a click
                     if (!isDragging && touchDuration < 300) {
                       const eventClickArg: EventClickArg = {
-                        el: info.el, // The event element
-                        event: info.event, // The FullCalendar event object
-                        jsEvent: event as any, // The native touch event
-                        view: info.view // Current view
+                        el: info.el, 
+                        event: info.event, 
+                        jsEvent: event as any,
+                        view: info.view 
                       };
               
-                      this.handleEventClick(eventClickArg); // Handle click
+                      this.handleEventClick(eventClickArg); 
                     }
               
-                    // Cleanup listeners
                     document.removeEventListener('touchmove', handleTouchMove);
                     document.removeEventListener('touchend', handleTouchEnd);
-                  };
+                };
               
-                  // Attach listeners for touchmove and touchend
-                  document.addEventListener('touchmove', handleTouchMove);
-                  document.addEventListener('touchend', handleTouchEnd);
+                document.addEventListener('touchmove', handleTouchMove);
+                document.addEventListener('touchend', handleTouchEnd);
                 });
             }     
         }

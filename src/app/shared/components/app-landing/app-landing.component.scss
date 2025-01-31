@@ -55,7 +55,6 @@
     --mdc-form-field-label-text-weight:900;
     --mdc-form-field-label-text-color:rgb(214, 222, 230)!important;
 }
-
 .page {
     width: 70%;
     height:auto;
@@ -66,65 +65,43 @@
         width: 80%;
         max-width:80%;
     }
+    @include respond-to(mobile-6x) {
+        width: 90%;
+        max-width:90%;
+        padding:0;
+    }
 }
 .content-view-wrapper {
     display: flex; 
     flex-direction: column;
-    height: calc(185vh + 25rem);
+    height: calc(190vh + 25rem);
     background-color:rgb(188, 198, 210);
     z-index: 1;
     position:absolute;
     overflow: hidden;
+    transition: height 0.5s ease-in-out;
     @include respond-to(desktop-x) {
         height: calc(150vh + 25rem);
     }
     @include respond-to(mobile-and-tablet) {
-        height: auto;
+        height: 'inherit';
         width:100%;
     }
     @include respond-to(tablet) {
-        height: calc(325vh + 25rem);
+        height: calc(325vh + 25rem);   
     }
-}
-
-.slide-block {
-    position: relative;
-    z-index: 2;
-}
-
-.slide-div {
-    z-index: 4;
-    margin: 4rem 0;
-    width: 100%;
-    height: 20rem;
-    display: flex;
-    align-items: center;
-    position: relative;
-    will-change: transform;
-  }
-
-footer {
-    background-color: #F5F5F5;
-    height: 25rem;
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-}
-.footer {
-    padding-top: 4rem;
-    width: 65%;
-    margin: 0 auto;
-    height: 100%;
-    @include respond-to(desktop-5x) {
-        width: 78%;
+    @include respond-to(mobile) {
+        height: calc(260vh + 25rem);
     }
-    @include respond-to(tablet) {
-        width: 78%;
+    @include respond-to(mobile-x) {
+        height: calc(238vh + 18rem);
     }
-}
-
-.footer-bottom {
-    margin: 4rem 0;
+    @include respond-to(mobile-xx) {
+        height: calc(328vh + 18rem);
+    }
+    @include respond-to(mobile-6x) {
+        height: calc(268vh + 15rem);
+    }
 }
 .text-block {
     border-radius: 5px;
@@ -137,19 +114,98 @@ footer {
     display: flex;
     flex-direction: column-reverse;
     align-items: center;
+    transition: height 0.5s ease-in-out;
     @include respond-to(desktop-x) {
         width: 80%;
         height: 90vh;
     }
-    @include respond-to(tablet) {
-        height:260vh;
+    @include respond-to(mobile-and-tablet) {
         width:80%;
     }
+    @include respond-to(tablet) {
+        height:260vh;   
+    }
+    @include respond-to(mobile) {
+        height:214vh;
+    }
+    @include respond-to(mobile-x) {
+        height:194vh;
+    }
+    @include respond-to(mobile-xx) {
+        height:272vh;
+    }
+    @include respond-to(mobile-6x) {
+       width: 90%;
+       height:200vh;
+        &.mat-expansion-panel-body {
+            padding: 0;
+        }
+    }
 }
+.slide-block {
+    position: relative;
+    z-index: 2;
+}
+.slide-div {
+    z-index: 4;
+    margin: 4rem 0;
+    width: 100%;
+    height: 20rem;
+    display: flex;
+    align-items: center;
+    position: relative;
+    will-change: transform;
+  }
+footer {
+    background-color: #F5F5F5;
+    height: 25rem;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    @include respond-to(tablet) {
+        height:20rem;
+    }
+    @include respond-to(mobile) {
+        font-size:0.8rem;
+        height:18rem;
+    }
+    @include respond-to(mobile-x) {
+        font-size:smaller;
+        height:18rem;
+    }
+    @include respond-to(mobile-6x) {
+        font-size:10px;
+        height:15rem;
+    }
+}
+.footer {
+    padding-top: 4rem;
+    width: 65%;
+    margin: 0 auto;
+    height: 100%;
+    @include respond-to(desktop-5x) {
+        width: 78%;
+    }
+    @include respond-to(mobile-and-tablet) {
+        width: 78%;
+        padding-top:2rem;
+    }
+    @include respond-to(mobile-6x) {
+        width: 88%;
+        padding-top:1rem;
+    }
+}
+.footer-bottom {
+    margin: 4rem 0;
+    @include respond-to(mobile-and-tablet) {
+        margin: 2rem 0;
+    }
+}
+
 .visible-wrapper {
     width:80%;
     margin-bottom:4rem;
-    @include respond-to(tablet) {
+    @include respond-to(mobile-and-tablet) {
         width:90%;
     }
 }
@@ -163,25 +219,23 @@ footer {
         width:auto;
         overflow: hidden;
     }
-    @include respond-to(tablet) {
+    @include respond-to(mobile-and-tablet) {
         object-fit: contain;
-        height:20rem;
         width:auto;
         overflow: hidden;
     }
+
+    @include respond-to(tablet) {
+        height:20rem;
+    }
+    @include respond-to(mobile) {
+        height:22rem;
+    }
+    @include respond-to(mobile-x) {
+        height:22rem;
+    }
     img {
         opacity: 0.8;
-        width: 100%;
-        @include respond-to(desktop-5x) {
-            height:100%;
-            max-width:100%;
-            object-fit: cover; 
-        }
-        @include respond-to(tablet) {
-            height:100%;
-            max-width:100%;
-            object-fit: cover; 
-        }
     }
 }
 #responsive {
@@ -190,9 +244,18 @@ footer {
         height:14rem;
         margin-top:20rem;
     }
-    @include respond-to(tablet) {
+    @include respond-to(mobile-and-tablet) {
         margin-top:4rem;
+    }
+    @include respond-to(tablet) {
         height:12rem;
+    }
+    @include respond-to(mobile) {
+        height:10rem;
+    }
+    @include respond-to(mobile-6x) {
+        height:6rem;
+        margin-bottom:6rem;
     }
 }
 .bg {
@@ -203,20 +266,28 @@ footer {
         font-size: 5rem;
         margin-top:4rem;
     }
-    // @include respond-to(desktop-6x) {
-    //     font-size: 5rem;
-    //     margin-bottom:3rem;
-    // }
-    // @include respond-to(desktop-) {
-    //     font-size: 4.5rem;
-    //     margin-bottom:3rem;
-    // }
     @include respond-to(mobile-and-tablet) {
         font-size: 4.5rem;
     }
     @include respond-to(tablet) {
         font-size: 3.5rem;
         margin-bottom:1rem;
+    }
+    @include respond-to(mobile) {
+        font-size: 3.2rem;
+        margin-bottom:4rem;
+    }
+    @include respond-to(mobile-x) {
+        font-size: 3rem;
+        margin-bottom:3rem;
+    }
+    @include respond-to(mobile-xx) {
+        font-size: 2.5rem;
+        margin-bottom:2rem;
+    }
+    @include respond-to(mobile-6x) {
+        font-size: 2rem;
+        margin-bottom:2rem;
     }
 }
 .sm {
@@ -234,6 +305,15 @@ footer {
     @include respond-to(tablet) {
         font-size: 1.5rem;
     }
+    @include respond-to(mobile) {
+        font-size: 1.6rem;
+    }
+    @include respond-to(mobile-x) {
+        font-size: 1.4rem;
+    }
+    @include respond-to(mobile-6x) {
+        font-size: 1rem;
+    }
 }
 .txt {
     margin-top:0;
@@ -244,8 +324,72 @@ footer {
     @include respond-to(tablet) {
         height:14rem;
     }
+    @include respond-to(mobile-6x) {
+        height:18rem;
+    }
 }
-
+.click {
+    font-family: "Special Elite", system-ui;
+    position: absolute;
+    bottom: -165px;
+    height: 2.5rem;
+    width: 100%;
+    @include respond-to(desktop-5x) {
+        line-height: 1.8rem;
+    }
+    @include respond-to(tablet) {
+        bottom:-60px;
+    }
+    @include respond-to(mobile) {
+        bottom:-6px;
+    }
+    @include respond-to(mobile-x) {
+        bottom:-8px;
+    }
+    @include respond-to(mobile-xx) {
+        line-height: 0.8rem;
+    }
+    @include respond-to(mobile-6x) {
+        bottom:0;
+        line-height: 0.4rem;
+    }
+    h2 {
+        border: 1px solid rgba(188, 90, 186, 0.9);
+        color: rgba(188, 90, 186, 0.9);
+        @include respond-to(desktop-5x) {
+            border: 1.5px solid rgba(188, 90, 186, 0.9);
+        }
+    }
+    span {
+        width: 1rem;
+        float: right;
+        line-height: 1.7rem;
+        @include respond-to(desktop-5x) {
+            line-height: 1.8rem;
+        }
+        @include respond-to(tablet) {
+            line-height: 18px;
+        }
+        @include respond-to(mobile) {
+            line-height: 1.2rem;
+        }
+        @include respond-to(mobile-x) {
+            line-height: 1rem;
+        }
+        @include respond-to(mobile-xx) {
+            line-height: 0.8rem;
+        }
+        @include respond-to(mobile-6x) {
+            line-height: 0.4rem;
+        }
+    }
+   
+    &h2:hover {
+        background-color: rgb(175 111 174 / 40%);
+        color: #F5F5F5;
+        cursor: pointer;
+    }
+}
 .block {
     padding-top: 4rem;
     background-color: transparent;
@@ -254,66 +398,107 @@ footer {
     flex-direction: column;
     align-items: baseline;
     color:  rgb(245,245,245);
-    .flex-row {
-        width: 100%;
-        h2 span {
-            margin: 2px;
-            line-height:2rem;
-        }
+    @include respond-to(mobile-6x) {
+        padding-top:0;
+        margin:0;
     }
     h2 {
         border: 1px solid rgb(245,245,245);
-        //padding: 0.5rem 1.5rem;
-        
-        width: 50%;
-        margin: 0.2rem;
+        line-height: 3rem;
         align-items: center;
         font-weight: 400;
+        padding: 0 1.2rem;
+        margin: 0.2rem;
         @include respond-to(desktop-5x) {
-            margin: 3px;
             border: 1.5px solid rgb(245,245,245);
         }
         @include respond-to(tablet) {
-            font-size: 1rem;
-            line-height:2.2rem;
+            line-height: 2.2rem;
             padding: 0 1rem;
+        }
+        @include respond-to(mobile) {
+            line-height: 2.4rem;
+        }
+        @include respond-to(mobile-x) {
+            line-height: 2rem;
+        }
+        @include respond-to(mobile-6x) {
+            padding: 0 5px;
+            margin: 1px;
         }
         span {
             float: right;
             width: 1rem;
         }
-    }
-    h1 {
-        @include respond-to(desktop-5x) {
-            margin-bottom:6rem;
+    }   
+    .flex-row {
+        width: 100%;
+        h2 span {
+            margin: 2px;
+            line-height:2.7rem;
+            @include respond-to(desktop-5x) {
+                line-height: 2.7rem;
+            }
+            @include respond-to(tablet) {
+                line-height: 1.9rem;
+            }
+            @include respond-to(mobile) {
+                line-height: 2.1rem;
+            }
+            @include respond-to(mobile-x) {
+                line-height: 1.7rem;
+            }
+            @include respond-to(mobile-xx) {
+                font-size:16px;
+            }
+            @include respond-to(small-mobile) {
+                line-height: 1.3rem;
+            }
         }
     }
 }
 #personel {
-    margin:16rem auto;
-    margin-top: 6rem;
+    margin:6rem auto 16rem auto;
     text-align: center;
     padding: 0 4rem;
     .flex-row {
         width: 100%;
     }
+    @include respond-to(desktop-5x) {
+        margin-top:14rem;
+    }
     @include respond-to(tablet) {
         padding: 0;
+    }
+    @include respond-to(mobile-and-tablet) {
         margin: 4rem auto;
-        h1 {
-            font-size:2rem;
-            margin-bottom:5rem;
-        }
+        padding: 0;
+        width:100%;
+    }
+    @include respond-to(mobile-xx) {
+        margin: 0 auto 4rem auto;
     }
 }
 .card {
     width: 16rem;
-    justify-content: space-evenly;
-    
+    justify-content: space-evenly;    
     p {
         margin: 3rem 0;
         align-self: center;
         font-size: larger;
+        @include respond-to(desktop-x) {
+            font-size:1.2rem;
+        }
+        @include respond-to(mobile-and-tablet) {
+            font-size:1rem;
+        }
+        @include respond-to(mobile-x) {
+            font-size:14px;
+        }
+        @include respond-to(mobile-6x) {
+            margin:2rem 5px;
+            font-size:10px;
+        }
     }
 }
 .card-img-wrapper {
@@ -322,9 +507,6 @@ footer {
     border-radius: 50%;
     align-self: center;
     img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
         border-radius: 50%;
         opacity:0.8;
     }
@@ -332,23 +514,27 @@ footer {
         height: 10rem;
         width: 10rem;
     }
-    @include respond-to(tablet) {
+    @include respond-to(mobile-and-tablet) {
         height:8rem;
         width: 8rem;
-        p {
-            font-size:10px;
-        }
+       
     }
+    @include respond-to(mobile-6x) {
+        height:5.5rem;
+        width: 5.5rem;
+        &p {
+            font-size:10px;
+        }   
+    }
+}
+img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 .row {
     width: 40rem;
     border: 1px solid #F5F5F5;
-    p {
-        @include respond-to(tablet) {
-            font-size:10px;
-        }
-
-    }
     .row-img-wrapper {
         width: 8rem;
         height: 8rem;
@@ -359,18 +545,23 @@ footer {
             width: 7rem;
             height: 6rem;
         }
-        img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-
+        @include respond-to (mobile){
+            width: 6rem;
+            height: 5rem;
         }
-        // @include respond-to(desktop-5x) {
-        //     height: 7.5rem;
-        //     width: 7.5rem;
-        //     margin:0.5rem;
-        // }
+        @include respond-to (mobile-x){
+            width: 6rem;
+            height: 5rem;
+            margin: 0.5rem;
+        }
+        @include respond-to (mobile-6x){
+            margin: 5px;
+            height: 4rem;
+            width:5rem;
+        }
+        img {
+            border-radius: 50%;
+        }
     }
     margin: 0.5rem 0;
 }
@@ -382,13 +573,10 @@ textarea{
     margin-top: 8rem;
     margin-bottom:4rem;
     padding: 0 1rem;
-    @include respond-to(tablet){
-        margin-top:auto;
-        h1 {
-            font-size:2rem;
-            margin-bottom:5rem;
-        }
+    @include respond-to(mobile-and-tablet) {
+        margin-top:4rem;
     }
+
     .flex-row {
         width: 100%;
         justify-content: space-between;
@@ -397,11 +585,52 @@ textarea{
         width: 80%;
         padding: 0 2rem;
         font-size: larger;
+        @include respond-to(mobile-x) {
+            font-size:14px;
+        }
+        @include respond-to(mobile-6x) {
+            font-size:11px;
+        }
     }
 } 
 h1 {
     font-size: 2.8rem;
     align-self: center; 
+    margin-bottom:6rem;
+    @include respond-to(tablet){
+        font-size:2rem;
+        margin-bottom:5rem;
+    }
+    @include respond-to(mobile) {
+        font-size: 1.6rem;
+        margin-bottom:4rem;
+    }
+    @include respond-to(mobile-x) {
+        font-size: 1.4rem;
+        margin-bottom:4rem;
+    }
+    @include respond-to(small-mobile) {
+        font-size: 1rem;
+        margin-bottom:2rem;
+    }
+}
+h2 {
+    width: 50%;
+    padding: 10px 16px;
+    margin: 3px;
+    @include respond-to(tablet) {
+        font-size: 1rem;
+    }
+    @include respond-to(mobile) {
+        font-size: 16px;
+    }
+    @include respond-to(mobile-x) {
+        font-size: 14px;
+        margin: 2px;
+    }
+    @include respond-to(mobile-6x) {
+        font-size: 12px;
+    }
 }
 .icons {
     display: flex;
@@ -430,23 +659,41 @@ h1 {
     }
 }
 mat-hint {
-    font-size: 16px;
+    font-size: 1rem;
 }
-
 .section {
     margin-bottom:1rem;
     padding-left:1rem;
     transition: opacity 0.2s ease-in;
+
     .dotted-border {
         flex: 1;
         align-self:center;
         margin: 0 0.5rem 0 4rem; 
         border-bottom: dotted 5px rgba(115, 72, 114, 0.7);
+        @include respond-to(mobile-x) {
+            border-bottom: dotted 4px rgba(115, 72, 114, 0.7);
+        }
+        @include respond-to(mobile-x) {
+            border-bottom: dotted 4px rgba(115, 72, 114, 0.7);
+        }
+        @include respond-to(mobile-6x) {
+            border-bottom: dotted 3px rgba(115, 72, 114, 0.7);
+        }
     }
     .text {
         flex: auto 1 0; 
         max-width: fit-content;
         color:  rgb(239 239 239);
+        @include respond-to(mobile) {
+            font-size:13px;
+        }
+        @include respond-to(mobile-x) {
+            font-size:11px;
+        }
+        @include respond-to(mobile-6x) {
+            font-size:0.5rem;
+        }
     }
     .section-icon {
         flex: 0 0 7rem;
@@ -457,6 +704,18 @@ mat-hint {
         width:7rem;
         border-radius: 50%;
         background-color: rgba(115, 72, 114, 0.8); 
+        @include respond-to(mobile) {
+            height: 6rem;
+            flex: 0 0 6rem;
+        }
+        @include respond-to(mobile-x) {
+            height: 5rem;
+            flex: 0 0 5rem;
+        }
+        @include respond-to(mobile-6x) {
+            height: 4rem;
+            flex: 0 0 4rem;
+        }
     
         .material-symbols-outlined {
             color:  rgb(214, 222, 230);
@@ -465,7 +724,17 @@ mat-hint {
                 'FILL' 1,
                 'wght' 400,
                 'GRAD' 0,
-                'opsz' 24
+                'opsz' 24;
+
+            @include respond-to(mobile) {
+                font-size: 2.2rem;
+            }
+            @include respond-to(mobile-x) {
+                font-size: 2rem;
+            }
+            @include respond-to(mobile-6x) {
+                font-size: 1.6rem;
+            }
         }
     }
     &.visible {
@@ -478,9 +747,7 @@ mat-expansion-panel-header:hover{
     filter: brightness(1.8); 
     cursor: pointer;
 }
-
-.expansion-content.flex-row {
-   
+.expansion-content.flex-row {  
     &.mdc-label {
         color: rgb(239 239 239)!important;
     }
@@ -501,62 +768,20 @@ mat-expansion-panel-header:hover{
             'opsz' 24
     }
 }
-
 .follow-us {
     width: 70%;
     margin:auto;
     @include respond-to(tablet) {
         width: 80%;
-        h1 {
-            font-size:2rem;
-        }
     }
 }
 .input {
     width:80%;
 }
-.click {
-    font-family: "Special Elite", system-ui;
-    position: absolute;
-    bottom: -165px;
-    height: 2.5rem;
-    width: 100%;
-    @include respond-to(tablet) {
-        bottom:-60px;
-    }
-    h2 {
-        width: 50%;
-        border: 1px solid  rgba(188, 90, 186, 0.9); 
-        color:  rgba(188, 90, 186, 0.9); 
-        padding: 10px 16px;
-        margin: 3px;
-        @include respond-to(desktop-5x) {
-            margin: 3px;
-            border: 1.5px solid  rgba(188, 90, 186, 0.9);
-        }
-        @include respond-to(tablet) {
-            font-size: 1rem;
-        }
-        span {
-            width: 1rem;
-            float: right;
-            @include respond-to(tablet) {
-                line-height: 18px;
-            }
-        }
-    }
-    &h2:hover {
-        background-color: rgb(175 111 174 / 40%);
-        color: #F5F5F5;
-        cursor: pointer;
-    }
-}
-
 .disabled {
     pointer-events: none;
     filter: brightness(0.8);
 }
-
 .feedback{
     align-self: center;
     height: 6rem;

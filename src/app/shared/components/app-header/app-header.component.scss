@@ -26,10 +26,6 @@
         }
     }
 
-    // &__link {
-    //     // Styles for the link
-    // }
-
     &__status {
         margin-left: 1rem;
         font-size: small;
@@ -37,15 +33,14 @@
         @include respond-to(desktop-5x) {
             display:none;
         }
+        @include respond-to(mobile-6x){    
+            font-size:13px;
+            margin:1rem 5px;
+        }
         @include respond-to(small-mobile-x){    
-            //font-size:10px;
             margin:1rem 5px;
         }
     }
-
-    //&__status--admin {
-       // text-indent: 10px;
-    //}
 
     &__framed {
         border: 1px solid darkgray;
@@ -59,15 +54,17 @@
             line-height: 3rem;
             font-size:1.5rem;
         }
+        @include respond-to(mobile-6x){    
+            font-size:14px;
+            line-height: 1.8rem;
+            margin:auto 0;
+            padding:0 5px;
+        }
         @include respond-to(small-mobile-x){    
             font-size:1rem;
             margin:auto 5px;
         }
     }
-
-    // &__name {
-    //     // Styles for the user's name
-    // }
 
     &__spacer {
         flex: 1 1 auto;
@@ -122,7 +119,6 @@
         @include respond-to(desktop-5x) {
             height:3rem;
             --mdc-outlined-button-outline-color:darkgrey;
-            //background-color: darkgrey;
         }
     }
 }
