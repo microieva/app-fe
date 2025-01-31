@@ -20,7 +20,7 @@
                 <app-loading></app-loading>
             </div>
             <div class="page" #scrollView @slideInOut *ngIf="!isLoading">
-                <div>
+                <div class="page__text-block">
                     <h2 class="font">Account activation requests:</h2>
                     <p *ngIf="countRequests === 1">Currently there is {{countRequests}} doctor account activation request.</p>
                     <p *ngIf="countRequests > 1">Currently there are {{countRequests}} doctor account activation requests.</p>

@@ -1,40 +1,93 @@
-<mat-toolbar style=" border-bottom: 0.8px solid darkgray;">
-    <h2><a [routerLink]="['/home']">Health Center</a></h2>
-    <p *ngIf="me" class="me"><em>logged in as:</em></p>
-    <p *ngIf="me && userRole === 'admin'" style="text-indent: 10px;">admin</p>
-    <div *ngIf="me && userRole !== 'admin'" class="time">
-        <p>{{me.firstName}} {{me.lastName}}<span *ngIf="userRole === 'doctor'">, MD</span></p>
+<mat-toolbar class="header-toolbar" [ngClass]="!isDesktop && 'flex-row'" [ngStyle]="{'flex-direction':!me && !isDesktop ? 'row-reverse':'row'}">
+    <div *ngIf="!isDesktop && me">
+        <span 
+            class="material-symbols-outlined header-toolbar__icon"  
+            (click)="toggleSidenav()"
+        >menu
+        </span> 
     </div>
-    <span class="spacer"></span>
-  
-    <div *ngIf="me && !time"class="loading sm flex-row">
-        <app-loading></app-loading>
-    </div>
-    <div *ngIf="me && time" class="flex-row"> 
-        <div style="margin-top:7px;">
-            <span 
-                class="material-symbols-outlined header-icon"  
-                (click)="openChat()" 
-                *ngIf="isUserUpdated && userRole!=='patient'" 
-                [matBadge]="unreadMessages === 0? '': unreadMessages"
-            >forum
-            </span> 
+    <h2 class="header-toolbar__title">
+        <a class="header-toolbar__link" [routerLink]="['/home']">Health Center</a>
+    </h2>
+    <ng-container *ngIf="isDesktop">
+        <h4 *ngIf="me" class="header-toolbar__status"><em>logged in as:</em></h4>
+        <h4 *ngIf="me && userRole === 'admin'" class="header-toolbar__status header-toolbar__status--admin">admin</h4>
+        <div *ngIf="me && userRole !== 'admin'" class="header-toolbar__framed">
+            <p>{{me.firstName}} {{me.lastName}}<span *ngIf="userRole === 'doctor'">, MD</span></p>
         </div>
-        <div style="margin-top:8px;">
-            <span 
-                class="material-symbols-outlined header-icon"  
-                *ngIf="isUserUpdated" 
-                (click)="openCalendar()" 
-                [matBadge]="userRole === 'admin' && missedAppointments >0 ? missedAppointments: ''" 
-                [ngClass]="missedAppointments === 0 && userRole === 'admin' ? 'disabled': ''"
-            >calendar_month
-            </span> 
+        <span class="header-toolbar__spacer"></span>
+      
+        <div *ngIf="me && !time"  class="header-toolbar__loading header-toolbar__loading--sm flex-row">
+            <app-loading></app-loading>
         </div>
-    </div>
-    <p *ngIf="time && time !== '00:00'" class="me"><em>session time:</em> </p>
-    <div *ngIf="time && time !== '00:00'" class="time">
-        <p>{{time}}</p>
-    </div>
-    <button *ngIf="!me" mat-stroked-button type="button" color="secondary" (click)="onLogIn()">{{ 'Log In' }}</button>
-    <button *ngIf="me" mat-stroked-button type="button" color="secondary" (click)="onLogOut()">{{ 'Log Out' }}</button>
+        <div  *ngIf="me && time" class="header-toolbar__icons flex-row"> 
+            <div style="margin-top:7px;">
+                <span 
+                    class="material-symbols-outlined header-toolbar__icon"  
+                    (click)="openChat()" 
+                    *ngIf="isUserUpdated && userRole !== 'patient'" 
+                    [matBadge]="unreadMessages === 0 ? '' : unreadMessages"
+                >forum
+                </span> 
+            </div>
+            <div style="margin-top:8px;">
+                <span 
+                    class="material-symbols-outlined header-toolbar__icon"  
+                    *ngIf="isUserUpdated" 
+                    (click)="openCalendar()" 
+                    [matBadge]="userRole === 'admin' && missedAppointments > 0 ? missedAppointments : ''" 
+                    [ngClass]="missedAppointments === 0 && userRole === 'admin' ? 'header-toolbar__icon--disabled' : ''"
+                >calendar_month
+                </span> 
+            </div>
+        </div>
+        <p *ngIf="time && time !== '00:00'" class="header-toolbar__status"><em>session time:</em></p>
+        <div *ngIf="time && time !== '00:00'" class="header-toolbar__framed">
+            <p>{{time}}</p>
+        </div>
+    </ng-container>
+    <ng-container *ngIf="!isDesktop">
+        <div *ngIf="me && !time"  class="header-toolbar__loading header-toolbar__loading--sm flex-row">
+            <app-loading></app-loading>
+        </div>
+        <div  *ngIf="me && time" class="header-toolbar__icons flex-row"> 
+            <div style="margin-top:7px;">
+                <span 
+                    class="material-symbols-outlined header-toolbar__icon"  
+                    (click)="openChat()" 
+                    *ngIf="isUserUpdated && userRole !== 'patient'" 
+                    [matBadge]="unreadMessages === 0 ? '' : unreadMessages"
+                >forum
+                </span> 
+            </div>
+            <div style="margin-top:8px;">
+                <span 
+                    class="material-symbols-outlined header-toolbar__icon"  
+                    *ngIf="isUserUpdated" 
+                    (click)="openCalendar()" 
+                    [matBadge]="userRole === 'admin' && missedAppointments > 0 ? missedAppointments : ''" 
+                    [ngClass]="missedAppointments === 0 && userRole === 'admin' ? 'header-toolbar__icon--disabled' : ''"
+                >calendar_month
+                </span> 
+            </div>
+        </div>
+    </ng-container>
+    <button *ngIf="!me" mat-stroked-button type="button" color="secondary" class="header-toolbar__button" (click)="onLogIn()">Log In</button>
+    <button *ngIf="me" mat-stroked-button type="button" color="secondary" class="header-toolbar__button" (click)="onLogOut()">Log Out</button>
 </mat-toolbar>
+<div *ngIf="expand" class="flex-row" style="justify-content: space-between;">
+    <div class="flex-row">
+        <h4 *ngIf="me" class="header-toolbar__status"><em>logged in as:</em></h4>
+        <h4 *ngIf="me && userRole === 'admin'" class="header-toolbar__status header-toolbar__status--admin">admin</h4>
+        <div *ngIf="me && userRole !== 'admin'" class="header-toolbar__framed">
+            <p>{{me.firstName}} {{me.lastName}}<span *ngIf="userRole === 'doctor'">, MD</span></p>
+        </div>
+
+    </div>
+    <div class="flex-row">
+        <p *ngIf="time && time !== '00:00'" class="header-toolbar__status"><em>session time:</em></p>
+        <div *ngIf="time && time !== '00:00'" class="header-toolbar__framed">
+            <p>{{time}}</p>
+        </div>
+    </div>
+</div>

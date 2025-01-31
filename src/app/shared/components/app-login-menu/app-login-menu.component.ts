@@ -5,7 +5,7 @@ import { environment } from "../../../../environments/environment";
 
 @Component({
     selector: 'app-login-menu',
-    templateUrl: './app-login-menu.component.html',
+    templateUrl: 'app-login-menu.component.html',
     styleUrls: ['app-login-menu.component.scss']
 })
 export class LoginMenuComponent {

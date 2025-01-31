@@ -1,6 +1,6 @@
 import { Editor, Toolbar, ToolbarItem } from 'ngx-editor';
 import { Subscription } from 'rxjs';
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from "@angular/core";
 import { FormGroup, FormControl, FormBuilder } from "@angular/forms";
 import { MatDialog } from '@angular/material/dialog';
 import { DomSanitizer } from "@angular/platform-browser";
@@ -13,8 +13,8 @@ import { RecordInput } from "../../../graphql/record/record.input";
     templateUrl: './app-editor.component.html',
     styleUrls: ['./app-editor.component.scss']
 })
-export class AppEditorComponent implements OnInit, OnDestroy {
-
+export class AppEditorComponent implements OnInit, OnDestroy, AfterViewInit {
+    @ViewChild('editorDiv') editorElement: ElementRef | undefined;
     form: RecordForm | undefined;
     disabled: boolean = true;
 
@@ -60,6 +60,16 @@ export class AppEditorComponent implements OnInit, OnDestroy {
         });
         this.subscriptions.add(sub);
         this.editorText = this.record && this.record.text || this.text
+    }
+    ngAfterViewInit(): void {
+        this.adjustHeight();
+    }
+    adjustHeight(){
+        const el = this.editorElement?.nativeElement.querySelector('.ngx-editor');
+        if (el) {
+            el.style.height='auto';
+            el.style.height=`${el.scrollHeight}px`;
+        }
     }
     
     buildForm(){

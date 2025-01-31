@@ -1,4 +1,4 @@
-<div [ngStyle]="{ 'max-width': width ? width : 'inherit' }" style="max-height: 50rem;">
+<div class=wrapper>
     <div class="record wrapper" *ngIf="(isEditting && record) || isCreating">
         <p class="title" *ngIf="isCreating">{{ 'New Record' }}</p>
         <p class="title" *ngIf="record">{{ 'Record Draft' }}</p>

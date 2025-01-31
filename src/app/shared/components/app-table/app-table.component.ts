@@ -14,7 +14,7 @@ import { RecordComponent } from "../../../graphql/record/record.component";
 import { AlertComponent } from "../app-alert/app-alert.component";
 import { Record } from "../../../graphql/record/record";
 import { AdvancedSearchInput, AppDataSource, AppTableDisplayedColumns, UserDataSource } from "../../types";
-import { isDate } from "lodash-es";
+import { BreakpointObserver } from "@angular/cdk/layout";
 
 
 @Component({
@@ -32,7 +32,7 @@ import { isDate } from "lodash-es";
 export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
     isLoading: boolean = false;
     isActionsDisabled:boolean = false;
-    //isAllRead:boolean = false;
+    isMobile:boolean = false;
     checkedCount: number = 0;
 
     @Output() pageChange = new EventEmitter<{pageIndex: number, pageLimit: number}>();
@@ -81,6 +81,7 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
         private graphQLService: AppGraphQLService,
         private dialog: MatDialog,
         private cd: ChangeDetectorRef,
+         private breakpointObserver: BreakpointObserver,
 
         @Optional() public dialogRef: MatDialogRef<AppTableComponent>,
         @Optional() @Inject(MAT_DIALOG_DATA) public data: { recordIds: number[], userRole: string}  
@@ -93,6 +94,35 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
             this.isLoading = true;
             this.loadMedicalRecords()
         }
+    }
+    ngOnInit() { 
+        this.columnNames = [];
+        if (this.dataSource && this.displayedColumns) {
+           this.columnNames = this.displayedColumns.map(column => column.columnDef);
+        }
+        this.subscription = this.socketService.receiveNotification().subscribe((subscription: any)=> {
+            if (subscription && subscription.chatId) {
+                if (!this.senders.find(sender => sender === subscription.sender)) {
+                    this.senders.push(subscription.sender);
+                }
+            }
+        });
+        this.breakpointObserver.observe(['(max-width: 767px)',]).subscribe(result => {
+            this.isMobile = result.matches;
+        });
+    }
+
+    isDisabled(btn:any): boolean {
+        if (this.isMobile) {
+            return !this.selection?.hasValue() || btn.disabled;
+        }
+        return !this.selection?.hasValue() || this.checkedCount < 2 || btn.disabled;
+    }
+    
+    getButtonStyle(btn:any) {
+        return {
+           backgroundColor: this.isDisabled(btn) ? '' : 'rgba(115, 72, 114, 0.4)'
+        };
     }
 
     async loadMedicalRecords(){
@@ -248,19 +278,7 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
         this.ngOnInit();
     }
     
-    ngOnInit() { 
-        this.columnNames = [];
-        if (this.dataSource && this.displayedColumns) {
-           this.columnNames = this.displayedColumns.map(column => column.columnDef);
-        }
-        this.subscription = this.socketService.receiveNotification().subscribe((subscription: any)=> {
-            if (subscription && subscription.chatId) {
-                if (!this.senders.find(sender => sender === subscription.sender)) {
-                    this.senders.push(subscription.sender);
-                }
-            }
-        });
-    }
+    
 
     ngAfterViewInit(): void {  
         if (this.paginator && this.dataSource && this.displayedColumns) {
@@ -321,7 +339,7 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
     onRowClick(id: number, title?: string){
         if (this.recordIds) {
-            this.dialog.open(RecordComponent, {data: {recordId: id, width: "45rem", noDelete: true}});
+            this.dialog.open(RecordComponent, {width: "45rem", data: {recordId: id, noDelete: true}});
         }
         this.markAppointmentId = null;
         if (id) {

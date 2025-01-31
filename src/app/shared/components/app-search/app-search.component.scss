@@ -1,3 +1,12 @@
+@import '../../scss/breakpoints';
+
+.top-wrapper {
+   flex:1;
+   @include respond-to(small-mobile-x){ 
+    align-items: center;
+   }
+}
+
 .icon-btn {
     width: 13rem;
     margin-bottom:1rem;
@@ -8,6 +17,17 @@
     }
     &:hover {
         cursor: pointer;
+    }
+    @include respond-to(small-mobile-x){ 
+        width:10.1rem;
+        margin:0;
+        margin-bottom: 22px;
+        p {font-size: 12px;}
+        .material-symbols-outlined {
+            font-size: 1rem;
+            margin-top: 2px;
+            margin-left: 8px;
+        }
     }
 }
 #input {
@@ -38,4 +58,10 @@ mat-error {
     color:rgb(223 131 0 / 80%);
     position: absolute;
     top: 78px;
+}
+.actions {
+    margin:0;
+    @include respond-to(mobile-6x) {
+        margin-right: 20px;
+    }
 }

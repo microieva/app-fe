@@ -8,7 +8,7 @@ import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../shared/services/app-graphql.service";
 import { AppTimerService } from "../../shared/services/app-timer.service";
 import { AppAuthService } from "../../shared/services/app-auth.service";
-import { AppHeaderService } from "../../shared/services/app-header-refresh.service";
+import { AppHeaderService } from "../../shared/services/app-header.service";
 import { AlertComponent } from "../../shared/components/app-alert/app-alert.component";
 import { ConfirmComponent } from "../../shared/components/app-confirm/app-confirm.component";
 import { LoadingComponent } from "../../shared/components/app-loading/loading.component";

@@ -30,7 +30,7 @@
                 </div>
             </div>
             <div class="page" @slideInOut *ngIf="!isLoading">
-                <div *ngIf="countRecords > 0">
+                <div *ngIf="countRecords > 0" class="page__text-block">
                     <h2 class="font">Medical records ({{countRecords}}):</h2>
                     <p *ngIf="countRecords===1 && userRole === 'doctor'">Currently you have {{countRecords}} medical record saved as final version. All medical records are accessible to the patients. After deleting appointment linked to a reocrd, the record is locked and can be deleted only by the patient.</p>
                     <p *ngIf="countRecords>1 && userRole === 'doctor'">Currently you have {{countRecords}} medical records saved as drafts. Drafts are visible only to you. Saving a draft as final opens access to the patient. After deleting appointment linked to a reocrd, the record is locked and can be deleted only by the patient.</p>
@@ -75,7 +75,7 @@
                 <app-loading></app-loading>
             </div>
             <div class="page">
-                <div *ngIf="countDrafts > 0">
+                <div *ngIf="countDrafts > 0" class="page__text-block">
                     <h2 class="font">Medical records saved as drafts ({{countDrafts}}):</h2>
                     <p *ngIf="countDrafts===1">Currently you have {{countDrafts}} medical record saved as draft. Drafts are visible only to you. Saving a draft as final opens access to the patient.</p>
                     <p *ngIf="countDrafts>1">Currently you have {{countDrafts}} medical records saved as drafts. Drafts are visible only to you. Saving a draft as final opens access to the patient.</p>

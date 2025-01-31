@@ -1,8 +1,17 @@
+@import '../../scss/breakpoints';
+
 .menu-item {
     width: 100%;
     margin: 2rem 0;
     p {
         padding: 0 1rem;
+        @include respond-to(mobile-6x) {
+            line-break:anywhere;
+            line-height: 1rem;
+        }
+    }
+    @include respond-to(mobile-6x) {
+        margin: 10px 0;
     }
 }
 .item{
@@ -14,6 +23,9 @@
     align-items: center;
     height: 4rem;
     border-radius: 3px;
+    @include respond-to(mobile-6x) {
+       height:3rem;
+    }
     h3 {
         margin-left: 1rem;
     }
@@ -29,3 +41,4 @@
 span {
     width: 100%;
 }
+

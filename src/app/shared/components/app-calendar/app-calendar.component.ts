@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
-import { CalendarOptions, DateSelectArg, EventClickArg, EventApi, DayCellContentArg, EventDropArg, DatesSetArg, ViewMountArg } from '@fullcalendar/core';
+import { CalendarOptions, DateSelectArg, EventClickArg, EventApi, DayCellContentArg, EventDropArg, DatesSetArg, ViewMountArg, DayCellMountArg } from '@fullcalendar/core';
 import { ActivatedRoute, Router } from "@angular/router";
 import { MatDialog } from "@angular/material/dialog";
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -140,7 +140,123 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                 startTime: '08:00', 
                 endTime: '18:00'
             },
-            viewDidMount: (arg: ViewMountArg) => this.onViewChange(arg)
+            viewDidMount: (arg: ViewMountArg) => this.onViewChange(arg),
+            dayCellDidMount: (info: any) => {
+                info.el.addEventListener('touchstart', (event: any) => {
+                  event.preventDefault(); 
+          
+                  const dateSelectArg: DateSelectArg = {
+                    start: info.date, 
+                    end: new Date(info.date.getTime() + 24 * 60 * 60 * 1000), 
+                    allDay: false, 
+                    startStr: info.date.toISOString().split('T')[0], // ISO string without time
+                    endStr: new Date(info.date.getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0], // End ISO string
+                    jsEvent: event,
+                    view: info.view
+                  };
+              
+                    this.handleDateSelect(dateSelectArg);
+                });
+            },
+            // eventDidMount: (info: any) => {
+            //     info.el.addEventListener('touchstart', (event: TouchEvent) => {
+            //         event.preventDefault(); 
+            
+            //         const eventClickArg: EventClickArg = {
+            //             el: info.el, 
+            //             event: info.event, 
+            //             jsEvent: event as any, 
+            //             view: info.view 
+            //         };
+            
+            //         this.handleEventClick(eventClickArg);
+            //         let touchStartX = event.touches[0].clientX;
+            //         let touchStartY = event.touches[0].clientY;
+            
+            //         const handleTouchMove = (moveEvent: TouchEvent) => {
+            //           const touchEndX = moveEvent.touches[0].clientX;
+            //           const touchEndY = moveEvent.touches[0].clientY;
+            
+            //           // Calculate drag distance
+            //           const deltaX = touchEndX - touchStartX;
+            //           const deltaY = touchEndY - touchStartY;
+            
+            //           // Threshold to detect drag (adjust as needed)
+            //           if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
+            //             // Simulate an EventDropArg object
+            //             const eventDropArg: EventDropArg = {
+            //               event: info.event, // The FullCalendar event object
+            //               oldEvent: { ...info.event }, // Simulate old event state (optional)
+            //               relatedEvents: [], // Related events (if any)
+            //               jsEvent: moveEvent as any, // The native touch event
+            //               view: info.view // Current view
+            //             };
+            
+            //             // Call the handleEventDrop method with the constructed argument
+            //             this.handleEventDrop(eventDropArg);
+            
+            //             // Remove the touchmove listener to prevent multiple triggers
+            //             document.removeEventListener('touchmove', handleTouchMove);
+            //           }
+            //         };
+            //     });
+            // }
+            eventDidMount: (info: any) => {
+                let isDragging = false; 
+              
+                info.el.addEventListener('touchstart', (event: TouchEvent) => {
+                    const touchStartX = event.touches[0].clientX;
+                    const touchStartY = event.touches[0].clientY;
+                    const startTime = new Date().getTime(); 
+                
+                    isDragging = false;
+                
+                    const handleTouchMove = (moveEvent: TouchEvent) => {
+                        const touchEndX = moveEvent.touches[0].clientX;
+                        const touchEndY = moveEvent.touches[0].clientY;
+                        const deltaX = touchEndX - touchStartX;
+                        const deltaY = touchEndY - touchStartY;
+                
+                        if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
+                        isDragging = true;
+                
+                        const eventDropArg = {
+                            event: info.event, 
+                            oldEvent: { ...info.event },
+                            relatedEvents: [], 
+                            jsEvent: moveEvent, 
+                            view: info.view 
+                        
+                        };
+                
+                        this.handleEventDrop(eventDropArg); 
+                        document.removeEventListener('touchmove', handleTouchMove); 
+                    }
+                };
+              
+                const handleTouchEnd = () => {
+                    const touchEndTime = new Date().getTime(); 
+                    const touchDuration = touchEndTime - startTime;
+              
+                    if (!isDragging && touchDuration < 300) {
+                      const eventClickArg: EventClickArg = {
+                        el: info.el, 
+                        event: info.event, 
+                        jsEvent: event as any,
+                        view: info.view 
+                      };
+              
+                      this.handleEventClick(eventClickArg); 
+                    }
+              
+                    document.removeEventListener('touchmove', handleTouchMove);
+                    document.removeEventListener('touchend', handleTouchEnd);
+                };
+              
+                document.addEventListener('touchmove', handleTouchMove);
+                document.addEventListener('touchend', handleTouchEnd);
+                });
+            }     
         }
         this.isLoading = false;
     }
@@ -709,12 +825,12 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                     if (!arg.allDay) this.handleDayView(arg);
                     else calendarApi.unselect();
                 } else {
-                    if (arg.allDay && numberOfAppointmentsOnSelectedDay <1) this.handleDayView(arg);
-                    else if (arg.allDay && numberOfAppointmentsOnSelectedDay >0) {
-                        this.dialog.open(AlertComponent, {data: {message: "You have appointments on this day"}});
-                        calendarApi.unselect();
-                    }
-                    else calendarApi.unselect();
+                    // if (arg.allDay && numberOfAppointmentsOnSelectedDay <1) this.handleDayView(arg);
+                    // else if (arg.allDay && numberOfAppointmentsOnSelectedDay >0) {
+                    //     this.dialog.open(AlertComponent, {data: {message: "You have appointments on this day"}});
+                    //     calendarApi.unselect();
+                    // }
+                    calendarApi.unselect();
                 }
                 break;
             default:

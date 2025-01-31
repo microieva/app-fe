@@ -1,0 +1,10 @@
+@mixin spinner-size($size: 8rem) {
+    width: $size;
+    height: $size;
+  
+    ::ng-deep mat-spinner {
+      width: $size !important;
+      height: $size !important;
+    }
+  }
+  

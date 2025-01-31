@@ -46,8 +46,6 @@ export const nameValidator: ValidatorFn = (control: AbstractControl): Validation
     return valid ? null : { invalidName: true };
 };
 
-  
-  // Validator for email - shortest format allowed *@*.*
 export const emailValidator:ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
     const value = control.get('email')?.value;
     const valid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value);

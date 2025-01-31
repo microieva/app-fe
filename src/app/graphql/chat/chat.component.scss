@@ -1,27 +1,78 @@
+@import '../../shared/scss/breakpoints';
+
 .page {
     border: 1px solid gray;
     border-radius: 5px;
     height: calc(85vh - 10rem);
     width: 60%;
     background-color: rgb(215 222 230);
+    @include respond-to(desktop-5x){
+        height: 68rem;
+        margin-top:15%;
+    }
+    @include respond-to(desktop-6x){
+        height: 58rem;
+        margin-top:15%;
+        width:85%;
+    }
+    @include respond-to(tablet) {
+        margin-top: 2rem;
+        height:42rem;
+        width:80%;
+    }
+    @include respond-to(mobile-x) {
+        max-width:95%;
+        height: 38rem!important;
+        margin:auto;
+        margin-top:5%;
+    }
+    @include respond-to(mobile-6x) {
+        width:95%;
+        margin:auto;
+        margin-top:5%;
+    }
+    .chat-wrapper{
+        width:100%;
+        height:100%;
+        flex-direction: column-reverse;
+    }
 }
 mat-form-field {
     margin: 0;
     width: 100%;
-}
-.flex-column {
-    flex-direction: column-reverse;
+    @include respond-to(desktop-5x){
+        font-size: 1.5rem;
+    }
+    @include respond-to(tablet){    
+        width: 95%;
+        margin: 0 auto;
+    }
+    @include respond-to(mobile-6x){    
+        width: 95%;
+        margin: 0 auto;
+    }
 }
 .messages-wrapper {
     margin: 2rem 0.5rem;
     overflow: scroll;
+    flex-direction: column-reverse;
 }
 .message-wrapper {
-    max-width: 50%;
-    width: max-content;
     display: flex;
     flex-direction: row;
     align-items: center;
+    .flex-row {
+        width:100%;
+        &.reversed {
+            justify-content: flex-end;
+        }
+        &.justified{
+            justify-content: flex-end;
+        }
+    }
+    .reversed {
+        flex-direction:row-reverse;
+    }
 }
 .flex-end {
     align-self: flex-end;
@@ -31,6 +82,27 @@ mat-form-field {
     border-radius: 10px;
     margin: 5px 0;
     z-index: 1;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap; 
+    word-wrap: break-word;
+    overflow:hidden;
+    max-width:50%;
+    @include respond-to(desktop-5x){
+        font-size:1.2rem;
+        max-width: 70%;
+    }
+    @include respond-to(tablet){
+        font-size:1.2rem;
+        max-width: 70%;
+    }
+    @include respond-to(mobile-x) {
+        font-size: 1rem;
+        top:80px;
+    }
+    @include respond-to(small-mobile-x) {
+        font-size: 12px;
+    }
 }
 .incoming {
     background-color: rgb(175 111 174 / 40%);   
@@ -41,14 +113,36 @@ mat-form-field {
     border: 1px solid rgb(111, 143, 175, 40%);
     float: inline-end;
 }
+.icons {
+    justify-content: flex-end;
+    span {
+        @include respond-to(desktop-5x){
+            font-size: 2.5rem;
+            margin-left:1rem;
+        }
+        @include respond-to(tablet){
+            font-size: 2rem;
+            margin: 1rem auto;
+            margin-right:1rem;
+        }
+        @include respond-to(mobile-6x){
+            font-size: 2rem;
+            margin: 1rem auto;
+            margin-right:1rem;
+        }
+    }
+}
 .material-icons:hover {
     cursor: pointer;
 }
 .timestamp {
-    margin: auto 0.5rem auto 0.5rem;
+    margin: 1.1rem 0.5rem auto 0.5rem;
     color: dimgray;
     font-size: smaller;
     min-width:max-content;
+    @include respond-to(desktop-5x){
+        font-size:1.2rem;
+    }
 }
 #bg-icon {
     position: absolute;
@@ -58,4 +152,33 @@ mat-form-field {
     transform: rotate(21deg);
     color: darkgray;
     opacity: 0.3;
+    @include respond-to(desktop-5x){
+        top:185px;
+        font-size:36rem;
+    }
+    @include respond-to(desktop-6x){
+        top:160px;
+        right:0;
+    }
+    @include respond-to(tablet){
+       top:80px;
+       font-size:26rem;
+    }
+    @include respond-to(mobile) {
+        font-size: 28rem;
+        top:80px;
+    }
+    @include respond-to(mobile-x) {
+        font-size: 24rem;
+        top:80px;
+    }
+    @include respond-to(mobile-xx) {
+        font-size: 18rem;
+        top:80px;
+    }
+}
+textarea{
+    overflow: hidden;
+    resize: none;
+    width:100%;
 }

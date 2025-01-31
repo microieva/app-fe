@@ -1,9 +1,10 @@
 import { Subscription } from "rxjs";
 import { trigger, transition, style, animate, state } from "@angular/animations";
-import { Component, HostListener, OnDestroy, OnInit } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { MatExpansionPanel } from "@angular/material/expansion";
 import { MatDialog } from "@angular/material/dialog";
+import { BreakpointObserver } from "@angular/cdk/layout";
 import { AppGraphQLService } from "../../services/app-graphql.service";
 import { LoginMenuComponent } from "../app-login-menu/app-login-menu.component";
 import { AlertComponent } from "../app-alert/app-alert.component";
@@ -27,7 +28,12 @@ import { AppErrorStateMatcher } from "../../errorStateMatcher";
         ])      
     ]
 })
-export class AppLandingComponent implements OnInit, OnDestroy{
+export class AppLandingComponent implements OnInit, OnDestroy, AfterViewInit{
+    isDesktop:boolean = true;
+    isTablet:boolean = false;
+    isMobile:boolean = false;
+    isMobileSmall:boolean = false;
+
     scrollOffset: number = 0;
     setVisible1:boolean = false;
     setVisible2:boolean = false;
@@ -41,7 +47,7 @@ export class AppLandingComponent implements OnInit, OnDestroy{
     feedback:string | null = null;
     isSendingFeedback:boolean = false;
 
-    panelOpenState:boolean = false;
+    isPanelOpen:boolean = false;
 
     newsletter = new FormControl();
     feedbackForm: FormGroup =  new FormGroup({
@@ -52,6 +58,10 @@ export class AppLandingComponent implements OnInit, OnDestroy{
     matcher = new AppErrorStateMatcher();
 
     private subscriptions: Subscription = new Subscription();
+    @ViewChild('textarea') textarea: ElementRef | undefined;
+    @ViewChild('textBlock') textBlock!: ElementRef;
+    @ViewChild('viewContainer') viewContainer!: ElementRef;
+    @ViewChild('feedbackPanel') feedbackPanel!: MatExpansionPanel;
 
     @HostListener('window:scroll', [])
     onWindowScroll(): void {
@@ -69,10 +79,17 @@ export class AppLandingComponent implements OnInit, OnDestroy{
     constructor (
         private dialog: MatDialog,
         private graphQLService: AppGraphQLService,
-        private formBuilder: FormBuilder
+        private formBuilder: FormBuilder,
+        private breakpointObserver: BreakpointObserver
     ) {}
 
     async ngOnInit() {
+        this.breakpointObserver.observe(['(min-width: 1024px)']).subscribe(result => {
+            this.isDesktop = result.matches;
+            this.isTablet = this.breakpointObserver.isMatched('(min-width: 768px) and (max-width: 1023px)');
+            this.isMobile =  this.breakpointObserver.isMatched('(max-width: 430px)');
+            this.isMobileSmall = this.breakpointObserver.isMatched('(max-width: 410px)');
+        });
         this.dialog.closeAll();
         this.buildFeebackForm();
     }
@@ -97,10 +114,58 @@ export class AppLandingComponent implements OnInit, OnDestroy{
         this.requireContact = false;
         this.feedbackForm.reset();
         panel.close();
+        if (this.isTablet) this.resetTabletViewHeight();
+        else if (this.isMobile) this.resetMobileViewHeight();
+        else if (this.isMobileSmall) this.resetMobileSmallViewHeight();
     }
     onSendSubscription(panel: MatExpansionPanel) {
         this.newsletter.reset();
         this.isSent = true;
+    }
+    ngAfterViewInit(): void {
+        this.feedbackPanel.opened.subscribe(() => {
+            if (this.isTablet) {
+                this.adjustTabletViewHeight()
+            } else if (this.isMobile) {
+                this.adjustMobileViewHeight();
+            } else if (this.isMobileSmall) {
+                this.adjustMobileSmallViewHeight();
+            } 
+        });
+        this.feedbackPanel.closed.subscribe(() => {
+            if (this.isTablet) {
+                this.resetTabletViewHeight();
+            } else if (this.isMobile) {
+                this.resetMobileViewHeight(); 
+            } else if (this.isMobileSmall) {
+                this.resetMobileSmallViewHeight();
+            }
+        });
+    }
+    adjustTabletViewHeight(){
+        this.textBlock.nativeElement.style.height = '284vh'; 
+        this.viewContainer.nativeElement.style.height = 'calc(342vh + 25rem)'
+    }
+    adjustMobileViewHeight(){
+        this.textBlock.nativeElement.style.height = '240vh'; 
+        this.viewContainer.nativeElement.style.height = 'calc(308vh + 15rem)'
+    }
+    adjustMobileSmallViewHeight(){
+        this.textBlock.nativeElement.style.height = '220vh'; 
+        this.viewContainer.nativeElement.style.height = 'calc(264vh + 25rem)'
+    }
+
+    resetTabletViewHeight(){
+        this.viewContainer.nativeElement.style.height = 'calc(325vh + 25rem)'
+        this.textBlock.nativeElement.style.height = '260vh'; 
+    }
+    resetMobileViewHeight(){
+        this.viewContainer.nativeElement.style.height = ' calc(268vh + 15rem)'
+        this.textBlock.nativeElement.style.height = '200vh'; 
+    }
+    resetMobileSmallViewHeight(){
+        this.viewContainer.nativeElement.style.height = 'calc(238vh + 25rem);'
+        this.textBlock.nativeElement.style.height = '194vh'; 
     }
 
     onCheckedAnonymous(){
@@ -141,6 +206,15 @@ export class AppLandingComponent implements OnInit, OnDestroy{
                 }
             }
         }
+    }
+    get characterCount(): number {
+        const characters = this.feedbackForm.get('text')?.value || '';
+        return characters.replace(/\n/g, '').length; 
+    }
+    adjustHeight(event:any){
+        const el = event.target as HTMLTextAreaElement;
+        el.style.height='auto';
+        el.style.height =`${el.scrollHeight}px`;
     }
 
     toggleChangeAnonymous(event: any): void {

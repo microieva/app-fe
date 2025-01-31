@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, Output } from "@angular/core";
+import { Component, ElementRef, EventEmitter, Inject, Output, ViewChild } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 
 @Component({
@@ -11,6 +11,7 @@ export class AppointmentMessageComponent {
     @Output() isSaving = new EventEmitter<string>();
 
     message: string | null = null;
+    @ViewChild('textarea') textarea: ElementRef | undefined;
 
     constructor(
         public dialogRef: MatDialogRef<AppointmentMessageComponent>,
@@ -22,5 +23,14 @@ export class AppointmentMessageComponent {
     }
     onSaveClick(message:string){
         this.isSaving.emit(message);
+    }
+    adjustHeight(event:any){
+        const el = event.target as HTMLTextAreaElement;
+        el.style.height='auto';
+        el.style.height =`${el.scrollHeight}px`;
+    }
+    get characterCount(): number {
+        const characters = this.textarea?.nativeElement.value || '';
+        return characters.replace(/\n/g, '').length; 
     }
 }

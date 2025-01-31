@@ -1,3 +1,5 @@
+@import '../../../shared/scss/breakpoints';
+
 .material-icons{
     color: dimgray;
     float: right;
@@ -10,6 +12,16 @@
 }
 .page {
     margin-top: 6rem;
+    @include respond-to(tablet) {
+        max-width:85%;
+        margin:4rem auto;
+    }
+    @include respond-to(mobile-6x) {
+        max-width:90%;
+        width:90%;
+        margin:4rem auto;
+        padding:0;
+    }
 }
 
 
