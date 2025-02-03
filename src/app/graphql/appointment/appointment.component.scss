@@ -1,6 +1,7 @@
 @import '../../shared/scss/breakpoints';
 
 .page {
+    max-width:75%;
     @include respond-to(desktop-5x) {
         width:80%;
     }
