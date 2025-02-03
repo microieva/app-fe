@@ -72,6 +72,7 @@
     }
 }
 .content-view-wrapper {
+    max-width:120rem;
     display: flex; 
     flex-direction: column;
     height: calc(190vh + 25rem);
