@@ -4,9 +4,9 @@ This repository contains Angular front end for a professional portfolio project 
 
 "Health Center" application supports three user roles with different features for each scope: patient access provides features centuring around maintaining appointments and accessing medical records; for doctors, besides handling appointment bookings and creating medical records, the application provides calendar notifications about upcoming appointments as well as real-time notifications on incoming messages in the chat with admin or, patients creating new appointment request, or, patients canceling confirmed appointment; admin user role besides the chat, provides functionalities related to managing appointments on patient's behalf and activating doctors accounts.
 
-This repository is deployed via [Vercel](https://app-fe-gamma.vercel.app/). 
+This repository is deployed via Azure Static Web Apps.
 [See user login credentials](#user-roles).
-[Visit Health Center](https://app-fe-gamma.vercel.app/)
+[Visit Health Center](https://wonderful-dune-0e4733c03.5.azurestaticapps.net/)
 
 
 ![](./src/assets/1.png)
@@ -142,7 +142,7 @@ ___
   
 ###### doctor
 
-- Login using Google authentication
+- Login using Google authentication (demo account: _'doctor@email.com'_, _'demo'_)
 - View, update, delete own account
 - View appointment requests (if doctor has no appointments for that time, overlapping appointments are not visible), *accept appointment, *delete appointment request
 - View, *update, *delete accepted appointments
@@ -154,6 +154,7 @@ ___
 
 - Login using eID Hub (FTN) bank authentication (_Signicat Sandbox_)
     [FTN demo credentials](https://developer.signicat.com/identity-methods/ftn/demo-ftn/)
+    (demo account: _'user@email.com'_, _'demo'_)
 - View, update, delete own account
 - Create, *update, *delete appointments
 - View own appointments requests
