@@ -72,9 +72,9 @@ export class AppHomeComponent implements OnInit {
     @ViewChild('sidenavContent', { read: ElementRef }) sidenavContent: ElementRef | undefined;
     isResizing = false;
     lastDownX = 60;
-    isDesktop: boolean = false; 
+    isDesktop: boolean = true; 
     isCompact: boolean = false; 
-    showSidenav:boolean = false;
+    showSidenav:boolean = true;
 
     constructor(
         private activatedRoute: ActivatedRoute,

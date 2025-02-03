@@ -685,6 +685,12 @@ mat-hint {
         flex: auto 1 0; 
         max-width: fit-content;
         color:  rgb(239 239 239);
+        align-self: center;
+        h2 {
+            padding:0;
+            margin:0;
+            width:max-content;
+        }
         @include respond-to(mobile) {
             font-size:13px;
         }
