@@ -1,6 +1,7 @@
-import { Component, EventEmitter, Inject, Input, OnInit, Optional, Output } from "@angular/core";
+import { Component, ElementRef, EventEmitter, Inject, Input, OnInit, Optional, Output, ViewChild } from "@angular/core";
 import { DateTime } from "luxon";
-import { Router } from "@angular/router";
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 import { BreakpointObserver } from "@angular/cdk/layout";
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { AppGraphQLService } from "../../shared/services/app-graphql.service";
@@ -32,6 +33,7 @@ export class RecordComponent implements OnInit {
 
     @Output() cancel = new EventEmitter<boolean>();
     @Output() reload = new EventEmitter<boolean>();
+    @ViewChild('recordContent', { static: false }) recordContent!: ElementRef;
 
     recId: number | undefined;
     id: number | undefined;
@@ -40,7 +42,6 @@ export class RecordComponent implements OnInit {
     constructor(
         private dialog: MatDialog,
         private graphQLService: AppGraphQLService,
-        private router: Router,
         private breakpointObserver: BreakpointObserver,
 
         @Optional() public dialogRef: MatDialogRef<RecordComponent>,
@@ -71,6 +72,25 @@ export class RecordComponent implements OnInit {
             //this.isMobileSmall = this.breakpointObserver.isMatched('(max-width: 410px)');
             //if (this.isMobile) this.width = '35rem';
         });
+    }
+
+    downloadRecord(): void {
+        if (this.record) {
+            const element = this.recordContent.nativeElement;
+            html2canvas(element).then((canvas) => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const imgWidth = 210; 
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                const date = DateTime.fromISO(this.record!.createdAt).toFormat('dd-MM-YYYY'); 
+                const lastName = this.record?.patient.lastName
+            
+                pdf.addImage(imgData, 'PNG', 0, 10, imgWidth, imgHeight);
+                pdf.save(`HealthCenterRecord_${date}_${lastName}.pdf`);
+            });
+        } else {
+            this.dialog.open(AlertComponent, {data:{message: "Unexpected issue, please retry.."}})
+        }
     }
     
     async loadRecord(){

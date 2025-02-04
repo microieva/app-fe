@@ -13,28 +13,31 @@
 
 
     <div class="record" *ngIf="record && !isEditting && !isCreating">
-        <div class="flex-column wrapper" *ngIf="!appointmentId">
-            <p class="title">{{ 'Information' }}</p>
-            <div class="flex-row">
-                <div class="flex-column">
-                    <p>{{ 'Created' }}</p>
-                    <h3 class="font">{{ created }}</h3>
-                </div>
-                <div class="flex-column">
-                    <p>{{ 'Doctor name' }}</p>
-                    <h3 class="font">{{doctorName}}</h3>
-                </div>
-                <div class="flex-column">
-                    <p>{{ 'Patient name' }}</p>
-                    <h3 class="font">{{patientName}}</h3>
+        <div #recordContent>
+
+            <div class="flex-column wrapper" *ngIf="!appointmentId">
+                <p class="title">{{ 'Information' }}</p>
+                <div class="flex-row">
+                    <div class="flex-column">
+                        <p>{{ 'Created' }}</p>
+                        <h3 class="font">{{ created }}</h3>
+                    </div>
+                    <div class="flex-column">
+                        <p>{{ 'Doctor name' }}</p>
+                        <h3 class="font">{{doctorName}}</h3>
+                    </div>
+                    <div class="flex-column">
+                        <p>{{ 'Patient name' }}</p>
+                        <h3 class="font">{{patientName}}</h3>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="record-content wrapper font">
-            <p *ngIf="record.draft" class="title">{{ 'Record Draft' }}</p>
-            <p *ngIf="!record.draft" class="title">{{ 'Medical Record' }}</p>
-            <h2>{{ record.title }}</h2>
-            <div [innerHtml]="record.text"></div>
+            <div class="record-content wrapper font">
+                <p *ngIf="record.draft" class="title">{{ 'Record Draft' }}</p>
+                <p *ngIf="!record.draft" class="title">{{ 'Medical Record' }}</p>
+                <h2>{{ record.title }}</h2>
+                <div [innerHtml]="record.text"></div>
+            </div>
         </div>
         <div class="actions flex-row">
             <div>
@@ -56,6 +59,14 @@
                     {{ 'Delete Record' }}
                 </button>
             </div>
+            <button 
+                *ngIf="record.draft === false"
+                mat-stroked-button 
+                (click)="downloadRecord()" 
+                style="background-color: #99A9BD;"
+            >
+                {{ 'Download Record' }}
+            </button>
             <button 
                 *ngIf="recId"
                 mat-stroked-button 
