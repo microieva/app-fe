@@ -23,6 +23,7 @@ export class RecordComponent implements OnInit {
     created: string | undefined;
     record: Record | null = null;
     patientName: string | undefined;
+    doctorName: string = '';
 
     aptId :number | undefined;
 
@@ -85,6 +86,12 @@ export class RecordComponent implements OnInit {
                     id
                 }
                 patient {
+                    id
+                    firstName
+                    lastName
+                }
+                doctor {
+                    id
                     firstName
                     lastName
                 }
@@ -99,7 +106,8 @@ export class RecordComponent implements OnInit {
                 this.updated = DateTime.fromISO(response.data.record.updatedAt).toFormat('MMM dd, yyyy'); 
                 this.created = DateTime.fromISO(response.data.record.createdAt).toFormat('MMM dd, yyyy'); 
                 if (this.record) {
-                    this.patientName = this.record.patient.firstName+' '+this.record.patient.lastName
+                    this.patientName = this.record.patient.firstName+' '+this.record.patient.lastName;
+                    this.doctorName = this.record.doctor.firstName+' '+this.record.doctor.lastName || '-';
                 }
             }
         } catch (error) {
