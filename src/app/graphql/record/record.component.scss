@@ -1,11 +1,11 @@
 
-.wrapper {
-    max-height: 50rem;
+
     .actions {
-        margin-bottom: 4rem;
+        margin-right: 1rem;
+        justify-content: flex-end;
     }
     .record-content {
-        padding: 1rem 4rem;
+        //padding: 1rem 4rem;
         padding-bottom: 4rem;
         h2 {
             margin-bottom: 2rem;
@@ -14,4 +14,3 @@
     .font {
         line-height: 1.3rem;
     }
-}

@@ -1,5 +1,5 @@
-<div class=wrapper>
-    <div class="record wrapper" *ngIf="(isEditting && record) || isCreating">
+<div style="max-height: 50rem;" [ngClass]="(isEditting || isCreating) && 'wrapper'">
+    <div class="record" *ngIf="(isEditting && record) || isCreating">
         <p class="title" *ngIf="isCreating">{{ 'New Record' }}</p>
         <p class="title" *ngIf="record">{{ 'Record Draft' }}</p>
         <app-editor 
@@ -12,14 +12,29 @@
     </div>
 
 
-    <div class="record wrapper" *ngIf="record && !isEditting && !isCreating">
-        <div class="flex-row">
-            <p class="title" *ngIf="!record.draft">{{ 'Medical Record' }}</p>
-            <p class="title" *ngIf="record.draft">{{ 'Record Draft' }}</p>
-            <div style="align-self: baseline;">
-                <p><em>created: </em>{{ created }}</p>
-                <p><em>patient name: </em>{{patientName}}</p>
+    <div class="record" *ngIf="record && !isEditting && !isCreating">
+        <div class="flex-column wrapper" *ngIf="!appointmentId">
+            <p class="title">{{ 'Information' }}</p>
+            <div class="flex-row">
+                <div class="flex-column">
+                    <p>{{ 'Created' }}</p>
+                    <h3 class="font">{{ created }}</h3>
+                </div>
+                <div class="flex-column">
+                    <p>{{ 'Doctor name' }}</p>
+                    <h3 class="font">{{doctorName}}</h3>
+                </div>
+                <div class="flex-column">
+                    <p>{{ 'Patient name' }}</p>
+                    <h3 class="font">{{patientName}}</h3>
+                </div>
             </div>
+        </div>
+        <div class="record-content wrapper font">
+            <p *ngIf="record.draft" class="title">{{ 'Record Draft' }}</p>
+            <p *ngIf="!record.draft" class="title">{{ 'Medical Record' }}</p>
+            <h2>{{ record.title }}</h2>
+            <div [innerHtml]="record.text"></div>
         </div>
         <div class="actions flex-row">
             <div>
@@ -48,10 +63,6 @@
             >
                 {{ 'Close' }}
             </button>
-        </div>
-        <div class="record-content font">
-            <h2>{{ record.title }}</h2>
-            <div [innerHtml]="record.text"></div>
         </div>
     </div>
 </div>
