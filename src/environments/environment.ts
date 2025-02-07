@@ -10,5 +10,7 @@ export const environment = {
   clientSecret: 'EJTOPAOXSS2c8bPpMOeJpTe64DvbFdWBS2wH5ytbvT7Tt5Yh',
   redirectUri: 'http://localhost:4200',
   client_id: '234359946846-qk29f6skfdjaaoklv41g49f1du23c177.apps.googleusercontent.com',
+  azureOpenAiEndpoint: '',
+  azureOpenAiApiKey:''
 };
 

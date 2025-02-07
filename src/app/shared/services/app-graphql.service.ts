@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Apollo, gql } from 'apollo-angular';
 import { firstValueFrom } from 'rxjs';
-import { client } from '../../apollo.config';
 
 @Injectable({
     providedIn: 'root'

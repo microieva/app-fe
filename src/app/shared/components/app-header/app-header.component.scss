@@ -2,6 +2,7 @@
 @import '../../scss/breakpoints';
 
 .header-toolbar {
+    position:relative;
     height:4rem;
     border-bottom: 0.8px solid darkgray;
     @include respond-to(desktop-5x) {

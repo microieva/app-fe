@@ -121,3 +121,8 @@ export type NewDoctorRequestNotification = Omit<AppNotification, 'appointmentId'
 export type CancelledAppointmentNotification = Omit<AppNotification, 'chatId' | 'doctorRequestId' | 'senderName' | 'appointmentId'>
 export type NewFeedbackNotification = Omit<AppNotification, 'chatId' | 'doctorRequestId' | 'senderName' | 'appointmentId'| 'doctorRequestId' | 'receiverId' >
 
+export interface AppAiResponse {
+    content: string | null
+    role: string
+    tool_calls: any[]
+}

@@ -1,0 +1,55 @@
+<div class="ai-assistant" [ngClass]="!isMinimized ? 'ai-assistant__expanded':'ai-assistant__minimized'">
+    <div [@growFromBottom]="isVisible ? 'visible' : 'hidden'" *ngIf="!isMinimized" class="expanded flex-column" [ngStyle]="{boxShadow: isHovering ? '0 0 14px 5px #e0e0e0':'0 0 14px 5px rgb(18 17 17 / 50%)'}">
+        <form class="flex-column" [formGroup]="form" >
+            <mat-form-field>
+                <textarea 
+                    #textarea
+                    name="message" 
+                    matInput 
+                    formControlName="message" 
+                    maxlength="700" 
+                    (keydown)="onKeyDown($event)"
+                    [rows]="2"
+                    (input)="adjustHeight($event)" 
+                ></textarea>
+                <mat-hint align="start">{{ characterCount }} / 700</mat-hint>
+            </mat-form-field>
+            <div class="icons flex-row">
+                <div style="margin-left: 0.5rem;" (click)="onSendMessage()" type="submit" class="icon send">
+                    <span class="material-symbols-outlined" matTooltip="Send" >send</span>
+                </div>
+                <div (click)="onDeleteMessage()" class="icon cancel">
+                    <span class="material-symbols-outlined" matTooltip="Delete">cancel</span>
+                </div>
+            </div>
+        </form>
+        <div class="messages-wrapper flex-column">
+            <div *ngFor="let message of chat">
+                <div class="message-wrapper">
+                    <div [ngClass]="message.sender !== 'ai' ? 'reversed' : 'justified'">
+                        <div 
+                            class="message" 
+                            [ngClass]="message.sender === 'ai' ? 'incoming' : 'outgoing'" 
+                            [innerHTML]="message.text | lineBreaks"
+                        >
+                            {{message.text}}
+                        </div>
+                    </div>
+                    <div *ngIf="isLoading" class="loading size">
+                        <app-loading></app-loading>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="header" (click)="toggle()" (mouseenter)="onMouseEnter($event)" (mouseleave)="onMouseLeave($event)">
+            <span class="material-symbols-outlined">minimize</span>
+        </div>
+    </div>
+    <div *ngIf="isMinimized" class="minimized" (click)="toggle()">
+        <div class="icon">
+            <span class="material-symbols-outlined">
+                support_agent
+                </span>
+        </div>
+    </div>
+</div>
