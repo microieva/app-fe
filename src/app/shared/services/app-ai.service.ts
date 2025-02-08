@@ -12,7 +12,7 @@ export class AppAiService {
     private apiKey: string = '';
 
     constructor(private http: HttpClient, private dialog: MatDialog) {
-        this.apiUrl = environment.azureOpenAiEndpoint;
+        this.apiUrl = environment.azureAiFunction;
         this.apiKey = environment.azureOpenAiApiKey;
     }
 
