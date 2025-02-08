@@ -72,6 +72,8 @@ import { AppointmentMessageComponent } from './shared/components/app-appointment
 import { FeedbacksComponent } from './graphql/feedback/feedbacks/feedbacks.component';
 import { FeedbackComponent } from './graphql/feedback/feedback/feedback.component';
 import { AppLineBreaksPipe } from './shared/pipes/app-line-breaks.pipe';
+import { AppAiService } from './shared/services/app-ai.service';
+import { AppAiAssistantComponent } from './shared/components/app-ai-assistant/app-ai-assistant.component';
 
 
 @NgModule({ 
@@ -104,7 +106,8 @@ import { AppLineBreaksPipe } from './shared/pipes/app-line-breaks.pipe';
         LoginMenuComponent,
         ChatComponent,
         FeedbacksComponent,
-        FeedbackComponent
+        FeedbackComponent,
+        AppAiAssistantComponent
     ],
     bootstrap: [AppComponent], 
     imports: [
@@ -159,6 +162,7 @@ import { AppLineBreaksPipe } from './shared/pipes/app-line-breaks.pipe';
         AppDialogService,
         AppCountUnreadMessagesService,
         AppHeaderService,
+        AppAiService,
         provideNativeDateAdapter(),
         provideHttpClient(withInterceptorsFromDi()), 
         provideAnimationsAsync(),
