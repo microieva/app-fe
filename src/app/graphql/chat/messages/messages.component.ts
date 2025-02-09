@@ -99,7 +99,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
             this.subscriptions.add(subscriptionNotifications);
         } else { 
             this.isLoading = true;
-            this.receiverId = environment.adminId;
+            this.receiverId = Number(environment.adminId);
             this.chatId = await this.loadChatId();
         }
         const subRouteParams = this.activatedRoute.queryParams.subscribe(async params => {
