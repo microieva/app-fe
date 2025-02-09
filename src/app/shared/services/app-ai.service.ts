@@ -1,29 +1,25 @@
+import { Observable} from 'rxjs';
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable} from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { MatDialog } from '@angular/material/dialog';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AppAiService {
-    private apiUrl: string = '';
-    private apiKey: string = '';
+    private url: string = '';
 
-    constructor(private http: HttpClient, private dialog: MatDialog) {
-        this.apiUrl = environment.azureAiFunction;
-        this.apiKey = environment.azureOpenAiApiKey;
+    constructor(private http: HttpClient) {
+        this.url = environment.httpTriggerAiUrl;
     }
 
     sendMessage(message: string): Observable<any> {
         const body = { message };
 
         const headers = new HttpHeaders({
-            'Content-Type': 'application/json',
-            'api-key': this.apiKey
+            'Content-Type': 'application/json'
         });
 
-        return this.http.post<any>(this.apiUrl, body, { headers })
+        return this.http.post<any>(this.url, body, { headers })
     }
 }
