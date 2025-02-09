@@ -1,8 +1,9 @@
 ### Introduction
 
-This repository contains Angular front end for a professional portfolio project "Health Center". 
+This repository contains Angular front end for a professional portfolio project "Health Center" with AI assistant. 
 
 "Health Center" application supports three user roles with different features for each scope: patient access provides features centuring around maintaining appointments and accessing medical records; for doctors, besides handling appointment bookings and creating medical records, the application provides calendar notifications about upcoming appointments as well as real-time notifications on incoming messages in the chat with admin or, patients creating new appointment request, or, patients canceling confirmed appointment; admin user role besides the chat, provides functionalities related to managing appointments on patient's behalf and activating doctors accounts.
+Currently, the AI chat bot is trained to create and delete appointments, and is available for patient user role. The feature is using gpt-35-turbo model deployment via Azure OpenAI service.
 
 This repository is deployed via Azure Static Web Apps.
 [See user login credentials](#user-roles).
@@ -157,6 +158,7 @@ ___
     (demo account: _'user@email.com'_, _'demo'_)
 - View, update, delete own account
 - Create, *update, *delete appointments
+- Create or cancel appointments using AI 
 - View own appointments requests
 - View own accepted (upcoming) appointments
 - View own past appointments
