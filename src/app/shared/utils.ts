@@ -77,7 +77,7 @@ export const getLastLogOutStr = (timestamp: string): string => {
 };
 
 export const getNow = () => {
-    const now  = DateTime.now().toJSDate();
+    const now  = DateTime.now().setZone('Europe/Helsinki').toJSDate();
     const offset = now.getTimezoneOffset() * 60000;
     return new Date(now.getTime() - offset); 
 }
