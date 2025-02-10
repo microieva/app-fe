@@ -82,9 +82,9 @@ export const getNow = () => {
     return new Date(now.getTime() - offset); 
 }
 
-export const getHowSoonUpcoming = (datetime: string): string => {
+export const getHowSoonUpcoming = (timestamp: string): string => {
     const now = getNow();
-    const inputDate = DateTime.fromISO(datetime).setZone();
+    const inputDate = DateTime.fromISO(timestamp, { setZone: true }).setZone('Europe/Helsinki');
     const diff = inputDate.diff(DateTime.fromJSDate(now), ['years', 'months', 'days', 'hours', 'minutes', 'seconds']);
 
     let howSoonStr = 'in ';
@@ -110,9 +110,9 @@ export const getHowSoonUpcoming = (datetime: string): string => {
 };
 
 
-export const getHowLongAgo = (datetime: string):string => {
+export const getHowLongAgo = (timestamp: string):string => {
     const now = getNow();
-    const inputDate = DateTime.fromISO(datetime)
+    const inputDate = DateTime.fromISO(timestamp, { setZone: true }).setZone('Europe/Helsinki');
     const diff = DateTime.fromJSDate(now).diff(inputDate, ['years', 'months', 'days', 'hours', 'minutes', 'seconds']);
 
     let howLongAgoStr = '';
@@ -148,14 +148,6 @@ export const getHowLongAgo = (datetime: string):string => {
     return howLongAgoStr;
 }
 
-export function initializeApp(socketService: AppSocketService) {
-    return (): Promise<void> => {
-        return new Promise(resolve => {
-            socketService.reconnectSocket(); 
-            resolve();
-        });
-    };
-}
 
 
 
