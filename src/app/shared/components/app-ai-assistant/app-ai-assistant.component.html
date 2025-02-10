@@ -1,5 +1,9 @@
 <div class="ai-assistant" [ngClass]="!isMinimized ? 'ai-assistant__expanded':'ai-assistant__minimized'">
-    <div [@growFromBottom]="isVisible ? 'visible' : 'hidden'" *ngIf="!isMinimized" class="expanded flex-column" [ngStyle]="{boxShadow: isHovering ? '0 0 14px 5px #e0e0e0':'0 0 14px 5px rgb(18 17 17 / 50%)'}">
+    <div 
+        [@growFromBottom]="isVisible ? 'visible' : 'hidden'" 
+        *ngIf="!isMinimized" class="expanded flex-column" 
+        [ngStyle]="{boxShadow: isHovering ? '0 0 14px 5px #e0e0e0':'0 0 14px 5px rgb(18 17 17 / 50%)'}"
+    >
         <form class="flex-column" [formGroup]="form" >
             <mat-form-field>
                 <textarea 
@@ -25,8 +29,8 @@
         </form>
         <div class="messages-wrapper flex-column">
             <div *ngFor="let message of chat">
-                <div class="message-wrapper">
-                    <div [ngClass]="message.sender !== 'ai' ? 'reversed' : 'justified'">
+                <div class="message-wrapper" [ngStyle]="{float: message.sender === 'ai' ? 'left' : 'right'}">
+                    <div >
                         <div 
                             class="message" 
                             [ngClass]="message.sender === 'ai' ? 'incoming' : 'outgoing'" 
@@ -35,10 +39,10 @@
                             {{message.text}}
                         </div>
                     </div>
-                    <div *ngIf="isLoading" class="loading size">
-                        <app-loading></app-loading>
-                    </div>
                 </div>
+            </div>
+            <div *ngIf="isLoading" class="loading size">
+                <app-loading></app-loading>
             </div>
         </div>
         <div class="header" (click)="toggle()" (mouseenter)="onMouseEnter($event)" (mouseleave)="onMouseLeave($event)">

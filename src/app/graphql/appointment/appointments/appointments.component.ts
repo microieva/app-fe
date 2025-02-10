@@ -711,6 +711,7 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                 }});
     
             ref.componentInstance.isConfirming.subscribe(async () => {
+                this.dialog.closeAll();
                 const mutation = `mutation ($appointmentIds: [Int!]) {
                     deleteAppointmentsByIds(appointmentIds: $appointmentIds) {
                         success

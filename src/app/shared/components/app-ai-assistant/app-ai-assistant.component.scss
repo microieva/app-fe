@@ -105,9 +105,6 @@
     align-items: center;
     .flex-row {
         width:100%;
-        &.reversed {
-            justify-content: flex-end;
-        }
         &.justified{
             justify-content: flex-end;
         }

@@ -6,6 +6,7 @@ import { Subscription } from "rxjs";
 import { DateTime } from "luxon";
 import { AppAiService } from "../../services/app-ai.service";
 import { AppGraphQLService } from "../../services/app-graphql.service";
+import { AppSocketService } from "../../services/app-socket.service";
 import { AlertComponent } from "../app-alert/app-alert.component";
 import { AppAiResponse } from "../../types";
 import { getNextAppointmentTodayTomorrowStartStr } from "../../utils";
@@ -41,7 +42,8 @@ export class AppAiAssistantComponent implements OnInit, OnDestroy {
     constructor(
         private aiService: AppAiService,
         private graphQLService: AppGraphQLService,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private socketService: AppSocketService
     ){}
     ngOnInit() {
         setTimeout(() => {
@@ -75,6 +77,7 @@ export class AppAiAssistantComponent implements OnInit, OnDestroy {
             this.subscription = this.aiService.sendMessage(message).subscribe({
                 next: async (res) => {
                     if (res && res.response) {
+                        console.log('AI RESPONSE:', res.response);
                         await this.updateChat(res.response);
                     }
                 },
@@ -105,10 +108,13 @@ export class AppAiAssistantComponent implements OnInit, OnDestroy {
                                 this.chat.push({ sender: 'ai', text: 'unexpected issue, please start over..' });
                             }
                             if (appointmentSaved && appointmentSaved.success) {
+                                this.socketService.notifyDoctors({
+                                    message: "New appointment request",
+                                    appointmentId: appointmentSaved.data.id
+                                });
                                 const dateStr = getNextAppointmentTodayTomorrowStartStr(appointmentStart)
                                 this.chat.push({ sender: 'ai', text: `Appointment saved for ${dateStr}` });
                                 setTimeout(() => {
-                                    //this.chat.pop(); 
                                     this.chat.splice(1); 
                                 }, 3000);
                                 this.ngOnInit();
@@ -119,11 +125,6 @@ export class AppAiAssistantComponent implements OnInit, OnDestroy {
                         } else {
                             this.chat.push({ sender: 'ai', text: 'Please provide date and time of the appointment' });
                         }
-                        //this.ngOnInit();
-                        // this.chat.push({ sender: 'ai', text: 'Is there anything else I can help you with?' });
-                        // setTimeout(() => {
-                        //     this.chat.splice(1); 
-                        // }, 5000);
 
                     } else if (tool.function.name === 'delete_appointment') {
                         if (appointmentStart) {
@@ -149,12 +150,11 @@ export class AppAiAssistantComponent implements OnInit, OnDestroy {
                             }, 5000);
                         }
                         this.ngOnInit();
-                        this.chat.push({ sender: 'ai', text: 'Is there anything else I can help you with?' });
                     }
                 }
             } else {
                 this.isLoading = false;
-                this.chat.push({ sender: 'ai', text: 'no tool_calls..' });
+                this.chat.push({ sender: 'ai', text: 'Unexpected error, please refresh the page and start again.' });
             }
         }
     }
@@ -169,20 +169,21 @@ export class AppAiAssistantComponent implements OnInit, OnDestroy {
             patientMessage
         }
         const mutation = `
-                    mutation ($appointmentInput: AppointmentInput!) {
-                        saveAppointment (appointmentInput: $appointmentInput) {
-                            success
-                            message
-                        }
-                    }
-                `  
-                try {
-                    const response = await this.graphQLService.mutate(mutation, {appointmentInput});
-        
-                    return response.data.saveAppointment;
-                } catch (error) {
-                    this.dialog.open(AlertComponent, {data: {message: "Error saving appointment: "+error}});
+            mutation ($appointmentInput: AppointmentInput!) {
+                saveAppointment (appointmentInput: $appointmentInput) {
+                    success
+                    message
+                    data { id }
                 }
+            }
+        `  
+        try {
+            const response = await this.graphQLService.mutate(mutation, {appointmentInput});
+
+            return response.data.saveAppointment;
+        } catch (error) {
+            this.dialog.open(AlertComponent, {data: {message: "Error saving appointment: "+error}});
+        }
     }
     async deleteAppointment(start: string){
         const appointmentStart = DateTime.fromISO(start).plus({hours:2}).toISO();

@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable, Subscription, distinctUntilChanged, finali
 import { DateTime, Duration } from "luxon";
 import { AlertComponent } from "../components/app-alert/app-alert.component";
 import { getHowLongAgo, getHowSoonUpcoming } from "../utils";
+import { AppAuthService } from "./app-auth.service";
 
 @Injectable({
     providedIn: 'root'
@@ -27,7 +28,8 @@ export class AppTimerService {
     clockSubscription: Subscription | null = null;
 
     constructor(
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private authService: AppAuthService
     ) {}
 
     startTokenTimer(timeStamp: string): void{
@@ -55,11 +57,12 @@ export class AppTimerService {
             }
 
             if (tokenCountdown === '00:05') {
-                const dialogRef = this.dialog.open(AlertComponent, { data: { message: "Session expired, please login to renew" } });
+                const dialogRef = this.dialog.open(AlertComponent, { disableClose:true, data: { message: "Session expired, please login to renew" } });
 
                 dialogRef.componentInstance.ok.subscribe(async () => {
-                    this.onLogout.next(true);
+                    //this.onLogout.next(true);
                     this.dialog.closeAll();
+                    await this.authService.logOut();
                 });
             }
 
