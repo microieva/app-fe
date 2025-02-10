@@ -83,7 +83,7 @@ export const getNow = () => {
 }
 
 export const getHowSoonUpcoming = (timestamp: string): string => {
-    const now = getNow();
+    const now = DateTime.now().setZone('Europe/Helsinki').toJSDate();
     const inputDate = DateTime.fromISO(timestamp, { setZone: true }).setZone('Europe/Helsinki');
     const diff = inputDate.diff(DateTime.fromJSDate(now), ['years', 'months', 'days', 'hours', 'minutes', 'seconds']);
 
@@ -111,7 +111,7 @@ export const getHowSoonUpcoming = (timestamp: string): string => {
 
 
 export const getHowLongAgo = (timestamp: string):string => {
-    const now = getNow();
+    const now = DateTime.now().setZone('Europe/Helsinki').toJSDate();
     const inputDate = DateTime.fromISO(timestamp, { setZone: true }).setZone('Europe/Helsinki');
     const diff = DateTime.fromJSDate(now).diff(inputDate, ['years', 'months', 'days', 'hours', 'minutes', 'seconds']);
 
