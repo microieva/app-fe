@@ -17,6 +17,6 @@ export class AppDbWakeUpService {
         const headers = new HttpHeaders({
             'Content-Type': 'text/plain'
         });
-        return this.http.post<any>(this.url, null, { headers })
+        return this.http.get<any>(this.url, { headers })
     }
 }

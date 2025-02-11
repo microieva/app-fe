@@ -1,10 +1,10 @@
+import { Subscription } from "rxjs";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
-import { LoginComponent } from "../app-login/app-login.componnet";
-import { environment } from "../../../../environments/environment";
 import { AppDbWakeUpService } from "../../services/app-db-wake-up.service";
-import { Subscription } from "rxjs";
+import { LoginComponent } from "../app-login/app-login.componnet";
 import { AlertComponent } from "../app-alert/app-alert.component";
+import { environment } from "../../../../environments/environment";
 
 @Component({
     selector: 'app-login-menu',
@@ -22,7 +22,7 @@ export class LoginMenuComponent implements OnInit, OnDestroy {
     ){}
 
     ngOnInit() {
-        this.sub = this.dbWakeUpService.ping().subscribe(response => {
+        this.sub = this.dbWakeUpService.ping().subscribe((response:any) => {
             this.connected = response.status === 200;
             if (!this.connected) {
                 this.error = response.body+" Please try again";
