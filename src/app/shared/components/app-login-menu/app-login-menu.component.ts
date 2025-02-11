@@ -1,17 +1,39 @@
-import { Component } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { LoginComponent } from "../app-login/app-login.componnet";
 import { environment } from "../../../../environments/environment";
+import { AppDbWakeUpService } from "../../services/app-db-wake-up.service";
+import { Subscription } from "rxjs";
+import { AlertComponent } from "../app-alert/app-alert.component";
 
 @Component({
     selector: 'app-login-menu',
     templateUrl: 'app-login-menu.component.html',
     styleUrls: ['app-login-menu.component.scss']
 })
-export class LoginMenuComponent {
+export class LoginMenuComponent implements OnInit, OnDestroy {
+    connected:boolean = false;
+    error:string | undefined;
+    sub: Subscription = new Subscription();
+
     constructor(
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private dbWakeUpService: AppDbWakeUpService,
     ){}
+
+    ngOnInit() {
+        this.sub = this.dbWakeUpService.ping().subscribe(response => {
+            this.connected = response.status === 200;
+            if (!this.connected) {
+                this.error = response.body+" Please try again";
+            }
+        });
+    }
+
+    showError(){
+        const ref = this.dialog.open(AlertComponent, {disableClose:true, data: {message: this.error}});
+        ref.componentInstance.ok.subscribe(() => { this.dialog.closeAll(); });
+    }
 
     onBankLoginClick(){
         const authEndpoint = environment.authEndpoint;
@@ -41,5 +63,9 @@ export class LoginMenuComponent {
     }
     onGoogleLoginClick() {
         this.dialog.open(LoginComponent, {data: {googleLogin: true}});
+    }
+
+    ngOnDestroy() {
+        this.sub.unsubscribe();
     }
 }

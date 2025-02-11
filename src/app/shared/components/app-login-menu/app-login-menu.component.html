@@ -12,7 +12,7 @@
 <mat-dialog-content class="app-login-menu">
     <mat-dialog-actions class="flex-column">
         <div class="menu-item">
-            <div (click)="onBankLoginClick()" class="font item">
+            <div (click)="connected ? onBankLoginClick() : showError()" class="font item">
                 <h3>Patient</h3>
                 <div style="line-height: 1.5rem;">
                     <span class="material-symbols-outlined">
@@ -23,7 +23,7 @@
             <p>Log in with bank credentials: manage appointments, access medical records</p>
         </div>
         <div class="menu-item">
-            <div (click)="onGoogleLoginClick()" class="font item">
+            <div (click)="connected ? onGoogleLoginClick(): showError()" class="font item">
                 <h3>Doctor</h3>
                 <div style="line-height: 1.5rem;">
                     <span class="material-symbols-outlined">
@@ -35,7 +35,7 @@
             <p>Log in with Google credentials</p>
         </div>
         <div class="menu-item">
-            <div  (click)="onDirectLoginClick()" class="font item">
+            <div  (click)="connected ? onDirectLoginClick(): showError()" class="font item">
                 <h3>Administrator</h3>
                 <div style="line-height: 1.5rem;">
                     <span class="material-symbols-outlined">
