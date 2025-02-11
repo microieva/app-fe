@@ -22,47 +22,64 @@ export class LoginMenuComponent implements OnInit, OnDestroy {
     ){}
 
     ngOnInit() {
-        this.sub = this.dbWakeUpService.ping().subscribe((response:any) => {
-            this.connected = response.status === 200;
-            if (!this.connected) {
-                this.error = response.body+" Please try again";
-            }
-        });
     }
 
-    showError(){
-        const ref = this.dialog.open(AlertComponent, {disableClose:true, data: {message: this.error}});
+    showError(error:string){
+        const ref = this.dialog.open(AlertComponent, {disableClose:true, data: {message: error}});
         ref.componentInstance.ok.subscribe(() => { this.dialog.closeAll(); });
     }
 
     onBankLoginClick(){
-        const authEndpoint = environment.authEndpoint;
-        const clientId = environment.clientId;
-        const redirectUri = environment.redirectUri;
-        const state = generateRandomState(); 
-        const responseType= 'code'
-        const prompt = 'login'
-        const scope = 'openid profile';
-        const acrValues = 'idp:ftn'
-        const clientSecret = environment.clientSecret;
-        const grantType = "authorization_code"
+        this.sub = this.dbWakeUpService.ping().subscribe((response:any) => {
+            if (response.status === 200) {
+                login()
+            } else {
+                this.showError(response.body)
+            }
+        });
+
+        function login() {
+            const authEndpoint = environment.authEndpoint;
+            const clientId = environment.clientId;
+            const redirectUri = environment.redirectUri;
+            const state = generateRandomState(); 
+            const responseType= 'code'
+            const prompt = 'login'
+            const scope = 'openid profile';
+            const acrValues = 'idp:ftn'
+            const clientSecret = environment.clientSecret;
+            const grantType = "authorization_code"
+        
+            const authUrl = `${authEndpoint}?client_id=${clientId}&client_secret=${clientSecret}&response_type=${responseType}&grant_type=${grantType}&scope=${scope}&state=${state}&prompt=${prompt}&acr_values=${acrValues}&redirect_uri=${redirectUri}`;
     
-        const authUrl = `${authEndpoint}?client_id=${clientId}&client_secret=${clientSecret}&response_type=${responseType}&grant_type=${grantType}&scope=${scope}&state=${state}&prompt=${prompt}&acr_values=${acrValues}&redirect_uri=${redirectUri}`;
+            window.location.href = authUrl;
+    
+            function generateRandomState(): string {
+                const array = new Uint32Array(10);
+                window.crypto.getRandomValues(array);
+                return Array.from(array, dec => ('0' + dec.toString(10)).substr(-2)).join('');
+              }
 
-        window.location.href = authUrl;
-
-        function generateRandomState(): string {
-            const array = new Uint32Array(10);
-            window.crypto.getRandomValues(array);
-            return Array.from(array, dec => ('0' + dec.toString(10)).substr(-2)).join('');
-          }
+        }
     }
  
     onDirectLoginClick() {
-        this.dialog.open(LoginComponent, {data: {directLogin: true}});
+        this.sub = this.dbWakeUpService.ping().subscribe((response:any) => {
+            if (response.status === 200) {
+                this.dialog.open(LoginComponent, {data: {directLogin: true}});
+            } else {
+                this.showError(response.body)
+            }
+        });
     }
     onGoogleLoginClick() {
-        this.dialog.open(LoginComponent, {data: {googleLogin: true}});
+        this.sub = this.dbWakeUpService.ping().subscribe((response:any) => {
+            if (response.status === 200) {
+                this.dialog.open(LoginComponent, {data: {googleLogin: true}});
+            } else {
+                this.showError(response.body)
+            }
+        });
     }
 
     ngOnDestroy() {
