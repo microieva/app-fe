@@ -42,3 +42,11 @@ span {
     width: 100%;
 }
 
+.warning {
+    max-width: 30rem;
+    align-self: center;
+    p {
+        margin-bottom: 10px;
+    }
+}
+
