@@ -30,15 +30,15 @@ export class LoginMenuComponent implements OnInit, OnDestroy {
     }
 
     onBankLoginClick(){
-        this.sub = this.dbWakeUpService.ping().subscribe((response:any) => {
-            if (response.status === 200) {
-                login()
-            } else {
-                this.showError(response.body)
-            }
-        });
+        // this.sub = this.dbWakeUpService.ping().subscribe((response:any) => {
+        //     if (response.status === 200) {
+        //         login()
+        //     } else {
+        //         this.showError(response.body)
+        //     }
+        // });
 
-        function login() {
+        //function login() {
             const authEndpoint = environment.authEndpoint;
             const clientId = environment.clientId;
             const redirectUri = environment.redirectUri;
@@ -60,29 +60,29 @@ export class LoginMenuComponent implements OnInit, OnDestroy {
                 return Array.from(array, dec => ('0' + dec.toString(10)).substr(-2)).join('');
               }
 
-        }
+        //}
     }
  
     onDirectLoginClick() {
-        this.sub = this.dbWakeUpService.ping().subscribe((response:any) => {
-            if (response.status === 200) {
-                this.dialog.open(LoginComponent, {data: {directLogin: true}});
-            } else {
-                this.showError(response.body)
-            }
-        });
+        this.dialog.open(LoginComponent, {data: {directLogin: true}});
+        // this.sub = this.dbWakeUpService.ping().subscribe((response:any) => {
+        //     if (response.status === 200) {
+        //     } else {
+        //         this.showError(response.body)
+        //     }
+        // });
     }
     onGoogleLoginClick() {
-        this.sub = this.dbWakeUpService.ping().subscribe((response:any) => {
-            if (response.status === 200) {
-                this.dialog.open(LoginComponent, {data: {googleLogin: true}});
-            } else {
-                this.showError(response.body)
-            }
-        });
+        this.dialog.open(LoginComponent, {data: {googleLogin: true}});
+        // this.sub = this.dbWakeUpService.ping().subscribe((response:any) => {
+        //     if (response.status === 200) {
+        //     } else {
+        //         this.showError(response.body)
+        //     }
+        // });
     }
 
     ngOnDestroy() {
-        this.sub.unsubscribe();
+        //this.sub.unsubscribe();
     }
 }
