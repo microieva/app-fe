@@ -74,6 +74,7 @@ import { FeedbackComponent } from './graphql/feedback/feedback/feedback.componen
 import { AppLineBreaksPipe } from './shared/pipes/app-line-breaks.pipe';
 import { AppAiService } from './shared/services/app-ai.service';
 import { AppAiAssistantComponent } from './shared/components/app-ai-assistant/app-ai-assistant.component';
+import { AppDbWakeUpService } from './shared/services/app-db-wake-up.service';
 
 
 @NgModule({ 
@@ -163,6 +164,7 @@ import { AppAiAssistantComponent } from './shared/components/app-ai-assistant/ap
         AppCountUnreadMessagesService,
         AppHeaderService,
         AppAiService,
+        AppDbWakeUpService,
         provideNativeDateAdapter(),
         provideHttpClient(withInterceptorsFromDi()), 
         provideAnimationsAsync(),
