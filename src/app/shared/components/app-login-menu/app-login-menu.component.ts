@@ -12,9 +12,8 @@ import { environment } from "../../../../environments/environment";
     styleUrls: ['app-login-menu.component.scss']
 })
 export class LoginMenuComponent implements OnInit, OnDestroy {
-    connected:boolean = false;
-    error:string | undefined;
     sub: Subscription = new Subscription();
+    isLoading:boolean = false;
 
     constructor(
         private dialog: MatDialog,
@@ -24,21 +23,24 @@ export class LoginMenuComponent implements OnInit, OnDestroy {
     ngOnInit() {
     }
 
-    showError(error:string){
-        const ref = this.dialog.open(AlertComponent, {disableClose:true, data: {message: error}});
+    showError(){
+        this.isLoading = false;
+        const ref = this.dialog.open(AlertComponent, {disableClose:true, data: {message: "Unexpected network error, please try again"}});
         ref.componentInstance.ok.subscribe(() => { this.dialog.closeAll(); });
     }
 
     onBankLoginClick(){
-        // this.sub = this.dbWakeUpService.ping().subscribe((response:any) => {
-        //     if (response.status === 200) {
-        //         login()
-        //     } else {
-        //         this.showError(response.body)
-        //     }
-        // });
+        this.isLoading = true;
+        this.sub = this.dbWakeUpService.ping().subscribe((response:any) => {
+            if (response.status === 200) {
+                this.isLoading = false;
+                login();
+            } else {
+                this.showError()
+            }
+        });
 
-        //function login() {
+        function login() {
             const authEndpoint = environment.authEndpoint;
             const clientId = environment.clientId;
             const redirectUri = environment.redirectUri;
@@ -51,38 +53,39 @@ export class LoginMenuComponent implements OnInit, OnDestroy {
             const grantType = "authorization_code"
         
             const authUrl = `${authEndpoint}?client_id=${clientId}&client_secret=${clientSecret}&response_type=${responseType}&grant_type=${grantType}&scope=${scope}&state=${state}&prompt=${prompt}&acr_values=${acrValues}&redirect_uri=${redirectUri}`;
-    
+
             window.location.href = authUrl;
-    
+
             function generateRandomState(): string {
                 const array = new Uint32Array(10);
                 window.crypto.getRandomValues(array);
                 return Array.from(array, dec => ('0' + dec.toString(10)).substr(-2)).join('');
-              }
-
-        //}
+            }
+        }
     }
  
     onDirectLoginClick() {
-        this.dialog.open(LoginComponent, {data: {directLogin: true}});
-        // this.sub = this.dbWakeUpService.ping().subscribe((response:any) => {
-        //     if (response.status === 200) {
-        //     } else {
-        //         this.showError(response.body)
-        //     }
-        // });
+        this.sub = this.dbWakeUpService.ping().subscribe((response:any) => {
+            if (response.status === 200) {
+                this.isLoading = false;
+                this.dialog.open(LoginComponent, {data: {directLogin: true}});
+            } else {
+                this.showError()
+            }
+        });
     }
     onGoogleLoginClick() {
-        this.dialog.open(LoginComponent, {data: {googleLogin: true}});
-        // this.sub = this.dbWakeUpService.ping().subscribe((response:any) => {
-        //     if (response.status === 200) {
-        //     } else {
-        //         this.showError(response.body)
-        //     }
-        // });
+        this.sub = this.dbWakeUpService.ping().subscribe((response:any) => {
+            if (response.status === 200) {
+                this.isLoading = false;
+                this.dialog.open(LoginComponent, {data: {googleLogin: true}});
+            } else {
+                this.showError()
+            }
+        });
     }
 
     ngOnDestroy() {
-        //this.sub.unsubscribe();
+        this.sub.unsubscribe();
     }
 }

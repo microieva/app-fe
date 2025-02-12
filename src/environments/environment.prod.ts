@@ -11,5 +11,5 @@ export const environment = {
   redirectUri: 'https://wonderful-dune-0e4733c03.5.azurestaticapps.net',
   client_id: '234359946846-qk29f6skfdjaaoklv41g49f1du23c177.apps.googleusercontent.com',
   httpTriggerAiUrl:'https://healthcenterfunctionapp.azurewebsites.net/api/httpTriggerAi?',
-  httpTriggerDbConnectionUrl:'https://healthcenterfunctionapp.azurewebsites.net/api/httpTriggerDbConnection?',
+  httpTriggerDbUrl:'https://healthcenterfunctionapp.azurewebsites.net/api/httpTriggerDb?',
 };
