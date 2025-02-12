@@ -127,7 +127,7 @@ export class RecordComponent implements OnInit {
                 this.created = DateTime.fromISO(response.data.record.createdAt).toFormat('MMM dd, yyyy'); 
                 if (this.record) {
                     this.patientName = this.record.patient.firstName+' '+this.record.patient.lastName;
-                    this.doctorName = this.record.doctor.firstName+' '+this.record.doctor.lastName || '-';
+                    this.doctorName = this.record.doctor && this.record.doctor.firstName+' '+this.record.doctor.lastName || '-';
                 }
             }
         } catch (error) {
