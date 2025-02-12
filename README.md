@@ -7,7 +7,6 @@ Currently, the AI chat bot is trained to create and delete appointments, and is 
 
 This repository is deployed via Azure Static Web Apps.
 [See user login credentials](#user-roles).
-Due high costs of keeping the database connection continuesly alive, the login will work every first 15 minutes of every hour, between 9-17, Mon- Fri.
 [Visit Health Center](https://wonderful-dune-0e4733c03.5.azurestaticapps.net/)
 
 
