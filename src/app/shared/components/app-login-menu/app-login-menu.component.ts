@@ -5,6 +5,7 @@ import { AppDbWakeUpService } from "../../services/app-db-wake-up.service";
 import { LoginComponent } from "../app-login/app-login.componnet";
 import { AlertComponent } from "../app-alert/app-alert.component";
 import { environment } from "../../../../environments/environment";
+import { LoadingComponent } from "../app-loading/loading.component";
 
 @Component({
     selector: 'app-login-menu',
@@ -13,7 +14,6 @@ import { environment } from "../../../../environments/environment";
 })
 export class LoginMenuComponent implements OnInit, OnDestroy {
     sub: Subscription = new Subscription();
-    isLoading:boolean = false;
 
     constructor(
         private dialog: MatDialog,
@@ -24,16 +24,16 @@ export class LoginMenuComponent implements OnInit, OnDestroy {
     }
 
     showError(){
-        this.isLoading = false;
+        this.dialog.closeAll();
         const ref = this.dialog.open(AlertComponent, {disableClose:true, data: {message: "Unexpected network error, please try again"}});
         ref.componentInstance.ok.subscribe(() => { this.dialog.closeAll(); });
     }
 
     onBankLoginClick(){
-        this.isLoading = true;
+        const ref = this.dialog.open(LoadingComponent);
         this.sub = this.dbWakeUpService.ping().subscribe((response:any) => {
             if (response.status === 200) {
-                this.isLoading = false;
+                ref.close();
                 login();
             } else {
                 this.showError()
@@ -65,9 +65,10 @@ export class LoginMenuComponent implements OnInit, OnDestroy {
     }
  
     onDirectLoginClick() {
+        const ref = this.dialog.open(LoadingComponent);
         this.sub = this.dbWakeUpService.ping().subscribe((response:any) => {
             if (response.status === 200) {
-                this.isLoading = false;
+                ref.close();
                 this.dialog.open(LoginComponent, {data: {directLogin: true}});
             } else {
                 this.showError()
@@ -75,9 +76,10 @@ export class LoginMenuComponent implements OnInit, OnDestroy {
         });
     }
     onGoogleLoginClick() {
+        const ref = this.dialog.open(LoadingComponent);
         this.sub = this.dbWakeUpService.ping().subscribe((response:any) => {
             if (response.status === 200) {
-                this.isLoading = false;
+                ref.close();
                 this.dialog.open(LoginComponent, {data: {googleLogin: true}});
             } else {
                 this.showError()
