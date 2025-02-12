@@ -77,7 +77,6 @@ export class AppAiAssistantComponent implements OnInit, OnDestroy {
             this.subscription = this.aiService.sendMessage(message).subscribe({
                 next: async (res) => {
                     if (res && res.response) {
-                        console.log('AI RESPONSE:', res.response);
                         await this.updateChat(res.response);
                     }
                 },
@@ -115,10 +114,9 @@ export class AppAiAssistantComponent implements OnInit, OnDestroy {
                                 const dateStr = getNextAppointmentTodayTomorrowStartStr(appointmentStart)
                                 this.chat.push({ sender: 'ai', text: `Appointment saved for ${dateStr}` });
                                 setTimeout(() => {
-                                    this.chat.splice(1); 
-                                }, 3000);
-                                this.ngOnInit();
-                                this.chat.push({ sender: 'ai', text: 'Is there anything else I can help you with?'})
+                                    this.chat.splice(0); 
+                                    this.chat.push({ sender: 'ai', text: 'Is there anything else I can help you with?'})
+                                }, 5000);
                             } else {
                                 this.chat.push({ sender: 'ai', text: 'Failed to save appointment '+appointmentSaved.message });
                             }
@@ -137,7 +135,7 @@ export class AppAiAssistantComponent implements OnInit, OnDestroy {
                                 const dateStr = getNextAppointmentTodayTomorrowStartStr(appointmentStart)
                                 this.chat.push({ sender: 'ai', text: `Appointment for ${dateStr} has been successfuly cancelled` });
                                 setTimeout(() => {
-                                    this.chat.pop(); 
+                                    this.chat.splice(0); 
                                     this.chat.push({ sender: 'ai', text: 'Is there anything else I can help you with?' 
                                 })}, 5000);
                             } else {
