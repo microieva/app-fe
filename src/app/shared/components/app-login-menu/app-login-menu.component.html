@@ -1,22 +1,5 @@
-<div class="menu-item">
-    <div class="warning">
-        <div class="flex-column item">
-            <div style="width:72%;">
-                <h4 style="text-indent:1rem;">Dear visitor,</h4>
-                <p>Due to high costs of maintaining database connection alive throughout the day, the user features are accessable during first 15 minutes of every hour, between 10am and 6pm on weekdays.</p>
-                <p>Appologies for this inconvenience.. <strong>Fix on the way..! </strong></p>
-                <p>Sincerely, </p>
-                <p>Ieva Vyliaudaite</p>
-
-            </div>
-            <div>
-                <span class="material-symbols-outlined" style="font-size: 5rem;">
-                    engineering
-                    </span>
-            </div>
-    
-        </div>
-    </div>
+<div *ngIf="isLoading" class="loading">
+    <app-loading></app-loading>
 </div>
 
 <mat-dialog-content class="app-login-menu">
