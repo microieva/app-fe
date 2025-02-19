@@ -45,7 +45,9 @@ export class AppAuthService {
                 return token;
             }
         } catch (error) {
-            const ref = this.dialog.open(AlertComponent, {data: {message: error}});
+            let message:string = "Unexpected connection issue, please try again!";
+            
+            const ref = this.dialog.open(AlertComponent, {disableClose:true, data: {message}});
             ref.componentInstance.ok.subscribe(() => {
                 this.dialog.closeAll();
             });
