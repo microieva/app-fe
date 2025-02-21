@@ -74,7 +74,7 @@ export class AppHeader implements OnInit {
         this.authService.isLoggedIn$.subscribe(isLoggedIn => {
             if (isLoggedIn) {
                 const sub = this.headerService.isUserUpdated.subscribe(async () => {
-                    await this.loadMe() 
+                    await this.loadMe(false);
                 });
                 const subMsgCount = this.headerService.isMsgCountUpdated.subscribe(async()=> {
                     await this.countUnreadMessages();
@@ -245,7 +245,7 @@ export class AppHeader implements OnInit {
             });
     }
 
-    async loadMe() {
+    async loadMe(useCache?:boolean) {
         const query = `
             query {
                 me {
@@ -267,7 +267,7 @@ export class AppHeader implements OnInit {
         `;
 
         try {
-            const response = await this.graphQLService.send(query);
+            const response = await this.graphQLService.send(query, useCache);
 
             if (response.data.me) {
                 this.me = response.data.me;
