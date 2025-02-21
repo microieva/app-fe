@@ -231,8 +231,8 @@ export class UserComponent implements OnInit, OnDestroy {
         try {
             const response = await this.graphQLService.mutate(mutation, { userInput: input });
             if (response.data.saveUser.success) {
-                this.router.navigate(['/home/user']);
                 this.headerService.notifyUserUpdate();
+                this.router.navigate(['/home/user']);
             }
         } catch (error) {
             this.dialog.open(AlertComponent, { data: {message: "Error saving user details: "+ error}})
