@@ -11,5 +11,5 @@ export const environment = {
     redirectUri: 'http://localhost:4200',
     client_id: '234359946846-qk29f6skfdjaaoklv41g49f1du23c177.apps.googleusercontent.com',
     httpTriggerAiUrl:'http://localhost:7071/api/httpTriggerAi',
-    httpTriggerDbUrl:'http://localhost:7071/api/httpTriggerDb',
+    httpTriggerDbUrl:'http://localhost:7071/api/httpTriggerDb'
   };

@@ -14,6 +14,7 @@ import { ConfirmComponent } from "../app-confirm/app-confirm.component";
 import { AppointmentInput } from "../../../graphql/appointment/appointment.input";
 import { AppTabsService } from "../../services/app-tabs.service";
 import { AppointmentComponent } from "../../../graphql/appointment/appointment.component";
+import { AppHeaderService } from "../../services/app-header.service";
 
 @Component({
     selector: 'app-event',
@@ -96,6 +97,7 @@ export class EventComponent implements OnInit, OnDestroy{
         private socketService: AppSocketService,
         private timerService: AppTimerService,
         private tabsService:AppTabsService,
+        private headerService: AppHeaderService,
 
         public dialogRef: MatDialogRef<EventComponent>,
         @Inject(MAT_DIALOG_DATA) public data: any
@@ -133,10 +135,11 @@ export class EventComponent implements OnInit, OnDestroy{
     }
     checkFormState(): void {
         this.isDisabled = !(
-            this.appointmentTimeForm.touched &&
+            this.appointmentTimeForm.untouched &&
             !this.appointmentTimeForm.errors
         );
     }
+
     get characterCount(): number {
         const characters = this.textarea?.nativeElement.value || '';
         return characters.replace(/\n/g, '').length; 
@@ -422,6 +425,7 @@ export class EventComponent implements OnInit, OnDestroy{
                 this.isEditting = false;
                 this.isLoadingDetails = true;
                 await this.updateAppointment(appointmentInput);
+                this.headerService.notifyMissingAptUpdate();
             } else {
                 this.isEditting = false;
             }

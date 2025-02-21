@@ -76,15 +76,19 @@ export class AppHeader implements OnInit {
                 const sub = this.headerService.isUserUpdated.subscribe(async () => {
                     await this.loadMe() 
                 });
-                const subCount = this.headerService.isCountUpdated.subscribe(async()=> {
+                const subMsgCount = this.headerService.isMsgCountUpdated.subscribe(async()=> {
                     await this.countUnreadMessages();
+                });
+                const subAptCount = this.headerService.isAptCountUpdated.subscribe(async()=> {
+                    await this.countMissedAppointments(true);
                 });
                 const subToggle = this.headerService.toggleSidenav.subscribe(
                     toggle => this.expand = toggle
                 )
                 this.subscriptions.add(subToggle);
                 this.subscriptions.add(sub);
-                this.subscriptions.add(subCount);
+                this.subscriptions.add(subMsgCount);
+                this.subscriptions.add(subAptCount);
                 this.initHeader();
             }
             else {
