@@ -290,14 +290,14 @@ export class AppHeader implements OnInit {
         }
     }
     openChat() {
-        this.router.navigate(['/home/messages']);
+        if (this.userRole === 'doctor') this.headerService.notifyUnreadCountUpdate();
         if (this.expand) this.headerService.openSidenav(!this.expand);
+        this.router.navigate(['/home/messages']);
     }
     openCalendar() {
         if (this.userRole === 'admin') {
             this.router.navigate(['/home/calendar']);
         } else {
-
             this.router.navigate(['/home/appointments/calendar']);
         }
         if (this.expand) this.headerService.openSidenav(!this.expand);

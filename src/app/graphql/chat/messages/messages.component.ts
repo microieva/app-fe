@@ -15,6 +15,7 @@ import { AlertComponent } from "../../../shared/components/app-alert/app-alert.c
 import { ChatComponent } from "../chat.component";
 import { User } from "../../user/user";
 import { AppTableDisplayedColumns, UserDataSource } from "../../../shared/types";
+import { AppHeaderService } from "../../../shared/services/app-header.service";
 
 @Component({
     selector: 'app-messages',
@@ -68,7 +69,8 @@ export class MessagesComponent implements OnInit, OnDestroy {
         private socketService: AppSocketService,
         private tabsService: AppTabsService,
         private dialog: MatDialog,
-        private countService: AppCountUnreadMessagesService
+        private countService: AppCountUnreadMessagesService,
+        private headerService: AppHeaderService
     ){}
 
     async ngOnInit() {
@@ -267,8 +269,9 @@ export class MessagesComponent implements OnInit, OnDestroy {
     async onOpenChat(value:{id: number, title?:string}) {
         this.receiverId = value.id;
         const chatReceiver = this.dataSource?.data.find(row => row.id === this.receiverId);
-        this.createChatTab(chatReceiver);
+        await this.createChatTab(chatReceiver);
         this.countService.countUnreadMessages();
+        this.headerService.notifyUnreadCountUpdate();
         await this.loadUnreadMessages();
     }
 
