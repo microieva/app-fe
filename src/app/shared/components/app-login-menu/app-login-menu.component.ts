@@ -65,15 +65,16 @@ export class LoginMenuComponent implements OnInit, OnDestroy {
     }
  
     onDirectLoginClick() {
-        const ref = this.dialog.open(LoadingComponent);
-        this.sub = this.dbWakeUpService.ping().subscribe((response:any) => {
-            if (response.status === 200) {
-                ref.close();
-                this.dialog.open(LoginComponent, {data: {directLogin: true}});
-            } else {
-                this.showError()
-            }
-        });
+        // const ref = this.dialog.open(LoadingComponent);
+        // this.sub = this.dbWakeUpService.ping().subscribe((response:any) => {
+        //     if (response.status === 200) {
+        //         ref.close();
+        //         this.dialog.open(LoginComponent, {data: {directLogin: true}});
+        //     } else {
+        //         this.showError()
+        //     }
+        // });
+        this.dialog.open(LoginComponent, {data: {directLogin: true}});
     }
     onGoogleLoginClick() {
         const ref = this.dialog.open(LoadingComponent);
