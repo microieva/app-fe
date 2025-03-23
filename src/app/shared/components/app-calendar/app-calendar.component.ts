@@ -18,6 +18,7 @@ import { createEventId } from "../../constants";
 import { Appointment } from "../../../graphql/appointment/appointment";
 import { AppointmentInput } from "../../../graphql/appointment/appointment.input";
 import { getNow } from "../../utils";
+import { LoadingComponent } from "../app-loading/loading.component";
 
 @Component({
     selector: 'app-calendar',
@@ -331,8 +332,9 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
             }
         `  
         try {
+            const ref = this.dialog.open(LoadingComponent);
             const response = await this.graphQLService.mutate(mutation, {appointmentInput});
-
+            ref.close();       
             if (response.data.saveAppointment.success) {
                 if (this.role === 'doctor') {
                     this.appointmentService.pollNextAppointment();
@@ -731,6 +733,7 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                     allDay: arg.allDay,
                     patientId: this.patientId || undefined
                 }
+                
                 await this.saveAppointment(input);
                 
                 const dialogRef = this.dialog.open(EventComponent, {disableClose: true, data: { eventInfo }});
