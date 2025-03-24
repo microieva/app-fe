@@ -15,6 +15,7 @@ import { AppointmentInput } from "../../../graphql/appointment/appointment.input
 import { AppTabsService } from "../../services/app-tabs.service";
 import { AppointmentComponent } from "../../../graphql/appointment/appointment.component";
 import { AppHeaderService } from "../../services/app-header.service";
+import { LoadingComponent } from "../app-loading/loading.component";
 
 @Component({
     selector: 'app-event',
@@ -201,10 +202,12 @@ export class EventComponent implements OnInit, OnDestroy{
 
         try {
             const id = this.appointmentInfo.id || this.justCreatedId;
+            const ref = this.dialog.open(LoadingComponent);
             const response = await this.graphQLService.mutate(
                 mutation, 
                 { appointmentId: id, appointmentMessage: message }
             );
+            ref.close(); 
             if (response.data.saveAppointmentMessage.success) {
                 await this.loadAppointment();
                 await this.ngOnInit();
@@ -227,9 +230,11 @@ export class EventComponent implements OnInit, OnDestroy{
             }`
             const id = this.appointmentInfo.id || this.appointmentId
             try {
+                const ref = this.dialog.open(LoadingComponent);
                 const response = await this.graphQLService.mutate(
                     mutation, { appointmentId:  id}
                 );
+                ref.close();
                 if (response.data.deleteAppointmentMessage.success) {
                     await this.loadAppointment();
                     this.isMessageDeleted.emit(true);
