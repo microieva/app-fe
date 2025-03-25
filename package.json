@@ -35,6 +35,7 @@
     "jspdf": "^2.5.2",
     "lodash-es": "^4.17.21",
     "luxon": "^3.4.4",
+    "mysql2": "^3.14.0",
     "ngx-editor": "^17.5.4",
     "rxjs": "~7.8.0",
     "socket.io-client": "^4.8.0",
