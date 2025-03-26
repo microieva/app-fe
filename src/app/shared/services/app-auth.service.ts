@@ -76,7 +76,7 @@ export class AppAuthService {
                 this.loggedInSubject.next(true);
             }
         } catch (error) {
-            const ref = this.dialog.open(AlertComponent, {data: { message:  "AuthService: "+error}});
+            const ref = this.dialog.open(AlertComponent, {data: { message: error}});
             ref.componentInstance.ok.subscribe(() => {
                 this.dialog.closeAll(); 
             })
