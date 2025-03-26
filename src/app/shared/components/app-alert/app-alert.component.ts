@@ -15,8 +15,8 @@ export class AlertComponent {
         @Inject(MAT_DIALOG_DATA) public data: any
     ) {
         if (data.message.includes('Your will receive an email when your account is activated')) {
-            data.message.replace("ApolloError: ", "");
-            this.message = data.message;
+            const str = data.message.replace("ApolloError: ", "");
+            this.message = str;
         }
         this.message = data.message;
     }
