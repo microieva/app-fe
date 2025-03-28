@@ -1,9 +1,7 @@
 import { Subscription } from "rxjs";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
-import { AppDbWakeUpService } from "../../services/app-db-wake-up.service";
 import { LoginComponent } from "../app-login/app-login.componnet";
-import { AlertComponent } from "../app-alert/app-alert.component";
 import { environment } from "../../../../environments/environment";
 
 @Component({
@@ -15,18 +13,11 @@ export class LoginMenuComponent implements OnInit, OnDestroy {
     sub: Subscription = new Subscription();
 
     constructor(
-        private dialog: MatDialog,
-        private dbWakeUpService: AppDbWakeUpService,
+        private dialog: MatDialog
     ){}
 
     ngOnInit() {
     }
-
-    // showError(){
-    //     this.dialog.closeAll();
-    //     const ref = this.dialog.open(AlertComponent, {disableClose:true, data: {message: "Unexpected network error, please try again"}});
-    //     ref.componentInstance.ok.subscribe(() => { this.dialog.closeAll(); });
-    // }
 
     onBankLoginClick(){
         const authEndpoint = environment.authEndpoint;
@@ -52,15 +43,6 @@ export class LoginMenuComponent implements OnInit, OnDestroy {
     }
  
     onDirectLoginClick() {
-        // const ref = this.dialog.open(LoadingComponent);
-        // this.sub = this.dbWakeUpService.ping().subscribe((response:any) => {
-        //     if (response.status === 200) {
-        //         ref.close();
-        //         this.dialog.open(LoginComponent, {data: {directLogin: true}});
-        //     } else {
-        //         this.showError()
-        //     }
-        // });
         this.dialog.open(LoginComponent, {data: {directLogin: true}});
     }
     onGoogleLoginClick() {

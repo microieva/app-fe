@@ -19,7 +19,7 @@
             <div *ngIf="isLoading" class="loading">
                 <app-loading></app-loading>
             </div>
-            <div class="page" #scrollView @slideInOut *ngIf="!isLoading">
+            <div class="page" #scrollView @slideInOut *ngIf="countRequests && !isLoading">
                 <div *ngIf="countRequests === 0" class="btn-block">
                     <span class="material-symbols-outlined" id="bg-icon">
                         folder_open
