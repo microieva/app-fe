@@ -20,30 +20,39 @@
                 <app-loading></app-loading>
             </div>
             <div class="page" #scrollView @slideInOut *ngIf="!isLoading">
-                <div class="page__text-block">
-                    <h2 class="font">Account activation requests:</h2>
-                    <p *ngIf="countRequests === 1">Currently there is {{countRequests}} doctor account activation request.</p>
-                    <p *ngIf="countRequests > 1">Currently there are {{countRequests}} doctor account activation requests.</p>
+                <div *ngIf="countRequests === 0" class="btn-block">
+                    <span class="material-symbols-outlined" id="bg-icon">
+                        folder_open
+                    </span>
+                    <h1>No requests</h1>
                 </div>
-                <div class="table-wrapper">
-                    <app-search
-                        [useAdvanced]="false"
-                        (inputValue)="onFilterValueChange($event)"
-                        (reset)="onSearchReset($event)"
-                    ></app-search>
-                    <app-table 
-                        *ngIf="dataSource && displayedColumns && countRequests>0"
-                        [dataSource]="dataSource" 
-                        [displayedColumns]="displayedColumns"
-                        [buttons]="actions"
-                        [length]="requestsLength"
-                        [userRole]="userRole"
-                        (pageChange)="onPageChange($event)"
-                        (sortChange)="onSortChange($event)"
-                        (filterValue)="onFilterValueChange($event, async)"
-                        (action)="onActionClick($event)"
-                    >
-                    </app-table>
+                <div *ngIf="countRequests>0">
+                    <div class="page__text-block">
+                        <h2 class="font">Account activation requests:</h2>
+                        <p *ngIf="countRequests === 1">Currently there is {{countRequests}} doctor account activation request.</p>
+                        <p *ngIf="countRequests > 1">Currently there are {{countRequests}} doctor account activation requests.</p>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <app-search
+                            [useAdvanced]="false"
+                            (inputValue)="onFilterValueChange($event)"
+                            (reset)="onSearchReset($event)"
+                        ></app-search>
+                        <app-table 
+                            *ngIf="dataSource && displayedColumns"
+                            [dataSource]="dataSource" 
+                            [displayedColumns]="displayedColumns"
+                            [buttons]="actions"
+                            [length]="requestsLength"
+                            [userRole]="userRole"
+                            (pageChange)="onPageChange($event)"
+                            (sortChange)="onSortChange($event)"
+                            (filterValue)="onFilterValueChange($event, async)"
+                            (action)="onActionClick($event)"
+                        >
+                        </app-table>
+                    </div>
                 </div>
             </div>
         </div>

@@ -14,3 +14,20 @@
         margin:4rem auto;
     }
 }
+.btn-block {
+    width: 50rem;
+    margin-top: 8rem;
+    position:relative;
+    h1 {
+        color:rgb(151, 148, 148);
+    }
+    #bg-icon {
+        position: absolute;
+        font-size: 34rem;
+        right: -130px;
+        top: -120px;
+        transform: rotate(21deg);
+        color: darkgray;
+        opacity: 0.2;
+    }
+}

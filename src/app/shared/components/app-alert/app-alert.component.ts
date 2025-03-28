@@ -14,10 +14,6 @@ export class AlertComponent {
         public dialogRef: MatDialogRef<AlertComponent>,
         @Inject(MAT_DIALOG_DATA) public data: any
     ) {
-        if (data.message.includes('Your will receive an email when your account is activated')) {
-            const str = data.message.replace("ApolloError: ", "");
-            this.message = str;
-        }
         this.message = data.message;
     }
     onOkClick(){
