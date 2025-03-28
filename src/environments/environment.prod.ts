@@ -8,7 +8,7 @@ export const environment = {
   authEndpoint: 'https://health-center.sandbox.signicat.com/auth/open/connect/authorize',
   clientId: 'sandbox-itchy-wheel-954',
   clientSecret: 'EJTOPAOXSS2c8bPpMOeJpTe64DvbFdWBS2wH5ytbvT7Tt5Yh',
-  redirectUri: 'https://health-center-ten.vercel.app/',
+  redirectUri: 'https://health-center-ten.vercel.app/home',
   client_id: '560197516028-d45qgl6qmjmi0cob8ed469a1vve1hr9e.apps.googleusercontent.com',
   httpTriggerAiUrl:'https://healthcenterfunctionapp.azurewebsites.net/api/httpTriggerAi?',
   httpTriggerDbUrl:'https://healthcenterfunctionapp.azurewebsites.net/api/httpTriggerDb?',
