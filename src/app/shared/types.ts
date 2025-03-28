@@ -4,20 +4,14 @@ export interface MutationResponse {
 }
 
 export interface LoginResponse {
-    token: string
+    token: string 
     expiresAt: string
 }
 
-export interface AppTreeNode {
-    name: string
-    children?: AppTreeNode[]
-    isAuth: boolean
-}
-
-export interface ExpandableAppTreeNode {
-    expandable: boolean
-    name: string
-    level: number
+export interface GoogleLoginResponse {
+    token?: string 
+    expiresAt?: string
+    message?: string
 }
 
 export interface AppDialogData {
@@ -54,7 +48,7 @@ export interface AppointmentDataSource {
     date: string
     start: string
     end: string
-    name?: string // pending appointments have no doctor 
+    name?: string 
     message?: string
     draft?: boolean
     record?: boolean

@@ -198,8 +198,8 @@
                                 </mat-form-field>
                             </div>
                             <div class="icons right">
-                                <div type="submit" (click)="onSendFeedback()" [ngClass]="feedbackForm.invalid ? 'disabled':''">
-                                    <span matTooltip="Send" class="material-symbols-outlined" >send</span>
+                                <div type="submit" (click)="onSendFeedback()" [ngClass]="feedbackForm.invalid ? 'disabled':null">
+                                    <span matTooltip="Send" class="material-symbols-outlined">send</span>
                                 </div>
                                 <div (click)="onCancelFeedback(feedbackPanel)">
                                     <span matTooltip="Cancel" class="material-symbols-outlined">cancel</span>
@@ -228,7 +228,7 @@
                                 <mat-hint *ngIf="newsletter.errors && newsletter.value && newsletter.touched">Invalid email format</mat-hint>
                             </mat-form-field>
                             <div class="icons">
-                                <div type="button" (click)="onSendSubscription(newsletterPanel)" [ngClass]="(newsletter.errors || !newsletter.value) ? 'disabled':''">
+                                <div type="button" (click)="onSendSubscription(newsletterPanel)" [ngClass]="(newsletter.errors || !newsletter.value) ? 'disabled':null">
                                     <span matTooltip="Send" class="material-symbols-outlined">send</span>
                                 </div>
                                 <div (click)="onCancelSubscribe(newsletterPanel)">

@@ -27,8 +27,10 @@ export class AppAuthService {
         this.dialog.open(LoadingComponent);
         const mutation = `mutation ($directLoginInput: LoginInput!) {
             login(directLoginInput: $directLoginInput) {
-                token
-                expiresAt
+                ... on LoginSuccess {
+                    token
+                    expiresAt
+                }
             }
         }`
 
@@ -56,27 +58,44 @@ export class AppAuthService {
 
     async loginWithGoogle(credential: string){
         this.dialog.closeAll();
-        this.dialog.open(LoadingComponent);
-        const mutation = `mutation ($googleCredential: String!){
+        const ref = this.dialog.open(LoadingComponent);
+        const mutation = `mutation ($googleCredential: String!) {
             loginWithGoogle(googleCredential: $googleCredential) {
-            token
-            expiresAt
-            } 
-        }`
+                ... on LoginSuccess {
+                    token
+                    expiresAt
+                }
+                ... on LoginFailure {
+                    message
+                }
+            }
+        }`;
 
         try {
             const response = await this.graphQLService.mutate(mutation, { googleCredential: credential });
+            const data = response.data.loginWithGoogle;
 
-            if (response.data) {
-                const token = response.data.loginWithGoogle.token;
-                const tokenExpire = response.data.loginWithGoogle.expiresAt;
+            ref.close();
+            if (data.message) {
+                let message:string = "";
+                switch (data.message) {
+                    case 'Pending approval':
+                        message = "Your account is pending activation. Your will receive an email notification when this account access has been activated! Thank you for your patience, and we sincerely appologise for any inconvenience of this delay!"
+                        break;
+                    case 'Request saved':
+                        message = "The account activation request has been saved in the system and should be activated shortly. You will receive an email notification when your account access has been processed!"
+                        break;
 
-                localStorage.setItem('authToken', token);
-                localStorage.setItem('tokenExpire', tokenExpire);
+                }
+                this.loggedInSubject.next(false);
+                this.dialog.open(AlertComponent, {data: { message }});
+            } else {
+                localStorage.setItem('authToken', data.token);
+                localStorage.setItem('tokenExpire', data.expiresAt);
                 this.loggedInSubject.next(true);
             }
         } catch (error) {
-            const ref = this.dialog.open(AlertComponent, {data: { message: error}});
+            const ref = this.dialog.open(AlertComponent, {data: { message:error }});
             ref.componentInstance.ok.subscribe(() => {
                 this.dialog.closeAll(); 
             })
@@ -86,8 +105,10 @@ export class AppAuthService {
     async loginWithSignicat(signicatAccessToken: string){
         const mutation = `mutation ($signicatAccessToken: String!){
             loginWithSignicat(signicatAccessToken: $signicatAccessToken) {
-                token
-                expiresAt
+                ... on LoginSuccess {
+                    token
+                    expiresAt
+                }
             } 
         }`
 
@@ -103,7 +124,7 @@ export class AppAuthService {
                 this.loggedInSubject.next(true);
             }
         } catch (error) {
-            const ref = this.dialog.open(AlertComponent, {data: { message:  "AuthService: "+error}});
+            const ref = this.dialog.open(AlertComponent, {data: { message: error}});
             ref.componentInstance.ok.subscribe(() => {
                 this.dialog.closeAll(); 
             });
