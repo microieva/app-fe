@@ -11,6 +11,7 @@ import { ConfirmComponent } from "../../../shared/components/app-confirm/app-con
 import { UserComponent } from "../user.component";
 import { AppTableDisplayedColumns, UserDataSource } from "../../../shared/types";
 import { User } from "../user";
+import { LoadingComponent } from "../../../shared/components/app-loading/loading.component";
 
 @Component({
     selector: 'app-doctors',
@@ -100,6 +101,7 @@ export class DoctorsComponent implements OnInit, OnDestroy {
     }
 
     async loadRequests(){
+        this.isLoading = true;
         const query = `query (
             $pageIndex: Int!, 
             $pageLimit: Int!, 
@@ -136,6 +138,7 @@ export class DoctorsComponent implements OnInit, OnDestroy {
 
         try {
             const response = await this.graphQLService.send(query, variables);
+            this.isLoading = false;
             if (response.data) {
                 this.requests = response.data.requests.slice;
                 this.requestsLength = response.data.requests.length;
@@ -144,7 +147,6 @@ export class DoctorsComponent implements OnInit, OnDestroy {
                 if (this.requestsDataSource) {
                     this.dataSource = new MatTableDataSource<UserDataSource>(this.requestsDataSource);
                 }
-                this.isLoading = false;
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading requests: "+error}})
@@ -276,12 +278,11 @@ export class DoctorsComponent implements OnInit, OnDestroy {
         this.filterInput = null;
         this.displayedColumns = [];
 
-        await this.loadData();
-
         this.router.navigate([], {
             relativeTo: this.activatedRoute,
             queryParams: { tab: value }
         });
+        await this.loadData();
     }
 
     async onPageChange(value: any){
@@ -411,6 +412,7 @@ export class DoctorsComponent implements OnInit, OnDestroy {
         }
         const ref = this.dialog.open(ConfirmComponent, {disableClose:true, width:"34rem", data:{message}});
         ref.componentInstance.isConfirming.subscribe(async ()=> {
+            const loading = this.dialog.open(LoadingComponent);
             const mutation = `mutation ($userIds: [Int!]) {
                 saveDoctorsByIds(userIds: $userIds) {
                     success
@@ -418,7 +420,9 @@ export class DoctorsComponent implements OnInit, OnDestroy {
                 }
             }`
             try {
-                const response = await this.graphQLService.mutate(mutation, {userIds:ids})
+                const response = await this.graphQLService.mutate(mutation, {userIds:ids});
+                loading.close();
+                await this.loadData();
                 if (response.data.saveDoctorsByIds.success) {
                     this.ngOnDestroy();
                     await this.ngOnInit();

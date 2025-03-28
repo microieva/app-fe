@@ -8,12 +8,6 @@ export interface LoginResponse {
     expiresAt: string
 }
 
-export interface GoogleLoginResponse {
-    token?: string 
-    expiresAt?: string
-    message?: string
-}
-
 export interface AppDialogData {
     isLoading: boolean
     isAlert: boolean

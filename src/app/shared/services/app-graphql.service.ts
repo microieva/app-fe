@@ -27,7 +27,7 @@ export class AppGraphQLService {
             variables,
             fetchPolicy: 'network-only'
         });
-        console.log('GRAPHQL RESULT ',result)
+
         return firstValueFrom(result);
     }
 }

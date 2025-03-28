@@ -126,7 +126,7 @@ export class ChatComponent implements OnInit, OnDestroy {
                         createdAt: time
                     }
                 })
-                console.log('MSGS: ', this.messages)
+
                 this.isLoading = false;
             }
         } catch (error) {
