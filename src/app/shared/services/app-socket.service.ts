@@ -55,8 +55,9 @@ export class AppSocketService {
     userLogin(user: User) {
         if (this.socket && this.socket.connected) {
             this.socket.emit('registerUser', user);
-        } else {
-            console.error('Socket not connected');
+        } 
+        else {
+            console.error('Socket not connected user login');
             this.reconnectSocket().then(() => {
                 this.socket.emit('registerUser', user);
             });
@@ -65,8 +66,9 @@ export class AppSocketService {
     userLogout(userId: number) {
         if (this.socket && this.socket.connected) {
             this.socket.emit('userLogout', userId);
-        } else {
-            console.error('Socket not connected');
+        } 
+        else {
+            console.error('Socket not connected user logout');
             this.reconnectSocket().then(() => {
                 this.socket.emit('userLogout', userId);
             });

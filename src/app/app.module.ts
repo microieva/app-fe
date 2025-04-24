@@ -75,6 +75,7 @@ import { AppLineBreaksPipe } from './shared/pipes/app-line-breaks.pipe';
 import { AppAiService } from './shared/services/app-ai.service';
 import { AppAiAssistantComponent } from './shared/components/app-ai-assistant/app-ai-assistant.component';
 import { AppDbWakeUpService } from './shared/services/app-db-wake-up.service';
+import { AppCacheService } from './shared/services/app-cache.service';
 
 
 @NgModule({ 
@@ -165,6 +166,7 @@ import { AppDbWakeUpService } from './shared/services/app-db-wake-up.service';
         AppHeaderService,
         AppAiService,
         AppDbWakeUpService,
+        AppCacheService,
         provideNativeDateAdapter(),
         provideHttpClient(withInterceptorsFromDi()), 
         provideAnimationsAsync(),

@@ -74,7 +74,7 @@ export class AppHomeComponent implements OnInit {
     lastDownX = 60;
     isDesktop: boolean = true; 
     isCompact: boolean = false; 
-    showSidenav:boolean = true;
+    showSidenav:boolean = false;
 
     constructor(
         private activatedRoute: ActivatedRoute,
@@ -275,7 +275,7 @@ export class AppHomeComponent implements OnInit {
                 lastLogOutAt
             }
         }`
-        const response = await this.graphQLService.send(query, {}, true);
+        const response = await this.graphQLService.send(query);
         if (response.data.me) {
             this.me = response.data.me;
             this.userRole = response.data.me.userRole;
