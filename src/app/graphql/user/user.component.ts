@@ -15,6 +15,7 @@ import { LoadingComponent } from "../../shared/components/app-loading/loading.co
 import { UserInput } from "./user.input";
 import { DoctorRequest } from "./doctor-request";
 import { User } from "./user";
+import { AppCacheService } from "../../shared/services/app-cache.service";
 
 @Component({
     selector: 'app-user',
@@ -57,6 +58,7 @@ export class UserComponent implements OnInit, OnDestroy {
         private timerService: AppTimerService,
         private authService: AppAuthService,
         private headerService: AppHeaderService,
+        private cacheService: AppCacheService,
 
         @Optional() public dialogRef: MatDialogRef<UserComponent>,
         @Optional() @Inject(MAT_DIALOG_DATA) public data: any
@@ -124,7 +126,7 @@ export class UserComponent implements OnInit, OnDestroy {
         }
     }
 
-    async loadMe() {
+    async loadMe(options?:{useCache:boolean, forceFetch:boolean}) {
         const query = `query {
             me {
                 id
@@ -142,7 +144,7 @@ export class UserComponent implements OnInit, OnDestroy {
         }`
 
         try {
-            const response = await this.graphQLService.send(query, true);
+            const response = await this.graphQLService.send(query, options);
             if (response.data.me) {
                 this.formattedDate = DateTime.fromISO(response.data.me.dob).toFormat('MMM dd, yyyy') 
                 this.me = response.data.me;
@@ -230,7 +232,15 @@ export class UserComponent implements OnInit, OnDestroy {
 
         try {
             const response = await this.graphQLService.mutate(mutation, { userInput: input });
+
             if (response.data.saveUser.success) {
+                this.cacheService.clearCachedMe();
+                const options = {
+                    useCache: true,
+                    forceFetch: true
+                }
+                await this.loadMe(options);
+                this.cacheService.updateCachedMe({...this.me as User});
                 this.headerService.notifyUserUpdate();
                 this.router.navigate(['/home/user']);
             }

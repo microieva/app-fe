@@ -1,6 +1,23 @@
 import { MatDateFormats } from '@angular/material/core';
 import { EventInput } from '@fullcalendar/core';
 
+export const ME_QUERY = ` query {
+                me {
+                    id
+                    userRole
+                    firstName
+                    lastName
+                    dob
+                    phone
+                    email
+                    streetAddress
+                    city
+                    postCode
+                    updatedAt
+                    lastLogOutAt
+                }
+            }`
+
 export const LUXON_DATE_FORMATS: MatDateFormats = {
   parse: {
     dateInput: 'yyyy-MM-dd',

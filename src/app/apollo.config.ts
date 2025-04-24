@@ -1,7 +1,7 @@
 import { ApolloClient, InMemoryCache, HttpLink, ApolloLink } from '@apollo/client/core';
 import { setContext } from '@apollo/client/link/context';
 import { offsetLimitPagination } from '@apollo/client/utilities/policies/pagination';
-import {environment} from '../environments/environment';
+import { environment } from '../environments/environment';
 
 const httpLink = new HttpLink({
   uri: environment.url

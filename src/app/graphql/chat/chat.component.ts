@@ -116,7 +116,7 @@ export class ChatComponent implements OnInit, OnDestroy {
             }
         }`
         try {
-            const response = await this.graphQLService.send(query, {chatId: this.chatId}, false);
+            const response = await this.graphQLService.send(query, {chatId: this.chatId});
             if (response.data) {
                 this.messages = response.data.messages;
                 this.messages = this.messages.map(msg => {
