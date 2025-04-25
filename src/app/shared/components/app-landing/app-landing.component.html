@@ -27,7 +27,7 @@
                 </div>
             </div>
 
-            <div class="slide font">
+            <div class="slide slide__second font">
                 <div class="flex-row">
                     <div class="border border__white">   
                         <h2>Same day appointments on call</h2>
@@ -181,8 +181,8 @@
                     [@fadeInOut]="visibility.item1" 
                     [style.opacity]="visibility.item1">
                     <div class="text">
-                        <h2>Emergency line</h2>
-                        <h3 class="font">040 50 500</h3>
+                        <h3>Emergency line</h3>
+                        <h4 class="font">040 50 500</h4>
                     </div>
                     <div class="dotted-border"></div>
                     <div class="section-icon" style="margin-right:8px;">
@@ -201,8 +201,8 @@
                 >
                     <mat-expansion-panel-header style="padding:0">
                         <div class="text">
-                            <h2>Leave feedback</h2>
-                            <h3 class="font">Share comments / complaints</h3>
+                            <h3>Leave feedback</h3>
+                            <h4 class="font">Share comments / complaints</h4>
                         </div>
                         <div class="dotted-border"></div>
                         <div class="section-icon">
@@ -244,7 +244,7 @@
                                       (change)="toggleChangeAnonymous($event)"
                                       [checked]="isAnonymous"
                                     >
-                                    Anonymous
+                                    <p>Anonymous</p>
                                     </mat-checkbox>
                                 </div>
                                   
@@ -255,7 +255,7 @@
                                         [disabled]="isAnonymous"
                                         [checked]="requireContact"
                                     >
-                                    Contact me
+                                    <p>Contact me</p>
                                     </mat-checkbox>
                                 </div>
                             </div>
@@ -300,8 +300,8 @@
                 >
                     <mat-expansion-panel-header style="padding:0">
                         <div class="text">
-                            <h2>Sign up for our Nerwsletter</h2>
-                            <h3 class="font">Your email address</h3>
+                            <h3>Sign up for our Nerwsletter</h3>
+                            <h4 class="font">Your email address</h4>
                         </div>
                         <div class="dotted-border"></div>
                         <div class="section-icon">
