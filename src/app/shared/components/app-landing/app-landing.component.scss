@@ -105,7 +105,7 @@ h2 {
     will-change: transform;
     margin-bottom: clamp(4rem, 8vw, 16rem);
     &:not(.slide__top, .slide__third) {
-        margin-top: clamp(8rem, 8vw, 16rem);
+        margin-top: clamp(5rem, 6vw, 12rem);
     }
     &__title {
         font-size: clamp(1rem, 2vw, 2.5rem);
@@ -118,7 +118,7 @@ h2 {
 
     &__top {
         height: clamp(18rem, 28vw, 30rem); 
-        margin-bottom: clamp(6rem, 6vw, 8rem);
+        margin-bottom: clamp(4rem, 4vw, 6rem);
     }
     &__personel {
         color: rgb(245,245,245);
@@ -219,10 +219,11 @@ h2 {
 
 footer {
     background-color: #F5F5F5;
-    height: 25rem;
+    height: 20rem;
     position: absolute;
     bottom: 0;
     width: 100%;
+    font-size: smaller;
     @include respond-to(tablet) {
         height:20rem;
     }
@@ -240,7 +241,7 @@ footer {
     }
 }
 .footer {
-    padding-top: 4rem;
+    padding-top: 2rem;
     width: 65%;
     margin: 0 auto;
     height: 100%;
@@ -257,7 +258,7 @@ footer {
     }
 }
 .footer-bottom {
-    margin: 4rem 0;
+    margin: 4rem 0 2rem 0;
     @include respond-to(mobile-and-tablet) {
         margin: 2rem 0;
     }

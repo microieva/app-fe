@@ -71,8 +71,8 @@ export class AppLandingComponent implements OnInit, OnDestroy, AfterViewInit{
 
     parallaxOffset = 0;
     parallaxFactor = -1.5; 
-    wrapperHeight: string = 'calc(180vh + 25rem)';
-    textBlockHeight: string = '110vh';
+    wrapperHeight: string = 'calc(220vh + 20rem)';
+    textBlockHeight: string = '140vh';
 
     visibility = {
         item1: '0',
@@ -121,7 +121,7 @@ export class AppLandingComponent implements OnInit, OnDestroy, AfterViewInit{
             const viewportHeight = window.innerHeight;
             const isMobile = window.innerWidth < 768;
             
-            this.wrapperHeight = `calc(${isMobile ? 1.6 : 1.4} * ${viewportHeight}px + ${isMobile ? '6rem' : '25rem'})`; 
+            this.wrapperHeight = `calc(${isMobile ? 1.6 : 1.4} * ${viewportHeight}px + ${isMobile ? '6rem' : '20rem'})`; 
             this.textBlockHeight = `calc(${isMobile ? 0.8 : 0.85} * ${viewportHeight}px)`; 
         }
       }
@@ -136,6 +136,7 @@ export class AppLandingComponent implements OnInit, OnDestroy, AfterViewInit{
     togglePanel() {
         this.isPanelOpen = !this.isPanelOpen;
         if (this.isPanelOpen) {
+            this.buildFeebackForm();
             this.parallaxFactor = -4;
 
             this.visibilityThresholds = {

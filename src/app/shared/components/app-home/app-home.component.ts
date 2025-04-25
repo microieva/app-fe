@@ -186,17 +186,17 @@ export class AppHomeComponent implements OnInit {
         }
         this.breakpointObserver.observe(['(min-width: 1024px)', '(max-width: 1431px)']).subscribe(result => {
             this.isDesktop = this.breakpointObserver.isMatched('(min-width: 1024px)');
-            if (this.isDesktop) {   
-                const isCompact = this.breakpointObserver.isMatched('(max-width: 1431px)');
-                if (isCompact) {
-                    this.renderer.setStyle(this.sidenavContent?.nativeElement, 'margin-left', `90px`);
-                    this.renderer.setStyle(this.sidenavElement?.nativeElement, 'width', `90px`);
-                    this.renderer.setStyle(this.resizeElement?.nativeElement, 'pointer-events', 'none');
-                } else {
-                    this.renderer.setStyle(this.sidenavContent?.nativeElement, 'margin-left', `288px`);
-                    this.renderer.setStyle(this.sidenavElement?.nativeElement, 'width', `288px`);
-                }
-            } 
+            // if (this.isDesktop) {   
+            //     const isCompact = this.breakpointObserver.isMatched('(max-width: 1431px)');
+            //     if (isCompact) {
+            //         this.renderer.setStyle(this.sidenavContent?.nativeElement, 'margin-left', `90px`);
+            //         this.renderer.setStyle(this.sidenavElement?.nativeElement, 'width', `90px`);
+            //         this.renderer.setStyle(this.resizeElement?.nativeElement, 'pointer-events', 'none');
+            //     } else {
+            //         this.renderer.setStyle(this.sidenavContent?.nativeElement, 'margin-left', `288px`);
+            //         this.renderer.setStyle(this.sidenavElement?.nativeElement, 'width', `288px`);
+            //     }
+            // } 
         });
     }
 
