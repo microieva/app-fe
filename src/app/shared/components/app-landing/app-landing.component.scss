@@ -45,22 +45,20 @@
     --mdc-outlined-text-field-error-focus-outline-color:rgb(214, 222, 230);
     --mdc-outlined-text-field-error-hover-label-text-color:rgb(214, 222, 230);
     --mdc-outlined-text-field-error-hover-outline-color:orange;
+    --mdc-outlined-text-field-label-text-size: 14px;
 
     --mdc-filled-text-field-error-active-indicator-color: orange;
     --mdc-filled-text-field-error-focus-active-indicator-color: orange;
     --mdc-filled-text-field-error-hover-active-indicator-color: orange;
 }
 .mat-mdc-checkbox {
-    --mdc-form-field-label-text-size:18px;
+    --mdc-form-field-label-text-size:16px;
     --mdc-form-field-label-text-weight:900;
     --mdc-form-field-label-text-color:rgb(214, 222, 230)!important;
 }
 .page {
     width: 70%;
     height:auto;
-    @include respond-to(desktop-x) {
-        width: 80%;
-    }
     @include respond-to(mobile-and-tablet) {
         width: 80%;
         max-width:80%;
@@ -72,7 +70,7 @@
     }
 }
 .content-view-wrapper {
-    max-width:120rem;
+    max-width: 120rem;
     display: flex; 
     flex-direction: column;
     background-color:rgb(188, 198, 210);
@@ -104,8 +102,8 @@ h2 {
 .slide {
     will-change: transform;
     margin-bottom: clamp(4rem, 8vw, 16rem);
-    &:not(.slide__top, .slide__third) {
-        margin-top: clamp(5rem, 6vw, 12rem);
+    &:not(.slide__top, .slide__second, .slide__third) {
+        margin-top: clamp(5rem, 12vw, 16rem);
     }
     &__title {
         font-size: clamp(1rem, 2vw, 2.5rem);
@@ -113,7 +111,8 @@ h2 {
         margin-bottom: clamp(2rem, 4vw, 6rem);
     }
     p {
-        font-size: clamp(0.6rem, 2vw, 1.2rem);
+        //font-size: clamp(0.6rem, 2vw, 1rem);
+        font-size: clamp(0.8rem, 2vw, 1rem);
     }
 
     &__top {
@@ -158,18 +157,18 @@ h2 {
         width:90%;
     }
     border: 1px solid;
-    padding: 0.4rem 1rem;
+    padding: 0.2rem 1rem;
     margin: 0.2rem;
-    height: clamp(0.6rem, 2vw, 2rem); 
+    height: clamp(0.6rem, 1.8vw, 1.8rem); 
     align-content: center;
     h2 {
         width: max-content;
-        font-size: clamp(0.6rem, 2vw, 1.2rem);
+        font-size: clamp(0.6rem, 1.5vw, 1rem);
         font-weight: 400;
     }
     span {
         font-size: clamp(1rem, 3vw, 1.5rem);
-        line-height: clamp(0.6rem, 2vw, 2rem); 
+        line-height: clamp(0.6rem, 2vw, 1.5rem); 
         width: 1rem;
         float: right;
     }
@@ -199,9 +198,7 @@ h2 {
     flex-direction: column-reverse;
     align-items: center;
     transition: height 0.5s ease-in-out;
-    @include respond-to(desktop-x) {
-        width: 80%;
-    }
+
     @include respond-to(mobile-and-tablet) {
         width:80%;
     }
@@ -288,7 +285,7 @@ footer {
 }
 .click {
     font-family: "Special Elite", system-ui;
-    height: 2.5rem;
+    height: 1.8rem;
     width: 100%;
    
     &h2:hover {
@@ -315,29 +312,19 @@ footer {
 }
 
 .card {
-    width: 16rem;
+    width: 14rem;
     justify-content: space-evenly;    
     p {
-        margin: 3rem 0;
+        margin: 3rem 5px;
         align-self: center;
-        @include respond-to(desktop-x) {
-            font-size:1.2rem;
-        }
-        @include respond-to(mobile-and-tablet) {
-            font-size:1rem;
-        }
-        @include respond-to(mobile-x) {
-            font-size:14px;
-        }
         @include respond-to(mobile-6x) {
             margin:2rem 5px;
-            font-size:10px;
         }
     }
 }
 .card-img-wrapper {
-    height: 12rem;
-    width: 12rem;
+    height: 8rem;
+    width: 8rem;
     border-radius: 50%;
     align-self: center;
     img {
@@ -370,8 +357,8 @@ img {
     width: 40rem;
     border: 1px solid #F5F5F5;
     .row-img-wrapper {
-        width: 8rem;
-        height: 8rem;
+        width: 6rem;
+        height: 6rem;
         border-radius: 50%;
         margin: 1rem;
         opacity:0.8;
@@ -431,7 +418,7 @@ textarea{
     }
 }
 mat-hint {
-    font-size: 1rem;
+    font-size: 0.8rem;
 }
 .section {
     margin-bottom:1rem;
@@ -442,7 +429,7 @@ mat-hint {
         flex: 1;
         align-self:center;
         margin: 0 0.5rem 0 4rem; 
-        border-bottom: dotted 5px rgba(115, 72, 114, 0.7);
+        border-bottom: dotted 4px rgba(115, 72, 114, 0.7);
         @include respond-to(mobile-x) {
             border-bottom: dotted 4px rgba(115, 72, 114, 0.7);
         }
@@ -458,7 +445,7 @@ mat-hint {
         max-width: fit-content;
         color:  rgb(239 239 239);
         align-self: center;
-        h2 {
+        h4 {
             padding:0;
             margin:0;
             width:max-content;
@@ -474,12 +461,12 @@ mat-hint {
         }
     }
     .section-icon {
-        flex: 0 0 7rem;
+        flex: 0 0 6.5rem;
         display: flex;
         align-items: center;
         justify-content: space-around;
-        height: 7rem;
-        width:7rem;
+        height: 6.5rem;
+        width:6.5rem;
         border-radius: 50%;
         background-color: rgba(115, 72, 114, 0.8); 
         @include respond-to(mobile) {

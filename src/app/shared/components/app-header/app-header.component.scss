@@ -19,6 +19,7 @@
         margin:0;
     }
     &__title {
+        font-size: 1rem;
         @include respond-to(desktop-5x) {
             font-size:1.5rem;
         }
@@ -117,6 +118,7 @@
     }
 
     &__button {
+        font-size: 0.8rem;;
         @include respond-to(desktop-5x) {
             height:3rem;
             --mdc-outlined-button-outline-color:darkgrey;
