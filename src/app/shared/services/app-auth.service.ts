@@ -104,6 +104,7 @@ export class AppAuthService {
     }
 
     async loginWithSignicat(signicatAccessToken: string){
+        this.dialog.open(LoadingComponent);
         const mutation = `mutation ($signicatAccessToken: String!){
             loginWithSignicat(signicatAccessToken: $signicatAccessToken) {
                 ... on LoginSuccess {

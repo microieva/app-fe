@@ -104,7 +104,7 @@ export class AppHomeComponent implements OnInit {
         if (this.me) {
             
             await this.loadData();
-
+            this.dialog.closeAll();
             const sub = this.router.events.subscribe(async (event) => {
                 this.isHomeRoute = this.router.url === '/home' || (event as NavigationEnd).url === '/home';
                 if (this.isHomeRoute) {  
