@@ -5,24 +5,17 @@
     position:relative;
     height: 3.5rem;
     border-bottom: 0.8px solid darkgray;
-    @include respond-to(desktop-5x) {
-        height:6rem;
-    }
     @include respond-to(mobile-and-tablet) {
         position:relative;
     }
     @include respond-to(tablet) {
         position:relative;
-        height:5rem;
     }
     p {
         margin:0;
     }
     &__title {
         font-size: 1rem;
-        @include respond-to(desktop-5x) {
-            font-size:1.5rem;
-        }
         @include respond-to(mobile-and-tablet) {
             display:none;
         }
@@ -51,19 +44,11 @@
         padding: 0 1rem;
         margin-right: 1rem;
         margin-left: 1rem;
-        @include respond-to(desktop-5x) {
-            height:3rem;
-            line-height: 3rem;
-            font-size:1.5rem;
-        }
         @include respond-to(mobile-6x){    
-            font-size:14px;
-            line-height: 1.8rem;
             margin:auto 0;
             padding:0 5px;
         }
         @include respond-to(small-mobile-x){    
-            font-size:1rem;
             margin:auto 5px;
         }
     }
@@ -90,7 +75,7 @@
     }
 
     &__icon {
-        font-size: 1.8rem;
+        font-size: 2rem;
         color: gray;
         margin: 5px;
 
@@ -109,18 +94,11 @@
             pointer-events: none;
             opacity: 0.6;
         }
-        @include respond-to(desktop-5x) {
-            font-size: 2.5rem;
-        }
-        @include respond-to(small-mobile-x) {
-            font-size: 1.8rem;
-        }
     }
 
     &__button {
-        font-size: 0.8rem;;
+        font-size: 0.8rem;
         @include respond-to(desktop-5x) {
-            height:3rem;
             --mdc-outlined-button-outline-color:darkgrey;
         }
     }
