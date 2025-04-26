@@ -1,6 +1,7 @@
 <div 
     class="content-view-wrapper" 
     (window:scroll)="onWindowScroll()" 
+    (window:resize)="onWindowResize()" 
     #wrapper
     [style.height]="wrapperHeight"
 >

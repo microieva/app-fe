@@ -112,6 +112,8 @@ export class AppLandingComponent implements OnInit, OnDestroy, AfterViewInit{
             this.isDesktop = result.matches;
         });
         this.calculateHeights();
+        this.calculateParallax();
+        this.calculateVisibility();
         this.dialog.closeAll();
         //this.buildFeebackForm();
     }
@@ -153,6 +155,9 @@ export class AppLandingComponent implements OnInit, OnDestroy, AfterViewInit{
                 item3: { start: 0.65, end: 0.45 }
             };
         }
+        this.calculateHeights();
+        this.calculateParallax();
+        this.calculateVisibility();
     }
 
     calculateVisibility() {
