@@ -111,7 +111,6 @@ h2 {
         margin-bottom: clamp(2rem, 4vw, 6rem);
     }
     p {
-        //font-size: clamp(0.6rem, 2vw, 1rem);
         font-size: clamp(0.8rem, 2vw, 1rem);
     }
 
@@ -153,14 +152,14 @@ h2 {
 }
 .border {
     width:50%;
-    @include respond-to(mobile-6x) { // change mobile-6x to mobile-small
+    @include respond-to(mobile-6x) { 
         width:90%;
     }
     border: 1px solid;
     padding: 0.2rem 1rem;
     margin: 0.2rem;
     height: clamp(0.6rem, 1.8vw, 1.8rem); 
-    align-content: center;
+    line-height: clamp(0.6rem, 1.8vw, 1.8rem); 
     h2 {
         width: max-content;
         font-size: clamp(0.6rem, 1.5vw, 1rem);
@@ -316,7 +315,7 @@ footer {
     justify-content: space-evenly;    
     p {
         margin: 3rem 5px;
-        align-self: center;
+        text-align: center;
         @include respond-to(mobile-6x) {
             margin:2rem 5px;
         }
