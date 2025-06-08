@@ -1,297 +1,33 @@
 @import '../../scss/breakpoints';
+@import '../../scss/variables';
 
-.block { 
-    background-color: transparent;
-    border: none;
-    display: flex;
-    flex-direction: column;
-    align-items: baseline;
-    z-index: 1;
-    .flex-row { 
-        width: 100%;
-    }
-    #last-login {
-        h2,span {    
-            color: rgb(139 0 136 / 70%);
-            border-color: rgb(139 0 136 / 70%);
-        }
-    }
-    h2, h4{
-        border: 1px solid rgb(121 121 121);
-        padding: 0.2rem 1.5rem;
-        width: 50%;
-        margin: 0.2rem;
-        align-items: center;
-        font-size: 1rem;
-        line-height: 20px;
-        @include respond-to(desktop-xxx) {
-            font-size:0.9rem;
-        }
-        @include respond-to(desktop-5x){    
-            font-size:1rem;
-        }
-        @include respond-to(desktop-6x) {
-            font-size:1rem;
-        }
-        @include respond-to(tablet) {
-            font-size:0.9rem;
-        }
-        @include respond-to(mobile-and-tablet){    
-            border:0.5px solid rgb(68, 65, 65);
-        }
-        @include respond-to(mobile) {
-            font-size:0.8rem;
-            line-height: 0.8rem;
-            padding: 0.5rem 1rem;
-        }
-        @include respond-to(mobile-xx){    
-            font-size:0.8rem;
-            line-height: 0.8rem;
-            padding: 0.4rem 0.8rem;
-        }
-        @include respond-to(mobile-xxx){    
-            font-size:0.7rem;
-        }
-        @include respond-to(mobile-5x){    
-            font-size:11px;
-        }
-        @include respond-to(mobile-6x){    
-            padding: 0.4rem 5px;
-            margin:1px;
-        }
-        @include respond-to(small-mobile-x){    
-            font-size:10px;
-        }
-        span {
-            float: right;
-            padding: 2px 0;
-            line-height: 15px;
-            @include respond-to(mobile) {
-                line-height: 9px;
-            }
-            @include respond-to(mobile-xx){    
-                line-height: 8px;
-            }
-            @include respond-to(mobile-xxx){    
-                line-height: 9px;
-            }
-        }
-    }
-}
-
-.content {
-    @include respond-to(desktop-5x){    
-        display:flex;
-    }
-    .page {
-        width: 75%;
-        margin:auto;
-        margin-top: 8rem;
-        @include respond-to(desktop-5x){    
-            margin-top:4rem;
-            width: 85%;
-        }
-        @include respond-to(mobile-and-tablet){    
-            margin-top:2rem;
-        }
-        @include respond-to(mobile-xxxx){    
-            width:85%;
-        }
-        @include respond-to(small-mobile-x){    
-            width:90%;
-            max-width:90%;
-            padding:0;
-        }
-    }
-    background-color: rgb(188, 198, 210);
-}
-
-button {
-    background-color: rgb(175 111 174 / 40%);
-}
 
 .sidenav {
-    background-color: rgb(172,188,207);
+    --mdc-list-list-item-one-line-container-height:44px;
+    background-color:rgb(213, 219, 227); 
     border-right: 0.8px solid darkgray;
     width: 18rem;
     min-width: 60px;
     max-width:  18rem; 
 }
-.title {
-    color: rgb(139,149,161);
-    margin-bottom:1rem;
-}
 
 mat-nav-list{
+    padding:0;
     margin-top: 1px;
     a {
         border-radius:0;
-        border-bottom: 1px solid rgb(130, 128, 128);
+        border-bottom: 0.8px solid darkgray;
+        height: 2.5rem;
+        h5 {
+            text-indent: 1rem;;
+        }
     }
 }
-button {
-    display: flex;
-    justify-content: flex-start;
-    width: 100%;
-    padding-left: 2rem;
-    margin: 0;
-    height: 3rem;
-    border-radius: none;
-}
+
 .activeLink {
-    background-color: rgb(139, 149, 161);
-}
-.flex {
-    display: flex;
-    align-items: center;
-    font-weight: 900;
-}
-.icon {
-    border-radius: 50%;
-    padding: 3px;
-    opacity: 0.6;
-    margin-right: 1rem;
+  background-color: $--color-gray-cold-secondary;
 }
 
-.next-appointment {
-    margin: 0.2rem;
-    margin-bottom: 3rem;
-    background-color: rgb(215 222 230);
-    padding: 1.5rem;
-    border: 1px solid rgb(121 121 121);
-    &__responsive {
-        margin-bottom:4rem;
-    }
-    &__title {
-        margin-top:0;
-        margin-bottom:2rem;
-        border-bottom: 0.5px solid  rgb(68, 65, 65);
-        color:rgb(68, 65, 65);
-        font-size: 1.5rem;
-        @include respond-to(mobile){    
-            font-size: 1.2rem;
-        }
-        @include respond-to(small-mobile-x){    
-            font-size:1rem;
-        }
-    }
-    @include respond-to(mobile-and-tablet){    
-        margin-bottom:1rem;
-        border: 0.5px solid rgb(68, 65, 65);
-    }
-}
-.time-wrapper {
-    font-size: 3.5rem;
-    h3, p, em {color: rgb(111 121 133);}
-    h1 {
-        margin: 0.2rem;
-        color: rgb(115 72 114 / 70%);
-    }
-    @include respond-to(desktop-x) {
-        font-size:3rem;
-    }
-    @include respond-to(desktop-xx) {
-        font-size:2.8rem;
-    }
-    @include respond-to(desktop-xxxx) {
-        font-size:2.5rem;
-    }
-    @include respond-to(desktop-6x) {
-        font-size:2.2rem;
-    }
-    @include respond-to(tablet) {
-        padding-left:4rem;
-    }
-    @include respond-to(mobile){    
-        font-size: 1.8rem;
-    }
-    @include respond-to(mobile-x){    
-        font-size: 1.6rem;
-    }
-    @include respond-to(mobile-xx){    
-        font-size: 1.4rem;
-    }
-    @include respond-to(small-mobile){    
-        font-size:2rem;
-        z-index: 2;
-    }
-    @include respond-to(small-mobile-x){    
-        font-size:1.5rem;
-    }
-}
-#patient-details {
-    align-self: baseline;
-    width: 52%;
-    margin-right: -1rem;
-    z-index: 1;
-    h2, span {    
-        border-color: rgb(68, 65, 65);
-    }
-}
-#bg-icon {
-    position: absolute;
-    font-size: 34rem;
-    right: -115px;
-    top: -115px;
-    transform: rotate(21deg);
-    color: darkgray;
-    opacity: 0.3;
-    @include respond-to(desktop-x) {
-        font-size:30rem;
-    }
-    @include respond-to(desktop-xx) {
-        font-size:28rem;
-    }
-    @include respond-to(desktop-5x){    
-        right:-70px;
-    }
-    @include respond-to(desktop-6x) {
-        font-size:25rem;
-    }
-    @include respond-to(tablet) {
-        right:-70px;
-        top:-50px;
-    }
-    @include respond-to(mobile-and-tablet){    
-        font-size:22rem;
-        top:8px;
-    }
-    @include respond-to(mobile) {
-        font-size:20rem;
-        top:0;
-        right:-72px;
-    }
-    @include respond-to(mobile-x){    
-        font-size: 18rem;
-    }
-    @include respond-to(mobile-xx){    
-        font-size: 16rem;
-    }
-    @include respond-to(mobile-xxxx){    
-        font-size: 15rem;
-        right:-36px;
-    }
-    @include respond-to(mobile-5x){    
-        font-size: 15rem;
-        right:-36px;
-    }
-    @include respond-to(small-mobile){
-        font-size: 18rem;
-        right: -26px;
-        top: 4px;
-    }
-}
-
-#new-messages {
-    h2,span {    
-        color: rgb(139 0 136 / 70%);
-    }
-    h2 {
-        background-color: rgb(152 12 149 / 8%);
-        border-color: rgb(139 0 136 / 70%);
-        
-    }
-}
 .clickable {
     height: 31px;
     margin-top: 5px;
@@ -303,7 +39,7 @@ button {
     pointer-events: none;
 }
   
-  .resize-handle {
+.resize-handle {
     opacity:0;
     width: 15px;
     cursor: ew-resize;
@@ -311,18 +47,21 @@ button {
     position: absolute;
     right: 0;
     top: 0;
-    border-right: 5px solid rgba(0, 0, 0, 0.2);
+    border-right: 5px solid black;
     &:hover, &:active {
-        opacity: 1;
+        opacity: 0.2;
     }
-  }
+}
 
-  .content {
-    flex-grow: 1;
-    overflow: hidden;
-  }
-  #feedback {
 
+#patient-details {
+    align-self: baseline;
+    width: 52%;
+    margin-right: -1rem;
+    z-index: 1;
+}
+
+#feedback {
     .material-symbols-outlined {
         font-variation-settings:
             'FILL' 1,
@@ -330,8 +69,6 @@ button {
             'GRAD' 0,
             'opsz' 24
     }
-  }
-.loading {
-    margin:auto;
-}
+ }
+
 

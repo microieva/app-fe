@@ -1,0 +1,184 @@
+@import 'variables';
+
+.border-color-pink-deep {
+  color: $--color-pink-primary;
+  border-color: $--color-pink-primary;
+}
+.border-color-pink-cloudy {
+  color: $--color-pink-cloudy-secondary;
+  border-color: $--color-pink-cloudy-secondary;
+}
+.border-color-white {
+  color: $--color-white-warm;
+  border-color: $--color-white-warm;
+}
+.border-color-gray {
+  color: $--color-gray-warm-secondary;
+  border-color: $--color-gray-warm-secondary;
+}
+.border-color-main {
+  color:  $--color-main;
+  border-color: $--color-main;
+}
+
+.button {
+  &--create {
+    &.mdc-button {
+      background-color: $--color-pink-cloudy-secondary;
+    }
+  }
+  &--delete { 
+    &.mdc-button {
+      background-color: $--color-pink-cloudy-primary;
+    }
+  }
+  &--update {
+    &.mdc-button {
+      background-color: $--color-gray-cold-primary;
+    }
+  }
+   &--download, &--confirm {
+    &.mdc-button {
+      background-color: $--color-gray-warm-secondary;
+    }
+  }
+}
+
+.icon {
+  &--cancel {
+    color: $--color-pink-cloudy-primary;
+  }
+  &--main {
+    color: $--color-sidenav;
+  }
+  &--confirm {
+    color: $--color-green-primary;
+  }
+}
+
+// font color
+
+.color {
+  &--pink {
+    &--primary {
+      color: $--color-pink-primary;
+    }
+    &--secondary {
+      color: $--color-pink-secondary;
+    }
+    &--cloudy {
+      &--primary {
+        color: $--color-pink-cloudy-primary;
+      }
+      &--secondary {
+        color: $--color-pink-cloudy-secondary;
+      }
+    }
+  }
+  &--green {
+    &--primary {
+      color: $--color-green-primary;
+    }
+    &--secondary {
+      color: $--color-green-secondary;
+    }
+  }
+  &--white {
+    &--warm {
+      color: $--color-white-warm;
+    }
+    &--cold {
+      color: $--color-white-cold;
+    }
+  }
+
+  &--gray {
+    &--warm {
+      &--primary {
+        color: $--color-gray-warm-primary;
+      }
+      &--secondary {
+        color: $--color-gray-warm-secondary;
+      }
+    }
+    &--cold {
+      &--primary {
+        color: $--color-gray-cold-primary;
+      }
+      &--secondary {
+        color: $--color-gray-cold-secondary;
+      }
+    }
+  }
+
+  &--main {
+    &--primary {
+      color: $--color-main;
+    }
+    &--secondary {
+      color: $--color-sidenav;  
+    }
+  }
+}
+
+// background color
+
+.bg {
+  &--pink {
+    &--primary {
+      background-color: $--color-pink-primary;
+    }
+    &--secondary {
+      background-color: $--color-pink-secondary;
+    }
+    &--cloudy {
+      &--primary {
+        background-color: $--color-pink-cloudy-primary;
+      }
+      &--secondary {
+        background-color: $--color-pink-cloudy-secondary;
+      }
+    }
+  }
+  &--gray {
+    &--warm {
+      &--primary {
+        background-color: $--color-gray-warm-primary;
+      }
+      &--secondary {
+        background-color: $--color-gray-warm-secondary;
+      }
+    }
+    &--cold {
+      &--primary {
+        background-color: $--color-gray-cold-primary;
+      }
+      &--secondary {
+        background-color: $--color-gray-cold-secondary;
+      }
+    }
+  }
+  &--white {
+    &--warm {
+      background-color: $--color-white-warm;
+    }
+    &--cold {
+      background-color: $--color-white-cold;
+    }
+  }
+  &--green {
+    &--primary {
+      background-color: $--color-green-primary;
+    }
+    &--secondary {
+      background-color: $--color-green-secondary;
+    }
+  }
+  &--main {
+    background-color: $--color-main;
+  }
+  &--sidenav {
+    background-color: $--color-sidenav;
+  }
+}
+

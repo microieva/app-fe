@@ -1,28 +1,30 @@
 <div 
     class="content-view-wrapper" 
     (window:scroll)="onWindowScroll()" 
-    (window:resize)="onWindowResize()" 
     #wrapper
     [style.height]="wrapperHeight"
 >
     <div class="img-wrapper">
         <img src="assets/front-page.jpg"/>
     </div>
-    <div class="page" >
+    <div class="page">
         <div 
             @slideInOut  
-            class="slide-block"  
+            class="slide-block" 
+            (window:resize)="onWindowResize()"  
             [ngStyle]="{'transform': 'translateY(' + parallaxOffset + 'px)'}"
         >
-            <div class="slide slide__top flex-column">
+            <div class="slide slide__top flex-column" style="position:relative;">
+                <!-- <img id="stamp" src="assets/stamp.png" alt="Decorative watermark stamp" /> -->
+                
                 <h1 class="title bg">Empathic health care center for all</h1>
-                <h1 class="sm">You are in safe hands!</h1>
+                <h3 class="sm">You are in safe hands!</h3>
 
                 <div class="flex-row clickable click" (click)="onLogIn()">
-                    <div class="border border__pink">
-                        <h2 class="font">Log in to your account</h2>
+                    <div class="block--bordered--sm border-color-pink-cloudy">
+                        <p class="font">Log in to your account</p>
                     </div>
-                    <div class="border border__pink border__icon">
+                    <div class="block--bordered--sm border-color-pink-cloudy  ">
                         <span class="material-symbols-outlined">arrow_right</span>
                     </div>
                 </div>
@@ -30,29 +32,29 @@
 
             <div class="slide slide__second font">
                 <div class="flex-row">
-                    <div class="border border__white">   
-                        <h2>Same day appointments on call</h2>
+                    <div class="block--bordered--sm border-color-white">   
+                        <p>Same day appointments on call</p>
                     </div>
-                    <div class="border border__white border__icon"> 
+                    <div class="block--bordered--sm border-color-white"> 
                         <span class="material-icons">call_outlined</span>
                     </div>
                 </div>
 
                 <div class="flex-row">
-                    <div class="border border__white"> 
-                        <h2>Treatments & consultations</h2>
+                    <div class="block--bordered--sm border-color-white"> 
+                        <p>Treatments & consultations</p>
                     </div>
                     
-                    <div class="border border__white border__icon"> 
+                    <div class="block--bordered--sm border-color-white"> 
                         <span class="material-symbols-outlined">stethoscope</span>
                     </div>
                 </div>
                 <div class="flex-row">
-                    <div class="border border__white"> 
-                        <h2>All locations easily accessible</h2>
+                    <div class="block--bordered--sm border-color-white"> 
+                        <p>All locations easily accessible</p>
                     </div>
 
-                    <div class="border border__white border__icon"> 
+                    <div class="block--bordered--sm border-color-white"> 
                         <span class="material-symbols-outlined">accessible</span>
                     </div>   
                 </div>
@@ -60,46 +62,46 @@
 
             <div class="slide slide__third font">    
                 <div class="flex-row">
-                    <div class="border border__white">
-                        <h2>Infant & child care department</h2>
+                    <div class="block--bordered--sm border-color-white">
+                        <p>Infant & child care department</p>
                     </div>
-                    <div class="border border__white border__icon">
+                    <div class="block--bordered--sm border-color-white">
                         <span class="material-symbols-outlined">child_care</span>
                     </div>
                 </div>
                     
                 <div class="flex-row">
-                    <div class="border border__white">
-                        <h2>Dental care department</h2>
+                    <div class="block--bordered--sm border-color-white">
+                        <p>Dental care department</p>
                     </div>
-                    <div class="border border__white border__icon">
+                    <div class="block--bordered--sm border-color-white">
                         <span class="material-symbols-outlined">dentistry</span>
                     </div>
                 </div>
                     
                 <div class="flex-row">
-                    <div class="border border__white">
-                        <h2>Recovering physiotherapy unit</h2>
+                    <div class="block--bordered--sm border-color-white">
+                        <p>Recovering physiotherapy unit</p>
                     </div>
-                    <div class="border border__white border__icon">
+                    <div class="block--bordered--sm border-color-white">
                         <span class="material-symbols-outlined">physical_therapy</span>
                     </div>
                 </div>
                     
                 <div class="flex-row">
-                    <div class="border border__white">
-                        <h2>Psychotherapy department</h2>
+                    <div class="block--bordered--sm border-color-white">
+                        <p>Psychotherapy department</p>
                     </div>
-                    <div class="border border__white border__icon">
+                    <div class="block--bordered--sm border-color-white">
                         <span class="material-symbols-outlined">psychology</span>
                     </div>
                 </div>
                     
                 <div class="flex-row">
-                    <div class="border border__white">
-                        <h2>Special aid</h2>
+                    <div class="block--bordered--sm border-color-white">
+                        <p>Special aid</p>
                     </div>
-                    <div class="border border__white border__icon">
+                    <div class="block--bordered--sm border-color-white">
                         <span class="material-symbols-outlined">hearing</span>
                     </div>
                 </div>
@@ -165,9 +167,9 @@
             <div class="slide slide__follow-us flex-column">
                 <h2 class="slide__title">Follow us</h2>
                 <div class="flex-row">
-                    <span class="fa fa-facebook"></span>
-                    <span class="fa fa-instagram"></span>
-                    <span class="fa fa-linkedin"></span>
+                    <h1><span class="fa fa-facebook"></span></h1>
+                    <h1><span class="fa fa-instagram"></span></h1>
+                    <h1><span class="fa fa-linkedin"></span></h1>
                 </div>
             </div>
         </div>
@@ -182,8 +184,8 @@
                     [@fadeInOut]="visibility.item1" 
                     [style.opacity]="visibility.item1">
                     <div class="text">
-                        <h3>Emergency line</h3>
-                        <h4 class="font">040 50 500</h4>
+                        <p style="font-weight: bolder;">Emergency line</p>
+                        <p class="font">040 50 500</p>
                     </div>
                     <div class="dotted-border"></div>
                     <div class="section-icon" style="margin-right:8px;">
@@ -202,8 +204,8 @@
                 >
                     <mat-expansion-panel-header style="padding:0">
                         <div class="text">
-                            <h3>Leave feedback</h3>
-                            <h4 class="font">Share comments / complaints</h4>
+                            <p style="font-weight: bolder;">Leave feedback</p>
+                            <p class="font">Share comments / complaints</p>
                         </div>
                         <div class="dotted-border"></div>
                         <div class="section-icon">
@@ -301,8 +303,8 @@
                 >
                     <mat-expansion-panel-header style="padding:0">
                         <div class="text">
-                            <h3>Sign up for our Nerwsletter</h3>
-                            <h4 class="font">Your email address</h4>
+                            <p style="font-weight: bolder;">Sign up for our Nerwsletter</p>
+                            <p class="font">Your email address</p>
                         </div>
                         <div class="dotted-border"></div>
                         <div class="section-icon">

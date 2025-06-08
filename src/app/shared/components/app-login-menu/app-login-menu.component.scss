@@ -1,42 +1,33 @@
-@import '../../scss/breakpoints';
+@import '../../scss/variables';
 
 .menu-item {
     width: 100%;
+    height: clamp(2.5rem, 3vw, 5rem);
     margin: 2rem 0;
+    line-height: 0;
     p {
+        line-height: clamp(0.7rem, 0.8vw, 1rem);
         padding: 0 1rem;
-        @include respond-to(mobile-6x) {
-            line-break:anywhere;
-            line-height: 1rem;
-        }
-    }
-    @include respond-to(mobile-6x) {
-        margin: 10px 0;
     }
 }
 .item{
-    width: 100%;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    background-color: #F5F5F5;
+    background-color: $--color-white-warm;
     align-items: center;
-    height: 4rem;
+    height: clamp(1.5rem, 0.5vw, 3rem);
+    padding: 0.5rem 1rem;
     border-radius: 3px;
-    @include respond-to(mobile-6x) {
-       height:3rem;
-    }
-    h3 {
-        margin-left: 1rem;
-    }
-    span {
-        margin-right: 1rem;
+    margin-bottom:5px;
+    h5 {
+        font-size: larger;
     }
 }
 .item:hover {
-    background-color:  rgb(219, 218, 218);
+    background-color:  $--color-white-warm;
     cursor: pointer;
-    color: rgb(68, 65, 65); 
+    color: $--color-main; 
 }
 span {
     width: 100%;

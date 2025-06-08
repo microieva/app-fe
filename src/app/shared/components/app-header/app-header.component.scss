@@ -1,9 +1,18 @@
 @import '../../scss/mixins';
 @import '../../scss/breakpoints';
+@import '../../scss/colors';
 
 .header-toolbar {
+    --mat-badge-text-size: 10px;
+    --mat-badge-legacy-container-size: 18px;
+    .mat-badge-content {
+        background:  $--color-pink-cloudy-primary;
+        color: $--color-white-warm;
+        font-weight: 900;
+    }
+
     position:relative;
-    height: 3.5rem;
+    height: 3rem;
     border-bottom: 0.8px solid darkgray;
     @include respond-to(mobile-and-tablet) {
         position:relative;
@@ -12,24 +21,22 @@
         position:relative;
     }
     p {
-        margin:0;
+        align-self: center;
     }
     &__title {
-        font-size: 1rem;
+        margin: auto 1rem;
         @include respond-to(mobile-and-tablet) {
             display:none;
         }
     }
 
     &__status {
-        margin-left: 1rem;
-        font-size: small;
+        margin-left: 0.5rem;
         color: gray;
         @include respond-to(desktop-5x) {
             display:none;
         }
         @include respond-to(mobile-6x){    
-            font-size:13px;
             margin:1rem 5px;
         }
         @include respond-to(small-mobile-x){    
@@ -40,10 +47,11 @@
     &__framed {
         border: 1px solid darkgray;
         border-radius: 3px;
-        color: darkgray;
         padding: 0 1rem;
         margin-right: 1rem;
         margin-left: 1rem;
+        height: 1.7rem;
+        line-height: 1.7rem;
         @include respond-to(mobile-6x){    
             margin:auto 0;
             padding:0 5px;
@@ -75,7 +83,7 @@
     }
 
     &__icon {
-        font-size: 2rem;
+        font-size: 1.8rem;
         color: gray;
         margin: 5px;
 
@@ -97,7 +105,7 @@
     }
 
     &__button {
-        font-size: 0.8rem;
+        height: 1.9rem;
         @include respond-to(desktop-5x) {
             --mdc-outlined-button-outline-color:darkgrey;
         }

@@ -1,33 +1,3 @@
-@import '../../../shared/scss/breakpoints';
 
-.page {
-    max-width: 75%;
-    position: relative;
-    will-change: transform;
-    @include respond-to(tablet) {
-        max-width:85%;
-    }
-    @include respond-to(mobile-6x) {
-        max-width:95%;
-        width:95%;
-        padding:0;
-        margin:4rem auto;
-    }
-}
-.btn-block {
-    width: 50rem;
-    margin-top: 8rem;
-    position:relative;
-    h1 {
-        color:rgb(151, 148, 148);
-    }
-    #bg-icon {
-        position: absolute;
-        font-size: 34rem;
-        right: -130px;
-        top: -120px;
-        transform: rotate(21deg);
-        color: darkgray;
-        opacity: 0.2;
-    }
-}
+
+

@@ -1,0 +1,37 @@
+@import 'variables';
+
+h1 {
+  margin:0;
+  font-size: $--font-size-h1; 
+}
+
+h2 {
+  margin:0;
+  font-size: $--font-size-h2;
+}
+
+h3 {
+  margin:0;
+  font-size: $--font-size-h3;
+}
+
+h4 {
+  margin:0;
+  font-size: $--font-size-h4; 
+}
+h5 {
+  margin:0;
+  font-weight: 900;
+  font-size: $--font-size-h5;
+}
+p {
+  margin:0;
+  font-size: $--font-size-p; 
+
+}
+em {
+  color: $--color-gray-warm-primary;
+}
+a {
+    font-weight: 800;
+}

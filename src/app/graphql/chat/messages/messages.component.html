@@ -2,23 +2,23 @@
     #tabGroup
     mat-stretch-tabs="false" 
     mat-align-tabs="start" 
-    class="content" 
+    class="content bg--white--cold" 
     (selectedIndexChange)="onTabChange($event)"
     [(selectedIndex)]="selectedIndex"
 >
     <mat-tab label="online">
         <ng-template mat-tab-label>
-            <span class="tab-label" *ngIf="userRole === 'admin'">Currently Online</span>
-            <span class="tab-label" *ngIf="userRole === 'doctor'">Administrator | Frontdesk</span>
+            <span class="tab-label" *ngIf="userRole === 'admin'" >Currently Online</span>
+            <span class="tab-label" *ngIf="userRole === 'doctor'" >Administrator | Frontdesk</span>
         </ng-template>
         <div *ngIf="userRole === 'admin'">
-            <div class="flex-row wrapper info">
+            <div class="flex-row block--bordered--md info">
                 <span class="icon material-symbols-outlined">info</span>
-                <h3 *ngIf="onlineDoctors.length === 0">Currently no doctors online</h3> 
-                <h3 *ngIf="onlineDoctors.length > 0">{{onlineDoctors.length}} online</h3> 
+                <p *ngIf="onlineDoctors.length === 0">Currently no doctors online</p> 
+                <p *ngIf="onlineDoctors.length > 0">{{onlineDoctors.length}} online</p> 
                 <span>{{' '}}</span>
             </div>
-            <div *ngIf="!dataSource" class="loading">
+            <div *ngIf="!dataSource">
                 <app-loading></app-loading>
             </div>
             <div class="page" @slideInOut>
@@ -46,7 +46,7 @@
             </div>
         </div>
         <div *ngIf="userRole === 'doctor' && chatId">
-            <div *ngIf="isLoading" class="loading">
+            <div *ngIf="isLoading" class="loading"  >
                 <app-loading></app-loading>
             </div>
             <app-chat 
@@ -58,9 +58,11 @@
         </div>
     </mat-tab>
     <mat-tab *ngFor="let chat of chats" >
-        <ng-template mat-tab-label>
-            <span class="tab-label">{{ chat.title }}</span>
-            <span class="material-icons" matTooltip="Close" (click)="onChatClose(chat.id)">close</span>
+         <ng-template mat-tab-label>
+            <div class="fixed-width-tab">
+                <span class="tab-label" matTooltip="{{ chat.title }}" style="overflow:hidden; text-overflow: ellipsis;">{{ chat.title }}</span>
+                <span class="material-icons" matTooltip="Close" (click)="onChatClose(chat.id)" >close</span>   
+            </div>
         </ng-template>
         <ng-template matTabContent>
             <app-chat 

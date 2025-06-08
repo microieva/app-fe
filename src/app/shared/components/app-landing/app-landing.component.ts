@@ -126,6 +126,8 @@ export class AppLandingComponent implements OnInit, OnDestroy, AfterViewInit{
             this.wrapperHeight = `calc(${isMobile ? 1.6 : 1.4} * ${viewportHeight}px + ${isMobile ? '6rem' : '20rem'})`; 
             this.textBlockHeight = `calc(${isMobile ? 0.8 : 0.85} * ${viewportHeight}px)`; 
         }
+        this.wrapperHeight = 'calc(220vh + 20rem)';
+        this.textBlockHeight = '140vh';
       }
 
     calculateParallax() {

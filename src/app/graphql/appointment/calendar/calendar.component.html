@@ -1,10 +1,13 @@
-<div class="flex-row wrapper info">
-    <span class="icon material-symbols-outlined">info</span>
-    <h3 *ngIf="userRole==='patient'">Select one of the available dates to make an appointment</h3>
-    <h3 *ngIf="userRole==='admin' && patient">Patient name: {{patient.firstName}} {{patient.lastName}}</h3>
-    <h3 *ngIf="userRole==='admin' && !patient">Missed appointment requests</h3>
-    <button mat-stroked-button (click)="cancel()">{{ 'Close' }}</button>
-</div>
-<div class="page" *ngIf="userRole">
-    <app-calendar [role]="userRole"></app-calendar>
+<div class="container bg--gray--cold--secondary">
+    <div class="flex-row block--bordered--md info">
+        <span class="icon material-symbols-outlined">info</span>
+        <p *ngIf="userRole==='patient'">Select one of the available dates to make an appointment</p>
+        <p *ngIf="userRole==='admin' && patient">Patient name: {{patient.firstName}} {{patient.lastName}}</p>
+        <p *ngIf="userRole==='admin' && !patient">Missed appointment requests</p>
+        <button mat-stroked-button (click)="cancel()"><p>{{ 'Close' }}</p></button>
+    </div>
+    <div class="page" *ngIf="userRole">
+        <app-calendar [role]="userRole"></app-calendar>
+    </div>
+
 </div>

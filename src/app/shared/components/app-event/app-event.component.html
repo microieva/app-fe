@@ -1,53 +1,51 @@
 <mat-dialog-content #el class="app-event">
-    <div *ngIf="isLoading" class="loading">
+    <div *ngIf="isLoading" class="loading"  >
         <app-loading></app-loading>
     </div>
     <form class="app-event" *ngIf="!isLoading">
-        <div class="flex-row">
-            <h2 [ngClass]="userRole !=='admin' && 'title-hover'" *ngIf="appointmentInfo.title && appointmentInfo.title !== 'View details'" (click)="userRole !== 'admin' && onLinkClick(appointmentInfo.id)">{{ title }}</h2>
-            <h2 [ngClass]="userRole !=='admin' && 'title-hover'" *ngIf="appointmentInfo.title === 'View details'" (click)="userRole !== 'admin' && onLinkClick(appointmentInfo.id)">{{ 'Appointment' }}</h2>
-            <h2 *ngIf="!appointmentInfo.title && userRole !== 'doctor'">{{ "New Appointment" }}</h2>
-            <h2 *ngIf="!appointmentInfo.title && userRole === 'doctor'">{{ "Reserve All Day" }}</h2>
+        <div class="flex-row title">
+            <h4 [ngClass]="userRole !=='admin' && 'title-hover'" *ngIf="appointmentInfo.title && appointmentInfo.title !== 'View details'" (click)="userRole !== 'admin' && onLinkClick(appointmentInfo.id)">{{ title }}</h4>
+            <h4 [ngClass]="userRole !=='admin' && 'title-hover'" *ngIf="appointmentInfo.title === 'View details'" (click)="userRole !== 'admin' && onLinkClick(appointmentInfo.id)">{{ 'Appointment' }}</h4>
+            <h4 *ngIf="!appointmentInfo.title && userRole !== 'doctor'">{{ "New Appointment" }}</h4>
+            <h4 *ngIf="!appointmentInfo.title && userRole === 'doctor'">{{ "Reserve All Day" }}</h4>
             <p class="event-label" *ngIf="appointmentInfo.title">created: <em>{{createdAt}}</em></p>
         </div>
         <div class="flex-column block">
-            <div class="flex-column event-wrapper" *ngIf="appointmentInfo.title">
-                <p class="event-title" *ngIf="userRole !== 'admin' && title !=='Missed request'">{{ 'Basic Information' }}</p>
-                <p class="event-title" *ngIf="userRole === 'admin' && title ==='Missed request'">{{ "Patient's Information" }}</p>
+            <div class="flex-column  block--bordered--lg" *ngIf="appointmentInfo.title">
+                <p class="title color--gray--cold--primary" *ngIf="userRole !== 'admin' && title !=='Missed request'">{{ 'Basic Information' }}</p>
+                <p class="title color--gray--cold--primary" *ngIf="userRole === 'admin' && title ==='Missed request'">{{ "Patient's Information" }}</p>
                 
                 <div class="flex-row">
                     <div class="flex-column">
                         <div class="flex-column block">
                             <p class="event-label">{{  "Patient's Name"  }}</p>
-                            <p class="event-info">{{ patientName }}</p>
+                            <h5>{{ patientName }}</h5>
 
                         </div>
                         <div class="flex-column block">
                             <p class="event-label">{{ 'Date of Birth' }}</p>
-                            <p class="event-info">{{ patientDob }}</p>
+                            <h5>{{ patientDob }}</h5>
                         </div>
                     </div>
                     <div class="flex-column">
                         <div *ngIf="doctorName" class="block">
                             <p class="event-label">{{ 'Doctor' }}</p>
-                            <p class="event-info">{{ doctorName }}</p>
+                            <h5>{{ doctorName }}</h5>
 
                         </div>
 
-                        <div *ngIf="userRole !== 'admin' && !doctorName" class="event-info">
-                            <a (click)="onLinkClick(appointmentInfo.id)">
-                                <em>{{ 'Pending confirmation' }}</em>
-                            </a>
+                        <div *ngIf="userRole !== 'admin' && !doctorName">
+                            <h5><em>{{ 'Pending confirmation' }}</em></h5>
                         </div>
                         <div *ngIf="userRole ==='admin' && !doctorName" class="flex-column">
                             <div class="block">
                                 <p  class="event-label">{{'Patient Phone Number'}}</p>
-                                <p class="event-info">{{patientPhoneNr}}</p>
+                                <h5>{{patientPhoneNr}}</h5>
 
                             </div>
                             <div class="block">
                                 <p class="event-label">{{'Patient Email'}}</p>
-                                <p class="event-info">{{patientEmail}}</p>
+                                <h5>{{patientEmail}}</h5>
                                 
                             </div>
 
@@ -56,28 +54,28 @@
                 </div>
             </div>
             <div 
-                class="flex-column event-wrapper" 
+                class="flex-column  block--bordered--lg" 
                 [class.clickable]="isClickable && !isLoadingDetails"
                 [class.edit-view]="isEditting"
                 (click)="isClickable && !isEditting && onUpdate()" 
             >
-                <p *ngIf="appointmentInfo.title !== 'Pending'" class="event-title">{{ 'Appointment Time' }}</p>
-                <p *ngIf="appointmentInfo.title === 'Pending'" class="event-title">{{ 'Requested Time' }}</p>
+                <p *ngIf="appointmentInfo.title !== 'Pending'" class="title color--gray--cold--primary">{{ 'Appointment Time' }}</p>
+                <p *ngIf="appointmentInfo.title === 'Pending'" class="title color--gray--cold--primary">{{ 'Requested Time' }}</p>
                 <div *ngIf="isLoadingDetails && !isEditting" class="details loading">
                     <app-loading></app-loading>
                 </div>
                 <div class="details flex-row" *ngIf="!isEditting && !isLoadingDetails">
                     <div class="flex-column block">
                         <p class="event-label">{{ 'Date' }}</p>
-                        <p class="event-info">{{ eventDate }}</p>
+                        <h5>{{ eventDate }}</h5>
                     </div>
                     <div class="flex-column block">
                         <p class="event-label">{{ 'Start Time' }}</p>
-                        <p class="event-info">{{ eventStartTime }}</p>
+                        <h5>{{ eventStartTime }}</h5>
                     </div>
                     <div class="flex-column block">
                         <p class="event-label">{{ 'End Time' }}</p>
-                        <p class="event-info">{{ eventEndTime }}</p>
+                        <h5>{{ eventEndTime }}</h5>
                     </div>
                 </div>
                 
@@ -132,72 +130,94 @@
                         <mat-error *ngIf="appointmentTimeForm.errors?.isOverTime && !appointmentTimeForm.errors?.isTimeRangeValid && !appointmentTimeForm.errors?.isWeekend">
                             Over time (latest ending 18:00)
                         </mat-error>
+                        <div class="flex-row" style="justify-content: flex-start;">
+                            <div 
+                                (click)="onNewTimeSubmit(); $event.stopPropagation();" 
+                                class="icon--confirm" 
+                                matTooltip="Save"
+                            >
+                                <span class="material-icons" [ngClass]="isDisabled ? 'disabled' : ''">check</span>
+                            </div>
+                            <div 
+                                (click)="isEditting=!isEditting; $event.stopPropagation();" 
+                                class="icon--cancel"
+                                matTooltip="Cancel"
+                            >
+                                <span class="material-icons">close</span>
+                            </div>
+                        </div>
                     </form>
-                    <div class="icons flex-row" style="float: right;">
-                        <div (click)="onNewTimeSubmit(); $event.stopPropagation();">
-                            <span class="material-icons" style="color: green" [ngClass]="isDisabled ? 'disabled' : ''">check</span>
-                        </div>
-                        <div (click)=" isEditting=!isEditting; $event.stopPropagation();" >
-                            <span class="material-icons" style="color:rgb(175 111 174 / 90%);">close</span>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
-        <div class="message event-wrapper" *ngIf="patientMessage">
-            <p class="event-title" *ngIf="userRole==='doctor' || userRole==='admin'">{{ "Patient's Message" }}</p>
-            <p class="event-title" *ngIf="userRole==='patient'">{{ 'My Message' }}</p>
-            <p class="event-info" class="font">{{patientMessage}}</p>
-            <div (click)="onDeleteMessage(appointmentInfo.id)" *ngIf="userRole === 'patient' || userRole==='admin'">
-                <span class="material-icons" style="color:rgb(175 111 174 / 90%);">close</span>
+        <div class="message  block--bordered--lg" *ngIf="patientMessage">
+            <p class="title color--gray--cold--primary" *ngIf="userRole==='doctor' || userRole==='admin'">{{ "Patient's Message" }}</p>
+            <p class="title color--gray--cold--primary" *ngIf="userRole==='patient'">{{ 'My Message' }}</p>
+            <h5 class="font">{{patientMessage}}</h5>
+            <div 
+                (click)="onDeleteMessage(appointmentInfo.id)" 
+                *ngIf="userRole === 'patient' || userRole==='admin'"
+                class="icon--cancel"
+            >
+                <span class="material-icons" matTooltip="Delete message">close</span>
             </div>
         </div>
-        <div class="message event-wrapper" *ngIf="doctorMessage">
-            <p class="event-title" *ngIf="userRole==='patient' || userRole === 'admin'">{{ "Doctor's Message" }}</p>
-            <p class="event-title" *ngIf="userRole==='doctor'">{{ 'My Message' }}</p>
-            <p class="event-info" class="font">{{doctorMessage}}</p>
-            <div (click)="onDeleteMessage(appointmentInfo.id)" *ngIf="userRole === 'doctor'">
-                <span class="material-icons" style="color:rgb(175 111 174 / 90%);">close</span>
+        <div class="message  block--bordered--lg" *ngIf="doctorMessage">
+            <p class="title color--gray--cold--primary" *ngIf="userRole==='patient' || userRole === 'admin'">{{ "Doctor's Message" }}</p>
+            <p class="title color--gray--cold--primary" *ngIf="userRole==='doctor'">{{ 'My Message' }}</p>
+            <h5 class="font">{{doctorMessage}}</h5>
+            <div 
+                (click)="onDeleteMessage(appointmentInfo.id)" 
+                *ngIf="userRole === 'doctor'"
+                class="icon--cancel"
+            >
+                <span class="material-icons" matTooltip="Delete message">close</span>
             </div>
         </div>
         <div *ngIf="(!doctorMessage && doctorId) || (!patientMessage && userRole === 'patient') || (!patientMessage && userRole === 'admin' && samePatient)">
-            <div type="button" class="icon-btn title-hover" (click)="onAddClick(); showInput =!showInput" *ngIf="!showInput">
-                <span class="material-icons">add</span><p>Additional information</p>
+            <div 
+                *ngIf="!showInput"
+                type="button" 
+                class="title-hover flex color--main--primary" 
+                (click)="onAddClick(); showInput =!showInput" 
+            >
+                <span class="material-icons">add</span><h5 style="text-indent:0.5rem;">Additional information</h5>
             </div>
         </div>
        
-        <div class="event-wrapper" *ngIf="showInput" style="position: relative;">
-            <p class="event-title">{{ 'Additional Information' }}</p>
+        <div class=" block--bordered--lg" *ngIf="showInput" style="position: relative;">
+            <p class="title color--gray--cold--primary">{{ 'Additional Information' }}</p>
             <mat-form-field style="width:100%;margin:1rem 0;">
                 <mat-label>{{ 'Add message' }}</mat-label>
                 <textarea matInput #message maxlength="700" (input)="adjustHeight($event)" #textarea></textarea>
                 <mat-hint align="end">{{characterCount}} / 700</mat-hint>
             </mat-form-field>
-            <div class="icons flex-row" style="float: right;">
-                <div (click)="onSaveMessage(message.value)">
-                    <span class="material-icons" style="color: green">check</span>
+            <div class="flex-row" style="justify-content: flex-start;">
+                <div (click)="onSaveMessage(message.value)" class="icon--confirm" matTooltip="Save">
+                    <span class="material-icons" >check</span>
                 </div>
-                <div (click)="showInput =!showInput">
-                    <span class="material-icons" style="color:rgb(175 111 174 / 90%);">close</span>
+                <div (click)="showInput =!showInput" class="icon--cancel" matTooltip="Cancel">
+                    <span class="material-icons" >close</span>
                 </div>
             </div>
         </div>
          <div 
-            [ngClass]="isOpened ? '': 'title-hover'"
-            class="icon-btn last" 
-            (click)="onOpenAppointmentTab(appointmentInfo.id)" 
             *ngIf="userRole === 'doctor' && !isOpened && doctorName"
+            [ngClass]="isOpened ? '': 'title-hover flex'"
+            class="last color--main--primary" 
+            (click)="onOpenAppointmentTab(appointmentInfo.id)" 
         >
-            <span class="material-icons">open_in_new</span><p>Open appointment workspace</p>
+            <span class="material-icons">open_in_new</span>
+            <h5 style="text-indent:0.5rem;">Open appointment workspace</h5>
         </div>
         <mat-dialog-actions align="end">
-            <button id="submit-btn" mat-stroked-button type="submit" [mat-dialog-close]="true" cdkFocusInitial (click)="onSubmit()" *ngIf="!appointmentInfo.title">{{'Confirm'}}</button>
-            <button mat-stroked-button  type="button" (click)="onAcceptAppointment()" *ngIf="!doctorName && userRole === 'doctor'" >{{'Accept Appointment'}}</button>
-            <button mat-stroked-button  type="button" (click)="onCancelAppointment()" *ngIf="userRole==='doctor' && doctorId && !isPast">{{'Cancel Appointment'}}</button>
-            <button mat-stroked-button type="button" (click)="onDeleteAppointment()" *ngIf="userRole==='doctor' && doctorId && isPast">{{'Delete Appointment'}}</button>
-            <button mat-stroked-button  type="button" (click)="onDeleteAppointment()" *ngIf="userRole==='patient' && !isPast">{{'Cancel Appointment'}}</button>
-            <button mat-stroked-button  type="button" (click)="onDeleteAppointment()" *ngIf="userRole==='patient' && isPast">{{'Delete Appointment'}}</button>
-            <button mat-stroked-button  type="button" (click)="onDeleteAppointment()" *ngIf="userRole==='admin' && samePatient">{{'Delete Appointment'}}</button>
+            <button class="button--confirm" id="submit-btn" mat-stroked-button type="submit" [mat-dialog-close]="true" cdkFocusInitial (click)="onSubmit()" *ngIf="!appointmentInfo.title"><p>Confirm</p></button>
+            <button class="button--create" mat-stroked-button type="button" (click)="onAcceptAppointment()" *ngIf="!doctorName && userRole === 'doctor'"><p>Accept Appointment</p></button>
+            <button mat-stroked-button type="button" (click)="onCancelAppointment()" *ngIf="userRole==='doctor' && doctorId && !isPast"><p>Cancel Appointment</p></button>
+            <button class="button--delete" mat-stroked-button type="button" (click)="onDeleteAppointment()" *ngIf="userRole==='doctor' && doctorId && isPast"><p>Delete Appointment</p></button>
+            <button mat-stroked-button type="button" (click)="onDeleteAppointment()" *ngIf="userRole==='patient' && !isPast"><p>Cancel Appointment</p></button>
+            <button class="button--delete" mat-stroked-button type="button" (click)="onDeleteAppointment()" *ngIf="userRole==='patient' && isPast"><p>Delete Appointment</p></button>
+            <button class="button--delete" mat-stroked-button type="button" (click)="onDeleteAppointment()" *ngIf="userRole==='admin' && samePatient"><p>Delete Appointment</p></button>
         </mat-dialog-actions>
     </form>
 </mat-dialog-content>

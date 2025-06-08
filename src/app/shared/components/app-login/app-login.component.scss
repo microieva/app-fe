@@ -1,47 +1,16 @@
-@import '../../scss/breakpoints';
-
-.actions {
-    display: flex;
-    flex-direction: column;
-    font-size: smaller;
-    .btn {
-        margin: 1rem;
-        height: auto;
-        padding: 0 10px;
-        mat-divider {
-            width: 180px;
-        }
-    }
-    #google-button {
-        border: none;
-        background: none;
-    }
-}
 form {
-    width: 30rem;
-    @include respond-to(mobile-6x) {
-        width:auto;
-    }
+    width: 30vw;
+}
+.material-symbols-outlined {
+    align-self: baseline;
 }
 
 mat-form-field {
     margin-bottom: 1.2rem;
 }
-.flex-column {
-    p {
-        margin: 5px 1rem;
-    }
-}
-.g-column {
+
+.column {
     align-items: center;
     text-align: center;
     margin: auto;
-}
-
-li {
-    line-height: 2rem;
-    text-indent: -8px;
-    span {
-        font-size: smaller;
-    }
 }

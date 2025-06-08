@@ -1,49 +1,49 @@
 
-<div class="flex-row wrapper info">
+<div class="flex-row block--bordered--md info">
     <span class="icon material-symbols-outlined">info</span>
-    <h3>Appointment time: {{startTime}}, <em>{{date}}</em></h3>
-    <button mat-stroked-button (click)="closeTab()">{{ 'Close' }}</button>
+    <p>Appointment time: {{startTime}}, <em>{{date}}</em></p>
+    <button mat-stroked-button (click)="closeTab()"><p>{{ 'Close' }}</p></button>
 </div>
 <div class="page">
     <div *ngIf="appointment" class="flex-column">
-        <div class="flex-column wrapper">
-            <p class="title">{{ 'Basic Information' }}</p>
+        <div class="flex-column block--bordered--md">
+            <p class="title color--gray--cold--primary">{{ 'Patient Information' }}</p>
             <div class="flex-row">
                 <div class="flex-column">
                     <p>{{ 'Name' }}</p>
-                    <h3 class="font">{{ appointment.patient.firstName }} {{ appointment.patient.lastName }}</h3>
+                    <h5 class="font">{{ appointment.patient.firstName }} {{ appointment.patient.lastName }}</h5>
                 </div>
                 <div class="flex-column">
                     <p>{{ 'Date of Birth' }}</p>
-                    <h3 class="font">{{ formattedDate }}</h3>
+                    <h5 class="font">{{ formattedDate }}</h5>
                 </div>
             </div>
         </div>
-        <div class="flex-column wrapper">
-            <p class="title">{{ 'Contact Details' }}</p>
+        <div class="flex-column block--bordered--md">
+            <p class="title color--gray--cold--primary">{{ 'Patient Contact Details' }}</p>
             <div class="flex-row">
                 <div class="flex-column">
                     <p>{{ 'Phone Number' }}</p>
-                    <h3 *ngIf="appointment.patient.phone" class="font">{{ appointment.patient.phone }}</h3>
+                    <h5 *ngIf="appointment.patient.phone" class="font">{{ appointment.patient.phone }}</h5>
                 </div>
                 <div class="flex-column">
                     <p>{{ 'Email' }}</p>
-                    <h3 *ngIf="appointment.patient.email" class="font">{{ appointment.patient.email }}</h3>
+                    <h5 *ngIf="appointment.patient.email" class="font">{{ appointment.patient.email }}</h5>
                 </div>
             </div>
         </div>
-        <div class="flex-column wrapper" *ngIf="!recordId">
-            <p class="title">{{ 'Medical Record' }}</p>
+        <div class="flex-column block--bordered--md" *ngIf="!recordId">
+            <p class="title color--gray--cold--primary">{{ 'Medical Record' }}</p>
             <div class="flex-row">
                 <div class="flex-column">
                     <button 
                         *ngIf="!record"
                         mat-stroked-button 
                         (click)="createRecord(appointment.id)" 
-                        style=" background-color: rgb(175 111 174 / 40%);" 
+                        class="button--create"
                         [disabled]="isCreating"
                     >
-                        {{ 'Create New Record' }}
+                        <p>{{ 'Create New Record' }}</p>
                     </button>
                 </div>
             </div>

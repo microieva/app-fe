@@ -1,0 +1,21 @@
+.block--bordered {
+  margin:auto;
+  margin-block: clamp(8rem, 10vw, 8rem);
+  position:relative;
+  border: solid 1px;
+  height: 12rem;
+  align-content: center;
+  padding-left: 4rem;
+
+  &__icon{
+    position: absolute;
+    transform: rotate(21deg);
+    color: darkgray;
+    opacity: 0.2;
+
+    font-size: clamp(15rem, 30vw, 34rem);
+    right: -5%;
+    top:-40%;
+  }
+} 
+  

@@ -1,132 +1,22 @@
-@import '../../scss/breakpoints';
+@import '../../scss/variables';
 
-.event-wrapper {
-    width: 25rem;
-    border: 1px solid rgb(111, 143, 175, 40%);
-    border-radius: 3px;
-    margin-bottom: 1rem;
-    &:not(.message) {padding: 1rem;}
-    @include respond-to(desktop-5x){
-        width:40rem;
-        font-size: 2rem;
-        margin-bottom: 2rem;
-        padding-bottom:1rem;
-        .block {
-            margin-top:2rem;
-        }
-        mat-hint {
-            font-size:1.2rem;
-        }
-        .mat-mdc-dialog-actions {
-            margin-top:2rem!important;
-        }
-    }
-    @include respond-to(mobile-6x) {
-        width:auto;
-    }
-}
 .message {
     padding: 0 1rem;
-    background-color: rgb(245,245,245);
-    .event-title {
-        margin-bottom: 10px;  
-    }
-    @include respond-to(desktop-5x){
-        padding-bottom:2rem;
-    }
 }
 
-.event-info {
-    font-weight: 900;
-}
-
-.event-title {
-    margin-bottom: 1rem;
-    font-weight: bold;
-    color: rgb(139, 149, 161);
-    font-size: 11px;
-    @include respond-to(desktop-5x){
-        font-size: 1rem;
-    }
-}
 textarea{
     overflow: hidden;
     resize: none;
 }
-.event-label {
-    font-size: 10px;
-    @include respond-to(desktop-5x){
-        font-size: 1.2rem;
-        margin-bottom:0.5rem;
-        align-self: flex-start;
-    }
-}
-a{
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-}
-.title-hover, a:hover {
-    cursor: pointer;
-    color:  rgb(50, 47, 47); 
-    @include respond-to(desktop-5x){
-        font-size:2rem;
-        
-        &:not(.icon-btn) {
-            margin-bottom:4rem;
-            margin-top:2rem;
-        }
-    }
-}
-.material-icons {
-    height: 8px;
-    width: 8px;
-    margin:0;
+
+.material-icons { 
     &:hover {
         cursor: pointer;
         opacity: 0.4;
     }
-    @include respond-to(desktop-5x){
-        font-size:2rem!important;
-    }
-}
-.icon-btn {
-    position: relative;
-    p {
-        font-weight: 900;
-        position:absolute;
-        left:25px;
-        top:0;
-    }
-    @include respond-to(desktop-5x){
-        line-height: 2rem;
-        font-size:1.8rem;
-        p {
-            text-indent: 1rem;
-            margin-bottom:0.5rem;
-        }
-        &.last {
-            margin-bottom:2rem;
-        }
-    }
 }
 
-.icons {
-    position: absolute;
-    bottom:0;
-    div {
-        margin: 0.5rem;
-    }
-    @include respond-to(desktop-5x){
-        width: 4rem;
-        .material-icons span{
-            font-size: 2rem;;
-        }
-    }
-}
 .form {
-    margin-top:1rem;
-    margin-bottom: 1rem;
     width: 100%;
 }
 .edit-view {

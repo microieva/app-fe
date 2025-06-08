@@ -2,7 +2,7 @@
     #tabGroup
     mat-stretch-tabs="false" 
     mat-align-tabs="start" 
-    class="content" 
+    class="content bg--white--cold" 
     (selectedIndexChange)="onTabChange($event)"
     [(selectedIndex)]="selectedIndex"
 >
@@ -12,13 +12,13 @@
             <span class="tab-label" *ngIf="userRole === 'doctor'">Pending Confirmation</span>
         </ng-template>
         <div>
-            <div class="flex-row wrapper info">
+            <div class="flex-row block--bordered--md info">
                 <span class="icon material-symbols-outlined">info</span>
-                <h3 *ngIf="userRole === 'patient' && countPendingAppointments === 0">Welcome! Here you will see your pending appointments <em>(requests approved within 24 hours)</em></h3> 
-                <h3 *ngIf="userRole === 'patient' && countPendingAppointments !== 0">Here you can view and cancel pending appointments</h3>
-                <h3 *ngIf="userRole === 'doctor' && countPendingAppointments !== 0">Appointments waiting for confirmation</h3>
-                <h3 *ngIf="userRole === 'doctor' && countPendingAppointments === 0">No appointment requests at the moment</h3>
-                <button mat-stroked-button (click)="openCalendar()">{{ 'Open Calendar' }}</button>
+                <p *ngIf="userRole === 'patient' && countPendingAppointments === 0">Welcome! Here you will see your pending appointments <em>(requests approved within 24 hours)</em></p> 
+                <p *ngIf="userRole === 'patient' && countPendingAppointments !== 0">Here you can view and cancel pending appointments</p>
+                <p *ngIf="userRole === 'doctor' && countPendingAppointments !== 0">Appointments waiting for confirmation</p>
+                <p *ngIf="userRole === 'doctor' && countPendingAppointments === 0">No appointment requests at the moment</p>
+                <button class="info__button" mat-stroked-button (click)="openCalendar()"><p>{{ 'Open Calendar' }}</p></button>
             </div>
 
             <div *ngIf="isLoading" class="loading">
@@ -27,39 +27,43 @@
             
             <div class="page" @slideInOut *ngIf="!isLoading">
                 <div *ngIf="userRole === 'patient'">
-                    <div class="btn-block" *ngIf="countPendingAppointments === 0">
+                    <div class="block--bordered--with-btn" *ngIf="countPendingAppointments === 0">
                         <div>
-                            <h3>You are in safe hands!</h3>
-                            <p class="title" style="font-size: 2rem;">Make an appointment for a consultation</p>
-                            <em>Appointment confirmation will be sent by email. Make sure you have provided your correct email address. You can always find your account details on <a [routerLink]="['/user']">My Account page</a>.</em>
+                            <h2 class="title color--gray--cold--primary">You are in safe hands!</h2>
+                            <h4 class="title">Make an appointment for a consultation</h4>
+                            <p><em >Appointment confirmation will be sent by email. Make sure you have provided your correct email address. You can always find your account details on <a [routerLink]="['/user']">My Account page</a>.</em></p>
                         </div>
-                        <button mat-stroked-button (click)="openCalendar()">{{ 'Make an Appointment' }}</button>
+                        <button mat-stroked-button (click)="openCalendar()" class="button--create"><p>{{ 'Make an Appointment' }}</p></button>
                     </div>
     
-                    <div *ngIf="countPendingAppointments > 0" class="page__text-block">  
-                        <div style="margin-bottom: 8rem;">
-                            <h2 class="font">Book appointment:</h2>
-                            <p>Appointment confirmation will be sent by email. Make sure you have provided your correct email address. You can always find your account details on <a [routerLink]="['/home/user']">My Account</a> page.</p>
-                            <button style="margin-top: 2rem;background-color: rgb(175 111 174 / 40%);" mat-stroked-button (click)="openCalendar()">{{ 'Book New Appointment' }}</button>
+                    <div *ngIf="countPendingAppointments > 0" class="page--text-block">  
+                        <div class="block--with-btn">
+                            <div>
+                                <h2 class="font title color--gray--cold--primary">Book appointment</h2>
+                                <p><em>Appointment confirmation will be sent by email. Make sure you have provided your correct email address. You can always find your account details on <a [routerLink]="['/home/user']">My Account</a> page.</em></p>   
+                            </div>
+                            <button class="button--create" mat-stroked-button (click)="openCalendar()"><p>{{ 'Book New Appointment' }}</p></button>
                         </div> 
                         <div>
-                            <h2 class="font">Appointment requests ({{countPendingAppointments}}):</h2>
+                            <div class="flex-row" style="justify-content: flex-start;">
+                                <h4 class="font title color--main--secondary">Pending confirmation</h4>
+                                <span class="title--count">{{countPendingAppointments}}</span>
+                            </div>
                             <p>Currently you have {{countPendingAppointments}} appointment requests waiting for doctor's confirmation. Once a doctor accepts your appointment request, you will receive confirmation to your email address.</p>
                         </div>
                     </div>
 
                 </div>
+               
                 <div *ngIf="userRole === 'doctor'" >
-                    <div *ngIf="countPendingAppointments === 0" class="btn-block">
-                        <span class="material-symbols-outlined" id="bg-icon">
-                            folder_open
-                        </span>
-                        <h1>No appointment requests</h1>
-                    </div>
-                    
-                    <div *ngIf="countPendingAppointments > 0" class="page__text-block">  
+                    <app-no-content *ngIf="countPendingAppointments === 0" message="No appointment requests"></app-no-content>
+                    <div *ngIf="countPendingAppointments > 0" class="page--text-block">  
                         <div>
-                            <h2 class="font">Appointment requests ({{countPendingAppointments}}):</h2>
+                            <div class="flex-row" style="justify-content: flex-start;">
+                                <h4 class="font title color--main--secondary">Appointment requests</h4>
+                                <span class="title--count">{{countPendingAppointments}}</span>
+                            </div>
+                            <!-- <h4 class="font title color--main--secondary">Appointment requests ({{countPendingAppointments}}):</h4> -->
                             <p>Currently there are {{countPendingAppointments}} appointment requests waiting for confirmation. Please prioritize soonest requests.</p>
                         </div>
                     </div>   
@@ -97,43 +101,38 @@
             <span class="tab-label" *ngIf="userRole === 'doctor'">Accepted Appointments</span>
         </ng-template>
         <div>
-            <div class="flex-row wrapper info">
+            <div class="flex-row block--bordered--md info">
                 <span class="icon material-symbols-outlined">info</span>
-                <h3 *ngIf="countUpcomingAppointments !== 0">Your appointments 
+                <p *ngIf="countUpcomingAppointments !== 0">Your appointments 
                     <em *ngIf="userRole === 'doctor'">(next starts at {{nextAppointmentStartTime}})</em>
-                </h3>
-                <h3 *ngIf="userRole === 'doctor' && countUpcomingAppointments === 0">You have no future appointments at the moment</h3>
-                
-                <h3 *ngIf="userRole === 'patient' && countUpcomingAppointments === 0">Here will be displayed your upcoming appointments after doctor's confirmation</h3>
-                <button mat-stroked-button (click)="openCalendar()">{{ 'Open Calendar' }}</button>
+                </p>
+                <p *ngIf="userRole === 'doctor' && countUpcomingAppointments === 0">You have no future appointments at the moment</p>   
+                <p *ngIf="userRole === 'patient' && countUpcomingAppointments === 0">Here will be displayed your upcoming appointments after doctor's confirmation</p>
+                <button class="info__button" mat-stroked-button (click)="openCalendar()"><p>{{ 'Open Calendar' }}</p></button>
             </div>
 
             <div class="page">
+                <app-no-content *ngIf="countUpcomingAppointments === 0" message="No appointments"></app-no-content>
                 <div *ngIf="userRole === 'patient'">   
-                    <div *ngIf="countUpcomingAppointments > 0;" class="page__text-block">
-                        <h2 class="font">Confirmed appointments:</h2>
+                    <div *ngIf="countUpcomingAppointments > 0;" class="page--text-block">
+                        <div class="flex-row" style="justify-content: flex-start;">
+                            <h4 class="font title color--main--secondary">Confirmed appointments</h4>
+                            <span class="title--count">{{countUpcomingAppointments}}</span>
+                        </div>
+                        <!-- <h4 class="font title color--main--secondary">Confirmed appointments:</h4> -->
                         <p *ngIf="countUpcomingAppointments===1">Currently you have {{countUpcomingAppointments}} upcoming appointment.</p>
                         <p *ngIf="countUpcomingAppointments>1">Currently you have {{countUpcomingAppointments}} upcoming appointments.</p>
                     </div>
-                    <div *ngIf="countUpcomingAppointments === 0;" class="btn-block">
-                        <span class="material-symbols-outlined" id="bg-icon">
-                            folder_open
-                        </span>
-                        <h1>No appointments</h1>
-                    </div>
                 </div>
                 <div *ngIf="userRole === 'doctor'">  
-                    <div *ngIf="countUpcomingAppointments > 0" class="page__text-block">
-                        <h2 class="font">Next appointments:</h2>
+                    <div *ngIf="countUpcomingAppointments > 0" class="page--text-block">
+                        <div class="flex-row" style="justify-content: flex-start;">
+                                <h4 class="font title color--main--secondary">Next appointments</h4>
+                                <span class="title--count">{{countUpcomingAppointments}}</span>
+                        </div>
                         <p *ngIf="countUpcomingAppointments === 1">Currently there is {{countUpcomingAppointments}} upcoming appointment in your calendar.</p>
                         <p *ngIf="countUpcomingAppointments > 1">Currently there are {{countUpcomingAppointments}} upcoming appointments in your calendar.</p>
                    
-                    </div>
-                    <div *ngIf="countUpcomingAppointments === 0;" class="btn-block">
-                        <span class="material-symbols-outlined" id="bg-icon">
-                            folder_open
-                        </span>
-                        <h1>No appointments</h1>
                     </div>
                 </div>
                
@@ -167,38 +166,33 @@
         <ng-template mat-tab-label>
             <span class="tab-label">Past</span>
         </ng-template>
-        <div class="flex-row wrapper info">
+        <div class="flex-row block--bordered--md info">
             <span class="icon material-symbols-outlined">info</span>
-            <h3 *ngIf="userRole === 'patient' && countPastAppointments === 0">Here you will find your past appointments</h3> 
-            <h3 *ngIf="userRole === 'patient' && countPastAppointments !== 0">Your past appointments <em>(newest to oldest)</em></h3>
-            <h3 *ngIf="userRole === 'doctor' && countPastAppointments !== 0">Archive <em>(newest to oldest)</em></h3>
-            <h3 *ngIf="userRole === 'doctor' && countPastAppointments === 0">Empty archive</h3>
-            <button mat-stroked-button (click)="openCalendar()">{{ 'Open Calendar' }}</button>
+            <p *ngIf="userRole === 'patient' && countPastAppointments === 0">Here you will find your past appointments</p> 
+            <p *ngIf="userRole === 'patient' && countPastAppointments !== 0">Your past appointments <em>(newest to oldest)</em></p>
+            <p *ngIf="userRole === 'doctor' && countPastAppointments !== 0">Archive <em>(newest to oldest)</em></p>
+            <p *ngIf="userRole === 'doctor' && countPastAppointments === 0">Empty archive</p>
+            <button class="info__button" mat-stroked-button (click)="openCalendar()"><p>{{ 'Open Calendar' }}</p></button>
         </div>
         <div>
             <div class="page">
+                <app-no-content *ngIf="countPastAppointments === 0" message="No previous appointments"></app-no-content>
                 <div *ngIf="userRole === 'patient'">   
-                    <div *ngIf="countPastAppointments === 0" class="page__text-block">
-                        <h2 class="font">Previous visits:</h2>
+                    <div *ngIf="countPastAppointments === 0" class="page--text-block">
+                        <div class="flex-row" style="justify-content: flex-start;">
+                            <h4 class="font title color--main--secondary">Previous visits</h4>
+                            <span class="title--count">{{countPastAppointments}}</span>
+                        </div>
                         <p *ngIf="countPastAppointments===1">You had {{countPastAppointments}} appointment.</p>
                         <p *ngIf="countPastAppointments>1">Previously you had {{countPastAppointments}} appointments.</p>
                     </div>
-                    <div *ngIf="countPastAppointments ===0" class="btn-block">
-                        <span class="material-symbols-outlined" id="bg-icon">
-                            folder_open
-                        </span>
-                        <h1>No appointments</h1>
-                    </div>
                 </div>
                 <div *ngIf="userRole === 'doctor'">  
-                    <div *ngIf="countPastAppointments ===0" class="btn-block">
-                        <span class="material-symbols-outlined" id="bg-icon">
-                            folder_open
-                        </span>
-                        <h1>No appointments</h1>
-                    </div>
-                    <div *ngIf="countPastAppointments>0" class="page__text-block">
-                        <h2 class="font">Previous appointments:</h2>
+                    <div *ngIf="countPastAppointments>0" class="page--text-block">
+                        <div class="flex-row" style="justify-content: flex-start;">
+                            <h4 class="font title color--main--secondary">Previous appointments</h4>
+                            <span class="title--count">{{countPastAppointments}}</span>
+                        </div>
                         <p *ngIf="countPastAppointments===1">{{countPastAppointments}} appointment in the archive. Appointments without medical record are blocked from deleting.</p>
                         <p *ngIf="countPastAppointments>1">{{countPastAppointments}} appointments in the archive. Appointments without medical record are blocked from deleting.</p>
                     </div>

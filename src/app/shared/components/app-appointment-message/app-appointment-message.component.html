@@ -1,8 +1,5 @@
 <mat-dialog-content>
-    <div class="title"  mat-dialog-title >  
-        <span class="material-symbols-outlined">add_comment</span>
-        <h4>{{ 'Additional information' }}</h4>
-    </div>
+    <h4 class="title">{{ 'Additional information' }}</h4>
     <mat-form-field style="width:100%;margin:1rem 0;">
         <mat-label>{{ 'Add message' }}</mat-label>
         <textarea matInput #message maxlength="700" #textarea  (input)="adjustHeight($event)"></textarea>
@@ -10,7 +7,7 @@
     </mat-form-field>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-    <button type="submit" mat-button id="confirm-btn" [mat-dialog-close]="true" cdkFocusInitial (click)="onSaveClick(message.value)">{{'Save'}}</button>
-    <button type="button" mat-button (click)="onCancelClick()">{{'Cancel'}}</button>
+    <button type="submit" mat-button id="confirm-btn" [mat-dialog-close]="true" cdkFocusInitial (click)="onSaveClick(message.value)"><p>{{'Save'}}</p></button>
+    <button type="button" mat-button (click)="onCancelClick()"><p>{{'Cancel'}}</p></button>
 </mat-dialog-actions>
 

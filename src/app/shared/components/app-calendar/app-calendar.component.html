@@ -3,23 +3,22 @@
     <app-loading></app-loading>
 </div>
 <div class="flex-column" *ngIf="!isLoading">
-    <div class="legend">
+    <h4 class="font title color--main--secondary" *ngIf="role !== 'admin'">View Appointments</h4>
+    <div style="margin-bottom:4rem;" *ngIf="role !== 'admin'">
         <mat-radio-group
             
             [(ngModel)]="selectedAppointments"
             >
             @for (appointmentSelection of appointmentSelections; track appointmentSelection) {
                 <mat-radio-button 
+                    #radioButton
                     [value]="appointmentSelection" 
                     (change)="onCheckboxChange(appointmentSelection)"
                 >
-                    {{appointmentSelection}}
+                    <p [class.font-bold]="radioButton.checked">{{appointmentSelection}}</p>
                 </mat-radio-button>
             }
         </mat-radio-group>
     </div>
-    <full-calendar
-        [options]="calendarOptions"
-    >
-    </full-calendar>
+    <full-calendar [options]="calendarOptions"></full-calendar>
 </div>

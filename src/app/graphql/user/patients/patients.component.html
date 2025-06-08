@@ -1,14 +1,17 @@
-<div class="flex-row wrapper info">
+<div class="flex-row block--bordered--md info">
     <span class="icon material-symbols-outlined">info</span>
-    <h3>Search by patient's name to create an appointment</h3> 
+    <p>Search by patient's name to create an appointment</p> 
     <span>{{' '}}</span>
 </div>
-<div *ngIf="!countPatients" class="loading">
+<div *ngIf="!countPatients" >
     <app-loading></app-loading>
 </div>
 <div class="page" @slideInOut>
-    <div class="page__text-block">
-        <h2 class="font">Registered patients:</h2>
+    <div class="page--text-block">
+         <div class="flex-row" style="justify-content: flex-start;">
+            <h4 class="font title color--main--secondary">Registered patients</h4>
+            <span class="title--count">{{countPatients}}</span>
+        </div>
         <p *ngIf="countPatients === 1">Currently there is {{countPatients}} patient registered in this health center.</p>
         <p *ngIf="countPatients > 1">Currently there are {{countPatients}} patients registered in this Health Center.</p>
     </div>

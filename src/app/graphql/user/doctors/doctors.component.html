@@ -1,7 +1,7 @@
 <mat-tab-group 
     mat-stretch-tabs="false" 
     mat-align-tabs="start" 
-    class="content" 
+    class="content bg--white--cold" 
     (selectedIndexChange)="onTabChange($event)"
     [(selectedIndex)]="selectedIndex"
 >
@@ -10,25 +10,23 @@
             <span class="tab-label">New Requests</span>
         </ng-template>
         <div>
-            <div class="flex-row wrapper info">
+            <div class="flex-row block--bordered--md info">
                 <span class="icon material-symbols-outlined">info</span>
-                <h3 *ngIf="countRequests > 0">Pending approval</h3> 
-                <h3 *ngIf="countRequests === 0">No new account activation requests at the moment</h3> 
+                <p *ngIf="countRequests > 0">Pending approval</p> 
+                <p *ngIf="countRequests === 0">No new account activation requests at the moment</p> 
                 <span>{{' '}}</span>
             </div>
-            <div *ngIf="isLoading" class="loading">
+            <div *ngIf="isLoading" class="loading"  >
                 <app-loading></app-loading>
             </div>
             <div class="page" #scrollView @slideInOut *ngIf="countRequests && !isLoading">
-                <div *ngIf="countRequests === 0" class="btn-block">
-                    <span class="material-symbols-outlined" id="bg-icon">
-                        folder_open
-                    </span>
-                    <h1>No requests</h1>
-                </div>
+                <app-no-content *ngIf="countRequests===0" message="No requests"></app-no-content>
                 <div *ngIf="countRequests>0">
-                    <div class="page__text-block">
-                        <h2 class="font">Account activation requests:</h2>
+                    <div class="page--text-block">
+                        <div class="flex-row" style="justify-content: flex-start;">
+                            <h4 class="font title color--main--secondary">Account activation requests</h4>
+                            <span class="title--count">{{countRequests}}</span>
+                        </div>
                         <p *ngIf="countRequests === 1">Currently there is {{countRequests}} doctor account activation request.</p>
                         <p *ngIf="countRequests > 1">Currently there are {{countRequests}} doctor account activation requests.</p>
                     </div>
@@ -62,17 +60,20 @@
             <span class="tab-label">Active Accounts</span>
         </ng-template>
         <div>
-            <div class="flex-row wrapper info">
+            <div class="flex-row block--bordered--md info">
                 <span class="icon material-symbols-outlined">info</span>
-                <h3>Active doctor accounts</h3>
+                <p>Active doctor accounts</p>
                 <span>{{' '}}</span>
             </div>
-            <div *ngIf="isLoading" class="loading">
+            <div *ngIf="isLoading" class="loading"  >
                 <app-loading></app-loading>
             </div>
             <div class="page" *ngIf="!isLoading">
-                <div>
-                    <h2 class="font">Doctors:</h2>
+                <div class="page--text-block">
+                     <div class="flex-row" style="justify-content: flex-start;">
+                            <h4 class="font title color--main--secondary">Doctors</h4>
+                            <span class="title--count">{{countDoctors}}</span>
+                        </div>
                     <p *ngIf="countDoctors === 1">Currently there is {{countDoctors}} doctor in this health center.</p>
                     <p *ngIf="countDoctors > 1">Currently there are {{countDoctors}} active doctor accounts.</p>
                 </div>

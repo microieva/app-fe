@@ -1,11 +1,10 @@
 @import '../../scss/breakpoints';
+@import '../../scss/variables';
 
 table {
     button {
-        background-color: rgb(139,149,161);
         height: 1.8rem;
         width: 8rem;
-        font-size: 10px;
         text-wrap:nowrap;
     }
     box-shadow: none;
@@ -28,16 +27,12 @@ mat-form-field {
 }
 .mat-mdc-row:hover {
     cursor: pointer;
-    background-color:rgb(204 212 219);
-    
+    background-color: $--color-white-cold;
 }
 .mat-label{
     font-weight: 100;
 }
-em {
-    color:  rgb(78, 84, 90);
-    font-size: smaller;
-}
+
 .details {
     width: 70%;
     align-self: center;
@@ -45,10 +40,7 @@ em {
 .mark-appointment {
     background-color: aqua;
 }
-.title {
-    margin-bottom:0;
-    color: rgb(78, 84, 90);
-}
+
 .clickable {
     margin: 1rem auto;
 }
@@ -73,26 +65,24 @@ button {
     height: 8px;
     width: 8px;
     border-radius: 50%;
-    background-color: rgb(44, 135, 44);
     margin-left: 0.5rem;
 }
 .offline-dot {
     height: 8px;
     width: 8px;
     border-radius: 50%;
-    background-color: rgb(145 146 157);
     margin-left: 0.5rem;
 }
 
-@keyframes blink {
+@keyframes blink { 
     0% {
-      background-color: rgb(119, 134, 154);
+      background-color: $--color-gray-cold-secondary;
     }
     50% {
       background-color: initial; 
     }
     100% {
-      background-color: rgb(119, 134, 154);
+      background-color: $--color-gray-cold-secondary;
     }
 }
   
@@ -100,12 +90,6 @@ button {
     animation: blink 1s infinite; 
 }
 
-.material-symbols-outlined{
-    color: rgb(119, 134, 154);
-    @include respond-to(mobile-xx) {
-        font-size:1.2rem;
-    }
-}
 .table {
     padding: 2rem;
     width: 65rem;
@@ -122,19 +106,14 @@ button {
 }
 
 .mat-mdc-header-row {
-    background: rgb(204 212 219);
+    background: $--color-gray-cold-secondary;
     .mat-mdc-header-cell {
         --mat-table-row-item-outline-color: rgb(78, 84, 90);
         font-weight: 800;
-        line-height: 4rem;
-        @include respond-to(mobile-6x){    
-            line-height: 2rem;
-        }
     }
 }
 
 .action {
-    display:inline-flex;
     padding-top:5px;
     width: 2.5rem;
 }
@@ -142,9 +121,15 @@ button {
 .bold-row {
     font-weight: 900;
 }
+.table-row {
+    border: 1px solid black;
+    &:hover {
+        background-color: $--color-gray-cold-secondary;
+    }
+}
+
 .mat-column-checkbox {
     max-width: 3rem;
- 
 }
 .mat-column-unreadMessages,
 .mat-column-draft {
@@ -175,6 +160,7 @@ button {
 .mat-column-unreadMessages.mat-mdc-cell {
     text-align: center;
 }
+
 .mat-column-name, 
 .mat-column-lastOnline, 
 .mat-column-email, 
@@ -190,35 +176,26 @@ button {
         min-width:6rem;
     }
 }
-.mat-column-name.mat-mdc-cell {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    line-height: 3rem;
+
+.mat-mdc-cell {
     .icon {
-        height: 3rem;
         margin-left: 5px;
-        padding-top: 15px;
+        span {
+            line-height:3rem;
+        }
     }
 }
 
 .status {
     width: 4.5rem;
-    height: 2rem;
+    height: 1.6rem;
     border-radius: 17px;
     align-items: center;
     justify-content: space-evenly;
     @include respond-to(mobile-6x) {
         width:3.5rem;
     }
-    &.offline {
-        background-color: rgb(197, 197, 197);
-    }
-    &.online {
-        background-color: rgb(182 212 179 / 89%);
-    }
     p {
-        //padding-right: 12px;
         font-weight: 900;
         opacity: 0.5;
     }

@@ -1,0 +1,27 @@
+$--font-size-h1: clamp(3rem, 6vw, 6.5rem); 
+$--font-size-h2: clamp(1.75rem, 4vw, 2.5rem);
+$--font-size-h3: clamp(1.25rem, 3.5vw, 2rem);
+$--font-size-h4: clamp(1rem, 2.8vw, 1.4rem);
+$--font-size-h5: clamp(0.8rem, 1vw, 1rem);
+$--font-size-p: clamp(0.6rem, 1vw, 0.8rem);
+
+
+$--color-pink-primary: #8b0088b3;  
+$--color-pink-secondary: rgb(213 159 212 / 90%); 
+$--color-pink-cloudy-primary: #734872bf; 
+$--color-pink-cloudy-secondary: #af6faee6;      
+
+$--color-green-primary: #2c872c;
+$--color-green-secondary: #b6d4b3e3; 
+
+$--color-white-warm: #edeaea;
+$--color-white-cold: #c6cdd9; 
+
+$--color-gray-cold-secondary: #b4bfcb; 
+$--color-gray-cold-primary: rgba(111, 143, 175, 0.4); 
+
+$--color-gray-warm-secondary: #a9a9a9;      
+$--color-gray-warm-primary: #848484;
+
+$--color-main: #444141;  
+$--color-sidenav: #606262;  
