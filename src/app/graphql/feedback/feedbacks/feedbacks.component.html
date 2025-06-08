@@ -1,31 +1,30 @@
 <mat-tab-group 
     mat-stretch-tabs="false" 
     mat-align-tabs="start" 
-    class="content" 
+    class="content bg--white--cold" 
 >
     <mat-tab label="feedback">
         <ng-template mat-tab-label>
             <span class="tab-label">Customer Feedback</span>
         </ng-template>
         <div>
-            <div class="flex-row wrapper info">
+            <div class="flex-row block--bordered--md info">
                 <span class="icon material-symbols-outlined">info</span>
-                <h3 *ngIf="countFeedback > 0">Feedback from Health Center website</h3> 
-                <h3 *ngIf="countFeedback === 0">No feedback yet</h3> 
+                <p *ngIf="countFeedback > 0">Feedback from Health Center website</p> 
+                <p *ngIf="countFeedback === 0">No feedback yet</p> 
                 <span>{{' '}}</span>
             </div>
-            <div *ngIf="isLoading" class="loading">
+            <div *ngIf="isLoading" class="loading"  >
                 <app-loading></app-loading>
             </div>
-            <div *ngIf="countFeedback ===0" class="btn-block">
-                <span class="material-symbols-outlined" id="bg-icon">
-                    folder_open
-                </span>
-                <h1>No feedback yet</h1>
-            </div>
+            <app-no-content *ngIf="countFeedback===0" message="No feedback"></app-no-content>
+            
             <div class="page" @slideInOut *ngIf="!isLoading && countFeedback>0">
-                <div class="page__text-block">
-                    <h2 class="font">Customer feedback ({{countFeedback}}):</h2>
+                <div class="page--text-block">
+                    <div class="flex-row" style="justify-content: flex-start;">
+                        <h4 class="font title color--main--secondary">Customer feedback</h4>
+                        <span class="title--count">{{countFeedback}}</span>
+                    </div>
                     <p>Unread: {{countUnread}}</p>
                 </div>
                 <div class="table-wrapper">

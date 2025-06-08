@@ -1,4 +1,5 @@
 @import '../../scss/mixins';
+@import '../../scss/variables';
 
 .ai-assistant {   
     z-index: 4;
@@ -13,21 +14,19 @@
         left: 4rem;
     }
     .expanded {
-        background-color: rgb(245, 245, 245);
         border-radius:2rem;
         flex-direction: column-reverse;
         height: 35rem;
         width:26rem;
         .header {
             height:1rem;
-            background-color: rgb(175 111 174 / 90%);
+            background-color: $--color-pink-cloudy-secondary;;
             width:100%;
             height:5rem;
             border-top-left-radius: 2rem;
             border-top-right-radius: 2rem;
             span {
                 float: right;
-                font-size: 3rem;
                 line-height: 1rem;
                 color:white;
                 margin-right:1rem;
@@ -43,14 +42,10 @@
     .minimized {
         height:5.4rem;
         width:5.4rem;
-        background-color: rgb(175 111 174 / 90%);
+        background-color: $--color-pink-cloudy-secondary;;
         border-radius: 50%;
         text-align: center;
         box-shadow: 0 0 14px 11px rgb(18 17 17 / 50%);
-        span {
-            font-size: 5rem;
-
-        }
         &:hover {
             cursor: pointer;
             box-shadow: 0 0 14px 11px white;
@@ -58,9 +53,6 @@
                 color:white;
             }
         }
-    }
-    textarea {
-        font-size: initial;
     }
     form {
         padding: 0 1rem;
@@ -74,10 +66,10 @@
             line-height: 5.4rem;
             text-align:center;
             border-radius: 50%;
-            border: 1px dotted #848484;
+            border: 1px dotted $--color-gray-warm-primary;
             margin-left:1rem;
             span {
-                color: #848484;
+                color: $--color-gray-warm-primary;
             }
             &:hover {
                 opacity:0.6;
@@ -85,7 +77,6 @@
             }
         }
         .material-symbols-outlined {   
-            font-size: 2rem;
             font-variation-settings:
             'FILL' 1,
             'wght' 400,
@@ -125,12 +116,12 @@
     max-width:80%;
 }
 .incoming {
-    background-color: rgb(175 111 174 / 40%);   
+    //background-color: rgb(175 111 174 / 40%);   
     align-self: flex-end;    
 }
 .outgoing {
-    background-color: rgb(215 222 230);
-    border: 1px solid rgb(111, 143, 175, 40%);
+    //background-color: rgb(214, 222, 230);
+    border: 1px solid $--color-gray-cold-primary;
     float: inline-end;
 }
 .size {

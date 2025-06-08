@@ -1,5 +1,6 @@
 @import '../../scss/mixins';
 @import '../../scss/breakpoints';
+@import '../../scss/variables';
 
 .mat-accordion {
     --mat-expansion-container-background-color: transparent;
@@ -7,31 +8,31 @@
     --mat-expansion-header-expanded-state-height:100%;
     --mat-expansion-header-hover-state-layer-color:none;
     --mat-expansion-container-shape:none;
-    --mat-expansion-container-text-color: rgb(214, 222, 230);
-    --mdc-outlined-text-field-outline-color:rgb(214, 222, 230);
-    --mdc-outlined-text-field-focus-outline-color:rgb(214, 222, 230);
+    --mat-expansion-container-text-color: $--color-white-cold;
+    --mdc-outlined-text-field-outline-color:$--color-white-cold;
+    --mdc-outlined-text-field-focus-outline-color:$--color-white-cold;
 
-    --mdc-filled-text-field-focus-label-text-color:rgb(214, 222, 230);
-    --mdc-filled-text-field-focus-active-indicator-color:rgb(214, 222, 230);
-    --mdc-outlined-text-field-label-text-color:rgb(214, 222, 230);
-    --mdc-outlined-text-field-focus-label-text-color:rgb(214, 222, 230);
-    --mdc-outlined-text-field-input-text-color:rgb(214, 222, 230);
-    --mdc-outlined-text-field-caret-color:rgb(214, 222, 230);
+    --mdc-filled-text-field-focus-label-text-color:$--color-white-cold;
+    --mdc-filled-text-field-focus-active-indicator-color:$--color-white-cold;
+    --mdc-outlined-text-field-label-text-color:$--color-white-cold;
+    --mdc-outlined-text-field-focus-label-text-color:$--color-white-cold;
+    --mdc-outlined-text-field-input-text-color:$--color-white-cold;
+    --mdc-outlined-text-field-caret-color:$--color-white-cold;
     --mat-form-field-container-text-weight:900;
     --mat-form-field-container-text-size:22px;
 
-    --mdc-checkbox-selected-icon-color: rgb(214, 222, 230);
-    --mdc-checkbox-selected-icon-color:rgb(214, 222, 230);
-    --mdc-checkbox-selected-hover-icon-color:rgb(214, 222, 230);
-    --mdc-checkbox-selected-hover-state-layer-color: rgb(214, 222, 230);
-    --mdc-checkbox-selected-pressed-icon-color:rgb(214, 222, 230);
-    --mdc-checkbox-selected-focus-state-layer-color:rgb(214, 222, 230);
-    --mdc-checkbox-selected-focus-icon-color:rgb(214, 222, 230);
-    --mdc-checkbox-selected-pressed-state-layer-color:rgb(214, 222, 230);
-    --mdc-checkbox-unselected-icon-color:rgb(214, 222, 230);
-    --mdc-checkbox-unselected-focus-icon-color:rgb(214, 222, 230);
-    --mdc-checkbox-unselected-focus-state-layer-color:rgb(214, 222, 230);
-    --mdc-checkbox-unselected-hover-state-layer-color:rgb(214, 222, 230);
+    --mdc-checkbox-selected-icon-color: $--color-white-cold;
+    --mdc-checkbox-selected-icon-color:$--color-white-cold;
+    --mdc-checkbox-selected-hover-icon-color:$--color-white-cold;
+    --mdc-checkbox-selected-hover-state-layer-color: $--color-white-cold;
+    --mdc-checkbox-selected-pressed-icon-color:$--color-white-cold;
+    --mdc-checkbox-selected-focus-state-layer-color:$--color-white-cold;
+    --mdc-checkbox-selected-focus-icon-color:$--color-white-cold;
+    --mdc-checkbox-selected-pressed-state-layer-color:$--color-white-cold;
+    --mdc-checkbox-unselected-icon-color:$--color-white-cold;
+    --mdc-checkbox-unselected-focus-icon-color:$--color-white-cold;
+    --mdc-checkbox-unselected-focus-state-layer-color:$--color-white-cold;
+    --mdc-checkbox-unselected-hover-state-layer-color:$--color-white-cold;
 
     --mdc-checkbox-disabled-selected-icon-color:darkgrey;
     --mdc-checkbox-disabled-selected-checkmark-color:transparent;
@@ -40,10 +41,10 @@
 
     --mdc-outlined-text-field-error-focus-label-text-color:orange;
     --mdc-outlined-text-field-error-label-text-color:orange;
-    --mdc-outlined-text-field-error-caret-color:rgb(214, 222, 230);
-    --mdc-outlined-text-field-error-outline-color:rgb(214, 222, 230);
-    --mdc-outlined-text-field-error-focus-outline-color:rgb(214, 222, 230);
-    --mdc-outlined-text-field-error-hover-label-text-color:rgb(214, 222, 230);
+    --mdc-outlined-text-field-error-caret-color:$--color-white-cold;
+    --mdc-outlined-text-field-error-outline-color:$--color-white-cold;
+    --mdc-outlined-text-field-error-focus-outline-color:$--color-white-cold;
+    --mdc-outlined-text-field-error-hover-label-text-color:$--color-white-cold;
     --mdc-outlined-text-field-error-hover-outline-color:orange;
     --mdc-outlined-text-field-label-text-size: 14px;
 
@@ -56,24 +57,16 @@
     --mdc-form-field-label-text-weight:900;
     --mdc-form-field-label-text-color:rgb(214, 222, 230)!important;
 }
+
 .page {
     width: 70%;
     height:auto;
-    @include respond-to(mobile-and-tablet) {
-        width: 80%;
-        max-width:80%;
-    }
-    @include respond-to(mobile-6x) {
-        width: 90%;
-        max-width:90%;
-        padding:0;
-    }
 }
 .content-view-wrapper {
     max-width: 120rem;
     display: flex; 
     flex-direction: column;
-    background-color:rgb(188, 198, 210);
+    background-color: $--color-white-cold;
     z-index: 1;
     position:absolute;
     overflow: hidden;
@@ -88,7 +81,7 @@ h2 {
 .img-wrapper {
     position: absolute;
     z-index: 0;
-    mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+    mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
     overflow: hidden;
     height: calc(100vh * 9/16); 
     width:100%;
@@ -106,12 +99,8 @@ h2 {
         margin-top: clamp(5rem, 12vw, 16rem);
     }
     &__title {
-        font-size: clamp(1rem, 2vw, 2.5rem);
         align-self: center;
         margin-bottom: clamp(2rem, 4vw, 6rem);
-    }
-    p {
-        font-size: clamp(0.8rem, 2vw, 1rem);
     }
 
     &__top {
@@ -119,13 +108,13 @@ h2 {
         margin-bottom: clamp(4rem, 4vw, 6rem);
     }
     &__personel {
-        color: rgb(245,245,245);
+        color: $--color-white-warm;
         width: 85%;
         margin:auto;
         justify-self: center; 
     }
     &__feedback {
-        color: rgb(245,245,245);
+        color: $--color-white-warm;
         padding: 0 1rem;
         .flex-row {
             width: 100%;
@@ -137,11 +126,10 @@ h2 {
         }
     }
     &__follow-us {
-        color: rgb(245,245,245);
+        color: $--color-white-warm;
         width: 80%;
         margin: auto;
         span {
-            font-size: clamp(2rem, 5vw, 3rem);
             transition: all 0.1s ease;
             &:hover {
                 cursor: pointer;
@@ -150,45 +138,14 @@ h2 {
         }
     }
 }
-.border {
-    width:50%;
-    @include respond-to(mobile-6x) { 
-        width:90%;
-    }
-    border: 1px solid;
-    padding: 0.2rem 1rem;
-    margin: 0.2rem;
-    height: clamp(0.6rem, 1.8vw, 1.8rem); 
-    line-height: clamp(0.6rem, 1.8vw, 1.8rem); 
-    h2 {
-        width: max-content;
-        font-size: clamp(0.6rem, 1.5vw, 1rem);
-        font-weight: 400;
-    }
-    span {
-        font-size: clamp(1rem, 3vw, 1.5rem);
-        line-height: clamp(0.6rem, 2vw, 1.5rem); 
-        width: 1rem;
-        float: right;
-    }
-    @include respond-to(mobile-6x) {
-        &__icon {
-            width:1rem;
-        }
-    }
-    &__pink {
-        border-color: rgba(188, 90, 186, 0.9);
-        color: rgba(188, 90, 186, 0.9);
-    }
-    &__white {
-        border-color: rgb(245,245,245);
-        color: rgb(245,245,245);
-    }
+
+.block--bordered--sm p {
+    font-size: larger;
 }
 
 .text-block {
     border-radius: 5px;
-    width: 70%;
+    width: 100%;
     position: absolute;
     top: 512px; 
     background: linear-gradient(to bottom, transparent 0%, rgb(138 155 174));
@@ -197,16 +154,6 @@ h2 {
     flex-direction: column-reverse;
     align-items: center;
     transition: height 0.5s ease-in-out;
-
-    @include respond-to(mobile-and-tablet) {
-        width:80%;
-    }
-    @include respond-to(mobile-6x) {
-       width: 90%;
-        &.mat-expansion-panel-body {
-            padding: 0;
-        }
-    }
 }
 .slide-block {
     position: relative;
@@ -215,25 +162,21 @@ h2 {
 }
 
 footer {
-    background-color: #F5F5F5;
+    background-color: $--color-white-warm;
     height: 20rem;
     position: absolute;
     bottom: 0;
     width: 100%;
-    font-size: smaller;
     @include respond-to(tablet) {
         height:20rem;
     }
     @include respond-to(mobile) {
-        font-size:0.8rem;
         height:18rem;
     }
     @include respond-to(mobile-x) {
-        font-size:smaller;
         height:18rem;
     }
     @include respond-to(mobile-6x) {
-        font-size:10px;
         height:15rem;
     }
 }
@@ -264,23 +207,32 @@ footer {
 .accordion-wrapper {
     width:80%;
     margin-bottom:4rem;
+    p {
+        font-size: larger;
+    }
     @include respond-to(mobile-and-tablet) {
         width:90%;
     }
 }
-
+#stamp {
+    transform: translateY(-50%) rotate(24deg);
+    position: absolute;
+    height: 43rem;
+    top: 10rem;
+    left: 26rem;
+    z-index: -1;
+    opacity: 0.2;
+}
 .bg {
-    font-size: clamp(1.8rem, 6vw, 8rem);
-    color: #6c7682;
+    opacity:0.7;
     margin:0;
     margin-bottom: clamp(1rem, 2vw + 0.5rem, 3rem);
 }
 .sm {
     float: right;
-    color: rgb(245,245,245);
+    color: $--color-white-warm;
     font-weight: 600;
     margin:0 0 auto auto;
-    font-size: clamp(1rem, 2vw, 3rem);
 }
 .click {
     font-family: "Special Elite", system-ui;
@@ -288,8 +240,8 @@ footer {
     width: 100%;
    
     &h2:hover {
-        background-color: rgb(175 111 174 / 40%);
-        color: #F5F5F5;
+        background-color: $--color-pink-cloudy-primary;;
+        color: $--color-white-warm;
         cursor: pointer;
     }
 }
@@ -300,7 +252,7 @@ footer {
     display: flex;
     flex-direction: column;
     align-items: baseline;
-    color:  rgb(245,245,245);
+    color:  $--color-white-warm;
     @include respond-to(mobile-6x) {
         padding-top:0;
         margin:0;
@@ -341,10 +293,7 @@ footer {
     }
     @include respond-to(mobile-6x) {
         height:5.5rem;
-        width: 5.5rem;
-        &p {
-            font-size:10px;
-        }   
+        width: 5.5rem;  
     }
 }
 img {
@@ -354,7 +303,7 @@ img {
 }
 .row {
     width: 40rem;
-    border: 1px solid #F5F5F5;
+    border: 1px solid $--color-white-warm;
     .row-img-wrapper {
         width: 6rem;
         height: 6rem;
@@ -402,7 +351,7 @@ textarea{
         cursor: pointer;
     }
     .material-symbols-outlined {
-        color:  rgb(214, 222, 230);
+        color:  $--color-white-cold;
         font-size: 3rem;
         font-variation-settings:
             'FILL' 1,
@@ -413,12 +362,9 @@ textarea{
     &.right{
         margin-top:2rem;
         align-self: flex-end;
-
     }
 }
-mat-hint {
-    font-size: 0.8rem;
-}
+
 .section {
     margin-bottom:1rem;
     padding-left:1rem;
@@ -442,21 +388,12 @@ mat-hint {
     .text {
         flex: auto 1 0; 
         max-width: fit-content;
-        color:  rgb(239 239 239);
+        color:  $--color-white-warm;
         align-self: center;
         h4 {
             padding:0;
             margin:0;
             width:max-content;
-        }
-        @include respond-to(mobile) {
-            font-size:13px;
-        }
-        @include respond-to(mobile-x) {
-            font-size:11px;
-        }
-        @include respond-to(mobile-6x) {
-            font-size:0.5rem;
         }
     }
     .section-icon {
@@ -467,7 +404,7 @@ mat-hint {
         height: 6.5rem;
         width:6.5rem;
         border-radius: 50%;
-        background-color: rgba(115, 72, 114, 0.8); 
+        background-color: $--color-pink-cloudy-primary;;
         @include respond-to(mobile) {
             height: 6rem;
             flex: 0 0 6rem;
@@ -482,7 +419,7 @@ mat-hint {
         }
     
         .material-symbols-outlined {
-            color:  rgb(214, 222, 230);
+            color:  $--color-white-cold;
             font-size: 3rem;
             font-variation-settings:
                 'FILL' 1,
@@ -490,15 +427,6 @@ mat-hint {
                 'GRAD' 0,
                 'opsz' 24;
 
-            @include respond-to(mobile) {
-                font-size: 2.2rem;
-            }
-            @include respond-to(mobile-x) {
-                font-size: 2rem;
-            }
-            @include respond-to(mobile-6x) {
-                font-size: 1.6rem;
-            }
         }
     }
     &.visible {
@@ -523,8 +451,7 @@ mat-expansion-panel-header:hover{
         cursor: pointer;
     }
     .material-symbols-outlined {
-        color:  rgb(214, 222, 230);
-        font-size: 3rem;
+        color:  $--color-white-cold;
         font-variation-settings:
             'FILL' 1,
             'wght' 400,

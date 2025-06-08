@@ -1,13 +1,13 @@
 <mat-dialog-content>
-    <div class="flex-row">
-        <div style="margin-right:1rem;">
+    <div class="flex" style="gap:1rem;">
+        <div >
             <span class="material-symbols-outlined">notifications</span>
         </div>
-        <div style="width:62%; font-size:larger;">
+        <div style="width:62%;">
             <p [innerHTML]="message"></p>
         </div>
     </div>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-    <button mat-button [mat-dialog-close]="true" cdkFocusInitial (click)="onOkClick()">Ok</button>
+    <button mat-button [mat-dialog-close]="true" cdkFocusInitial (click)="onOkClick()"><p>{{'Ok'}}</p></button>
 </mat-dialog-actions>

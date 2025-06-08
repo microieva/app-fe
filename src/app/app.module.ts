@@ -76,6 +76,7 @@ import { AppAiService } from './shared/services/app-ai.service';
 import { AppAiAssistantComponent } from './shared/components/app-ai-assistant/app-ai-assistant.component';
 import { AppDbWakeUpService } from './shared/services/app-db-wake-up.service';
 import { AppCacheService } from './shared/services/app-cache.service';
+import { AppNoContentComponent } from './shared/components/app-no-content-component/app-no-content.component';
 
 
 @NgModule({ 
@@ -83,6 +84,7 @@ import { AppCacheService } from './shared/services/app-cache.service';
         AppLineBreaksPipe,
         AppComponent,
         AppHeader,
+        AppNoContentComponent,
         AppHomeComponent,
         AppLandingComponent,
         AppCalendarComponent,
@@ -170,7 +172,9 @@ import { AppCacheService } from './shared/services/app-cache.service';
         provideNativeDateAdapter(),
         provideHttpClient(withInterceptorsFromDi()), 
         provideAnimationsAsync(),
-        { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' }},
+        { 
+            provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, 
+            useValue: { appearance: 'outline' }},
         { provide: MAT_DATE_FORMATS, useValue: LUXON_DATE_FORMATS },
         { provide: MAT_DATE_LOCALE, useValue: 'fi-FI' }
     ],

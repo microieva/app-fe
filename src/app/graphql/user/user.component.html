@@ -1,19 +1,18 @@
 
-<div class="content wrapper">
-
+<div>
     <div *ngIf="!userId">
-        <div class="flex-row wrapper info" >
+        <div class="flex-row block--bordered--md info" >
             <span class="icon material-symbols-outlined">info</span>
-            <h3 *ngIf="!isUpdated && !id">Add missing infomration to use Health Center services</h3>
-            <h3 *ngIf="isUpdated">Your Health Center account details</h3>
-            <button *ngIf="!isUpdated" mat-stroked-button (click)="updateUser()">{{ 'Update User Details' }}</button>
+            <p *ngIf="!isUpdated && !id">Add missing infomration to use Health Center services</p>
+            <p *ngIf="isUpdated">Your Health Center account details</p>
+            <button *ngIf="!isUpdated" mat-stroked-button (click)="updateUser()"><p>{{ 'Update User Details' }}</p></button>
             <span *ngIf="isUpdated">{{ ' '}}</span>
         </div>
-        <div *ngIf="!me" class="loading">
+        <div *ngIf="!me">
             <app-loading></app-loading>
         </div>
-        <div class="page" @slideInOut *ngIf="me">
-            <div *ngIf="!id">
+        <div class="page" @slideInOut>
+            <div *ngIf="me && !id" @slideInOut>
                 <span *ngIf="me.userRole==='patient'" class="material-symbols-outlined" id="bg-icon">
                     account_box
                 </span>
@@ -23,67 +22,77 @@
                 <span *ngIf="me.userRole==='admin'" class="material-symbols-outlined" id="bg-icon">
                     id_card
                 </span>
-                <h1 class="font title">My Account</h1>
                 <div class="flex-column">
-                    <div class="flex-column wrapper">
-                        <p class="title">{{ 'Basic Information' }}</p>
+                    <div class="flex-column block--bordered--md">
+                        <p class="title color--gray--cold--primary">{{ 'Basic Information' }}</p>
                         <div class="flex-row">
                             <div class="flex-column">
                                 <p>{{ 'Name' }}</p>
-                                <h3 class="font">{{ me.firstName }} {{ me.lastName }}</h3>
+                                <h5  class="font">{{ me.firstName }} {{ me.lastName }}</h5 >
                             </div>
                             <div class="flex-column">
                                 <p>{{ 'Date of Birth' }}</p>
-                                <h3 *ngIf="me.dob" class="font">{{ formattedDate }}</h3>
-                                <em *ngIf="!me.dob" class="font">{{ 'Missing information' }}</em>
+                                <h5  *ngIf="me.dob" class="font">{{ formattedDate }}</h5 >
+                                <h5><em *ngIf="!me.dob" class="font color--gray--cold--primary">{{ 'Missing information' }}</em></h5>
                             </div>
                         </div>
                     </div>
-                    <div class="flex-column wrapper">
-                        <p class="title">{{ 'Contact Details' }}</p>
+                    <div class="flex-column block--bordered--md">
+                        <p class="title color--gray--cold--primary">{{ 'Contact Details' }}</p>
                         <div class="flex-row">
                             <div class="flex-column">
                                 <p>{{ 'Phone Number' }}</p>
-                                <h3 *ngIf="me.phone" class="font">{{ me.phone }}</h3>
-                                <em *ngIf="!me.phone" class="font">{{ 'Missing information' }}</em>
+                                <h5  *ngIf="me.phone" class="font">{{ me.phone }}</h5 >
+                                <h5><em *ngIf="!me.phone" class="font color--gray--cold--primary">{{ 'Missing information' }}</em></h5>
                             </div>
                             <div class="flex-column">
                                 <p>{{ 'Email' }}</p>
-                                <h3 *ngIf="me.email" class="font">{{ me.email }}</h3>
-                                <em *ngIf="!me.email" class="font">{{ 'Missing information' }}</em>
+                                <h5  *ngIf="me.email" class="font">{{ me.email }}</h5 >
+                                <h5><em *ngIf="!me.email" class="font color--gray--cold--primary">{{ 'Missing information' }}</em></h5>
                             </div>
                         </div>
                     </div>
-                    <div class="flex-column wrapper">
-                        <p class="title">{{ 'Address' }}</p>
+                    <div class="flex-column block--bordered--md">
+                        <p class="title color--gray--cold--primary">{{ 'Address' }}</p>
                         <div class="flex-row">
                             <div class="flex-column">
                                 <p>{{ 'Street Address' }}</p>
-                                <h3 *ngIf="me.streetAddress" class="font">{{ me.streetAddress }}</h3>
-                                <em *ngIf="!me.streetAddress" class="font">{{ 'Missing information' }}</em>
+                                <h5  *ngIf="me.streetAddress" class="font">{{ me.streetAddress }}</h5 >
+                                <h5><em *ngIf="!me.streetAddress" class="font color--gray--cold--primary">{{ 'Missing information' }}</em></h5>
                             </div>
                             <div class="flex-column">
                                 <p>{{ 'City' }}</p>
-                                <h3 *ngIf="me.city" class="font">{{ me.city }}</h3>
-                                <em *ngIf="!me.city" class="font">{{ 'Missing information' }}</em>
+                                <h5  *ngIf="me.city" class="font">{{ me.city }}</h5 >
+                                <h5><em *ngIf="!me.city" class="font color--gray--cold--primary">{{ 'Missing information' }}</em></h5>
                             </div>
                             <div class="flex-column">
                                 <p>{{ 'Post Code' }}</p>
-                                <h3 *ngIf="me.postCode" class="font">{{ me.postCode }}</h3>
-                                <em *ngIf="!me.postCode" class="font">{{ 'Missing information' }}</em>
+                                <h5  *ngIf="me.postCode" class="font">{{ me.postCode }}</h5 >
+                                <h5><em *ngIf="!me.postCode" class="font color--gray--cold--primary">{{ 'Missing information' }}</em></h5>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="actions flex-row">
-                    <button *ngIf="!missingInfo" mat-stroked-button style="background-color: rgb(111, 143, 175, 40%);" (click)="updateUser()">{{ 'Update Information' }}</button>
-                    <button style="margin-right:1rem;background-color:rgb(199,178,207);" mat-stroked-button (click)="deleteUser()">{{ 'Delete Account' }}</button>
+                <div class="flex-row" style="margin-inline:1rem;">
+                    <button 
+                        *ngIf="!missingInfo" 
+                        mat-stroked-button 
+                        class="button--update" 
+                        (click)="updateUser()">
+                        <p>{{ 'Update Information' }}</p>
+                    </button>
+                    <button 
+                        class="button--delete" 
+                        mat-stroked-button 
+                        (click)="deleteUser()">
+                        <p>{{ 'Delete Account' }}</p>
+                    </button>
                 </div>
             </div>
             <div *ngIf="id">
                 <form *ngIf="form" [formGroup]="form">
-                    <div class="wrapper">
-                        <p class="title">{{ 'Basic Information' }}</p>
+                    <div class="block--bordered--md">
+                        <p class="title color--gray--cold--primary">{{ 'Basic Information' }}</p>
                         <mat-form-field>
                             <mat-label>{{ 'First Name' }}</mat-label>
                             <input name="firstName" matInput [formControl]="form.controls.firstName">
@@ -99,8 +108,8 @@
                             <mat-datepicker #picker></mat-datepicker>
                         </mat-form-field>
                     </div>
-                    <div class="wrapper">
-                        <p class="title">{{ 'Contact Details' }}</p>
+                    <div class="block--bordered--md">
+                        <p class="title color--gray--cold--primary">{{ 'Contact Details' }}</p>
                         <mat-form-field>
                             <mat-label>{{ 'Email' }}</mat-label>
                             <input name="email" matInput [formControl]="form.controls.email">
@@ -112,8 +121,8 @@
                             <mat-hint *ngIf="form.controls.phone.value && form.controls.phone.errors">Only digits allowed</mat-hint>
                         </mat-form-field>
                     </div>
-                    <div class="wrapper">
-                        <p class="title">{{ 'Address' }}</p>
+                    <div class="block--bordered--md">
+                        <p class="title color--gray--cold--primary">{{ 'Address' }}</p>
                         <mat-form-field>
                             <mat-label>{{ 'Street Address' }}</mat-label>
                             <input name="streetAddress" matInput [formControl]="form.controls.streetAddress">
@@ -127,103 +136,115 @@
                             <input name="postCode" matInput [formControl]="form.controls.postCode">
                         </mat-form-field>
                     </div>
-                    <div class="actions">
-                        <button mat-stroked-button style="background-color: rgb(111, 143, 175, 40%);" type="submit" (click)="save()" [disabled]="form.invalid || form.untouched">{{ 'Save' }}</button>
-                        <button mat-stroked-button color="secondary" type="button" (click)="cancel()">{{ 'Cancel' }}</button>
+                    <div class="flex-row" style="margin-inline:1rem;">
+                        <button 
+                            mat-stroked-button 
+                            class="button--create" 
+                            type="submit" 
+                            (click)="save()" 
+                            [disabled]="form.invalid || form.untouched">
+                            <p>{{ 'Save' }}</p>
+                        </button>
+                        <button 
+                            mat-stroked-button 
+                            class="button--cancel" 
+                            type="button" 
+                            (click)="cancel()">
+                            <p>{{ 'Cancel' }}</p>
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
     <div *ngIf="userId">
-        <div *ngIf="isLoading" class="loading">
+        <div *ngIf="isLoading" class="loading"  >
             <app-loading></app-loading>
         </div>
         <div class="dialog" *ngIf="!isLoading">
-            <h2>User Details</h2>
             <div *ngIf="!id">
                 <div *ngIf="me" class="flex-column">
-                    <div class="flex-column wrapper">
-                        <p class="title">{{ 'Basic Information' }}</p>
+                    <div class="flex-column block--bordered--md">
+                        <p class="title color--gray--cold--primary">{{ 'Basic Information' }}</p>
                         <div class="flex-row">
                             <div class="flex-column">
                                 <p>{{ 'Name' }}</p>
-                                <h3 *ngIf="user" class="font">{{ user.firstName }} {{ user.lastName }}</h3>
+                                <h5  *ngIf="user" class="font">{{ user.firstName }} {{ user.lastName }}</h5  >
                             </div>
                             <div class="flex-column">
                                 <p>{{ 'Date of Birth' }}</p>
-                                <h3 *ngIf="user.dob" class="font">{{ formattedDate }}</h3>
-                                <em *ngIf="!user.dob" class="font">{{ 'Missing information' }}</em>
+                                <h5  *ngIf="user.dob" class="font">{{ formattedDate }}</h5  >
+                                <em *ngIf="!user.dob" class="font color--gray--cold--primary">{{ 'Missing information' }}</em>
                             </div>
                         </div>
                     </div>
-                    <div class="flex-column wrapper">
-                        <p class="title">{{ 'Contact Details' }}</p>
+                    <div class="flex-column block--bordered--md">
+                        <p class="title color--gray--cold--primary">{{ 'Contact Details' }}</p>
                         <div class="flex-row">
                             <div class="flex-column">
                                 <p>{{ 'Phone Number' }}</p>
-                                <h3 *ngIf="user.phone" class="font">{{ user.phone }}</h3>
-                                <em *ngIf="!user.phone" class="font">{{ 'Missing information' }}</em>
+                                <h5  *ngIf="user.phone" class="font">{{ user.phone }}</h5  >
+                                <h5><em *ngIf="!user.phone" class="font color--gray--cold--primary">{{ 'Missing information' }}</em></h5>
                             </div>
                             <div class="flex-column">
                                 <p>{{ 'Email' }}</p>
-                                <h3 *ngIf="user.email" class="font">{{ user.email }}</h3>
-                                <em *ngIf="!user.email" class="font">{{ 'Missing information' }}</em>
+                                <h5  *ngIf="user.email" class="font">{{ user.email }}</h5  >
+                                <h5><em *ngIf="!user.email" class="font color--gray--cold--primary">{{ 'Missing information' }}</em></h5>
                             </div>
                         </div>
                     </div>
-                    <div class="flex-column wrapper">
-                        <p class="title">{{ 'Address' }}</p>
+                    <div class="flex-column block--bordered--md">
+                        <p class="title color--gray--cold--primary">{{ 'Address' }}</p>
                         <div class="flex-row">
                             <div class="flex-column">
                                 <p>{{ 'Street Address' }}</p>
-                                <h3 *ngIf="user.streetAddress" class="font">{{ user.streetAddress }}</h3>
-                                <em *ngIf="!user.streetAddress" class="font">{{ 'Missing information' }}</em>
+                                <h5  *ngIf="user.streetAddress" class="font">{{ user.streetAddress }}</h5  >
+                                <h5><em *ngIf="!user.streetAddress" class="font color--gray--cold--primary">{{ 'Missing information' }}</em></h5>
                             </div>
                             <div class="flex-column">
                                 <p>{{ 'City' }}</p>
-                                <h3 *ngIf="user.city" class="font">{{ user.city }}</h3>
-                                <em *ngIf="!user.city" class="font">{{ 'Missing information' }}</em>
+                                <h5  *ngIf="user.city" class="font">{{ user.city }}</h5  >
+                                <h5><em *ngIf="!user.city" class="font color--gray--cold--primary">{{ 'Missing information' }}</em></h5>
                             </div>
                             <div class="flex-column">
                                 <p>{{ 'Post Code' }}</p>
-                                <h3 *ngIf="user.postCode" class="font">{{ user.postCode }}</h3>
-                                <em *ngIf="!user.postCode" class="font">{{ 'Missing information' }}</em>
+                                <h5  *ngIf="user.postCode" class="font">{{ user.postCode }}</h5  >
+                                <h5><em *ngIf="!user.postCode" class="font color--gray--cold--primary">{{ 'Missing information' }}</em></h5>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="actions flex-row">
+                 <div class="flex-row" style="margin-inline:1rem;">
                     <button 
                         *ngIf="!missingInfo && user.id === me.id" 
+                        class="button--update"
                         mat-stroked-button 
-                        style="background-color: rgb(111, 143, 175, 40%);" 
                         (click)="updateUser()"
                     >
-                        {{ 'Update Information' }}
+                        <p>{{ 'Update Information' }}</p>
                     </button>
                     <button 
                         *ngIf="user?.userRole ==='doctor'"
-                        style="margin-right:1rem;" 
+                        class=" button--delete"
                         mat-stroked-button 
                         (click)="deleteUser()"
                     >
-                        {{ 'Delete Account' }}
+                        <p>{{ 'Delete Account' }}</p>
                     </button>
                     <button 
                         *ngIf="user?.userRole ==='patient'"
-                        style="margin-right:1rem;" 
+                        class="button--create"
                         mat-stroked-button 
                         (click)="openCalendar(user.id)"
                     >
-                        {{ 'Make an Appointment' }}
+                        <p>{{ 'Book Appointment' }}</p>
                     </button>
                 </div>
             </div>
             <div *ngIf="id">
                 <form *ngIf="form" [formGroup]="form">
-                    <div class="wrapper">
-                        <p class="title">{{ 'Basic Information' }}</p>
+                    <div class="block--bordered--md">
+                        <p class="title color--gray--cold--primary">{{ 'Basic Information' }}</p>
                         <mat-form-field>
                             <mat-label>{{ 'First Name' }}</mat-label>
                             <input name="firstName" matInput [formControl]="form.controls.firstName">
@@ -239,8 +260,8 @@
                             <mat-datepicker #picker></mat-datepicker>
                         </mat-form-field>
                     </div>
-                    <div class="wrapper">
-                        <p class="title">{{ 'Contact Details' }}</p>
+                    <div class="block--bordered--md">
+                        <p class="title color--gray--cold--primary">{{ 'Contact Details' }}</p>
                         <mat-form-field>
                             <mat-label>{{ 'Email' }}</mat-label>
                             <input name="email" matInput [formControl]="form.controls.email">
@@ -252,8 +273,8 @@
                             <mat-hint *ngIf="form.controls.phone.value && form.controls.phone.errors">Only digits allowed</mat-hint>
                         </mat-form-field>
                     </div>
-                    <div class="wrapper">
-                        <p class="title">{{ 'Address' }}</p>
+                    <div class="block--bordered--md">
+                        <p class="title color--gray--cold--primary">{{ 'Address' }}</p>
                         <mat-form-field>
                             <mat-label>{{ 'Street Address' }}</mat-label>
                             <input name="streetAddress" matInput [formControl]="form.controls.streetAddress">
@@ -267,20 +288,20 @@
                             <input name="postCode" matInput [formControl]="form.controls.postCode">
                         </mat-form-field>
                     </div>
-                    <div class="actions">
+                    <div class="flex-row" styke="margin-inline:1rem;">
                         <button 
                             mat-stroked-button 
-                            style="background-color: rgb(111, 143, 175, 40%);" 
+                            class="bg--gray--cold--primary" 
                             type="submit" 
                             (click)="save()" 
                             [disabled]="form.invalid || form.untouched"
-                        >{{ 'Save' }}</button>
+                        ><p>{{ 'Save' }}</p></button>
                         <button 
                             mat-stroked-button 
                             color="secondary" 
                             type="button" 
                             (click)="cancel()"
-                        >{{ 'Cancel' }}</button>
+                        ><p>{{ 'Cancel' }}</p></button>
                     </div>
                 </form>
             </div>

@@ -8,18 +8,19 @@
     </app-search>
 </div>
 <div [ngClass]="injectedData && 'table'">
-    <div *ngIf="isLoading" class="loading">
+    <div *ngIf="isLoading" class="loading"  >
         <app-loading></app-loading>
     </div>
 
     <div class="flex-row action-btns" *ngIf="!isLoading && buttons">
         <span *ngFor="let btn of buttons">
             <button 
+                class="bg--gray--cold--secondary"
                 (click)="onActionClick(btn.text, null)"
                 mat-stroked-button 
                 [ngStyle]="getButtonStyle(btn)" 
                 [disabled]="isDisabled(btn)"    
-            >{{btn.text}}
+            ><p>{{btn.text}}</p>
             </button>
         </span>
      </div>
@@ -55,33 +56,36 @@
             <td mat-cell *matCellDef="let element">
                 <ng-container *ngIf="column.columnDef === 'online'">
                     <div 
-                        [ngClass]="{ 'online': element.online, 'offline': !element.online }" 
+                        [ngClass]="element.online ? 'bg--green--secondary' : 'bg--gray--cold--primary'" 
                         class="status flex-row"
                     >
-                        <div [ngClass]="{ 'online-dot': element.online, 'offline-dot': !element.online }" *ngIf="!isMobile"></div>
-                        <p [ngStyle]="{paddingRight: !isMobile ? '12px':'0'}" *ngIf="element.online">Active</p>
-                        <p [ngStyle]="{paddingRight: !isMobile ? '12px':'0'}" *ngIf="!element.online">Offline</p>
+                        <div [ngClass]="{ 'online-dot bg--green--primary': element.online, 'offline-dot bg--gray--cold--secondary': !element.online }" *ngIf="!isMobile"></div>
+                        <p style="font-size: smaller;" [ngStyle]="{paddingRight: !isMobile ? '12px':'0'}" *ngIf="element.online">Active</p>
+                        <p style="font-size: smaller;" [ngStyle]="{paddingRight: !isMobile ? '12px':'0'}" *ngIf="!element.online">Offline</p>
                     </div>
                 </ng-container>
                
                 <ng-container *ngIf="column.columnDef === 'actions'">
-                    <span *ngFor="let action of element.actions" class="action" >
-                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'"  class="material-symbols-outlined icon" *ngIf="action.text === 'Accept'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()" >calendar_add_on</span>
-                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'"  class="material-symbols-outlined icon" *ngIf="action.text === 'Add message'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">add_comment</span>
-                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'"  class="material-symbols-outlined icon" *ngIf="action.text === 'Cancel'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">event_busy</span>
-                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'"  class="material-symbols-outlined icon" *ngIf="action.text === 'Delete'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">delete</span>
-                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'"  class="material-symbols-outlined icon" *ngIf="action.text === 'Delete appointment'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()" [ngClass]="element.draft === undefined ? 'disabled-action':''">delete</span>
-                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'"  class="material-symbols-outlined icon" *ngIf="action.text === 'Save as final'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">task</span>
-                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'"  class="material-symbols-outlined icon" *ngIf="action.text === 'Delete messages'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">chat_error</span>
-                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'"  class="material-symbols-outlined icon" *ngIf="action.text === 'Activate account'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">person_add</span>
-                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'"  class="material-symbols-outlined icon" *ngIf="action.text === 'Deactivate account'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">person_remove</span>
-                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'"  class="material-symbols-outlined icon" *ngIf="action.text === 'Cancel request'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">no_accounts</span>
-                        <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'"  class="material-symbols-outlined icon" *ngIf="action.text === 'Mark as read'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()" [ngClass]="element.isRead ? 'disabled-action':''">mark_chat_read</span>
-                    </span>
+                    <div class="flex-row" style="justify-content: flex-start;">
+
+                        <div *ngFor="let action of element.actions" class="action icon icon--main">
+                            <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'"  class="material-symbols-outlined icon" *ngIf="action.text === 'Accept'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()" >calendar_add_on</span>
+                            <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'"  class="material-symbols-outlined icon" *ngIf="action.text === 'Add message'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">add_comment</span>
+                            <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'"  class="material-symbols-outlined icon" *ngIf="action.text === 'Cancel'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">event_busy</span>
+                            <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'"  class="material-symbols-outlined icon" *ngIf="action.text === 'Delete'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">delete</span>
+                            <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'"  class="material-symbols-outlined icon" *ngIf="action.text === 'Delete appointment'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()" [ngClass]="element.draft === undefined ? 'disabled-action':''">delete</span>
+                            <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'"  class="material-symbols-outlined icon" *ngIf="action.text === 'Save as final'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">task</span>
+                            <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'"  class="material-symbols-outlined icon" *ngIf="action.text === 'Delete messages'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">chat_error</span>
+                            <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'"  class="material-symbols-outlined icon" *ngIf="action.text === 'Activate account'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">person_add</span>
+                            <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'"  class="material-symbols-outlined icon" *ngIf="action.text === 'Deactivate account'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">person_remove</span>
+                            <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'"  class="material-symbols-outlined icon" *ngIf="action.text === 'Cancel request'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()">no_accounts</span>
+                            <span [matTooltip]="action.text" [ngClass]="(!selection.hasValue() || checkedCount < 2) ? '': 'disabled-action'"  class="material-symbols-outlined icon" *ngIf="action.text === 'Mark as read'" (click)="onActionClick(action.text, element.id); $event.stopPropagation()" [ngClass]="element.isRead ? 'disabled-action':''">mark_chat_read</span>
+                        </div>
+                    </div>
                 </ng-container>
 
                 <ng-container *ngIf="column.columnDef === 'draft'">
-                    <div *ngIf="element.draft !== undefined">
+                    <div *ngIf="element.draft !== undefined" class="icon color--main--secondary">
                         <span *ngIf="element.draft" class="material-symbols-outlined" matTooltip="Saved as draft">draft</span>
                         <span *ngIf="element.draft === false" class="material-symbols-outlined" matTooltip="Saved as record">task</span>
                     </div>
@@ -90,7 +94,7 @@
                     </div>
                 </ng-container>
                 <ng-container *ngIf="column.columnDef === 'record'">
-                    <div *ngIf="element.record !== undefined">
+                    <div *ngIf="element.record !== undefined" class="icon color--main--secondary">
                         <span *ngIf="element.record" class="material-symbols-outlined" matTooltip="Record added">task</span>
                     </div>
                     <div *ngIf="element.record === undefined" matTooltip="No record">-</div>
@@ -98,17 +102,13 @@
 
                 <ng-container *ngIf="column.columnDef === 'howSoonStr'">
                     <div *ngIf="timerService.startHowSoonCountdown(element.howSoonStr) | async as countdown">
-                        <span >
-                            {{countdown}}
-                        </span>
+                        <p>{{countdown}}</p>
                      </div>
                 </ng-container>
 
                 <ng-container *ngIf="column.columnDef === 'howLongAgoStr'">
                     <div *ngIf="timerService.startHowLongAgoCountdown(element.howLongAgoStr) | async as countdown">
-                        <span >
-                            {{countdown}}
-                        </span>
+                        <p>{{countdown}}</p>
                      </div>
                 </ng-container>
 
@@ -126,14 +126,13 @@
 
                 <ng-container *ngIf="column.columnDef === 'pastDate'">
                     <div *ngIf="timerService.startHowLongAgoCountdown(element.pastDate) | async as countdown">
-                        <span >
-                            {{countdown}}
-                        </span>
+                        <p >{{countdown}}</p>
                      </div>
                 </ng-container>
 
                 <ng-container 
                     *ngIf="
+                        column.columnDef !== 'name' && 
                         column.columnDef !== 'online' && 
                         column.columnDef !== 'message' && 
                         column.columnDef !== 'draft'  && 
@@ -148,13 +147,17 @@
                     </ng-container>
                     <ng-template #value>
                         <div>
-                            <span [ngStyle]="element[column.columnDef] === 'Currently online' && {'font-style':'italic'}">{{ element[column.columnDef] }}</span>
+                            <p [ngStyle]="element[column.columnDef] === 'Currently online' && {'font-style':'italic'}">{{ element[column.columnDef] }}</p>
                         </div>
                     </ng-template>
-                </ng-container>   
+                </ng-container>
                 <ng-container *ngIf="column.columnDef === 'name'">
-                    <div class="icon">
-                        <span *ngIf="element.message" class="material-symbols-outlined" matTooltip="Added message">mail</span>
+                    <div class="flex-row" style="justify-content: flex-start;">
+                        <div><p>{{element[column.columnDef]}}</p></div>
+                        <div class="icon color--main--secondary" *ngIf="element.message" >
+                            <span class="material-symbols-outlined" matTooltip="Added message">mail</span>
+                        </div>
+
                     </div>
                 </ng-container> 
             </td>
@@ -165,11 +168,13 @@
             mat-row 
             *matRowDef="let row; columns: columnNames"
             (click)="onRowClick(row.id, row.title || undefined)"
+            class="table-row"
             [ngStyle]="{backgroundColor: (markAppointmentId && markAppointmentId === row.id) ? 'aqua': '' }"
-            [ngClass]="{'blinking': isNewSender(row), 'bold-row': isUnreadChat(row)|| row.isRead === false} ">
+            [ngClass]="{'blinking': isNewSender(row), 'bold-row': isUnreadChat(row)|| row.isRead === false} "
+        >
         </tr>
         <tr class="mat-row" *matNoDataRow>
-            <td class="mat-cell" colspan="4">No data matching current search parameters</td>
+            <td class="mat-cell" colspan="4"><p>No data matching current search parameters</p></td>
         </tr> 
     </table>
 

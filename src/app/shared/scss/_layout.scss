@@ -1,0 +1,118 @@
+@import 'variables';
+
+.page {
+  // height: auto;
+  //min-height: calc(100vh - 16rem);
+  position:relative;
+  width: 75%;
+  margin: auto;
+  margin-block: 4rem;
+  &--text-block {
+    margin-bottom: 4rem;
+  }
+}
+
+.title--count {
+  font-size: clamp(0.6rem, 1vw, 0.8rem);
+  color: $--color-white-warm;
+  display: inline-block;
+  background-color: $--color-pink-cloudy-primary;
+  border-radius: 3px;
+  padding: 2px 5px;
+  margin-bottom: 2rem;
+  margin-left: 0.5rem;
+}
+
+.block {
+  &--bordered {
+    //home & landing
+    &--sm {
+      width: 50%;
+      height: clamp(0.6rem, 1.8vw, 1.8rem);
+      line-height: clamp(0.6rem, 1.8vw, 1.8rem); 
+      border: 1px solid;
+      padding: 0.2rem 1rem;
+      margin: 0.2rem;
+      p {
+          font-weight: 400;
+      } 
+      h2 {
+          width: max-content;
+          font-weight: 400;
+      } 
+      span {
+          line-height: clamp(0.6rem, 1.8vw, 1.8rem); 
+          width: 1rem;
+          float: right;
+      }  
+      .right {
+          text-align: right;
+          min-width: max-content;
+          font-weight: 900;
+      }
+      &:first-child {
+          @include respond-to(small-mobile-x) {
+              width: 90%;
+          }
+      }
+    }
+    // info 
+    &--md {
+      border: 1px solid $--color-gray-cold-primary;
+      border-radius: 3px;
+      margin: 1rem;
+      padding: 1rem;
+    }
+    // event 
+    &--lg {
+      width: 25rem; 
+      border: 1px solid $--color-gray-cold-primary;
+      border-radius: 3px;
+      margin-bottom: 1rem;
+      &:not(.message) {padding: 1rem;}
+    }
+
+    &--home-page {
+      margin: 0.2rem;
+      margin-bottom: 3rem;
+      padding: 1.5rem;
+      border: 1px solid $--color-gray-warm-secondary;
+      border-radius: 5px;
+    }
+
+    &--with-btn { 
+      color: $--color-main;
+      border: 1px solid $--color-gray-cold-primary;
+      border-radius: 5px;
+      padding: 2rem;
+      margin-top: 15%;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      justify-self: center;
+      div {
+          width: 65%;
+      }
+      button p {
+        width: max-content;
+      }
+    }
+  }
+  &--with-btn {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4rem;
+    button p {
+      width: max-content;
+    }
+    div {
+        width: 65%;
+    }
+  }
+}
+
+
+

@@ -1,3 +1,6 @@
+@use '@angular/material' as mat;
+
+
 @mixin spinner-size($size: 8rem) {
     width: $size;
     height: $size;
@@ -7,4 +10,5 @@
       height: $size !important;
     }
   }
+
   

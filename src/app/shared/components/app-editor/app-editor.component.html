@@ -16,29 +16,30 @@
             class="NgxEditor__Content"
             (ngModelChange)="onContentChange($event)"
         ></ngx-editor>
-        <span>{{ currentCharacterCount }}/{{ maxCharacters }} characters</span>
+        <mat-hint>{{ currentCharacterCount }}/{{ maxCharacters }} characters</mat-hint>
     </div>
-    <div class="actions flex-row">
-        <div>
+    <div class="flex-row" style="margin:1rem;">
+        <div class="flex-row" style="gap:1rem;"> 
+            <!-- TO DO: add gap:1rem instead of margins !!! -->
             <button 
                 type="submit" 
                 mat-stroked-button 
-                style="background-color: rgb(175 111 174 / 40%);" 
+                class="bg--pink--cloudy--primary" 
                 (click)="save(false)" 
                 [disabled]="currentCharacterCount === 0 && disabled"
             >
-                Save
+                <p>{{'Save'}}</p>
             </button>
             <button 
                 type="submit" 
                 mat-stroked-button 
-                style="background-color: rgb(111, 143, 175, 40%);" 
+                class="bg--gray--cold--primary" 
                 (click)="save(true)" 
                 [disabled]="currentCharacterCount === 0 && disabled"
             >
-                Save As Draft
+                <p>{{'Save As Draft'}}</p>
             </button>
         </div>
-        <button type="button" mat-stroked-button (click)="onCancel()">Cancel</button>
+        <button type="button" mat-stroked-button (click)="onCancel()"><p>{{'Cancel'}}</p></button>
     </div>
 </form>

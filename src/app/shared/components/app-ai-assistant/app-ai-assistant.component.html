@@ -1,7 +1,7 @@
 <div class="ai-assistant" [ngClass]="!isMinimized ? 'ai-assistant__expanded':'ai-assistant__minimized'">
     <div 
         [@growFromBottom]="isVisible ? 'visible' : 'hidden'" 
-        *ngIf="!isMinimized" class="expanded flex-column" 
+        *ngIf="!isMinimized" class="expanded flex-column app-color-white" 
         [ngStyle]="{boxShadow: isHovering ? '0 0 14px 5px #e0e0e0':'0 0 14px 5px rgb(18 17 17 / 50%)'}"
     >
         <form class="flex-column" [formGroup]="form" >
@@ -33,7 +33,7 @@
                     <div >
                         <div 
                             class="message" 
-                            [ngClass]="message.sender === 'ai' ? 'incoming' : 'outgoing'" 
+                            [ngClass]="message.sender === 'ai' ? 'incoming bg--pink--cloudy--primary' : 'outgoing bg--white--cold'" 
                             [innerHTML]="message.text | lineBreaks"
                         >
                             {{message.text}}
@@ -41,7 +41,7 @@
                     </div>
                 </div>
             </div>
-            <div *ngIf="isLoading" class="loading size">
+            <div *ngIf="isLoading" class="loading"   class="loading size">
                 <app-loading></app-loading>
             </div>
         </div>

@@ -1,15 +1,12 @@
 
 
-    .actions {
-        margin-right: 1rem;
-        justify-content: flex-end;
+.button-group {
+    padding: 1rem;
+    justify-content: flex-end;
+}
+.record-content {
+    padding-bottom: 4rem;
+    h3 {
+        margin-bottom: 2rem;
     }
-    .record-content {
-        padding-bottom: 4rem;
-        h2 {
-            margin-bottom: 2rem;
-        }
-    }
-    .font {
-        line-height: 1.3rem;
-    }
+}

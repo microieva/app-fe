@@ -1,18 +1,37 @@
-<div class="flex-row wrapper info">
+<div class="flex-row block--bordered--md info">
     <span class="icon material-symbols-outlined">info</span>
-    <h3 *ngIf="online">Online</h3> 
-    <h3 *ngIf="!online">Offline</h3>
+    <p *ngIf="online" class="rounded bg--green--secondary">Online</p> 
+    <p *ngIf="!online" class="rounded bg--gray--warm--primary">Offline</p>
     <button mat-stroked-button (click)="onChatDelete()" [disabled]="messages.length === 0">
-        <span *ngIf="userRole!=='admin'">{{ 'Delete Messages' }}</span>
-        <span *ngIf="userRole === 'admin'">{{ 'Delete Chat' }}</span>
+        <p *ngIf="userRole!=='admin'">{{ 'Delete Messages' }}</p>
+        <p *ngIf="userRole === 'admin'">{{ 'Delete Chat' }}</p>
     </button>
 </div>
-<div class="page flex-column">
+<div class="page flex-column bg--white--cold">
     <span class="material-symbols-outlined" id="bg-icon">
         forum
     </span>
-    <div class="chat-wrapper flex-column">
-
+    <div class="flex-column">
+        <div *ngIf="isLoading" class="loading"  >
+            <app-loading></app-loading>
+        </div>
+        <div class="messages-wrapper flex-column" *ngIf="!isLoading">
+            <div *ngFor="let message of messages">
+                <div class="message-wrapper">
+                    <div class="flex-row" [ngClass]="senderId !== message.sender.id ? 'reversed' : 'justified'">
+                        <div 
+                            class="message" 
+                            [ngClass]="senderId !== message.sender.id ? 'incoming bg--pink--secondary' : 'outgoing bg--white--cold'" 
+                            [ngStyle]="senderId !== message.sender.id && !message.isRead && {'font-weight': '900'}"
+                            [innerHTML]="message.content | lineBreaks"
+                        >
+                            <p>{{message.content}}</p>
+                        </div>
+                        <div class="timestamp"><p style="font-size: x-small;">{{message.createdAt}}</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <form class="flex-column" [formGroup]="form" (ngSubmit)="onSendMessage()">
             <mat-form-field>
                 <textarea 
@@ -27,34 +46,14 @@
                 ></textarea>
                 <mat-hint align="start">{{ characterCount }} / 700</mat-hint>
             </mat-form-field>
-            <div class="icons flex-row">
-                <div (click)="onDeleteMessage()">
-                    <span class="material-icons" matTooltip="Delete" style="color:rgb(175 111 174 / 90%);">close</span>
+            <div class="flex" style="gap:0.5rem;">
+                <div (click)="onDeleteMessage()" class="icon--cancel">
+                    <span class="material-icons" matTooltip="Delete">close</span>
                 </div>
-                <div (click)="onSendMessage()" style="margin-left: 0.5rem;"  type="submit">
-                    <span class="material-icons" matTooltip="Send" style="color: green">check</span>
+                <div (click)="onSendMessage()" class="icon--confirm" type="submit">
+                    <span class="material-icons" matTooltip="Send">check</span>
                 </div>
             </div>
         </form>
-        <div *ngIf="isLoading" class="loading">
-            <app-loading></app-loading>
-        </div>
-        <div class="messages-wrapper flex-column" *ngIf="!isLoading">
-            <div *ngFor="let message of messages">
-                <div class="message-wrapper">
-                    <div class="flex-row" [ngClass]="senderId !== message.sender.id ? 'reversed' : 'justified'">
-                        <div 
-                            class="message" 
-                            [ngClass]="senderId !== message.sender.id ? 'incoming' : 'outgoing'" 
-                            [ngStyle]="senderId !== message.sender.id && !message.isRead && {'font-weight': '900'}"
-                            [innerHTML]="message.content | lineBreaks"
-                        >
-                            {{message.content}}
-                        </div>
-                        <div class="timestamp"><p>{{message.createdAt}}</p></div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 </div>

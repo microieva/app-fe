@@ -1,7 +1,7 @@
 <mat-tab-group
     mat-stretch-tabs="false" 
     mat-align-tabs="start" 
-    class="content" 
+    class="content bg--white--cold" 
     (selectedIndexChange)="onTabChange($event)"
     [(selectedIndex)]="selectedIndex"
 >
@@ -10,34 +10,28 @@
             <span class="tab-label">Records</span>
         </ng-template>
         <div>
-            <div class="flex-row wrapper info">
+            <div class="flex-row block--bordered--md info">
                 <span class="icon material-symbols-outlined">info</span>
-                <h3 *ngIf="countRecords === 0">No saved records</h3> 
-                <h3 *ngIf="countRecords && countRecords > 0">Saved medical records</h3> 
+                <p *ngIf="countRecords === 0">No saved records</p> 
+                <p *ngIf="countRecords && countRecords > 0">Saved medical records</p> 
                 <span>{{' '}}</span>
             </div>
-            <div *ngIf="isLoading" class="loading">
+            <div *ngIf="isLoading" class="loading"  >
                 <app-loading></app-loading>
             </div>
-            <div class="page" *ngIf="!isLoading && countRecords === 0">
-                <div class="btn-block">
-                    
-                    <h1>No medical records</h1>
-                    <span class="material-symbols-outlined" id="bg-icon"  >
-                        folder_open
-                    </span>
-
-                </div>
-            </div>
             <div class="page" @slideInOut *ngIf="!isLoading">
-                <div *ngIf="countRecords > 0" class="page__text-block">
-                    <h2 class="font">Medical records ({{countRecords}}):</h2>
+                <app-no-content *ngIf="countRecords === 0" message="No records"></app-no-content>
+                <div *ngIf="countRecords > 0" class="page--text-block">
+                    <div class="flex-row" style="justify-content: flex-start;">
+                            <h4 class="font title color--main--secondary">Medical records</h4>
+                            <span class="title--count">{{countRecords}}</span>
+                        </div>
                     <p *ngIf="countRecords===1 && userRole === 'doctor'">Currently you have {{countRecords}} medical record saved as final version. All medical records are accessible to the patients. After deleting appointment linked to a reocrd, the record is locked and can be deleted only by the patient.</p>
-                    <p *ngIf="countRecords>1 && userRole === 'doctor'">Currently you have {{countRecords}} medical records saved as drafts. Drafts are visible only to you. Saving a draft as final opens access to the patient. After deleting appointment linked to a reocrd, the record is locked and can be deleted only by the patient.</p>
+                    <p *ngIf="countRecords>1 && userRole === 'doctor'">Currently you have {{countRecords}} medical records. Saving a draft as final version, opens its access to the patient. After deleting appointment linked to a reocrd, the record is locked and can be deleted only by the patient.</p>
                 </div>
                 <div class="table-wrapper">
                     <app-search
-                        *ngIf="dataSource && displayedColumns && countRecords>0"
+                        *ngIf="dataSource && displayedColumns && countRecords>1"
                         [useAdvanced]="true"
                         (advancedSearchValue)="onSearch($event)"
                         (inputValue)="onFilterValueChange($event, async)"
@@ -65,24 +59,27 @@
             <span class="tab-label" >Drafts</span>
         </ng-template>
         <div>
-            <div class="flex-row wrapper info">
+            <div class="flex-row block--bordered--md info">
                 <span class="icon material-symbols-outlined">info</span>
-                <h3 *ngIf="countDrafts === 0">No saved drafts</h3> 
-                <h3 *ngIf="countDrafts > 0">Medical records saved as drafts</h3> 
+                <p *ngIf="countDrafts === 0">No saved drafts</p> 
+                <p *ngIf="countDrafts > 0">Medical records saved as drafts</p> 
                 <span>{{' '}}</span>
             </div>
-            <div *ngIf="!dataSource" class="loading">
+            <div *ngIf="!dataSource">
                 <app-loading></app-loading>
             </div>
             <div class="page">
-                <div *ngIf="countDrafts > 0" class="page__text-block">
-                    <h2 class="font">Medical records saved as drafts ({{countDrafts}}):</h2>
+                <div *ngIf="countDrafts > 0" class="page--text-block">
+                    <div class="flex-row" style="justify-content: flex-start;">
+                        <h4 class="font title color--main--secondary">Medical records saved as drafts</h4>
+                        <span class="title--count">{{countDrafts}}</span>
+                    </div>
                     <p *ngIf="countDrafts===1">Currently you have {{countDrafts}} medical record saved as draft. Drafts are visible only to you. Saving a draft as final opens access to the patient.</p>
                     <p *ngIf="countDrafts>1">Currently you have {{countDrafts}} medical records saved as drafts. Drafts are visible only to you. Saving a draft as final opens access to the patient.</p>
                 </div>
                 <div class="table-wrapper">
                     <app-search
-                        *ngIf="dataSource && displayedColumns && countDrafts> 0"
+                        *ngIf="dataSource && displayedColumns && countDrafts> 1"
                         [useAdvanced]="true"
                         (advancedSearchValue)="onSearch($event)"
                         (inputValue)="onFilterValueChange($event, async)"

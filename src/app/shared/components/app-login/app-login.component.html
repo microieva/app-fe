@@ -13,21 +13,21 @@
             </mat-form-field>
         </div>
         <mat-dialog-actions align="center">
-            <button color="primary" mat-stroked-button (click)="submit()">Submit</button>
-            <button color="secondary" mat-stroked-button (click)="cancelDirectLogin()">Cancel</button>
+            <button mat-stroked-button (click)="submit()" class="button--create"><p>Submit</p></button>
+            <button mat-stroked-button (click)="cancelDirectLogin()"><p>Cancel</p></button>
         </mat-dialog-actions>
     </form>
 </mat-dialog-content>
 
 <mat-dialog-content *ngIf="googleLogin" style="padding: 1rem 2rem;">
     <div class="flex-row" style="width: 45rem; height: 15rem;">
-        <ul class="flex-column" style="width:45%">
-            <li><span class="material-symbols-outlined">trending_flat</span> Login to Health Center system using contract email address</li>
-            <li> <span class="material-symbols-outlined">trending_flat</span> Account activation might take a few hours</li>
-            <li> <span class="material-symbols-outlined">trending_flat</span> Contact administrators if facing issues accessing your account</li>
-        </ul>
-        <div class="flex-column g-column">
-            <h4>Login with Health Center credentials</h4>
+        <div class="flex-column" style="width:max-content; justify-content: flex-start;">
+            <div class="flex-row"><span class="material-symbols-outlined">trending_flat</span> <h5>Login to Health Center system using contract email address</h5></div>
+            <div class="flex-row" style="justify-content: flex-start;"> <span class="material-symbols-outlined">trending_flat</span> <h5>Account activation might take a few hours</h5></div>
+            <div class="flex-row"> <span class="material-symbols-outlined">trending_flat</span> <h5>Contact administrators if facing issues accessing your account</h5></div>
+        </div>
+        <div class="flex-column column">
+            <h4 class="title">Login with Health Center credentials</h4>
                 
             <div id="g_id_onload"
                 data-client_id="234359946846-qk29f6skfdjaaoklv41g49f1du23c177.apps.googleusercontent.com"
@@ -47,8 +47,6 @@
                 data-width="400">
                 
             </div>
-
         </div>
-
     </div>
 </mat-dialog-content>

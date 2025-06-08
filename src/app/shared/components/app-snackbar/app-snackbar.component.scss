@@ -8,9 +8,7 @@
     z-index: 10000;
 }
 .snackbar {
-    background: rgb(175 111 174 / 80%);
     color: white;
-    font-size: 1.2rem;
     padding: 1rem;
     margin: 8px;
     border-radius: 4px;
@@ -19,7 +17,6 @@
     max-width: 35rem;
     button {
         margin-left: 2rem;
-        background-color: rgb(68, 65, 65, 20%);
     }
 }
 

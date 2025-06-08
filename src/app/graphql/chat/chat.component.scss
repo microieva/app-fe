@@ -1,62 +1,26 @@
 @import '../../shared/scss/breakpoints';
+@import '../../shared/scss/variables';
 
-.page {
-    border: 1px solid gray;
-    border-radius: 5px;
-    height: calc(85vh - 10rem);
-    width: 60%;
-    background-color: rgb(215 222 230);
-    @include respond-to(desktop-5x){
-        height: 68rem;
-        margin-top:15%;
-    }
-    @include respond-to(desktop-6x){
-        height: 58rem;
-        margin-top:15%;
-        width:85%;
-    }
-    @include respond-to(tablet) {
-        margin-top: 2rem;
-        height:42rem;
-        width:80%;
-    }
-    @include respond-to(mobile-x) {
-        max-width:95%;
-        height: 38rem!important;
-        margin:auto;
-        margin-top:5%;
-    }
-    @include respond-to(mobile-6x) {
-        width:95%;
-        margin:auto;
-        margin-top:5%;
-    }
-    .chat-wrapper{
-        width:100%;
-        height:100%;
-        flex-direction: column-reverse;
-    }
-}
 mat-form-field {
     margin: 0;
     width: 100%;
-    @include respond-to(desktop-5x){
-        font-size: 1.5rem;
-    }
-    @include respond-to(tablet){    
-        width: 95%;
-        margin: 0 auto;
-    }
-    @include respond-to(mobile-6x){    
-        width: 95%;
-        margin: 0 auto;
-    }
+    // @include respond-to(tablet){    
+    //     width: 95%;
+    //     margin: 0 auto;
+    // }
+    // @include respond-to(mobile-6x){    
+    //     width: 95%;
+    //     margin: 0 auto;
+    // }
 }
+
 .messages-wrapper {
     margin: 2rem 0.5rem;
     overflow: scroll;
     flex-direction: column-reverse;
+    height: 20rem;
 }
+
 .message-wrapper {
     display: flex;
     flex-direction: row;
@@ -74,9 +38,7 @@ mat-form-field {
         flex-direction:row-reverse;
     }
 }
-.flex-end {
-    align-self: flex-end;
-}
+
 .message {
     padding: 0.5rem;
     border-radius: 10px;
@@ -88,97 +50,36 @@ mat-form-field {
     word-wrap: break-word;
     overflow:hidden;
     max-width:50%;
-    @include respond-to(desktop-5x){
-        font-size:1.2rem;
-        max-width: 70%;
-    }
-    @include respond-to(tablet){
-        font-size:1.2rem;
-        max-width: 70%;
-    }
-    @include respond-to(mobile-x) {
-        font-size: 1rem;
-        top:80px;
-    }
-    @include respond-to(small-mobile-x) {
-        font-size: 12px;
-    }
 }
 .incoming {
-    background-color: rgb(175 111 174 / 40%);   
     align-self: flex-end;    
 }
 .outgoing {
-    background-color: rgb(215 222 230);
-    border: 1px solid rgb(111, 143, 175, 40%);
+    border: 1px solid $--color-gray-cold-primary;
     float: inline-end;
 }
-.icons {
-    justify-content: flex-end;
-    span {
-        @include respond-to(desktop-5x){
-            font-size: 2.5rem;
-            margin-left:1rem;
-        }
-        @include respond-to(tablet){
-            font-size: 2rem;
-            margin: 1rem auto;
-            margin-right:1rem;
-        }
-        @include respond-to(mobile-6x){
-            font-size: 2rem;
-            margin: 1rem auto;
-            margin-right:1rem;
-        }
-    }
-}
+
 .material-icons:hover {
     cursor: pointer;
 }
 .timestamp {
     margin: 1.1rem 0.5rem auto 0.5rem;
     color: dimgray;
-    font-size: smaller;
     min-width:max-content;
-    @include respond-to(desktop-5x){
-        font-size:1.2rem;
-    }
 }
 #bg-icon {
-    position: absolute;
-    font-size: 34rem;
-    right: 65px;
-    top: 85px;
-    transform: rotate(21deg);
-    color: darkgray;
-    opacity: 0.3;
-    @include respond-to(desktop-5x){
-        top:185px;
-        font-size:36rem;
-    }
-    @include respond-to(desktop-6x){
-        top:160px;
-        right:0;
-    }
-    @include respond-to(tablet){
-       top:80px;
-       font-size:26rem;
-    }
-    @include respond-to(mobile) {
-        font-size: 28rem;
-        top:80px;
-    }
-    @include respond-to(mobile-x) {
-        font-size: 24rem;
-        top:80px;
-    }
-    @include respond-to(mobile-xx) {
-        font-size: 18rem;
-        top:80px;
-    }
+    top: 45%;
 }
 textarea{
     overflow: hidden;
     resize: none;
     width:100%;
+}
+.rounded {   
+    border-radius: 25px;
+    color: white;
+    padding: 3px 0.5rem;
+    opacity: 0.7;
+    font-weight: 600;
+    letter-spacing: 0.5px;
 }

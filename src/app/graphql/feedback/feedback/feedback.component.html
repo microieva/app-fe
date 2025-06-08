@@ -1,5 +1,5 @@
 <mat-dialog-content>
-    <div *ngIf="isLoading" class="loading">
+    <div *ngIf="isLoading" class="loading"  >
         <app-loading></app-loading>
     </div>
     <div *ngIf="feedback && !isLoading">
@@ -14,5 +14,5 @@
     </div>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-    <button mat-stroked-button (click)="onDelete()">Delete</button>
+    <button mat-stroked-button (click)="onDelete()"><p>{{ 'Delete' }}</p></button>
 </mat-dialog-actions>

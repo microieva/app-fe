@@ -1,27 +1,33 @@
 @import '../../../shared/scss/breakpoints';
+@import '../../../shared/scss/variables';
 
 .material-icons{
     color: dimgray;
-    float: right;
     position: absolute;
-    right: -62px;
+    line-height: 1rem;
+    padding-left:40%;
     &:hover {
-        color: rgb(68, 65, 65);
+        color: $--color-main;
         cursor: pointer;
     }
 }
-.page {
-    margin-top: 6rem;
-    @include respond-to(tablet) {
-        max-width:85%;
-        margin:4rem auto;
-    }
-    @include respond-to(mobile-6x) {
-        max-width:90%;
-        width:90%;
-        margin:4rem auto;
-        padding:0;
-    }
+
+.fixed-width-tab {
+  position: relative;
+  display: inline-block;
+  min-width: 120px; 
+  max-width: 200px; 
 }
+
+.tab-label {
+  display: inline-block;
+  max-width: calc(100% - 24px); 
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+
+
+
 
 
