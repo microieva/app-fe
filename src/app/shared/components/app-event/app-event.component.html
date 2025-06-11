@@ -1,161 +1,160 @@
 <mat-dialog-content #el class="app-event">
-    <div *ngIf="isLoading" class="loading"  >
+    <div *ngIf="isLoading" class="loading">
         <app-loading></app-loading>
     </div>
     <form class="app-event" *ngIf="!isLoading">
         <div class="flex-row title">
-            <h4 [ngClass]="userRole !=='admin' && 'title-hover'" *ngIf="appointmentInfo.title && appointmentInfo.title !== 'View details'" (click)="userRole !== 'admin' && onLinkClick(appointmentInfo.id)">{{ title }}</h4>
-            <h4 [ngClass]="userRole !=='admin' && 'title-hover'" *ngIf="appointmentInfo.title === 'View details'" (click)="userRole !== 'admin' && onLinkClick(appointmentInfo.id)">{{ 'Appointment' }}</h4>
-            <h4 *ngIf="!appointmentInfo.title && userRole !== 'doctor'">{{ "New Appointment" }}</h4>
-            <h4 *ngIf="!appointmentInfo.title && userRole === 'doctor'">{{ "Reserve All Day" }}</h4>
-            <p class="event-label" *ngIf="appointmentInfo.title">created: <em>{{createdAt}}</em></p>
+            <h4 [ngClass]="userRole !=='admin' && 'title-hover'">{{title}}</h4>
+            <p class="event-label" *ngIf="title !== 'New Appointment'">created: <em>{{createdAt}}</em></p>
         </div>
-        <div class="flex-column block">
-            <div class="flex-column  block--bordered--lg" *ngIf="appointmentInfo.title">
-                <p class="title color--gray--cold--primary" *ngIf="userRole !== 'admin' && title !=='Missed request'">{{ 'Basic Information' }}</p>
-                <p class="title color--gray--cold--primary" *ngIf="userRole === 'admin' && title ==='Missed request'">{{ "Patient's Information" }}</p>
-                
-                <div class="flex-row">
-                    <div class="flex-column">
-                        <div class="flex-column block">
-                            <p class="event-label">{{  "Patient's Name"  }}</p>
-                            <h5>{{ patientName }}</h5>
 
-                        </div>
-                        <div class="flex-column block">
-                            <p class="event-label">{{ 'Date of Birth' }}</p>
-                            <h5>{{ patientDob }}</h5>
-                        </div>
+        <div class="flex-column  block--bordered--lg" *ngIf="appointmentId">
+            <p class="title color--gray--cold--primary" *ngIf="userRole === 'admin' && title ==='Missed request'" >{{ "Patient's Information" }}</p>
+            <p class="title color--gray--cold--primary" *ngIf="title !=='Missed request'">{{ 'Basic Information' }}</p>
+            
+            <div class="flex-row">
+                <div class="flex-column">
+                    <div class="flex-column block">
+                        <p class="event-label">{{  "Patient's Name"  }}</p>
+                        <h5>{{ patientName }}</h5>
+
                     </div>
-                    <div class="flex-column">
-                        <div *ngIf="doctorName" class="block">
-                            <p class="event-label">{{ 'Doctor' }}</p>
-                            <h5>{{ doctorName }}</h5>
+                    <div class="flex-column block">
+                        <p class="event-label">{{ 'Date of Birth' }}</p>
+                        <h5>{{ patientDob }}</h5>
+                    </div>
+                </div>
+                <div class="flex-column">
+                    <div *ngIf="doctorName" class="block">
+                        <p class="event-label">{{ 'Doctor' }}</p>
+                        <h5>{{ doctorName }}</h5>
+
+                    </div>
+
+                    <div *ngIf="userRole !== 'admin' && !doctorName">
+                        <h5><em>{{ 'Pending confirmation' }}</em></h5>
+                    </div>
+                    <div *ngIf="userRole ==='admin' && !doctorName" class="flex-column">
+                        <div class="block">
+                            <p  class="event-label">{{'Patient Phone Number'}}</p>
+                            <h5>{{patientPhoneNr}}</h5>
 
                         </div>
-
-                        <div *ngIf="userRole !== 'admin' && !doctorName">
-                            <h5><em>{{ 'Pending confirmation' }}</em></h5>
+                        <div class="block">
+                            <p class="event-label">{{'Patient Email'}}</p>
+                            <h5>{{patientEmail}}</h5>
+                            
                         </div>
-                        <div *ngIf="userRole ==='admin' && !doctorName" class="flex-column">
-                            <div class="block">
-                                <p  class="event-label">{{'Patient Phone Number'}}</p>
-                                <h5>{{patientPhoneNr}}</h5>
 
-                            </div>
-                            <div class="block">
-                                <p class="event-label">{{'Patient Email'}}</p>
-                                <h5>{{patientEmail}}</h5>
-                                
-                            </div>
-
-                        </div>
                     </div>
                 </div>
             </div>
-            <div 
-                class="flex-column  block--bordered--lg" 
-                [class.clickable]="isClickable && !isLoadingDetails"
-                [class.edit-view]="isEditting"
-                (click)="isClickable && !isEditting && onUpdate()" 
-            >
-                <p *ngIf="appointmentInfo.title !== 'Pending'" class="title color--gray--cold--primary">{{ 'Appointment Time' }}</p>
-                <p *ngIf="appointmentInfo.title === 'Pending'" class="title color--gray--cold--primary">{{ 'Requested Time' }}</p>
-                <div *ngIf="isLoadingDetails && !isEditting" class="details loading">
-                    <app-loading></app-loading>
+        </div>
+
+        <div 
+            class="flex-column  block--bordered--lg" 
+            [class.clickable]="isClickable && !isLoadingDetails"
+            [class.edit-view]="isEditting"
+            (click)="isClickable && !isEditting && onUpdate()" 
+        >
+            <p *ngIf="title !== 'Pending'" class="title color--gray--cold--primary">{{ 'Appointment Time' }}</p>
+            <p *ngIf="title === 'Pending'" class="title color--gray--cold--primary">{{ 'Requested Time' }}</p>
+            
+            <div *ngIf="isLoadingDetails && !isEditting" class="details loading">
+                <app-loading></app-loading>
+            </div>
+            <div class="details flex-row" *ngIf="!isEditting && !isLoadingDetails">
+                <div class="flex-column block">
+                    <p class="event-label">{{ 'Date' }}</p>
+                    <h5>{{ eventDate }}</h5>
                 </div>
-                <div class="details flex-row" *ngIf="!isEditting && !isLoadingDetails">
-                    <div class="flex-column block">
-                        <p class="event-label">{{ 'Date' }}</p>
-                        <h5>{{ eventDate }}</h5>
-                    </div>
-                    <div class="flex-column block">
-                        <p class="event-label">{{ 'Start Time' }}</p>
-                        <h5>{{ eventStartTime }}</h5>
-                    </div>
-                    <div class="flex-column block">
-                        <p class="event-label">{{ 'End Time' }}</p>
-                        <h5>{{ eventEndTime }}</h5>
-                    </div>
+                <div class="flex-column block">
+                    <p class="event-label">{{ 'Start Time' }}</p>
+                    <h5>{{ eventStartTime }}</h5>
                 </div>
-                
-                <div class="details flex-row" *ngIf="isEditting && !isLoadingDetails" style="position: relative;">
-                    <form [formGroup]="appointmentTimeForm" class="flex-column form">
-                        <mat-form-field appearance="outline" style="width: 45%;">
-                            <mat-label>Date</mat-label>
-                            <input matInput [matDatepicker]="datePicker" formControlName="date" />
-                            <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
-                            <mat-datepicker #datePicker></mat-datepicker>
-                        </mat-form-field>
-                        <div  class="flex-row" style="margin-bottom:1.3rem;">
-                            <mat-form-field appearance="outline" style="width: 20%;">
-                                <mat-select formControlName="startHour">
-                                    @for (hour of hours; track hour) {
-                                        <mat-option [value]="hour">{{hour}}</mat-option>
-                                    }
-                                </mat-select>  
-                            </mat-form-field>
-                            <p style="height:3rem; font-weight: 900;">:</p>
-                            <mat-form-field appearance="outline" style="width: 20%;">
-                                <mat-select formControlName="startMin">
-                                    @for (min of minutes; track min) {
-                                      <mat-option [value]="min">{{min}}</mat-option>
-                                    }
-                                </mat-select>  
-                            </mat-form-field>
-                            <p style="height:3rem; font-weight: 900;"> – </p>
-                            <mat-form-field appearance="outline" style="width: 20%;">
-                              <mat-select formControlName="endHour">
-                                  @for (hour of hours; track hour) {
+                <div class="flex-column block">
+                    <p class="event-label">{{ 'End Time' }}</p>
+                    <h5>{{ eventEndTime }}</h5>
+                </div>
+            </div>
+            
+            <div class="details flex-row" *ngIf="isEditting && !isLoadingDetails" style="position: relative;">
+                <form [formGroup]="appointmentTimeForm" class="flex-column form">
+                    <mat-form-field appearance="outline" style="width: 45%;">
+                        <mat-label>Date</mat-label>
+                        <input matInput [matDatepicker]="datePicker" formControlName="date" />
+                        <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
+                        <mat-datepicker #datePicker></mat-datepicker>
+                    </mat-form-field>
+                    <div  class="flex-row" style="margin-bottom:1.3rem;">
+                        <mat-form-field appearance="outline" style="width: 20%;">
+                            <mat-select formControlName="startHour">
+                                @for (hour of hours; track hour) {
                                     <mat-option [value]="hour">{{hour}}</mat-option>
-                                  }
-                              </mat-select> 
-                            </mat-form-field>
-                            <p style="height:3rem; font-weight: 900;">:</p>  
-                            <mat-form-field appearance="outline" style="width: 20%;">
-                              <mat-select formControlName="endMin">
-                                  @for (min of minutes; track min) {
+                                }
+                            </mat-select>  
+                        </mat-form-field>
+                        <p style="height:3rem; font-weight: 900;">:</p>
+                        <mat-form-field appearance="outline" style="width: 20%;">
+                            <mat-select formControlName="startMin">
+                                @for (min of minutes; track min) {
                                     <mat-option [value]="min">{{min}}</mat-option>
-                                  }
-                              </mat-select>
-                          
-                            </mat-form-field>
+                                }
+                            </mat-select>  
+                        </mat-form-field>
+                        <p style="height:3rem; font-weight: 900;"> – </p>
+                        <mat-form-field appearance="outline" style="width: 20%;">
+                            <mat-select formControlName="endHour">
+                                @for (hour of hours; track hour) {
+                                <mat-option [value]="hour">{{hour}}</mat-option>
+                                }
+                            </mat-select> 
+                        </mat-form-field>
+                        <p style="height:3rem; font-weight: 900;">:</p>  
+                        <mat-form-field appearance="outline" style="width: 20%;">
+                            <mat-select formControlName="endMin">
+                                @for (min of minutes; track min) {
+                                <mat-option [value]="min">{{min}}</mat-option>
+                                }
+                            </mat-select>
+                        
+                        </mat-form-field>
+                    </div>
+                    <mat-error *ngIf="appointmentTimeForm.errors?.isWeekend">
+                        Invalid weekday
+                    </mat-error>
+                    <mat-error *ngIf="appointmentTimeForm.errors?.isTimeRangeValid && !appointmentTimeForm.errors?.isWeekend">
+                        Invalid time range selected
+                    </mat-error>
+                    <mat-error *ngIf="appointmentTimeForm.errors?.isOverTime && !appointmentTimeForm.errors?.isTimeRangeValid && !appointmentTimeForm.errors?.isWeekend">
+                        Over time (latest ending 18:00)
+                    </mat-error>
+                    <div class="flex-row" style="justify-content: flex-start;">
+                        <div 
+                            (click)="onNewTimeSubmit(); $event.stopPropagation();" 
+                            class="icon--confirm" 
+                            matTooltip="Save"
+                        >
+                            <span class="material-icons" [ngClass]="isDisabled ? 'disabled' : ''">check</span>
                         </div>
-                        <mat-error *ngIf="appointmentTimeForm.errors?.isWeekend">
-                            Invalid weekday
-                        </mat-error>
-                        <mat-error *ngIf="appointmentTimeForm.errors?.isTimeRangeValid && !appointmentTimeForm.errors?.isWeekend">
-                            Invalid time range selected
-                        </mat-error>
-                        <mat-error *ngIf="appointmentTimeForm.errors?.isOverTime && !appointmentTimeForm.errors?.isTimeRangeValid && !appointmentTimeForm.errors?.isWeekend">
-                            Over time (latest ending 18:00)
-                        </mat-error>
-                        <div class="flex-row" style="justify-content: flex-start;">
-                            <div 
-                                (click)="onNewTimeSubmit(); $event.stopPropagation();" 
-                                class="icon--confirm" 
-                                matTooltip="Save"
-                            >
-                                <span class="material-icons" [ngClass]="isDisabled ? 'disabled' : ''">check</span>
-                            </div>
-                            <div 
-                                (click)="isEditting=!isEditting; $event.stopPropagation();" 
-                                class="icon--cancel"
-                                matTooltip="Cancel"
-                            >
-                                <span class="material-icons">close</span>
-                            </div>
+                        <div 
+                            (click)="isEditting=!isEditting; $event.stopPropagation();" 
+                            class="icon--cancel"
+                            matTooltip="Cancel"
+                        >
+                            <span class="material-icons">close</span>
                         </div>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
         </div>
+
         <div class="message  block--bordered--lg" *ngIf="patientMessage">
             <p class="title color--gray--cold--primary" *ngIf="userRole==='doctor' || userRole==='admin'">{{ "Patient's Message" }}</p>
             <p class="title color--gray--cold--primary" *ngIf="userRole==='patient'">{{ 'My Message' }}</p>
             <h5 class="font">{{patientMessage}}</h5>
             <div 
-                (click)="onDeleteMessage(appointmentInfo.id)" 
+                (click)="onDeleteMessage(appointmentInput.id)" 
                 *ngIf="userRole === 'patient' || userRole==='admin'"
                 class="icon--cancel"
             >
@@ -167,57 +166,121 @@
             <p class="title color--gray--cold--primary" *ngIf="userRole==='doctor'">{{ 'My Message' }}</p>
             <h5 class="font">{{doctorMessage}}</h5>
             <div 
-                (click)="onDeleteMessage(appointmentInfo.id)" 
+                (click)="onDeleteMessage(appointmentInput.id)" 
                 *ngIf="userRole === 'doctor'"
                 class="icon--cancel"
             >
                 <span class="material-icons" matTooltip="Delete message">close</span>
             </div>
         </div>
-        <div *ngIf="(!doctorMessage && doctorId) || (!patientMessage && userRole === 'patient') || (!patientMessage && userRole === 'admin' && samePatient)">
-            <div 
-                *ngIf="!showInput"
-                type="button" 
-                class="title-hover flex color--main--primary" 
-                (click)="onAddClick(); showInput =!showInput" 
-            >
-                <span class="material-icons">add</span><h5 style="text-indent:0.5rem;">Additional information</h5>
+        <div *ngIf="!isPast">
+            <div *ngIf="(!doctorMessage && doctorId && userRole === 'doctor') || (!patientMessage && userRole === 'patient') || (!patientMessage && userRole === 'admin' && samePatient)">
+                <div 
+                    *ngIf="!showInput"
+                    type="button" 
+                    class="title-hover flex color--main--primary" 
+                    (click)="showInput =!showInput" 
+                >
+                    <span class="material-icons">add</span><h5 style="text-indent:0.5rem;">Additional information</h5>
+                </div>
             </div>
         </div>
-       
         <div class=" block--bordered--lg" *ngIf="showInput" style="position: relative;">
             <p class="title color--gray--cold--primary">{{ 'Additional Information' }}</p>
-            <mat-form-field style="width:100%;margin:1rem 0;">
-                <mat-label>{{ 'Add message' }}</mat-label>
-                <textarea matInput #message maxlength="700" (input)="adjustHeight($event)" #textarea></textarea>
-                <mat-hint align="end">{{characterCount}} / 700</mat-hint>
-            </mat-form-field>
-            <div class="flex-row" style="justify-content: flex-start;">
-                <div (click)="onSaveMessage(message.value)" class="icon--confirm" matTooltip="Save">
-                    <span class="material-icons" >check</span>
+             <div *ngIf="isLoadingMessage" class="loading">
+                <app-loading></app-loading>
+            </div>
+            <div *ngIf="!isLoadingMessage">
+                <mat-form-field style="width:100%;margin:1rem 0;">
+                    <mat-label>{{ 'Add message' }}</mat-label>
+                    <textarea matInput #message maxlength="700" (input)="adjustHeight($event)" #textarea></textarea>
+                    <mat-hint align="end">{{characterCount}} / 700</mat-hint>
+                </mat-form-field>
+                <div class="flex-row" style="justify-content: flex-start;">
+                    <div (click)="onSaveMessage(message.value)" class="icon--confirm" matTooltip="Save">
+                        <span class="material-icons" >check</span>
+                    </div>
+                    <div (click)="showInput =!showInput" class="icon--cancel" matTooltip="Cancel">
+                        <span class="material-icons" >close</span>
+                    </div>
                 </div>
-                <div (click)="showInput =!showInput" class="icon--cancel" matTooltip="Cancel">
-                    <span class="material-icons" >close</span>
-                </div>
+
             </div>
         </div>
-         <div 
+        <div 
             *ngIf="userRole === 'doctor' && !isOpened && doctorName"
             [ngClass]="isOpened ? '': 'title-hover flex'"
             class="last color--main--primary" 
-            (click)="onOpenAppointmentTab(appointmentInfo.id)" 
+            (click)="onOpenAppointmentTab(appointmentInput.id)" 
         >
             <span class="material-icons">open_in_new</span>
             <h5 style="text-indent:0.5rem;">Open appointment workspace</h5>
-        </div>
+        </div> 
         <mat-dialog-actions align="end">
-            <button class="button--confirm" id="submit-btn" mat-stroked-button type="submit" [mat-dialog-close]="true" cdkFocusInitial (click)="onSubmit()" *ngIf="!appointmentInfo.title"><p>Confirm</p></button>
-            <button class="button--create" mat-stroked-button type="button" (click)="onAcceptAppointment()" *ngIf="!doctorName && userRole === 'doctor'"><p>Accept Appointment</p></button>
-            <button mat-stroked-button type="button" (click)="onCancelAppointment()" *ngIf="userRole==='doctor' && doctorId && !isPast"><p>Cancel Appointment</p></button>
-            <button class="button--delete" mat-stroked-button type="button" (click)="onDeleteAppointment()" *ngIf="userRole==='doctor' && doctorId && isPast"><p>Delete Appointment</p></button>
-            <button mat-stroked-button type="button" (click)="onDeleteAppointment()" *ngIf="userRole==='patient' && !isPast"><p>Cancel Appointment</p></button>
-            <button class="button--delete" mat-stroked-button type="button" (click)="onDeleteAppointment()" *ngIf="userRole==='patient' && isPast"><p>Delete Appointment</p></button>
-            <button class="button--delete" mat-stroked-button type="button" (click)="onDeleteAppointment()" *ngIf="userRole==='admin' && samePatient"><p>Delete Appointment</p></button>
+            <div *ngIf="userRole === 'patient'" class="flex" style="gap:0.5rem;">
+                <button 
+                    *ngIf="title === 'New Appointment'" 
+                    class="button--confirm" 
+                    [disabled]="showInput"
+                    mat-stroked-button 
+                    type="submit" 
+                    [mat-dialog-close]="true" 
+                    cdkFocusInitial 
+                    (click)="!appointmentId && onConfirmAppointment()">
+                    <p>Confirm</p>
+                </button>
+
+                <button 
+                    class="button--cancel" 
+                    mat-stroked-button 
+                    type="button" 
+                    (click)="onDeleteAppointment()">
+                    <p *ngIf="!Past">Cancel Appointment</p><p *ngIf="Past">Delete Appointment</p>
+                </button>
+                <button 
+                    class="button--delete" 
+                    mat-stroked-button 
+                    type="button" 
+                    (click)="onDeleteAppointment()" 
+                    *ngIf="isPast">
+                    <p>Delete Appointment</p>
+                </button>
+            </div>
+            <div *ngIf="userRole === 'doctor'" class="flex" style="gap:0.5rem;">
+                <button 
+                    class="button--create" 
+                    mat-stroked-button 
+                    type="button" 
+                    (click)="onAcceptAppointment()" 
+                    *ngIf="!doctorName && userRole === 'doctor'">
+                    <p>Accept Appointment</p>
+                </button>
+                <button 
+                    mat-stroked-button 
+                    type="button" 
+                    (click)="onCancelAppointment()" 
+                    *ngIf="userRole==='doctor' && doctorId && !isPast">
+                    <p>Cancel Appointment</p>
+                </button>
+                <button 
+                    class="button--delete" 
+                    mat-stroked-button 
+                    type="button" 
+                    (click)="onDeleteAppointment()" 
+                    *ngIf="doctorId && isPast">
+                    <p>Delete Appointment</p>
+                </button>
+            </div>
+            <div *ngIf="userRole==='admin'">
+                <button 
+                    class="button--delete" 
+                    mat-stroked-button 
+                    type="button" 
+                    (click)="onDeleteAppointment()" 
+                    *ngIf="userRole==='admin' && samePatient">
+                    <p>Delete Appointment</p>
+                </button> 
+            </div>
         </mat-dialog-actions>
     </form>
 </mat-dialog-content>

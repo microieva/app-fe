@@ -10,19 +10,19 @@ import { ME_QUERY } from '../constants';
 export class AppGraphQLService {
     constructor(private apollo: Apollo) {}
 
-    // async send(query: string, variables?: Object, useCache = false): Promise<any> {  
-    //     const fetchPolicy = useCache ? 'cache-first' : 'network-only';
-    //     const result = this.apollo.watchQuery({
-    //         query: gql`${query}`,
-    //         variables,
-    //         fetchPolicy: fetchPolicy
-    //         //pollInterval: 3000 
-    //     }).valueChanges;
+    async send(query: string, variables?: Object, useCache = false): Promise<any> {  
+        const fetchPolicy = useCache ? 'cache-first' : 'network-only';
+        const result = this.apollo.watchQuery({
+            query: gql`${query}`,
+            variables,
+            fetchPolicy: fetchPolicy
+            //pollInterval: 3000 
+        }).valueChanges;
     
-    //     return firstValueFrom(result);
-    // }
+        return firstValueFrom(result);
+    }
 
-    async send(query: string, variables?: Object, options: { 
+    /*async send(query: string, variables?: Object, options: { 
       useCache?: boolean,
       forceFetch?: boolean,
     } = {useCache: true, forceFetch: false}): Promise<any> {
@@ -49,7 +49,7 @@ export class AppGraphQLService {
         fetchPolicy: forceFetch ? 'network-only' : fetchPolicy
       };
       return firstValueFrom(this.apollo.watchQuery(watchQueryConfig).valueChanges);
-    }
+    }*/
 
     async mutate(mutation: string, variables: Object): Promise<any> {
         const result = this.apollo.mutate({

@@ -18,7 +18,6 @@ import { createEventId } from "../../constants";
 import { Appointment } from "../../../graphql/appointment/appointment";
 import { AppointmentInput } from "../../../graphql/appointment/appointment.input";
 import { getNow } from "../../utils";
-import { LoadingComponent } from "../app-loading/loading.component";
 
 @Component({
     selector: 'app-calendar',
@@ -322,28 +321,43 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
         await this.loadEvents();
     }
 
-    async saveAppointment(appointmentInput: AppointmentInput){
+    async saveAppointment(appointmentInput: AppointmentInput) : Promise<Appointment | null>{
         const mutation = `
             mutation ($appointmentInput: AppointmentInput!) {
                 saveAppointment (appointmentInput: $appointmentInput) {
                     success
                     message
+                    data {
+                        ... on Appointment {
+                            id
+                            start
+                            end
+                            patientId
+                            createdAt
+                            allDay  
+                        }
+                    } 
+                        
                 }
             }
         `  
         try {
-            const ref = this.dialog.open(LoadingComponent);
+            //const ref = this.dialog.open(LoadingComponent);
             const response = await this.graphQLService.mutate(mutation, {appointmentInput});
-            ref.close();       
+            //ref.close();       
             if (response.data.saveAppointment.success) {
                 if (this.role === 'doctor') {
                     this.appointmentService.pollNextAppointment();
                 }
+
+                return response.data.saveAppointment.data;
             } else {
                 this.dialog.open(AlertComponent, {data: {message:response.data.saveAppointment.message}});
+                return null;
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Error saving appointment: "+error}});
+            return null;
         }
     }
 
@@ -734,15 +748,13 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                     patientId: this.patientId || undefined
                 }
                 
-                await this.saveAppointment(input);
-                
-                const dialogRef = this.dialog.open(EventComponent, {disableClose: true, data: { eventInfo }});
+                const dialogRef = this.dialog.open(EventComponent, {disableClose: true, data: { eventInfo: input }});
                 const sub = dialogRef.afterOpened().subscribe(() => {
                     this.dialogService.notifyDialogOpened();
                 });
 
-                const subSubmit = dialogRef.componentInstance.isSubmitting.subscribe(subscription => {
-                    if (subscription) {
+                const subSubmit = dialogRef.componentInstance.isSubmitting.subscribe(value => {
+                    if (value) {
                         this.dialog.closeAll();
                         calendarApi.addEvent(event);
                         calendarApi.changeView('dayGridMonth');
@@ -751,6 +763,7 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                 const subDelete = dialogRef.componentInstance.isDeleting.subscribe(async id => {
 
                     if (id) {
+                        this.dialog.closeAll();
                         const mutation = `mutation ($appointmentId: Int!) {
                             deleteAppointment (appointmentId: $appointmentId) {
                                 success
@@ -759,8 +772,8 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                         }`
                         try {
                             const response = await this.graphQLService.mutate(mutation, { appointmentId: id});
-                            if (response.data.deleteAppointment.success) {
-                                this.dialog.closeAll();
+                            if (!response.data.deleteAppointment.success) {
+                                this.dialog.open(AlertComponent, { data: { message: response.data.deleteAppointment.message}})
                             }
                         } catch (error) {
                             this.dialog.open(AlertComponent, { data: { message: "Error deleting appointment: "+ error}})
@@ -828,11 +841,11 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                     if (!arg.allDay) this.handleDayView(arg);
                     else calendarApi.unselect();
                 } else {
-                    // if (arg.allDay && numberOfAppointmentsOnSelectedDay <1) this.handleDayView(arg);
-                    // else if (arg.allDay && numberOfAppointmentsOnSelectedDay >0) {
-                    //     this.dialog.open(AlertComponent, {data: {message: "You have appointments on this day"}});
-                    //     calendarApi.unselect();
-                    // }
+                    if (arg.allDay && numberOfAppointmentsOnSelectedDay <1) this.handleDayView(arg);
+                    else if (arg.allDay && numberOfAppointmentsOnSelectedDay >0) {
+                        this.dialog.open(AlertComponent, {data: {message: "You have appointments on this day"}});
+                        calendarApi.unselect();
+                    }
                     calendarApi.unselect();
                 }
                 break;
@@ -892,11 +905,11 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
         const isDouble = this.isDouble(arg) 
         const isBusinessHours = this.isBusinessHours(arg);
         const isFuture = this.isFuture(arg);
+        const calendarApi = arg.view.calendar;
 
-        if ((!isDouble && isBusinessHours && isFuture) || isFuture && arg.allDay) {
+        if ((!isDouble && isBusinessHours && isFuture) || (arg.allDay && isFuture)) {
             this.handleAddEvent(arg);
         } 
-        const calendarApi = arg.view.calendar;
 
         if (!isBusinessHours && !arg.allDay) this.dialog.open(AlertComponent, {data: {message: "Outside working hours"}});
         calendarApi.unselect(); 
