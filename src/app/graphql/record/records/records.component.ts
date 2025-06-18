@@ -46,6 +46,7 @@ export class RecordsComponent implements OnInit, OnDestroy {
     actions: any[] | null = null;
     readonly panelOpenState = signal(false);
     private subscriptions: Subscription = new Subscription();
+    private uiSyncSubs: Subscription[] = [];
     records: Record[] = [];
     drafts: Record[] = [];
     draftsLength: number = 0;
@@ -541,5 +542,6 @@ export class RecordsComponent implements OnInit, OnDestroy {
     }
     ngOnDestroy(): void {
         this.subscriptions.unsubscribe();
+        this.uiSyncSubs.forEach(sub => sub.unsubscribe());
     }
 }

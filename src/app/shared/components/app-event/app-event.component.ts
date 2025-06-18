@@ -6,7 +6,6 @@ import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from "@angular/router";
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { overTimeValidator, timeRangeValidator, weekendValidator } from "../../validators";
-import { AppSocketService } from "../../services/app-socket.service";
 import { AppGraphQLService } from "../../services/app-graphql.service";
 import { AlertComponent } from "../app-alert/app-alert.component";
 import { ConfirmComponent } from "../app-confirm/app-confirm.component";
@@ -76,8 +75,8 @@ export class EventComponent implements OnInit, OnDestroy{
 
     appointmentInput: AppointmentInput | undefined;
     justCreatedId: number | null = null;
-    doctorMessage: string | null = null;
-    patientMessage: string | null = null;
+    doctorMessage: string | undefined;
+    patientMessage: string | undefined;
     patientId: number | undefined;
     doctorId: number | undefined;
     appointmentId: number | undefined;
@@ -99,7 +98,6 @@ export class EventComponent implements OnInit, OnDestroy{
         private dialog: MatDialog,
         private graphQLService: AppGraphQLService,
         private activatedRoute: ActivatedRoute,
-        private socketService: AppSocketService,
         private tabsService:AppTabsService,
         private headerService: AppHeaderService,
 
@@ -124,8 +122,12 @@ export class EventComponent implements OnInit, OnDestroy{
             if (this.appointmentId) {
                 await this.loadAppointment(this.appointmentId);
             } else {
-                await this.saveAppointment();
+                //await this.saveAppointment();
                 this.title = "New Appointment"
+                this.eventDate = DateTime.fromISO(this.appointmentInput.start).toFormat('MMM dd, yyyy');
+                this.eventStartTime = DateTime.fromISO(this.appointmentInput.start, {setZone:true}).toFormat('HH:mm a');
+                this.eventEndTime = DateTime.fromISO(this.appointmentInput.end, {setZone:true}).toFormat('HH:mm a');
+            
             }
 
             this.isLoading = false;
@@ -264,29 +266,51 @@ export class EventComponent implements OnInit, OnDestroy{
         }
     }
 
-    onConfirmAppointment(){
-        const value = this.form.value;
-        if (value.input) this.isSubmitting.emit(value.input);
-
-        this.socketService.notifyDoctors({
-            message: "New appointment request",
-            appointmentId: this.justCreatedId
-        });
+    async onConfirmAppointment(){
+        const ref = this.dialog.open(LoadingComponent);
+        if (!this.appointmentId && this.appointmentInput) {
+            this.appointmentInput = {
+                patientMessage: this.patientMessage,
+                ...this.appointmentInput
+            }
+        }
+        await this.saveAppointment();
+        this.isSubmitting.emit();
+        ref.close();
     }
     onDeleteAppointment(){
         if (this.appointmentId) {
             this.isDeleting.emit(this.appointmentId);
         }
-        if (this.justCreatedId) {
-            this.isDeleting.emit(this.justCreatedId);
+        if (!this.justCreatedId && !this.appointmentId) {
+            const ref = this.dialog.open(ConfirmComponent, {data:{message: "Cancel booking this appointment?"}});
+            ref.componentInstance.isConfirming.subscribe(async ()=> {
+                this.dialog.closeAll();
+            })
         }
     }
+    
     get characterCount(): number {
         const characters = this.textarea?.nativeElement.value || '';
         return characters.replace(/\n/g, '').length; 
     }
     async onSaveMessage(message: string){
-        const mutation = `mutation (
+        this.showInput = false;
+
+        if (!this.appointmentId) {
+            if (this.userRole === 'doctor') {
+                this.doctorMessage = message
+            } else {
+                this.patientMessage = message;
+            }
+            this.isMessageSaved.emit(true);
+        } else  {
+            await this.saveAppointmentMessage(message);
+            this.isLoadingMessage = false;
+        }
+    }
+    async saveAppointmentMessage(message:string) {
+             const mutation = `mutation (
             $appointmentMessage: String!, 
             $appointmentId: Int!
         ) {
@@ -316,8 +340,6 @@ export class EventComponent implements OnInit, OnDestroy{
         } catch (error) {
             this.dialog.open(AlertComponent, { data: {message: "Error saving appointment message: "+ error}})
         }
-        this.showInput = false;
-
     }
     adjustHeight(event:any){
         const el = event.target as HTMLTextAreaElement;
@@ -353,14 +375,16 @@ export class EventComponent implements OnInit, OnDestroy{
     onCancelAppointment() {
         this.isUnaccepting.emit(this.appointmentId);
     }
-    onAcceptAppointment(){
-        this.isAccepting.emit(this.appointmentId);
+    async onAcceptAppointment(){
+        await this.acceptAppointment();
+        //this.isAccepting.emit(this.appointmentId);
     }
     onOpenAppointmentTab(appointmentId: number){
         const tabs = this.tabsService.getTabs();
         const isCreated = tabs.find((tab: any) => tab.id === appointmentId);
 
         if (!isCreated) {
+            this.isOpeningTab.emit(appointmentId);
             if (this.router.url.includes('calendar')) {
                 this.tabsService.addTab('Appointment Workspace', AppointmentComponent, appointmentId);
                 this.router.navigate(['/home/appointments'], {
@@ -370,7 +394,6 @@ export class EventComponent implements OnInit, OnDestroy{
                 });
                 this.dialog.closeAll();
             }
-            this.isOpeningTab.emit(appointmentId);
             this.isOpened = true;
         } else {
             const ref = this.dialog.open(AlertComponent, {data: {message: "Workspace open"}});
@@ -457,9 +480,35 @@ export class EventComponent implements OnInit, OnDestroy{
                 await this.loadAppointment(this.appointmentId);
             }
             this.isLoadingDetails = false;
-            this.socketService.requestCountMissedAppointments();
+            //this.socketService.requestCountMissedAppointments();
             this.update.emit(true);
         } catch (error) {
+            this.dialog.open(AlertComponent, {data: {message: "Error saving appointment: "+error}});
+        }
+    }
+     async acceptAppointment(){
+        const ref = this.dialog.open(LoadingComponent);
+
+        const mutation = `
+        mutation ($appointmentId: Int!) {
+            acceptAppointment (appointmentId: $appointmentId) {
+                success
+                message
+            }
+        }`
+
+        try {
+            const response = await this.graphQLService.mutate(mutation, {appointmentId: this.appointmentId});
+            if (response.data.acceptAppointment.success) {
+                this.dialog.closeAll();
+                //await this.loadAppointment(this.appointmentId);
+            } else {
+                ref.close();
+                this.dialog.open(AlertComponent, {data: {message: response.data.saveAppointment.message}});    
+            }
+
+        } catch (error) {
+            ref.close();
             this.dialog.open(AlertComponent, {data: {message: "Error saving appointment: "+error}});
         }
     }

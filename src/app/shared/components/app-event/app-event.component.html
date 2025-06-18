@@ -226,24 +226,17 @@
                     type="submit" 
                     [mat-dialog-close]="true" 
                     cdkFocusInitial 
-                    (click)="!appointmentId && onConfirmAppointment()">
+                    (click)="onConfirmAppointment()">
                     <p>Confirm</p>
                 </button>
 
                 <button 
                     class="button--cancel" 
+                    [ngClass]="isPast ? 'button--delete':'button--cancel'"
                     mat-stroked-button 
                     type="button" 
                     (click)="onDeleteAppointment()">
-                    <p *ngIf="!Past">Cancel Appointment</p><p *ngIf="Past">Delete Appointment</p>
-                </button>
-                <button 
-                    class="button--delete" 
-                    mat-stroked-button 
-                    type="button" 
-                    (click)="onDeleteAppointment()" 
-                    *ngIf="isPast">
-                    <p>Delete Appointment</p>
+                    <p *ngIf="!isPast">Cancel Appointment</p><p *ngIf="isPast">Delete Appointment</p>
                 </button>
             </div>
             <div *ngIf="userRole === 'doctor'" class="flex" style="gap:0.5rem;">

@@ -87,6 +87,7 @@ export class DoctorsComponent implements OnInit, OnDestroy {
     }
 
     async loadData() {
+        this.isLoading = true;
         await this.loadStatic();
         switch (this.selectedIndex) {
             case 0:
@@ -101,7 +102,6 @@ export class DoctorsComponent implements OnInit, OnDestroy {
     }
 
     async loadRequests(){
-        this.isLoading = true;
         const query = `query (
             $pageIndex: Int!, 
             $pageLimit: Int!, 
@@ -138,7 +138,7 @@ export class DoctorsComponent implements OnInit, OnDestroy {
 
         try {
             const response = await this.graphQLService.send(query, variables);
-            this.isLoading = false;
+            
             if (response.data) {
                 this.requests = response.data.requests.slice;
                 this.requestsLength = response.data.requests.length;
@@ -147,8 +147,10 @@ export class DoctorsComponent implements OnInit, OnDestroy {
                 if (this.requestsDataSource) {
                     this.dataSource = new MatTableDataSource<UserDataSource>(this.requestsDataSource);
                 }
+                this.isLoading = false;
             }
         } catch (error) {
+            this.isLoading = false;
             this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading requests: "+error}})
         }
     }
@@ -340,7 +342,8 @@ export class DoctorsComponent implements OnInit, OnDestroy {
             const response = await this.graphQLService.mutate(mutation, { userId: id});
             if (response.data.deleteUser.success) {
                 this.dialog.closeAll();
-                this.ngOnInit();
+                //this.ngOnInit();
+                await this.loadData();
             }
             this.dialog.open(AlertComponent, {data: {message: "User account deleted"}});
         } catch (error) {
@@ -380,27 +383,25 @@ export class DoctorsComponent implements OnInit, OnDestroy {
             try {
                 const response = await this.graphQLService.mutate(mutation, {userIds:ids})
                 if (response.data.deleteDoctorRequestsByIds.success) {
-                    this.ngOnDestroy();
-                    await this.ngOnInit();
+                    await this.loadData();
+                    //this.ngOnDestroy();
+                    //await this.ngOnInit();
                     this.dialog.open(AlertComponent, {data: {message:response.data.deleteDoctorRequestsByIds.message}})    
                 } else {
                     const ref = this.dialog.open(AlertComponent, {data: {message:response.data.deleteDoctorRequestsByIds.message}});
                     ref.componentInstance.ok.subscribe(async ()=> {
-                        this.ngOnDestroy();
-                        await this.ngOnInit();
+                        await this.loadData();
                     })
                 }
             } catch (error) {
                 const ref = this.dialog.open(AlertComponent, {data: {message:error}});
                 ref.componentInstance.ok.subscribe(async ()=> {
-                    this.ngOnDestroy();
-                    await this.ngOnInit();
+                    await this.loadData();
                 })
             }
         });
         ref.componentInstance.isCancelling.subscribe(async () => {
-            this.ngOnDestroy();
-            await this.ngOnInit();
+            await this.loadData();
         })
     }
     async activateDoctorAccountsByIds(ids:number[]) {
@@ -424,27 +425,23 @@ export class DoctorsComponent implements OnInit, OnDestroy {
                 loading.close();
                 await this.loadData();
                 if (response.data.saveDoctorsByIds.success) {
-                    this.ngOnDestroy();
-                    await this.ngOnInit();
+                    await this.loadData();
                     this.dialog.open(AlertComponent, {data: {message:response.data.saveDoctorsByIds.message}})    
                 } else {
                     const ref = this.dialog.open(AlertComponent, {data: {message:response.data.saveDoctorsByIds.message}});
                     ref.componentInstance.ok.subscribe(async ()=> {
-                        this.ngOnDestroy();
-                        await this.ngOnInit();
+                        await this.loadData();
                     })
                 }
             } catch (error) {
                 const ref = this.dialog.open(AlertComponent, {data: {message:error}});
                 ref.componentInstance.ok.subscribe(async ()=> {
-                    this.ngOnDestroy();
-                    await this.ngOnInit();
+                    await this.loadData();
                 })
             }
         });
         ref.componentInstance.isCancelling.subscribe(async () => {
-            this.ngOnDestroy();
-            await this.ngOnInit();
+            await this.loadData();
         });
     }
     async deactivateDoctorAccountsByIds(ids:number[]){
@@ -465,27 +462,23 @@ export class DoctorsComponent implements OnInit, OnDestroy {
             try {
                 const response = await this.graphQLService.mutate(mutation, {userIds:ids})
                 if (response.data.deactivateDoctorAccountsByIds.success) {
-                    this.ngOnDestroy();
-                    await this.ngOnInit();
+                    await this.loadData();
                     this.dialog.open(AlertComponent, {data: {message:response.data.deactivateDoctorAccountsByIds.message}})    
                 } else {
                     const ref = this.dialog.open(AlertComponent, {data: {message:response.data.deactivateDoctorAccountsByIds.message}});
                     ref.componentInstance.ok.subscribe(async ()=> {
-                        this.ngOnDestroy();
-                        await this.ngOnInit();
+                        await this.loadData();
                     })
                 }
             } catch (error) {
                 const ref = this.dialog.open(AlertComponent, {data: {message:error}});
                 ref.componentInstance.ok.subscribe(async ()=> {
-                    this.ngOnDestroy();
-                    await this.ngOnInit();
+                    await this.loadData();
                 })
             }
         });
         ref.componentInstance.isCancelling.subscribe(async () => {
-            this.ngOnDestroy();
-            await this.ngOnInit();
+            await this.loadData();
         })
     }
 

@@ -49,3 +49,15 @@ export const INITIAL_EVENTS: EventInput[] = [
 export function createEventId() {
   return String(eventGuid++);
 }
+export const APPOINTMENT_CREATED = 'APPOINTMENT_CREATED';
+export const APPOINTMENT_ACCEPTED = 'APPOINTMENT_ACCEPTED';
+export const APPOINTMENT_UPDATED = 'APPOINTMENT_UPDATED';
+export const APPOINTMENT_DELETED = 'APPOINTMENT_DELETED';
+export const APPOINTMENT_CANCELLED = 'APPOINTMENT_CANCELLED';
+export const MESSAGE_CREATED = 'MESSAGE_CREATED';
+export const FEEDBACK_CREATED = 'FEEDBACK_CREATED';
+export const DOCTOR_REQUEST_CREATED = 'DOCTOR_REQUEST_CREATED';
+export const RECORD_CREATED = 'RECORD_CREATED';
+export const USER_UPDATED = 'USER_UPDATED'; // will be used in ui-sync
+export const DOCTOR_ROOM_UPDATE = 'DOCTOR_ROOM_UPDATE';
+export const USER_STATUS = 'USER_STATUS';

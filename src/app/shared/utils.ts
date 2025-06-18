@@ -1,5 +1,4 @@
 import { DateTime } from "luxon";
-import { AppSocketService } from "./services/app-socket.service";
 
 export const getNextAppointmentTodayTomorrowStartStr = (nextStart: any): string => {
     const startDate = DateTime.fromISO(nextStart, { setZone: true });

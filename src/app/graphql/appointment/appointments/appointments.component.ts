@@ -9,10 +9,8 @@ import { Subscription } from "rxjs";
 import { environment } from '../../../../environments/environment';
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
 import { AppAppointmentService } from "../../../shared/services/app-appointment.service";
-import { AppDialogService } from "../../../shared/services/app-dialog.service";
 import { AppTimerService } from "../../../shared/services/app-timer.service";
 import { AppTabsService } from "../../../shared/services/app-tabs.service";
-import { AppSocketService } from "../../../shared/services/app-socket.service";
 import { AppointmentComponent } from "../appointment.component";
 import { AppointmentMessageComponent } from "../../../shared/components/app-appointment-message/app-appointment-message.component";
 import { AlertComponent } from "../../../shared/components/app-alert/app-alert.component";
@@ -91,9 +89,7 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
         private activatedRoute: ActivatedRoute,
         private appointmentService: AppAppointmentService,
         private timerService: AppTimerService,
-        public tabsService: AppTabsService,
-        private dialogService: AppDialogService,
-        private socketService: AppSocketService
+        public tabsService: AppTabsService
     ){}
     
     async ngOnInit() {
@@ -145,11 +141,6 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                 } 
             }
         });
-        this.socketService.refresh$.subscribe(async (isUpdated) => {
-            if (isUpdated) {
-                await this.ngOnInit()
-            }
-        });
            
         this.subscriptions.add(subRouterParamsId);
         this.subscriptions.add(subRouterParamsTab);
@@ -160,7 +151,6 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
     ngOnDestroy(){
         this.subscriptions.unsubscribe();
     }
-
 
     createAppointmentTab(appointmentId?: number) {
         const id = this.nextId
@@ -1042,11 +1032,7 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                             this.appointmentService.pollNextAppointment();
                         } else {
                             const timeStr = DateTime.fromISO(start).setZone('Europe/Helsinki').toFormat('HH:mm a, MMM dd');
-                
-                            this.socketService.notifyDoctor({
-                                receiverId: doctorId,
-                                message: `${timeStr} appointment has been cancelled. Check email for more details`,
-                            });
+            
                         }
                         await this.ngOnInit();
                     }

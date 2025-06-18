@@ -92,25 +92,17 @@ export interface AdvancedSearchInput {
     textLike: string
 }
 
-export interface AppNotification {
-    id: number
-    appointmentId: number
-    message: string
-    doctorRequestId: number
-    receiverId: number
-    chatId: number
-    senderName: string
-    feedbackId:number
-}
-
-export type NewAppointmentNotification = Omit<AppNotification, 'receiverId' | 'senderName' | 'doctorRequestId' | 'chatId'>;
-export type NewMessageNotification = Omit<AppNotification, 'appointmentId' | 'doctorRequestId'>
-export type NewDoctorRequestNotification = Omit<AppNotification, 'appointmentId' | 'chatId' | 'senderName'>
-export type CancelledAppointmentNotification = Omit<AppNotification, 'chatId' | 'doctorRequestId' | 'senderName' | 'appointmentId'>
-export type NewFeedbackNotification = Omit<AppNotification, 'chatId' | 'doctorRequestId' | 'senderName' | 'appointmentId'| 'doctorRequestId' | 'receiverId' >
-
 export interface AppAiResponse {
     content: string | null
     role: string
     tool_calls: any[]
 }
+
+export interface AppNotificationEvent {
+    id?:number
+    event: string
+    message: string
+    data: any
+}
+
+export type AppSnackbar = AppNotificationEvent & { id: number };

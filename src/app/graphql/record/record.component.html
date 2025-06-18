@@ -1,82 +1,88 @@
 <div style="max-height: 50rem;" [ngClass]="(isEditting || isCreating) && 'block--bordered--md'">
-    <div class="record" *ngIf="(isEditting && record) || isCreating">
-        <p class="title color--gray--cold--primary" *ngIf="isCreating">{{ 'New Record' }}</p>
-        <p class="title color--gray--cold--primary" *ngIf="record">{{ 'Record Draft' }}</p>
-        <app-editor 
-            [record]="record"
-            [appointmentId]="appointmentId"
-            (cancel)="onCancel()"
-            (reload)="onReload()"
-            (saveRecord)="onSave($event)"
-        ></app-editor>
+    <div *ngIf="isLoading" class="loading">
+        <app-loading></app-loading>
     </div>
+    <div *ngIf="!isLoading">
+        <div class="record" *ngIf="(isEditting && record) || isCreating">
+            <p class="title color--gray--cold--primary" *ngIf="isCreating">{{ 'New Record' }}</p>
+            <p class="title color--gray--cold--primary" *ngIf="record">{{ 'Record Draft' }}</p>
+            <app-editor 
+                [record]="record"
+                [appointmentId]="appointmentId"
+                (cancel)="onCancel()"
+                (reload)="onReload()"
+                (saveRecord)="onSave($event)"
+            ></app-editor>
+        </div>
 
-    <div class="record" *ngIf="record && !isEditting && !isCreating">
-        <div #recordContent>
-
-            <div class="flex-column block--bordered--md" *ngIf="!appointmentId" style="position:relative;">
-                <img id="stamp" src="assets/stamp.png" alt="Decorative watermark stamp" />
-                <p class="title color--gray--cold--secondary">{{ 'Information' }}</p>
-                <div class="flex-row">
-                    <div class="flex-column">
-                        <p>{{ 'Patient name' }}</p>
-                        <h5 class="font">{{patientName}}</h5>
+        <div class="record" *ngIf="record && !isEditting && !isCreating">
+            <div #recordContent>
+    
+                <div class="flex-column block--bordered--md" *ngIf="!appointmentId" style="position:relative;">
+                    <img id="stamp" src="assets/stamp.png" alt="Decorative watermark stamp" />
+                    <p class="title color--gray--cold--secondary">{{ 'Information' }}</p>
+                    <div class="flex-row">
+                        <div class="flex-column">
+                            <p>{{ 'Patient name' }}</p>
+                            <h5 class="font">{{patientName}}</h5>
+                        </div>
+                        <div class="flex-column">
+                            <p>{{ 'Created' }}</p>
+                            <h5 class="font">{{ created }}</h5>
+                        </div>
+                        <div class="flex-column">
+                            <p>{{ 'Doctor name' }}</p>
+                            <h5 class="font">{{doctorName}}</h5>
+                        </div>
                     </div>
-                    <div class="flex-column">
-                        <p>{{ 'Created' }}</p>
-                        <h5 class="font">{{ created }}</h5>
-                    </div>
-                    <div class="flex-column">
-                        <p>{{ 'Doctor name' }}</p>
-                        <h5 class="font">{{doctorName}}</h5>
+                </div>
+                <div class="record-content block--bordered--md font">
+                    <p *ngIf="record.draft" class="title color--gray--cold--secondary">{{ 'Record Draft Content' }}</p>
+                    <p *ngIf="!record.draft" class="title color--gray--cold--secondary">{{ 'Medical Record Content' }}</p>
+                    <h3>{{ record.title }}</h3>
+                    <div>
+                        <p [innerHtml]="record.text"></p>
                     </div>
                 </div>
             </div>
-            <div class="record-content block--bordered--md font">
-                <p *ngIf="record.draft" class="title color--gray--cold--secondary">{{ 'Record Draft Content' }}</p>
-                <p *ngIf="!record.draft" class="title color--gray--cold--secondary">{{ 'Medical Record Content' }}</p>
-                <h3>{{ record.title }}</h3>
+            <div class="button-group flex-row">
                 <div>
-                    <p [innerHtml]="record.text"></p>
+                    <button 
+                        *ngIf="record.draft"
+                        mat-stroked-button 
+                        (click)="editRecord()" 
+                        isEditting=!isEditting
+                        class="button--update"
+                    >
+                        <p>{{ 'Edit Record' }}</p>
+                    </button>
+                    <button 
+                        *ngIf="!noDelete && userRole==='doctor'"
+                        mat-stroked-button 
+                        (click)="deleteRecord()" 
+                        class="button--delete"
+                    >
+                        <p>{{ 'Delete Record' }}</p>
+                    </button>
                 </div>
-            </div>
-        </div>
-        <div class="button-group flex-row">
-            <div>
                 <button 
-                    *ngIf="record.draft"
+                    *ngIf="record.draft === false"
                     mat-stroked-button 
-                    (click)="editRecord()" 
-                    isEditting=!isEditting
-                    class="button--update"
+                    (click)="downloadRecord()" 
+                    class="button--download"
                 >
-                    <p>{{ 'Edit Record' }}</p>
+                    <p>{{ 'Download Record' }}</p>
                 </button>
                 <button 
-                    *ngIf="!noDelete && userRole==='doctor'"
+                    *ngIf="recId"
                     mat-stroked-button 
-                    (click)="deleteRecord()" 
-                    class="button--delete"
+                    (click)="close()" 
+                    style="margin-left:1rem;"
                 >
-                    <p>{{ 'Delete Record' }}</p>
+                    <p>{{ 'Close' }}</p>
                 </button>
             </div>
-            <button 
-                *ngIf="record.draft === false"
-                mat-stroked-button 
-                (click)="downloadRecord()" 
-                class="button--download"
-            >
-                <p>{{ 'Download Record' }}</p>
-            </button>
-            <button 
-                *ngIf="recId"
-                mat-stroked-button 
-                (click)="close()" 
-                style="margin-left:1rem;"
-            >
-                <p>{{ 'Close' }}</p>
-            </button>
         </div>
     </div>
+
 </div>

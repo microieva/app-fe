@@ -1,14 +1,16 @@
-<div class="snackbar-container">
+<div class="snackbar-container ">
     <ng-container *ngFor="let snackbar of snackbars$ | async">
-        <div class="snackbar flex-row bg--pink--cloud--primary">
+        <div class="snackbar flex-row bg--pink--cloudy--primary">
             <div *ngIf="!snackbar.chatId">
                 {{ snackbar.message }}
             </div>
-            <div *ngIf="snackbar.chatId && snackbar.senderName" class="flex-column">
-                <em>{{ snackbar.senderName }}</em>
-                <p>{{ snackbar.message }}</p>
-            </div>
-            <button class="bg--gray--warm--primary" *ngIf="snackbar.feedbackId || snackbar.appointmentId || snackbar.doctorRequestId || snackbar.chatId" mat-stroked-button (click)="handleSnackbarOpen(snackbar)"><p>Open</p></button>
+            <button 
+                *ngIf="snackbar.event !== ('APPOINTMENT_UPDATED' || 'APPOINTMENT_DELETED' || 'APPOINTMENT_CANCELLED' || 'USER_UPDATED')"
+                mat-stroked-button ="snackbar.id" 
+                class="bg--gray--warm--primary" 
+                (click)="onOpen(snackbar)">
+                <p>Open</p>
+            </button>
         </div>
     </ng-container>
 </div>

@@ -8,7 +8,6 @@ import { MatSort } from "@angular/material/sort";
 import { SelectionModel } from "@angular/cdk/collections";
 import { DateTime } from "luxon";
 import { AppTimerService } from "../../services/app-timer.service";
-import { AppSocketService } from "../../services/app-socket.service";
 import { AppGraphQLService } from "../../services/app-graphql.service";
 import { RecordComponent } from "../../../graphql/record/record.component";
 import { AlertComponent } from "../app-alert/app-alert.component";
@@ -77,11 +76,10 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
     constructor(
         public timerService: AppTimerService,
-        private socketService: AppSocketService,
         private graphQLService: AppGraphQLService,
         private dialog: MatDialog,
         private cd: ChangeDetectorRef,
-         private breakpointObserver: BreakpointObserver,
+        private breakpointObserver: BreakpointObserver,
 
         @Optional() public dialogRef: MatDialogRef<AppTableComponent>,
         @Optional() @Inject(MAT_DIALOG_DATA) public data: { recordIds: number[], userRole: string}  
@@ -100,13 +98,13 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.dataSource && this.displayedColumns) {
            this.columnNames = this.displayedColumns.map(column => column.columnDef);
         }
-        this.subscription = this.socketService.receiveNotification().subscribe((subscription: any)=> {
-            if (subscription && subscription.chatId) {
-                if (!this.senders.find(sender => sender === subscription.sender)) {
-                    this.senders.push(subscription.sender);
-                }
-            }
-        });
+        // this.subscription = this.socketService.receiveNotification().subscribe((subscription: any)=> {
+        //     if (subscription && subscription.chatId) {
+        //         if (!this.senders.find(sender => sender === subscription.sender)) {
+        //             this.senders.push(subscription.sender);
+        //         }
+        //     }
+        // });
         this.breakpointObserver.observe(['(max-width: 767px)',]).subscribe(result => {
             this.isMobile = result.matches;
         });

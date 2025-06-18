@@ -1,25 +1,36 @@
 import {  Component, OnInit } from "@angular/core";
 import { AppAuthService } from "../../services/app-auth.service";
 import { ActivatedRoute, Router } from "@angular/router";
-import { catchError, distinctUntilChanged, filter, forkJoin, of, Subject, Subscription, switchMap, take, takeUntil, tap } from "rxjs";
+import { catchError, filter, of, Subject, Subscription, switchMap, takeUntil, tap } from "rxjs";
 import { MatDialog } from "@angular/material/dialog";
 import { BreakpointObserver } from "@angular/cdk/layout";
-import { DateTime } from "luxon";
-import { environment } from "../../../../environments/environment";
 import { AppAppointmentService } from "../../services/app-appointment.service";
 import { AppGraphQLService } from "../../services/app-graphql.service";
 import { AppSnackbarService } from "../../services/app-snackbar.service";
-import { AppSocketService } from "../../services/app-socket.service";
+import { AppSocketService } from "../../services/socket/app-socket.service";
+import { AppNotificationService } from "../../services/socket/app-notification.service";
 import { AppTabsService } from "../../services/app-tabs.service";
 import { AppHeaderService } from "../../services/app-header.service";
 import { AppTimerService } from "../../services/app-timer.service";
-import { AppointmentComponent } from "../../../graphql/appointment/appointment.component";
+import { AppUserRoomService } from "../../services/socket/app-user-room.service";
 import { AlertComponent } from "../app-alert/app-alert.component";
 import { LoadingComponent } from "../app-loading/loading.component";
 import { LoginMenuComponent } from "../app-login-menu/app-login-menu.component";
 import { User } from "../../../graphql/user/user";
 import { Appointment } from "../../../graphql/appointment/appointment";
-import { CancelledAppointmentNotification, NewAppointmentNotification, NewFeedbackNotification, NewMessageNotification } from "../../types";
+import { 
+    APPOINTMENT_ACCEPTED, 
+    APPOINTMENT_CANCELLED, 
+    APPOINTMENT_DELETED, 
+    APPOINTMENT_UPDATED, 
+    RECORD_CREATED, 
+    APPOINTMENT_CREATED, 
+    MESSAGE_CREATED, 
+    DOCTOR_REQUEST_CREATED, 
+    FEEDBACK_CREATED 
+} from "../../constants";
+import { AppNotificationEvent } from "../../types";
+
 
 @Component({
     selector: 'app-header',
@@ -46,10 +57,10 @@ export class AppHeader implements OnInit {
     snackbarAppointmentId: number | undefined;
     snackbarReceiverId: number | undefined;
 
-    private destroy$ = new Subject<void>();
-
     buttonClickListener!: () => void;
     private subscriptions: Subscription = new Subscription();
+    private socketSubs: Subscription[] = [];
+    private destroy$ = new Subject<void>();
 
     constructor(
         private dialog: MatDialog,
@@ -61,6 +72,8 @@ export class AppHeader implements OnInit {
         private appointmentService: AppAppointmentService,
         private tabsService: AppTabsService,
         private socketService: AppSocketService,
+        private notificationService: AppNotificationService,
+        private roomService: AppUserRoomService,
         private snackbarService: AppSnackbarService,
         private headerService: AppHeaderService,
         private breakpointObserver: BreakpointObserver
@@ -72,144 +85,52 @@ export class AppHeader implements OnInit {
         this.me = null;
         this.time = null;
         this.authService.isLoggedIn$.subscribe(isLoggedIn => {
-            if (isLoggedIn) {
-                const sub = this.headerService.isUserUpdated.subscribe(async () => {
-                    await this.loadMe(false);
-                });
-                const subMsgCount = this.headerService.isMsgCountUpdated.subscribe(async()=> {
-                    await this.countUnreadMessages();
-                });
-                const subAptCount = this.headerService.isAptCountUpdated.subscribe(async()=> {
-                    await this.countMissedAppointments(true);
-                });
+            if (isLoggedIn) {   
                 const subToggle = this.headerService.toggleSidenav.subscribe(
                     toggle => this.expand = toggle
                 )
                 this.subscriptions.add(subToggle);
-                this.subscriptions.add(sub);
-                this.subscriptions.add(subMsgCount);
-                this.subscriptions.add(subAptCount);
-                this.initHeader();
+                this.initUserSubscriptions();
             }
             else {
                 this.me = null;
                 this.time = null;
-                this.subscriptions.unsubscribe();
+                this.ngOnDestroy();
             }
-        })    
+        })  
     }
     
-    initHeader() {
+    initUserSubscriptions() {
         this.authService.isLoggedIn$
             .pipe(
                 filter(isLoggedIn => isLoggedIn), 
-                switchMap(async () => await this.loadMe()),  
+                switchMap(async () => await this.loadMe()), 
+                switchMap(()=> {
+                    this.socketService.connect({id: this.me?.id, userRole: this.me?.userRole});
+                    this.socketSubs.push(
+                        this.socketService.connected$.subscribe(connected => {
+                            if (!connected) {
+                                this.socketService.connect({id: this.me?.id, userRole: this.me?.userRole});
+                            }
+                        })
+                    );
+                    return of(null);
+                }),
                 switchMap(() => this.timerService.tokenCountdown$),
                 tap(countdown => this.time = countdown), 
                 switchMap(() => {
-                    
-                    if (this.me?.updatedAt) {
-                        return forkJoin({
-                            socketUpdates: this.socketService.getMissedAppointmentsCount().pipe(
-                                tap(isUpdated => this.countMissedAppointments(isUpdated)),   
-                                catchError(err => {
-                                    console.error("Error receiving socket update", err);
-                                    return of(null); 
-                                })
-                            ),
-                            notifications: this.socketService.receiveNotification().pipe(
-                                tap(async (notification: NewMessageNotification) => {
-                                    if (this.me?.id === notification.receiverId && notification.chatId) {
-                                        this.snackbarService.addSnackbar(notification)
-                                        if (this.userRole !== 'patient') {
-                                            await this.countUnreadMessages();
-                                           
-                                        }
-                                        if (this.userRole === 'admin') {
-                                            this.socketService.requestOnlineUsers()
-                                        }  
-                                    }
-                                    return of(null)
-                                }),
-                                catchError(err => {
-                                    console.error("Error receiving socket update", err);
-                                    return of(null); 
-                                })
-                            ),
-                            newAppointemntNoti: this.socketService.newAppointmentRequest().pipe(
-                                tap((info: NewAppointmentNotification )=> {
-                                    if (this.userRole === 'doctor') {
-                                        this.snackbarService.addSnackbar(info)
-                                    }
-                                }),
-                                catchError(err => {
-                                    console.error("Error receiving socket update", err);
-                                    return of(null); 
-                                })
-                            ),
-                            cancelledAppointmentNoti: this.socketService.deletedAppointmentInfo().pipe(
-                                tap((info: CancelledAppointmentNotification )=> {
-                                    if (this.me?.id === info.receiverId) {
-                                        this.snackbarService.addSnackbar(info)
-                                    }
-                                    return of(null); 
-                                }),
-                                catchError(err => {
-                                    console.error("Error receiving socket update", err);
-                                    return of(null); 
-                                })
-                            ),
-                            nextAppointmentInfo: this.appointmentService.appointmentInfo$.pipe(
-                                filter((info) => !!info),
-                                switchMap((info) => {
-                                    const start = DateTime.fromISO(info.nextStart, { zone: 'utc' }).setZone('utc'); 
-                                
-                                    return this.timerService.appointmentCountdown$.pipe(
-                                    distinctUntilChanged(),
-                                    take(1),
-                                    tap((value) => {
-                                        if (value === environment.triggerTime) {
-                                            const displayTime = `\n Starting at ${start.toFormat('HH:mm a')}`;
-                                            const ref = this.dialog.open(AlertComponent, { 
-                                                data: { message: `You have an appointment in 5 min. ${displayTime}` } 
-                                        });
-                                
-                                        const tabs = this.tabsService.getTabs();
-                                        if (tabs) {
-                                            const isCreated = tabs.some((tab) => tab.id === info.nextId);
-                                            if (!isCreated) {
-                                                this.tabsService.addTab(start.toFormat('HH:mm a'), AppointmentComponent, info.nextId);
-                                            }
-                                        }
-                                
-                                        ref.componentInstance.ok.subscribe(() => {      
-                                            this.dialog.closeAll();
-                                            this.router.navigate(['/home/appointments'], {
-                                                relativeTo: this.activatedRoute,
-                                                queryParams: { tab: 3 },
-                                                queryParamsHandling: 'merge', 
-                                            });
-                                        });
-                                    }
-                                    })
-                                    );
-                                })
-                            ),
-                            newFeedbackNoti: this.socketService.newFeedback().pipe(
-                                tap((info: NewFeedbackNotification )=> {
-                                    if (this.userRole === 'admin') {
-                                        this.snackbarService.addSnackbar(info)
-                                    }
-                                }),
-                                catchError(err => {
-                                    console.error("Error receiving socket update", err);
-                                    return of(null); 
-                                })
-                            ),    
-                        })
+                    if (this.me?.userRole === 'patient') {
+                        this.setupPatientNotifications()
                     } 
-                    return of(null)
-                }), 
+                    else if (this.me?.userRole === 'doctor') {
+                        this.setupDoctorNotifications();
+                    } 
+                    else if (this.me?.userRole === 'admin') {
+                        this.setupAdminNotifications();   
+                    }
+                    return of(null);
+                }),
+                
                 catchError(err => {
                     console.error("Error in header initialization", err);
                     this.me = null;
@@ -219,6 +140,57 @@ export class AppHeader implements OnInit {
                 takeUntil(this.destroy$), 
             )
             .subscribe()   
+    }
+    setupPatientNotifications() {
+        this.socketSubs.push(
+            this.notificationService.onAppointmentAccepted(APPOINTMENT_ACCEPTED).subscribe((notification: AppNotificationEvent) => {
+                this.showNotification(notification);
+            }),
+            this.notificationService.onAppointmentCancelled(APPOINTMENT_CANCELLED).subscribe((notification: AppNotificationEvent) => {
+                this.showNotification(notification);
+            }),
+            this.notificationService.onAppointmentDeleted(APPOINTMENT_DELETED).subscribe((notification: AppNotificationEvent) => {
+                this.showNotification(notification);
+            }),
+            this.notificationService.onAppointmentUpdated(APPOINTMENT_UPDATED).subscribe((notification: AppNotificationEvent) => {
+                this.showNotification(notification);
+            }),
+            this.notificationService.onRecordCreated(RECORD_CREATED).subscribe((notification: AppNotificationEvent) => {
+                this.showNotification(notification);
+            })
+        );
+    }
+    setupDoctorNotifications(){
+        this.socketSubs.push(
+            this.notificationService.onAppointmentCreated(APPOINTMENT_CREATED).subscribe((notification: AppNotificationEvent) => {
+                this.showNotification(notification);
+            }),
+            this.notificationService.onAppointmentUpdated(APPOINTMENT_UPDATED).subscribe((notification: AppNotificationEvent) => {
+                this.showNotification(notification);
+            }),
+            this.notificationService.onAppointmentDeleted(APPOINTMENT_DELETED).subscribe((notification: AppNotificationEvent) => {
+                this.showNotification(notification);
+            }),
+            this.notificationService.onChatMessageCreated(MESSAGE_CREATED).subscribe((notification: AppNotificationEvent) => {
+                this.showNotification(notification);
+            })
+        );
+    }
+    setupAdminNotifications(){
+        this.socketSubs.push(
+            this.notificationService.onDoctorRequestCreated(DOCTOR_REQUEST_CREATED).subscribe((notification: AppNotificationEvent) => {
+                this.showNotification(notification);
+            }),
+            this.notificationService.onChatMessageCreated(MESSAGE_CREATED).subscribe((notification: AppNotificationEvent) => {
+                this.showNotification(notification);
+            }),
+            this.notificationService.onFeedbackCreated(FEEDBACK_CREATED).subscribe((notification: AppNotificationEvent) => {
+                this.showNotification(notification);
+            })
+        ); 
+    }
+    showNotification(obj:AppNotificationEvent){
+        this.snackbarService.addSnackbar(obj);
     }
 
     async countMissedAppointments(isUpdated: boolean) {
@@ -303,14 +275,11 @@ export class AppHeader implements OnInit {
         if (this.expand) this.headerService.openSidenav(!this.expand);
     }
 
-
     ngOnDestroy() {
-        if (this.buttonClickListener) {
-            this.buttonClickListener();
-        }
-        this.subscriptions.unsubscribe();
-        this.destroy$.next(); 
+        this.destroy$.next();
         this.destroy$.complete();
+        this.subscriptions.unsubscribe();
+        this.socketSubs.forEach(sub => sub.unsubscribe());
     }
     onLogIn(){
         this.dialog.open(LoginMenuComponent)
@@ -318,8 +287,9 @@ export class AppHeader implements OnInit {
 
     async onLogOut() {   
         if (this.userRole === 'doctor') {
-            this.socketService.userLogout(this.me!.id);
-        }     
+            this.roomService.leaveDoctorRoom(this.me!.id);
+        } 
+   
         this.timerService.cancelTokenTimer(); 
         this.snackbarService.clearSnackbars();
         this.dialog.open(LoadingComponent);
@@ -333,6 +303,5 @@ export class AppHeader implements OnInit {
     toggleSidenav(){
         this.headerService.openSidenav(!this.expand);
     }
-
 }
       

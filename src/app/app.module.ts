@@ -51,7 +51,7 @@ import { DoctorsComponent } from './graphql/user/doctors/doctors.component';
 import { PatientsComponent } from './graphql/user/patients/patients.component';
 import { AppHomeComponent } from './shared/components/app-home/app-home.component';
 import { LoginMenuComponent } from './shared/components/app-login-menu/app-login-menu.component';
-import { AppSocketService } from './shared/services/app-socket.service';
+import { AppSocketService } from './shared/services/socket/app-socket.service';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { AppSnackbarService } from './shared/services/app-snackbar.service';
 import { AppSnackbarContainerComponent } from './shared/components/app-snackbar/app-snackbar.component';
@@ -77,6 +77,8 @@ import { AppAiAssistantComponent } from './shared/components/app-ai-assistant/ap
 import { AppDbWakeUpService } from './shared/services/app-db-wake-up.service';
 import { AppCacheService } from './shared/services/app-cache.service';
 import { AppNoContentComponent } from './shared/components/app-no-content-component/app-no-content.component';
+import { AppUserRoomService } from './shared/services/socket/app-user-room.service';
+import { AppNotificationService } from './shared/services/socket/app-notification.service';
 
 
 @NgModule({ 
@@ -162,6 +164,8 @@ import { AppNoContentComponent } from './shared/components/app-no-content-compon
         AppAppointmentService,
         AppTabsService,
         AppSocketService,
+        AppNotificationService,
+        AppUserRoomService,
         AppSnackbarService,
         AppDialogService,
         AppCountUnreadMessagesService,

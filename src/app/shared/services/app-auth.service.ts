@@ -149,4 +149,7 @@ export class AppAuthService {
     isAuth():boolean {
         return !!localStorage.getItem('authToken'); 
     }
+    getToken() {
+        return localStorage.getItem('authToken');
+    }
 }
