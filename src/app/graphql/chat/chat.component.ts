@@ -1,14 +1,13 @@
 import { Subscription } from "rxjs";
 import { trigger, state, style, transition, animate } from "@angular/animations";
-import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { MatDialog } from "@angular/material/dialog";
 import { ActivatedRoute, Router } from "@angular/router";
 import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../shared/services/app-graphql.service";
 import { AppTabsService } from "../../shared/services/app-tabs.service";
-import { AppHeaderService } from "../../shared/services/app-header.service";
-import { AppSocketService } from "../../shared/services/app-socket.service";
+import { AppUserRoomService } from "../../shared/services/socket/app-user-room.service";
 import { AppCountUnreadMessagesService } from "../../shared/services/app-count-unread.service";
 import { AlertComponent } from "../../shared/components/app-alert/app-alert.component";
 import { ConfirmComponent } from "../../shared/components/app-confirm/app-confirm.component";
@@ -30,7 +29,7 @@ import { ConfirmComponent } from "../../shared/components/app-confirm/app-confir
         ]),
     ]
 })
-export class ChatComponent implements OnInit, OnDestroy {
+export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
     @Input() chatId!: number;
     @Input() senderId!: number;
@@ -50,16 +49,17 @@ export class ChatComponent implements OnInit, OnDestroy {
     online: boolean = false;
     isLoading: boolean = true;
     private subscriptions: Subscription = new Subscription();
+    private socketSubs: Subscription[] = [];
+
 
     constructor(
         private graphQLService: AppGraphQLService,
         private dialog: MatDialog,
-        private socketService: AppSocketService,
         private activatedRoute: ActivatedRoute,
         private tabsService: AppTabsService,
         private router: Router,
         private countService: AppCountUnreadMessagesService,
-        private headerService: AppHeaderService
+        private roomService: AppUserRoomService
     ){}
     
     async ngOnInit(){    
@@ -68,32 +68,28 @@ export class ChatComponent implements OnInit, OnDestroy {
             if (id) this.receiverId = +id;
         });
 
-        this.socketService.requestOneUserStatus(this.receiverId!);
+        if (this.receiverId) {
+            this.roomService.requestUserStatus(this.receiverId);   
+        }
         await this.setIsReadToTrue();
         await this.loadMessages();
 
-        const subNotifications = this.socketService.receiveNotification().subscribe(async (notification: any)=> {
-            if (notification && notification.chatId) {
-                await this.loadMessages();
-            }
-        })
-        const subIsUserOnline = this.socketService.getOneUserStatus(this.receiverId!).subscribe(isOnline => {
-            if (isOnline.userId && isOnline.userId === this.receiverId) {
-                this.online = isOnline.online;
-            } 
-        }); 
         if (this.form.touched) await this.setIsReadToTrue();
-        if (!this.userRole) {
-            this.countService.countUnreadMessages();
-        }
-        this.headerService.notifyUnreadCountUpdate();
+
         this.subscriptions.add(subRouterParams);
-        this.subscriptions.add(subNotifications);
-        this.subscriptions.add(subIsUserOnline);
+    }
+
+    ngAfterViewInit(): void {
+        this.socketSubs.push(
+            this.roomService.onUserStatus().subscribe((status:{online:boolean}) => {
+                this.online = status.online;
+            })
+        )
     }
 
     ngOnDestroy(){
         this.subscriptions.unsubscribe();
+        this.socketSubs.forEach(sub => sub.unsubscribe());
     }
     get characterCount(): number {
         const message = this.form.get('message')?.value || '';

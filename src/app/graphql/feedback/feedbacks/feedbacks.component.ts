@@ -5,7 +5,6 @@ import { MatTableDataSource } from "@angular/material/table";
 import { MatDialog } from "@angular/material/dialog";
 import { AppTableDisplayedColumns, FeedbackDataSource } from "../../../shared/types";
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
-import { AppSocketService } from "../../../shared/services/app-socket.service";
 import { AlertComponent } from "../../../shared/components/app-alert/app-alert.component";
 import { ConfirmComponent } from "../../../shared/components/app-confirm/app-confirm.component";
 import { FeedbackComponent } from "../feedback/feedback.component";
@@ -53,7 +52,6 @@ export class FeedbacksComponent implements OnInit, OnDestroy {
     
     constructor(
         private graphQLService: AppGraphQLService,
-        private socketService: AppSocketService,
         private dialog: MatDialog
     ){}
 
@@ -62,15 +60,8 @@ export class FeedbacksComponent implements OnInit, OnDestroy {
         if (this.countFeedback > 0) {
             await this.loadData();
         }
-        const sub = this.socketService.refresh$.subscribe(async (isUpdated) => {
-            if (isUpdated) {
-                await this.ngOnInit()
-            }
-        });
-        this.subscriptions.add(sub);
         this.isLoading = false;
     }
-
 
     async loadStatic() {
         const query = `query {

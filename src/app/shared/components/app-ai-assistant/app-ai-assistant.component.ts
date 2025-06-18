@@ -6,7 +6,6 @@ import { Subscription } from "rxjs";
 import { DateTime } from "luxon";
 import { AppAiService } from "../../services/app-ai.service";
 import { AppGraphQLService } from "../../services/app-graphql.service";
-import { AppSocketService } from "../../services/app-socket.service";
 import { AlertComponent } from "../app-alert/app-alert.component";
 import { AppAiResponse } from "../../types";
 import { getNextAppointmentTodayTomorrowStartStr } from "../../utils";
@@ -42,8 +41,7 @@ export class AppAiAssistantComponent implements OnInit, OnDestroy {
     constructor(
         private aiService: AppAiService,
         private graphQLService: AppGraphQLService,
-        private dialog: MatDialog,
-        private socketService: AppSocketService
+        private dialog: MatDialog
     ){}
     ngOnInit() {
         setTimeout(() => {
@@ -107,10 +105,10 @@ export class AppAiAssistantComponent implements OnInit, OnDestroy {
                                 this.chat.push({ sender: 'ai', text: 'unexpected issue, please start over..' });
                             }
                             if (appointmentSaved && appointmentSaved.success) {
-                                this.socketService.notifyDoctors({
-                                    message: "New appointment request",
-                                    appointmentId: appointmentSaved.data.id
-                                });
+                                // // this.socketService.notifyDoctors({
+                                //     message: "New appointment request",
+                                //     appointmentId: appointmentSaved.data.id
+                                // });
                                 const dateStr = getNextAppointmentTodayTomorrowStartStr(appointmentStart)
                                 this.chat.push({ sender: 'ai', text: `Appointment saved for ${dateStr}` });
                                 setTimeout(() => {

@@ -6,7 +6,6 @@ import { animate, state, style, transition, trigger } from "@angular/animations"
 import { BreakpointObserver } from "@angular/cdk/layout";
 import { DateTime } from "luxon";
 import { AppAuthService } from "../../services/app-auth.service";
-import { AppSocketService } from "../../services/app-socket.service";
 import { AppGraphQLService } from "../../services/app-graphql.service";
 import { AppAppointmentService } from "../../services/app-appointment.service";
 import { AppTimerService } from "../../services/app-timer.service";
@@ -85,7 +84,7 @@ export class AppHomeComponent implements OnInit {
         private appointmentService: AppAppointmentService,
         private timerService: AppTimerService,
         private countService: AppCountUnreadMessagesService,
-        private socketService: AppSocketService,
+        //private socketService: AppSocketService,
         private authService: AppAuthService,
         private tabsService: AppTabsService,
         private renderer: Renderer2,
@@ -113,9 +112,9 @@ export class AppHomeComponent implements OnInit {
                     await this.loadData();
                 }
             });
-            this.socketService.refresh$.subscribe(async isUpdated => {
-                if (isUpdated) await this.ngOnInit();   
-            })
+            // this.socketService.refresh$.subscribe(async isUpdated => {
+            //     if (isUpdated) await this.ngOnInit();   
+            // })
             this.subscriptions.add(sub); 
 
             if (this.me && this.userRole !== 'patient') {
@@ -126,7 +125,7 @@ export class AppHomeComponent implements OnInit {
                 this.today = getTodayWeekdayTime();
                 const now = DateTime.now().setZone('Europe/Helsinki').toISO();
 
-                this.socketService.requestCountMissedAppointments();
+                //this.socketService.requestCountMissedAppointments();
 
                 this.timerService.startClock(now!);
                 const sub = this.timerService.clock.subscribe(value=> {
@@ -135,7 +134,7 @@ export class AppHomeComponent implements OnInit {
                 this.subscriptions.add(sub); 
             }
             if (this.me && this.userRole === 'doctor') {
-                this.socketService.userLogin({ id: this.me.id, userRole: this.me.userRole } as User);
+                //this.socketService.userLogin({ id: this.me.id, userRole: this.me.userRole } as User);
                 await this.appointmentService.pollNextAppointment();
                 const sub = this.appointmentService.appointmentInfo$.subscribe(async (info:any) => {
                     if (info && info.nextAppointment) {

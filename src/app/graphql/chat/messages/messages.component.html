@@ -14,8 +14,8 @@
         <div *ngIf="userRole === 'admin'">
             <div class="flex-row block--bordered--md info">
                 <span class="icon material-symbols-outlined">info</span>
-                <p *ngIf="onlineDoctors.length === 0">Currently no doctors online</p> 
-                <p *ngIf="onlineDoctors.length > 0">{{onlineDoctors.length}} online</p> 
+                <p *ngIf="countOnlineDoctors === 0">Currently no doctors online</p> 
+                <p *ngIf="countOnlineDoctors > 0">{{countOnlineDoctors}} online</p> 
                 <span>{{' '}}</span>
             </div>
             <div *ngIf="!dataSource">

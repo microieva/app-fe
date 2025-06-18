@@ -8,6 +8,7 @@ import { AppGraphQLService } from "../../shared/services/app-graphql.service";
 import { AlertComponent } from "../../shared/components/app-alert/app-alert.component";
 import { ConfirmComponent } from "../../shared/components/app-confirm/app-confirm.component";
 import { Record } from "./record"; 
+import { RecordInput } from "./record.input";
 
 @Component({
     selector: 'app-record',
@@ -19,6 +20,7 @@ export class RecordComponent implements OnInit {
 
     isCreating: boolean = false;
     isEditting: boolean = false;
+    isLoading: boolean = false;
 
     updated: string | undefined;
     created: string | undefined;
@@ -129,6 +131,7 @@ export class RecordComponent implements OnInit {
                     this.patientName = this.record.patient.firstName+' '+this.record.patient.lastName;
                     this.doctorName = this.record.doctor && this.record.doctor.firstName+' '+this.record.doctor.lastName || '-';
                 }
+                this.isLoading = false;
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading record: "+error}})
@@ -165,20 +168,36 @@ export class RecordComponent implements OnInit {
     async onReload(){
         await this.loadRecord();
         this.isEditting = false;
+        this.isCreating = false;
         this.reload.emit(true);
+        this.isLoading = false;
     }
     close(){
         this.dialogRef.close();
     }
-    async onSave(input: any){
-        const recordInput = {
-            id: this.id,
-            title: input.title,
-            text: input.text,
-            appointmentId: this.appointmentId,
-            draft: input.draft
+    async onSave(input: RecordInput){
+        if (!input.draft) {
+            const ref =  this.dialog.open(ConfirmComponent, {disableClose:true, data: {message: "Are you sure you want to save this as final version? This action will open access to this medical record to the patient. The patient will be notified by email and notification."}})
+            ref.componentInstance.isConfirming.subscribe(async ()=> {
+                await this.saveRecord(input);
+            });
+
+            ref.componentInstance.isCancelling.subscribe(async ()=> {
+                this.dialog.closeAll();
+            })
+        } else {
+            await this.saveRecord(input);
         }
-        
+    }
+    async saveRecord(input: RecordInput) {
+        this.isLoading = true;
+    
+        const recordInput: RecordInput = {
+            ...input,
+            id: this.id,
+            appointmentId: this.appointmentId!
+        }
+
         const mutation = `mutation ($recordInput: RecordInput!){
             saveRecord(recordInput: $recordInput) {
                 success
@@ -187,11 +206,12 @@ export class RecordComponent implements OnInit {
         }`
         try {
             const response = await this.graphQLService.mutate(mutation, { recordInput });
-            if (response.data.saveRecord) {
-                await this.loadRecord();
-                this.isEditting = false;
-                this.reload.emit(true);
-            }   
+            if (response.data.saveRecord.success) { // TO DO: should return saved instead of loading!   
+                await this.onReload();
+            } else {
+                this.isLoading = false;
+                this.dialog.open(AlertComponent, {data: { message: response.data.saveRecord.message}})
+            }  
         } catch (error) {
             this.dialog.open(AlertComponent, {data: { message: "Unexpected error saving medical record: "+error}})
         }

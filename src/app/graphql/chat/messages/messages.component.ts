@@ -1,4 +1,4 @@
-import { distinctUntilChanged, Subscription } from "rxjs";
+import { Subscription } from "rxjs";
 import { Component, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren, ViewContainerRef } from "@angular/core";
 import { MatTableDataSource } from "@angular/material/table";
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
@@ -8,14 +8,14 @@ import { MatTabGroup } from "@angular/material/tabs";
 import { MatDialog } from "@angular/material/dialog";
 import { environment } from "../../../../environments/environment";
 import { getLastLogOutStr } from "../../../shared/utils";
-import { AppSocketService } from "../../../shared/services/app-socket.service";
 import { AppTabsService } from "../../../shared/services/app-tabs.service";
 import { AppCountUnreadMessagesService } from "../../../shared/services/app-count-unread.service";
+import { AppHeaderService } from "../../../shared/services/app-header.service";
+import { AppUserRoomService } from "../../../shared/services/socket/app-user-room.service";
 import { AlertComponent } from "../../../shared/components/app-alert/app-alert.component";
 import { ChatComponent } from "../chat.component";
 import { User } from "../../user/user";
 import { AppTableDisplayedColumns, UserDataSource } from "../../../shared/types";
-import { AppHeaderService } from "../../../shared/services/app-header.service";
 
 @Component({
     selector: 'app-messages',
@@ -42,7 +42,6 @@ export class MessagesComponent implements OnInit, OnDestroy {
     dataSource: MatTableDataSource<any> | null = null;
     displayedColumns: AppTableDisplayedColumns[] = []
     formatted: UserDataSource[] | undefined;
-    onlineDoctors: any[] = [];
     chatId: number | undefined = 0;
     senders: string[] = [];
     receiverId: number | undefined;
@@ -61,12 +60,16 @@ export class MessagesComponent implements OnInit, OnDestroy {
     @ViewChild('tabGroup', { static: true }) tabGroup!: MatTabGroup;
 
     private subscriptions: Subscription = new Subscription();
+    private socketSubs: Subscription[] = [];
+    countOnlineDoctors: number = 0;
+    onlineDoctorIds: number[] = [];
+
 
     constructor(
         private graphQLService: AppGraphQLService,
         private router: Router,
         private activatedRoute: ActivatedRoute,
-        private socketService: AppSocketService,
+        private roomService: AppUserRoomService,
         private tabsService: AppTabsService,
         private dialog: MatDialog,
         private countService: AppCountUnreadMessagesService,
@@ -79,26 +82,16 @@ export class MessagesComponent implements OnInit, OnDestroy {
             await this.loadUnreadMessages();
             await this.loadDoctors();
             this.chats = this.tabsService.getChatTabs();
-            this.socketService.requestOnlineUsers();
-            const subscriptionOnlineUsers = this.socketService.getOnlineUsers()
-                .pipe(
-                    distinctUntilChanged((prev, curr)=> JSON.stringify(prev) === JSON.stringify(curr))
-                )
-                .subscribe(async (users: any[])=> {
-                    this.onlineDoctors = users
+            this.roomService.requestDoctorsRoom();
+
+            this.socketSubs.push(
+                this.roomService.onDoctorRoomActivity().subscribe(async (room:{doctorIds:number[]}) => {
+                    this.countOnlineDoctors = room.doctorIds.length;
+                    this.onlineDoctorIds = room.doctorIds;
                     await this.loadUnreadMessages();
                     await this.loadDoctors();
-                });
-            
-            const subscriptionNotifications = this.socketService.receiveNotification().subscribe(async (subscription: any)=> {
-                if (subscription && subscription.chatId) {
-                    this.senders.push(subscription.sender);
-                    await this.loadUnreadMessages();
-                    await this.loadDoctors();
-                }
-            });
-            this.subscriptions.add(subscriptionOnlineUsers);
-            this.subscriptions.add(subscriptionNotifications);
+                })
+            )
         } else { 
             this.isLoading = true;
             this.receiverId = Number(environment.adminId);
@@ -113,6 +106,9 @@ export class MessagesComponent implements OnInit, OnDestroy {
 
     ngOnDestroy(){
         this.subscriptions.unsubscribe();
+        this.socketSubs.forEach(sub => {
+            sub.unsubscribe();
+        })
     }
 
     async loadUnreadMessages(){
@@ -170,7 +166,6 @@ export class MessagesComponent implements OnInit, OnDestroy {
             if (response.data.doctors) {
                 this.doctors = response.data.doctors.slice;
                 this.doctorsLength = response.data.doctors.length;
-                this.socketService.requestOnlineUsers();
                 this.formatDataSource();
 
                 this.dataSource = new MatTableDataSource<UserDataSource>(this.formatted);
@@ -186,10 +181,10 @@ export class MessagesComponent implements OnInit, OnDestroy {
         }
     }
     formatDataSource() {
-        if (this.onlineDoctors && this.onlineDoctors.length > 0) {
+        if (this.onlineDoctorIds.length > 0) {
             let isUnread: boolean = false;
             this.formatted = this.doctors.map((doctor) => {
-                const isOnline = this.onlineDoctors?.some(onlineDoctor => doctor.id === onlineDoctor.id);
+                const isOnline = this.onlineDoctorIds.some(id => doctor.id === id);
                 const lastOnline = getLastLogOutStr(doctor.lastLogOutAt)
                 let count: number | null = null;
 
@@ -201,7 +196,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
                 return {
                     ...doctor,
                     name: doctor.firstName+' '+doctor.lastName,
-                    online: isOnline || false, 
+                    online: isOnline, 
                     lastLogOutAt:  !isOnline ? lastOnline : 'Currently online',
                     unreadMessages: count
                 };
@@ -285,12 +280,12 @@ export class MessagesComponent implements OnInit, OnDestroy {
     async createChatTab(chatReceiver: any) {
         const receiverName = chatReceiver.firstName+' '+chatReceiver.lastName;
 
-        const id = await this.loadChatId(chatReceiver.id);
-        if (id && !this.chats.some(chat => chat.id === id)) {
-            this.chatId = id;
+        const chatId = await this.loadChatId(chatReceiver.id);
+        if (chatId && !this.chats.some(chat => chat.id === chatId)) {
+            this.chatId = chatId;
             const title = receiverName;
             const component = ChatComponent;    
-            this.tabsService.addChatTab(title, component, id, this.tabGroup);
+            this.tabsService.addChatTab(title, component, chatId, this.tabGroup);
 
             this.chats = this.tabsService.getChatTabs();
             this.router.navigate([], {

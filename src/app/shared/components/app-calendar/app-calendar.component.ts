@@ -18,6 +18,7 @@ import { createEventId } from "../../constants";
 import { Appointment } from "../../../graphql/appointment/appointment";
 import { AppointmentInput } from "../../../graphql/appointment/appointment.input";
 import { getNow } from "../../utils";
+import { LoadingComponent } from "../app-loading/loading.component";
 
 @Component({
     selector: 'app-calendar',
@@ -369,6 +370,7 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
     }
 
     async loadAllAppointments() {
+        const ref = this.dialog.open(LoadingComponent);
         const query = `
             query  ($monthStart: Date!, $monthEnd: Date!, $patientId: Int){
                 calendarAllAppointments (
@@ -439,6 +441,7 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                         }
                     }
                 });
+                ref.close();
             } 
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: 'Unexpected error loading all appointments: '+error}}) 
@@ -753,12 +756,12 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                     this.dialogService.notifyDialogOpened();
                 });
 
-                const subSubmit = dialogRef.componentInstance.isSubmitting.subscribe(value => {
-                    if (value) {
+                const subSubmit = dialogRef.componentInstance.isSubmitting.subscribe(() => {
+                    //if (value) {
                         this.dialog.closeAll();
                         calendarApi.addEvent(event);
-                        calendarApi.changeView('dayGridMonth');
-                    }
+                        //calendarApi.changeView('dayGridMonth');
+                    //}
                 });
                 const subDelete = dialogRef.componentInstance.isDeleting.subscribe(async id => {
 

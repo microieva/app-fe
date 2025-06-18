@@ -16,7 +16,7 @@
                 <p *ngIf="countRequests === 0">No new account activation requests at the moment</p> 
                 <span>{{' '}}</span>
             </div>
-            <div *ngIf="isLoading" class="loading"  >
+            <div *ngIf="isLoading" class="loading">
                 <app-loading></app-loading>
             </div>
             <div class="page" #scrollView @slideInOut *ngIf="countRequests && !isLoading">
