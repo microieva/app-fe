@@ -107,13 +107,6 @@ export class AppHeader implements OnInit {
                 switchMap(async () => await this.loadMe()), 
                 switchMap(()=> {
                     this.socketService.connect({id: this.me?.id, userRole: this.me?.userRole});
-                    this.socketSubs.push(
-                        this.socketService.connected$.subscribe(connected => {
-                            if (!connected) {
-                                this.socketService.connect({id: this.me?.id, userRole: this.me?.userRole});
-                            }
-                        })
-                    );
                     return of(null);
                 }),
                 switchMap(() => this.timerService.tokenCountdown$),
@@ -299,6 +292,7 @@ export class AppHeader implements OnInit {
         this.ngOnDestroy();
        
         await this.authService.logOut();
+        this.socketService.disconnect();
     }
     toggleSidenav(){
         this.headerService.openSidenav(!this.expand);
