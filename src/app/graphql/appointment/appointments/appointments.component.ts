@@ -5,7 +5,7 @@ import { MatTableDataSource } from "@angular/material/table";
 import { MatTabGroup } from "@angular/material/tabs";
 import { MatDialog } from "@angular/material/dialog";
 import { DateTime } from "luxon";
-import { Subscription } from "rxjs";
+import { merge, Subscription } from "rxjs";
 import { environment } from '../../../../environments/environment';
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
 import { AppAppointmentService } from "../../../shared/services/app-appointment.service";
@@ -18,6 +18,8 @@ import { ConfirmComponent } from "../../../shared/components/app-confirm/app-con
 import { EventComponent } from "../../../shared/components/app-event/app-event.component";
 import { AppointmentDataSource, AppTableDisplayedColumns } from "../../../shared/types";
 import { Appointment } from "../appointment";
+import { AppUiSyncService } from "../../../shared/services/app-ui-sync.service";
+import { APPOINTMENT_ACCEPTED, APPOINTMENT_CANCELLED, APPOINTMENT_CREATED, APPOINTMENT_DELETED, APPOINTMENT_UPDATED } from "../../../shared/constants";
 
 @Component({
     selector: 'app-appointments',
@@ -73,7 +75,7 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
     @ViewChild('scrollView') scrollView!: ElementRef;
 
     readonly panelOpenState = signal(false);
-    private subscriptions: Subscription = new Subscription();
+    private subscriptions: Subscription[] = [];
 
     userRole!: string;
     pageIndex: number = 0;
@@ -89,7 +91,8 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
         private activatedRoute: ActivatedRoute,
         private appointmentService: AppAppointmentService,
         private timerService: AppTimerService,
-        public tabsService: AppTabsService
+        public tabsService: AppTabsService,
+        private uiSyncService: AppUiSyncService
     ){}
     
     async ngOnInit() {
@@ -99,12 +102,15 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
         if (this.userRole !=='admin') {
             await this.loadStatic();
             await this.loadData();
+            this.setupSyncListeners();
         }
         this.isLoading = false;
 
-        const subRouterParamsId = this.activatedRoute.queryParams.subscribe((params)=> {
+        const subRouterParams = this.activatedRoute.queryParams.subscribe((params)=> {
             const id = params['id']; 
-            if (id) this.routedAppointmentId = +id;
+            const tab = params['tab'];
+            this.routedAppointmentId = id ? +id : undefined;
+            this.selectedIndex = tab ? +tab : 0;
         });
         
         const subRouterParamsTab = this.activatedRoute.queryParams.subscribe(params => {
@@ -142,14 +148,34 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
             }
         });
            
-        this.subscriptions.add(subRouterParamsId);
-        this.subscriptions.add(subRouterParamsTab);
-        this.subscriptions.add(subNextAppointmentInfo);
-        this.subscriptions.add(subNextAppointmentCountDown);
+        this.subscriptions.push(
+            subRouterParams, 
+            subRouterParamsTab, 
+            subNextAppointmentInfo, 
+            subNextAppointmentCountDown
+        );
     }
 
     ngOnDestroy(){
-        this.subscriptions.unsubscribe();
+        this.subscriptions.forEach(sub => sub.unsubscribe());
+    }
+
+    setupSyncListeners() {
+        const appointmentEvents$ = merge(
+            this.uiSyncService.sync(APPOINTMENT_CREATED),
+            this.uiSyncService.sync(APPOINTMENT_ACCEPTED),
+            this.uiSyncService.sync(APPOINTMENT_UPDATED),
+            this.uiSyncService.sync(APPOINTMENT_CANCELLED),
+            this.uiSyncService.sync(APPOINTMENT_DELETED)
+        );
+
+        this.subscriptions.push(
+            appointmentEvents$
+                .subscribe({
+                    next: async () => {await this.loadData()},
+                    error: (err) => console.error('Sync failed:', err)
+                })
+        );
     }
 
     createAppointmentTab(appointmentId?: number) {
@@ -281,6 +307,7 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
     }
     
     async loadPendingAppointments() {
+        console.log('Loading pending appointments...');
         const query = `query (
             $pageIndex: Int!, 
             $pageLimit: Int!, 
@@ -328,11 +355,8 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
             if (response.data.pendingAppointments) {
                 this.pendingAppointments = response.data.pendingAppointments.slice;
                 this.length = response.data.pendingAppointments.length;
+                this.countPendingAppointments = this.length;
                 this.formatDataSource("pending");
-
-                if (this.pendingDataSource) {
-                    this.dataSource = new MatTableDataSource<AppointmentDataSource>(this.pendingDataSource);
-                }
             }
         } catch (error){
             this.dialog.open(AlertComponent, {data: {message: "Unexpected error while getting pending appointments: "+error}})
@@ -396,11 +420,8 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
             if (response.data.upcomingAppointments) {
                 this.upcomingAppointments = response.data.upcomingAppointments.slice;
                 this.length = response.data.upcomingAppointments.length;
+                this.countUpcomingAppointments = this.length;
                 this.formatDataSource("upcoming");
-                
-                if (this.upcomingDataSource) {
-                    this.dataSource = new MatTableDataSource<AppointmentDataSource>(this.upcomingDataSource);
-                }
             }
         } catch (error){
             this.dialog.open(AlertComponent, {data: {message: "Unexpected error while getting upcoming appointments: "+error}})
@@ -464,11 +485,8 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
             if (response.data.pastAppointments) {
                 this.pastAppointments = response.data.pastAppointments.slice;
                 this.length = response.data.pastAppointments.length;
+                this.countPastAppointments = this.length;
                 this.formatDataSource("past");
-
-                if (this.pastDataSource) {
-                    this.dataSource = new MatTableDataSource<AppointmentDataSource>(this.pastDataSource);
-                }
             }
         } catch (error){
             this.dialog.open(AlertComponent, {data: {message: "Unexpected error while getting past appointments: "+error}})
@@ -880,6 +898,9 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                         {header: 'Request created', columnDef: 'howLongAgoStr',  sort: true}
                     ]
                 }
+                if (this.pendingDataSource) {
+                }
+                this.dataSource = new MatTableDataSource<AppointmentDataSource>(this.pendingDataSource);
                 break;
             case "upcoming":
                 this.upcomingDataSource = this.upcomingAppointments.map(row => {
@@ -948,6 +969,7 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                     {header: 'Starts', columnDef: 'howSoonStr', sort:true},
                     {header: 'Record', columnDef: this.userRole==='doctor' ? 'draft': 'record', sort:true}
                 ]
+                this.dataSource = new MatTableDataSource<AppointmentDataSource>(this.upcomingDataSource);
                 break;
             case "past":
                 const isAllBlocked = this.pastAppointments.every(appointment => !appointment.record)
@@ -995,6 +1017,7 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                     {header: 'Ended', columnDef: 'pastDate',sort:true},
                     {header: 'Record', columnDef: this.userRole==='doctor' ? 'draft': 'record',sort:true}
                 ]
+                this.dataSource = new MatTableDataSource<AppointmentDataSource>(this.pastDataSource);
                 break;
             default:
                 break;

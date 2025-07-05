@@ -15,6 +15,8 @@ import { UserInput } from "./user.input";
 import { DoctorRequest } from "./doctor-request";
 import { User } from "./user";
 import { AppCacheService } from "../../shared/services/app-cache.service";
+import { USER_UPDATED } from "../../shared/constants";
+import { AppUiSyncService } from "../../shared/services/app-ui-sync.service";
 
 @Component({
     selector: 'app-user',
@@ -57,6 +59,7 @@ export class UserComponent implements OnInit, OnDestroy {
         private timerService: AppTimerService,
         private authService: AppAuthService,
         private cacheService: AppCacheService,
+        private uiSyncService: AppUiSyncService,
 
         @Optional() public dialogRef: MatDialogRef<UserComponent>,
         @Optional() @Inject(MAT_DIALOG_DATA) public data: any
@@ -239,6 +242,7 @@ export class UserComponent implements OnInit, OnDestroy {
                 }
                 await this.loadMe(options);
                 this.cacheService.updateCachedMe({...this.me as User});
+                this.uiSyncService.triggerSync(USER_UPDATED);
                 this.router.navigate(['/home/user']);
             }
         } catch (error) {

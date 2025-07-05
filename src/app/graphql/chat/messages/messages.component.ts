@@ -1,5 +1,5 @@
-import { Subscription } from "rxjs";
-import { Component, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren, ViewContainerRef } from "@angular/core";
+import { Subscription, switchMap } from "rxjs";
+import { AfterViewInit, Component, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren, ViewContainerRef } from "@angular/core";
 import { MatTableDataSource } from "@angular/material/table";
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -10,12 +10,13 @@ import { environment } from "../../../../environments/environment";
 import { getLastLogOutStr } from "../../../shared/utils";
 import { AppTabsService } from "../../../shared/services/app-tabs.service";
 import { AppCountUnreadMessagesService } from "../../../shared/services/app-count-unread.service";
-import { AppHeaderService } from "../../../shared/services/app-header.service";
 import { AppUserRoomService } from "../../../shared/services/socket/app-user-room.service";
+import { AppUiSyncService } from "../../../shared/services/app-ui-sync.service";
 import { AlertComponent } from "../../../shared/components/app-alert/app-alert.component";
 import { ChatComponent } from "../chat.component";
 import { User } from "../../user/user";
 import { AppTableDisplayedColumns, UserDataSource } from "../../../shared/types";
+import { MESSAGE_CREATED } from "../../../shared/constants";
 
 @Component({
     selector: 'app-messages',
@@ -34,7 +35,7 @@ import { AppTableDisplayedColumns, UserDataSource } from "../../../shared/types"
         ]),
     ]
 })
-export class MessagesComponent implements OnInit, OnDestroy {
+export class MessagesComponent implements OnInit, OnDestroy, AfterViewInit {
     selectedIndex: number = 0;
     isLoading: boolean = false;
     userRole!: string;
@@ -59,8 +60,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
     chats: any[] = [];
     @ViewChild('tabGroup', { static: true }) tabGroup!: MatTabGroup;
 
-    private subscriptions: Subscription = new Subscription();
-    private socketSubs: Subscription[] = [];
+    private subscriptions: Subscription[] = [];
     countOnlineDoctors: number = 0;
     onlineDoctorIds: number[] = [];
 
@@ -73,52 +73,60 @@ export class MessagesComponent implements OnInit, OnDestroy {
         private tabsService: AppTabsService,
         private dialog: MatDialog,
         private countService: AppCountUnreadMessagesService,
-        private headerService: AppHeaderService
+        private uiSyncService: AppUiSyncService
     ){}
 
     async ngOnInit() {
+        this.subscriptions.push(this.activatedRoute.queryParams.subscribe(params => {
+            const tab = params['tab'];
+            this.selectedIndex = tab ? +tab : 0; 
+        }));
+
         await this.loadMe();
         if (this.userRole === 'admin') {
-            await this.loadUnreadMessages();
+            await this.countUnreadMessages();
             await this.loadDoctors();
             this.chats = this.tabsService.getChatTabs();
-            this.roomService.requestDoctorsRoom();
-
-            this.socketSubs.push(
-                this.roomService.onDoctorRoomActivity().subscribe(async (room:{doctorIds:number[]}) => {
-                    this.countOnlineDoctors = room.doctorIds.length;
-                    this.onlineDoctorIds = room.doctorIds;
-                    await this.loadUnreadMessages();
-                    await this.loadDoctors();
-                })
-            )
+            this.roomService.requestDoctorsRoom();   
         } else { 
             this.isLoading = true;
             this.receiverId = Number(environment.adminId);
             this.chatId = await this.loadChatId();
-        }
-        const subRouteParams = this.activatedRoute.queryParams.subscribe(async params => {
-            const tab = params['tab'];
-            this.selectedIndex = tab ? +tab : 0; 
-        });
-        this.subscriptions.add(subRouteParams);
+        }   
+    }
+
+    ngAfterViewInit(): void {
+        this.setupSubscriptions();
+    }
+
+    setupSubscriptions(){
+        const doctorsRoom = this.roomService.onDoctorRoomActivity()
+            .subscribe(async (room:{doctorIds:number[]}) => {
+                this.countOnlineDoctors = room.doctorIds.length;
+                this.onlineDoctorIds = room.doctorIds;
+                await this.countUnreadMessages();
+                await this.loadDoctors();
+            });
+        const uiSync =  this.uiSyncService.sync(MESSAGE_CREATED)
+            .pipe(
+                switchMap(async () => await this.countUnreadMessages()))
+            .subscribe({
+                error: (err) => console.error('Sync failed:', err)
+            })
+        this.subscriptions.push(doctorsRoom, uiSync);
     }
 
     ngOnDestroy(){
-        this.subscriptions.unsubscribe();
-        this.socketSubs.forEach(sub => {
-            sub.unsubscribe();
-        })
+        this.subscriptions.forEach(sub => sub.unsubscribe());
     }
 
-    async loadUnreadMessages(){
+    async countUnreadMessages(){
         const query = `query { countAllUnreadMessages { senderId count }}`
 
         try {
             const response = await this.graphQLService.send(query);
-            if (response.data.countAllUnreadMessages) {
-                this.unreadMessages = response.data.countAllUnreadMessages;
-            }
+            this.unreadMessages = response.data.countAllUnreadMessages;
+            this.formatDataSource();
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: error}});
         }
@@ -167,14 +175,6 @@ export class MessagesComponent implements OnInit, OnDestroy {
                 this.doctors = response.data.doctors.slice;
                 this.doctorsLength = response.data.doctors.length;
                 this.formatDataSource();
-
-                this.dataSource = new MatTableDataSource<UserDataSource>(this.formatted);
-                this.displayedColumns = [ 
-                    {header: 'Status', columnDef: 'online', sort:true},
-                    {header: 'Name', columnDef: 'name', sort:true},
-                    {header: 'Last online', columnDef: 'lastLogOutAt', sort:true},
-                    {header: 'Unread', columnDef: 'unreadMessages', sort:true}
-                ]  
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading requests: "+error}})
@@ -215,6 +215,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
                     }
                 );
             }
+            this.setTableData();
         } else {
             this.formatted = this.doctors.map(doctor => {
                 let count: number | null = null;
@@ -231,7 +232,18 @@ export class MessagesComponent implements OnInit, OnDestroy {
                     unreadMessages: count
                 }
             });
+            this.setTableData();
         }
+        
+    }
+    setTableData() {
+        this.dataSource = new MatTableDataSource<UserDataSource>(this.formatted);
+        this.displayedColumns = [ 
+            {header: 'Status', columnDef: 'online', sort:true},
+            {header: 'Name', columnDef: 'name', sort:true},
+            {header: 'Last online', columnDef: 'lastLogOutAt', sort:true},
+            {header: 'Unread', columnDef: 'unreadMessages', sort:true}
+        ] 
     }
     
     async onTabChange(value: any){
@@ -245,7 +257,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
         })?.id;
         this.countService.countUnreadMessages();
         if (this.selectedIndex === 0) {
-            this.loadUnreadMessages();
+            this.countUnreadMessages();
             await this.loadDoctors();
             
             this.router.navigate([], {
@@ -265,16 +277,16 @@ export class MessagesComponent implements OnInit, OnDestroy {
         this.receiverId = value.id;
         const chatReceiver = this.dataSource?.data.find(row => row.id === this.receiverId);
         await this.createChatTab(chatReceiver);
-        this.countService.countUnreadMessages();
-        this.headerService.notifyUnreadCountUpdate();
-        await this.loadUnreadMessages();
+        this.countService.countUnreadMessages(); 
+        //this.headerService.notifyUnreadCountUpdate(); uiSyncService
+        await this.countUnreadMessages();
     }
 
     async onChatClose(id: number){
         this.tabsService.closeChatTab(id);
         this.chats = this.tabsService.getChatTabs();
         this.countService.countUnreadMessages();
-        await this.loadUnreadMessages();
+        await this.countUnreadMessages();
     }
     
     async createChatTab(chatReceiver: any) {

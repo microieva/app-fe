@@ -12,9 +12,9 @@ import { ConfirmComponent } from "../app-confirm/app-confirm.component";
 import { AppointmentInput } from "../../../graphql/appointment/appointment.input";
 import { AppTabsService } from "../../services/app-tabs.service";
 import { AppointmentComponent } from "../../../graphql/appointment/appointment.component";
-import { AppHeaderService } from "../../services/app-header.service";
 import { LoadingComponent } from "../app-loading/loading.component";
 import { Appointment } from "../../../graphql/appointment/appointment";
+import { AppUiSyncService } from "../../services/app-ui-sync.service";
 
 
 @Component({
@@ -99,7 +99,7 @@ export class EventComponent implements OnInit, OnDestroy{
         private graphQLService: AppGraphQLService,
         private activatedRoute: ActivatedRoute,
         private tabsService:AppTabsService,
-        private headerService: AppHeaderService,
+        private uiSyncService: AppUiSyncService,
 
         public dialogRef: MatDialogRef<EventComponent>,
         @Inject(MAT_DIALOG_DATA) public data: any
@@ -454,7 +454,9 @@ export class EventComponent implements OnInit, OnDestroy{
                 this.isEditting = false;
                 this.isLoadingDetails = true;
                 await this.updateAppointment(appointmentInput);
-                this.headerService.notifyMissingAptUpdate();
+                //this.headerService.notifyMissingAptUpdate();
+                //this.uiSyncService.triggerSync(MISSED_APT_COUNT_UPDATE);
+                this.uiSyncService.notifyMissingAptUpdate();
             } else {
                 this.isEditting = false;
             }
@@ -501,7 +503,6 @@ export class EventComponent implements OnInit, OnDestroy{
             const response = await this.graphQLService.mutate(mutation, {appointmentId: this.appointmentId});
             if (response.data.acceptAppointment.success) {
                 this.dialog.closeAll();
-                //await this.loadAppointment(this.appointmentId);
             } else {
                 ref.close();
                 this.dialog.open(AlertComponent, {data: {message: response.data.saveAppointment.message}});    

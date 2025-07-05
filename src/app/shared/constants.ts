@@ -58,6 +58,6 @@ export const MESSAGE_CREATED = 'MESSAGE_CREATED';
 export const FEEDBACK_CREATED = 'FEEDBACK_CREATED';
 export const DOCTOR_REQUEST_CREATED = 'DOCTOR_REQUEST_CREATED';
 export const RECORD_CREATED = 'RECORD_CREATED';
-export const USER_UPDATED = 'USER_UPDATED'; // will be used in ui-sync
+export const USER_UPDATED = 'USER_UPDATED'; 
 export const DOCTOR_ROOM_UPDATE = 'DOCTOR_ROOM_UPDATE';
 export const USER_STATUS = 'USER_STATUS';

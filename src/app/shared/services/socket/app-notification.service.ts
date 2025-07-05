@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AppSocketService } from './app-socket.service';
+import { AppUiSyncService } from '../app-ui-sync.service';
 
 @Injectable({ providedIn: 'root' })
 export class AppNotificationService {
-    constructor(private socketService: AppSocketService) {}
+    constructor(private socketService: AppSocketService, private uiSyncService: AppUiSyncService) {}
 
     public onAppointmentCreated(event:string): Observable<any> {
         return this.socketService.fromEvent(event);

@@ -11,14 +11,13 @@ import { AppAppointmentService } from "../../services/app-appointment.service";
 import { AppTimerService } from "../../services/app-timer.service";
 import { AppTabsService } from "../../services/app-tabs.service";
 import { AppCountUnreadMessagesService } from "../../services/app-count-unread.service";
-import { AppHeaderService } from "../../services/app-header.service";
-import { getTodayWeekdayTime, getNextAppointmentWeekdayStart, getLastLogOutStr } from "../../utils";
+import { AppUiSyncService } from "../../services/app-ui-sync.service";
 import { AlertComponent } from "../app-alert/app-alert.component";
 import { AppTableComponent } from "../app-table/app-table.component";
 import { AppointmentComponent } from "../../../graphql/appointment/appointment.component";
 import { Appointment } from "../../../graphql/appointment/appointment";
+import { getTodayWeekdayTime, getNextAppointmentWeekdayStart, getLastLogOutStr } from "../../utils";
 import { User } from "../../../graphql/user/user";
-import { LoadingComponent } from "../app-loading/loading.component";
 
 @Component({
     selector: 'app-home',
@@ -84,17 +83,16 @@ export class AppHomeComponent implements OnInit {
         private appointmentService: AppAppointmentService,
         private timerService: AppTimerService,
         private countService: AppCountUnreadMessagesService,
-        //private socketService: AppSocketService,
+        private uiSyncService: AppUiSyncService,
         private authService: AppAuthService,
         private tabsService: AppTabsService,
         private renderer: Renderer2,
-        private breakpointObserver: BreakpointObserver,
-        private headerService: AppHeaderService
+        private breakpointObserver: BreakpointObserver
     ){}
 
     async ngOnInit() {
         
-        this.headerService.toggleSidenav.subscribe((toggle:boolean)=> {
+        this.uiSyncService.toggleSidenav.subscribe((toggle:boolean)=> {
             this.showSidenav = toggle
             if (this.showSidenav) {
                 this.renderer.setStyle(this.sidenavElement?.nativeElement, 'width', `288px`);
@@ -112,9 +110,7 @@ export class AppHomeComponent implements OnInit {
                     await this.loadData();
                 }
             });
-            // this.socketService.refresh$.subscribe(async isUpdated => {
-            //     if (isUpdated) await this.ngOnInit();   
-            // })
+
             this.subscriptions.add(sub); 
 
             if (this.me && this.userRole !== 'patient') {
@@ -124,9 +120,6 @@ export class AppHomeComponent implements OnInit {
             if (this.me && this.userRole === 'admin') {
                 this.today = getTodayWeekdayTime();
                 const now = DateTime.now().setZone('Europe/Helsinki').toISO();
-
-                //this.socketService.requestCountMissedAppointments();
-
                 this.timerService.startClock(now!);
                 const sub = this.timerService.clock.subscribe(value=> {
                     this.clock = value;
@@ -134,7 +127,6 @@ export class AppHomeComponent implements OnInit {
                 this.subscriptions.add(sub); 
             }
             if (this.me && this.userRole === 'doctor') {
-                //this.socketService.userLogin({ id: this.me.id, userRole: this.me.userRole } as User);
                 await this.appointmentService.pollNextAppointment();
                 const sub = this.appointmentService.appointmentInfo$.subscribe(async (info:any) => {
                     if (info && info.nextAppointment) {
@@ -392,7 +384,7 @@ export class AppHomeComponent implements OnInit {
         if (!this.isDesktop) {
             this.showSidenav = !this.showSidenav;
             if (!this.showSidenav) {
-                this.headerService.openSidenav(false);
+                this.uiSyncService.openSidenav(false);
             }
         }
     }
