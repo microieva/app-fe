@@ -1,17 +1,19 @@
-import { Subscription } from "rxjs";
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Subscription, switchMap } from "rxjs";
+import { AfterViewInit, Component, OnDestroy, OnInit } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { ActivatedRoute, Router } from "@angular/router";
 import { trigger, state, style, transition, animate } from "@angular/animations";
 import { MatTableDataSource } from "@angular/material/table";
 import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
+import { AppUiSyncService } from "../../../shared/services/app-ui-sync.service";
 import { AlertComponent } from "../../../shared/components/app-alert/app-alert.component";
 import { ConfirmComponent } from "../../../shared/components/app-confirm/app-confirm.component";
 import { UserComponent } from "../user.component";
 import { AppTableDisplayedColumns, UserDataSource } from "../../../shared/types";
 import { User } from "../user";
 import { LoadingComponent } from "../../../shared/components/app-loading/loading.component";
+import { DOCTOR_REQUEST_CREATED } from "../../../shared/constants";
 
 @Component({
     selector: 'app-doctors',
@@ -30,7 +32,7 @@ import { LoadingComponent } from "../../../shared/components/app-loading/loading
           ]),
     ]
 })
-export class DoctorsComponent implements OnInit, OnDestroy {
+export class DoctorsComponent implements OnInit, AfterViewInit, OnDestroy {
     isLoading: boolean = true;
     selectedIndex: number = 0;
     dataSource: MatTableDataSource<UserDataSource> | null = null;
@@ -53,13 +55,14 @@ export class DoctorsComponent implements OnInit, OnDestroy {
     sortActive: string = 'firstName';
     filterInput: string | null = null;
 
-    private subscriptions: Subscription = new Subscription();
+    private subscription: Subscription = new Subscription();
 
     constructor(
         private activatedRoute: ActivatedRoute,
         private dialog: MatDialog,
         private graphQLService: AppGraphQLService,
-        private router: Router
+        private router: Router,
+        private uiSyncService: AppUiSyncService
     ){}
 
     async ngOnInit() {
@@ -69,7 +72,16 @@ export class DoctorsComponent implements OnInit, OnDestroy {
             this.selectedIndex = tab ? +tab : 0;
             await this.loadData();
         });  
-        this.subscriptions.add(sub); 
+        this.subscription.add(sub); 
+    }
+
+    ngAfterViewInit(): void {
+        this.subscription.add(this.uiSyncService.sync(DOCTOR_REQUEST_CREATED)
+            .pipe(
+                switchMap(async () => await this.loadRequests()))
+            .subscribe({
+                error: (err) => console.error('Sync failed:', err)
+            }));
     }
 
     async loadStatic() {
@@ -142,11 +154,8 @@ export class DoctorsComponent implements OnInit, OnDestroy {
             if (response.data) {
                 this.requests = response.data.requests.slice;
                 this.requestsLength = response.data.requests.length;
+                this.countRequests = this.requestsLength;
                 this.formatDataSource("requests");
-
-                if (this.requestsDataSource) {
-                    this.dataSource = new MatTableDataSource<UserDataSource>(this.requestsDataSource);
-                }
                 this.isLoading = false;
             }
         } catch (error) {
@@ -196,10 +205,6 @@ export class DoctorsComponent implements OnInit, OnDestroy {
                 this.doctors = response.data.doctors.slice;
                 this.doctorsLength = response.data.doctors.length;
                 this.formatDataSource("doctors")
-
-                if (this.doctorsDataSource) {
-                    this.dataSource = new MatTableDataSource<UserDataSource>(this.doctorsDataSource);  
-                }
                 this.isLoading = false;
             }
         } catch (error) {
@@ -240,6 +245,8 @@ export class DoctorsComponent implements OnInit, OnDestroy {
                     {header: 'Email', columnDef: 'email', sort:true},
                     {header: 'Request created', columnDef: 'createdAt', sort:true},
                 ]
+
+                this.dataSource = new MatTableDataSource<UserDataSource>(this.requestsDataSource);
                 break;
             case "doctors":
                 this.doctorsDataSource = this.doctors.map((row) => {
@@ -266,7 +273,8 @@ export class DoctorsComponent implements OnInit, OnDestroy {
                     {header: 'Name', columnDef: 'name', sort:true},
                     {header: 'Email', columnDef: 'email', sort:true},
                     {header: 'Account activated', columnDef: 'createdAt', sort:true}
-                ]
+                ];
+                this.dataSource = new MatTableDataSource<UserDataSource>(this.doctorsDataSource);  
                 break;
             default:
                 break;
@@ -311,7 +319,7 @@ export class DoctorsComponent implements OnInit, OnDestroy {
         await this.loadData();
     }
     ngOnDestroy(): void {
-        this.subscriptions.unsubscribe();
+        this.subscription.unsubscribe();
     }
 
     async onFilterValueChange(value: any){
@@ -323,12 +331,11 @@ export class DoctorsComponent implements OnInit, OnDestroy {
         const userId = value.id;
         const dialogRef = this.dialog.open(UserComponent, {data: {userId}});
 
-        const sub = dialogRef.componentInstance.isDeletingUser.subscribe(async subscription => {
+        this.subscription.add(dialogRef.componentInstance.isDeletingUser.subscribe(async subscription => {
             if (subscription) {
                 await this.deleteUser(userId);
             }
-        });
-        this.subscriptions.add(sub);
+        }));
     }
 
     async deleteUser(id: number){
@@ -342,7 +349,6 @@ export class DoctorsComponent implements OnInit, OnDestroy {
             const response = await this.graphQLService.mutate(mutation, { userId: id});
             if (response.data.deleteUser.success) {
                 this.dialog.closeAll();
-                //this.ngOnInit();
                 await this.loadData();
             }
             this.dialog.open(AlertComponent, {data: {message: "User account deleted"}});
@@ -384,8 +390,6 @@ export class DoctorsComponent implements OnInit, OnDestroy {
                 const response = await this.graphQLService.mutate(mutation, {userIds:ids})
                 if (response.data.deleteDoctorRequestsByIds.success) {
                     await this.loadData();
-                    //this.ngOnDestroy();
-                    //await this.ngOnInit();
                     this.dialog.open(AlertComponent, {data: {message:response.data.deleteDoctorRequestsByIds.message}})    
                 } else {
                     const ref = this.dialog.open(AlertComponent, {data: {message:response.data.deleteDoctorRequestsByIds.message}});
@@ -482,5 +486,13 @@ export class DoctorsComponent implements OnInit, OnDestroy {
         })
     }
 
-    onSearchReset(value: boolean){}
+    async onSearchReset(isResetting: boolean){
+        if (isResetting) {
+            this.pageIndex = 0;
+            this.sortDirection = 'ASC';
+            this.sortActive = 'createdAt';
+            this.filterInput = null;
+            await this.loadData();
+        };
+    }
 }

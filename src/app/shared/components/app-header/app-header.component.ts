@@ -1,4 +1,4 @@
-import {  Component, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { AppAuthService } from "../../services/app-auth.service";
 import { ActivatedRoute, Router } from "@angular/router";
 import { catchError, filter, of, Subject, Subscription, switchMap, takeUntil, tap } from "rxjs";
@@ -10,7 +10,6 @@ import { AppSnackbarService } from "../../services/app-snackbar.service";
 import { AppSocketService } from "../../services/socket/app-socket.service";
 import { AppNotificationService } from "../../services/socket/app-notification.service";
 import { AppTabsService } from "../../services/app-tabs.service";
-import { AppHeaderService } from "../../services/app-header.service";
 import { AppTimerService } from "../../services/app-timer.service";
 import { AppUserRoomService } from "../../services/socket/app-user-room.service";
 import { AlertComponent } from "../app-alert/app-alert.component";
@@ -27,9 +26,11 @@ import {
     APPOINTMENT_CREATED, 
     MESSAGE_CREATED, 
     DOCTOR_REQUEST_CREATED, 
-    FEEDBACK_CREATED 
+    FEEDBACK_CREATED, 
+    USER_UPDATED
 } from "../../constants";
 import { AppNotificationEvent } from "../../types";
+import { AppUiSyncService } from "../../services/app-ui-sync.service";
 
 
 @Component({
@@ -37,7 +38,7 @@ import { AppNotificationEvent } from "../../types";
     templateUrl: 'app-header.component.html',
     styleUrls: ['app-header.component.scss']
 })
-export class AppHeader implements OnInit {
+export class AppHeader implements OnInit, OnDestroy {
     isDesktop: boolean = false; 
     expand:boolean = false;
 
@@ -57,9 +58,7 @@ export class AppHeader implements OnInit {
     snackbarAppointmentId: number | undefined;
     snackbarReceiverId: number | undefined;
 
-    buttonClickListener!: () => void;
-    private subscriptions: Subscription = new Subscription();
-    private socketSubs: Subscription[] = [];
+    private subscriptions: Subscription[] = [];
     private destroy$ = new Subject<void>();
 
     constructor(
@@ -72,10 +71,10 @@ export class AppHeader implements OnInit {
         private appointmentService: AppAppointmentService,
         private tabsService: AppTabsService,
         private socketService: AppSocketService,
+        private uiSyncService: AppUiSyncService,
         private notificationService: AppNotificationService,
         private roomService: AppUserRoomService,
         private snackbarService: AppSnackbarService,
-        private headerService: AppHeaderService,
         private breakpointObserver: BreakpointObserver
     ){}
     async ngOnInit() {
@@ -86,11 +85,7 @@ export class AppHeader implements OnInit {
         this.time = null;
         this.authService.isLoggedIn$.subscribe(isLoggedIn => {
             if (isLoggedIn) {   
-                const subToggle = this.headerService.toggleSidenav.subscribe(
-                    toggle => this.expand = toggle
-                )
-                this.subscriptions.add(subToggle);
-                this.initUserSubscriptions();
+                this.setupSubscriptions();
             }
             else {
                 this.me = null;
@@ -99,8 +94,17 @@ export class AppHeader implements OnInit {
             }
         })  
     }
+
+    setupSubscriptions() {
+        const toggle = this.uiSyncService.toggleSidenav.subscribe(
+            toggle => this.expand = toggle
+        )
+        this.subscriptions.push(toggle);
+        this.setupUserRoleSubscriptions();
+        this.setupUiSyncSubscriptions();
+    }
     
-    initUserSubscriptions() {
+    setupUserRoleSubscriptions() {
         this.authService.isLoggedIn$
             .pipe(
                 filter(isLoggedIn => isLoggedIn), 
@@ -134,50 +138,77 @@ export class AppHeader implements OnInit {
             )
             .subscribe()   
     }
+    setupUiSyncSubscriptions() {
+        const unreadMsgs =  this.uiSyncService.sync(MESSAGE_CREATED)
+            .pipe(
+                switchMap(async () => await this.countUnreadMessages()))
+            .subscribe({
+                error: (err) => console.error('Sync failed:', err)
+            });
+        const userDetails =  this.uiSyncService.sync(USER_UPDATED)
+            .pipe(
+                switchMap(async () => await this.loadMe()))
+            .subscribe({
+                error: (err) => console.error('Sync failed:', err)
+            });
+        this.subscriptions.push(unreadMsgs, userDetails);
+    }
     setupPatientNotifications() {
-        this.socketSubs.push(
+        this.subscriptions.push(
             this.notificationService.onAppointmentAccepted(APPOINTMENT_ACCEPTED).subscribe((notification: AppNotificationEvent) => {
+                this.uiSyncService.triggerSync(APPOINTMENT_ACCEPTED);
                 this.showNotification(notification);
             }),
             this.notificationService.onAppointmentCancelled(APPOINTMENT_CANCELLED).subscribe((notification: AppNotificationEvent) => {
+                this.uiSyncService.triggerSync(APPOINTMENT_CANCELLED);
                 this.showNotification(notification);
             }),
             this.notificationService.onAppointmentDeleted(APPOINTMENT_DELETED).subscribe((notification: AppNotificationEvent) => {
+                this.uiSyncService.triggerSync(APPOINTMENT_DELETED);
                 this.showNotification(notification);
             }),
             this.notificationService.onAppointmentUpdated(APPOINTMENT_UPDATED).subscribe((notification: AppNotificationEvent) => {
+                this.uiSyncService.triggerSync(APPOINTMENT_UPDATED);
                 this.showNotification(notification);
             }),
             this.notificationService.onRecordCreated(RECORD_CREATED).subscribe((notification: AppNotificationEvent) => {
+                this.uiSyncService.triggerSync(RECORD_CREATED);
                 this.showNotification(notification);
             })
         );
     }
     setupDoctorNotifications(){
-        this.socketSubs.push(
+        this.subscriptions.push(
             this.notificationService.onAppointmentCreated(APPOINTMENT_CREATED).subscribe((notification: AppNotificationEvent) => {
+                this.uiSyncService.triggerSync(APPOINTMENT_CREATED);
                 this.showNotification(notification);
             }),
             this.notificationService.onAppointmentUpdated(APPOINTMENT_UPDATED).subscribe((notification: AppNotificationEvent) => {
+                this.uiSyncService.triggerSync(APPOINTMENT_UPDATED);
                 this.showNotification(notification);
             }),
             this.notificationService.onAppointmentDeleted(APPOINTMENT_DELETED).subscribe((notification: AppNotificationEvent) => {
+                this.uiSyncService.triggerSync(APPOINTMENT_DELETED);
                 this.showNotification(notification);
             }),
             this.notificationService.onChatMessageCreated(MESSAGE_CREATED).subscribe((notification: AppNotificationEvent) => {
+                this.uiSyncService.triggerSync(MESSAGE_CREATED);
                 this.showNotification(notification);
             })
         );
     }
     setupAdminNotifications(){
-        this.socketSubs.push(
+        this.subscriptions.push(
             this.notificationService.onDoctorRequestCreated(DOCTOR_REQUEST_CREATED).subscribe((notification: AppNotificationEvent) => {
+                this.uiSyncService.triggerSync(DOCTOR_REQUEST_CREATED);
                 this.showNotification(notification);
             }),
             this.notificationService.onChatMessageCreated(MESSAGE_CREATED).subscribe((notification: AppNotificationEvent) => {
+                this.uiSyncService.triggerSync(MESSAGE_CREATED);
                 this.showNotification(notification);
             }),
             this.notificationService.onFeedbackCreated(FEEDBACK_CREATED).subscribe((notification: AppNotificationEvent) => {
+                this.uiSyncService.triggerSync(FEEDBACK_CREATED);
                 this.showNotification(notification);
             })
         ); 
@@ -255,8 +286,7 @@ export class AppHeader implements OnInit {
         }
     }
     openChat() {
-        if (this.userRole === 'doctor') this.headerService.notifyUnreadCountUpdate();
-        if (this.expand) this.headerService.openSidenav(!this.expand);
+        if (this.expand) this.uiSyncService.openSidenav(!this.expand);
         this.router.navigate(['/home/messages']);
     }
     openCalendar() {
@@ -265,14 +295,13 @@ export class AppHeader implements OnInit {
         } else {
             this.router.navigate(['/home/appointments/calendar']);
         }
-        if (this.expand) this.headerService.openSidenav(!this.expand);
+        if (this.expand) this.uiSyncService.openSidenav(!this.expand);
     }
 
     ngOnDestroy() {
+        this.subscriptions.forEach(sub => sub.unsubscribe());
         this.destroy$.next();
         this.destroy$.complete();
-        this.subscriptions.unsubscribe();
-        this.socketSubs.forEach(sub => sub.unsubscribe());
     }
     onLogIn(){
         this.dialog.open(LoginMenuComponent)
@@ -282,7 +311,6 @@ export class AppHeader implements OnInit {
         if (this.userRole === 'doctor') {
             this.roomService.leaveDoctorRoom(this.me!.id);
         } 
-   
         this.timerService.cancelTokenTimer(); 
         this.snackbarService.clearSnackbars();
         this.dialog.open(LoadingComponent);
@@ -295,7 +323,7 @@ export class AppHeader implements OnInit {
         this.socketService.disconnect();
     }
     toggleSidenav(){
-        this.headerService.openSidenav(!this.expand);
+        this.uiSyncService.openSidenav(!this.expand);
     }
 }
       

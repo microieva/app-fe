@@ -1,4 +1,4 @@
-import { Subscription } from "rxjs";
+import { Subscription, switchMap } from "rxjs";
 import { trigger, state, style, transition, animate } from "@angular/animations";
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
@@ -7,10 +7,12 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../shared/services/app-graphql.service";
 import { AppTabsService } from "../../shared/services/app-tabs.service";
+import { AppUiSyncService } from "../../shared/services/app-ui-sync.service";
 import { AppUserRoomService } from "../../shared/services/socket/app-user-room.service";
 import { AppCountUnreadMessagesService } from "../../shared/services/app-count-unread.service";
 import { AlertComponent } from "../../shared/components/app-alert/app-alert.component";
 import { ConfirmComponent } from "../../shared/components/app-confirm/app-confirm.component";
+import { MESSAGE_CREATED } from "../../shared/constants";
 
 @Component({
     selector: 'app-chat',
@@ -48,9 +50,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     messages: any[] = [];
     online: boolean = false;
     isLoading: boolean = true;
-    private subscriptions: Subscription = new Subscription();
-    private socketSubs: Subscription[] = [];
-
+    private subscriptions: Subscription[] = [];
 
     constructor(
         private graphQLService: AppGraphQLService,
@@ -59,38 +59,52 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
         private tabsService: AppTabsService,
         private router: Router,
         private countService: AppCountUnreadMessagesService,
-        private roomService: AppUserRoomService
+        private roomService: AppUserRoomService,
+        private uiSyncService: AppUiSyncService
     ){}
     
     async ngOnInit(){    
-        const subRouterParams = this.activatedRoute.queryParams.subscribe(params => {
+        this.subscriptions.push(this.activatedRoute.queryParams.subscribe(params => {
             const id = params['id']; 
             if (id) this.receiverId = +id;
-        });
+        }));
 
         if (this.receiverId) {
             this.roomService.requestUserStatus(this.receiverId);   
         }
-        await this.setIsReadToTrue();
         await this.loadMessages();
-
-        if (this.form.touched) await this.setIsReadToTrue();
-
-        this.subscriptions.add(subRouterParams);
+        if (this.messages.length > 0 && this.messages.some(msg => !msg.isRead)) {
+            await this.setIsReadToTrue();
+            this.uiSyncService.triggerSync(MESSAGE_CREATED);
+        }
     }
 
-    ngAfterViewInit(): void {
-        this.socketSubs.push(
-            this.roomService.onUserStatus().subscribe((status:{online:boolean}) => {
-                this.online = status.online;
-            })
-        )
+    async ngAfterViewInit(): Promise<void> { 
+        this.setupSubscriptions();
+    }
+
+    setupSubscriptions() {
+        const uiSync = this.uiSyncService.sync(MESSAGE_CREATED)
+            .pipe( 
+                switchMap(async () => await this.loadMessages()) 
+            ).subscribe({
+                error: (err) => console.error('Sync failed:', err)
+            });
+
+        const doctorsRoom = this.roomService.onUserStatus()
+            .subscribe({
+                next: (status) => {
+                    this.online = status.online; 
+                },
+                error: (err) => console.error('Status sync error:', err)
+            });
+        this.subscriptions.push(doctorsRoom, uiSync);
     }
 
     ngOnDestroy(){
-        this.subscriptions.unsubscribe();
-        this.socketSubs.forEach(sub => sub.unsubscribe());
+        this.subscriptions.forEach(sub => sub.unsubscribe());
     }
+
     get characterCount(): number {
         const message = this.form.get('message')?.value || '';
         return message.replace(/\n/g, '').length; 

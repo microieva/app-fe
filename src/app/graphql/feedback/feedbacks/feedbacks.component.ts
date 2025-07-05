@@ -1,6 +1,6 @@
-import { Subscription } from "rxjs";
+import { Subscription, switchMap } from "rxjs";
 import { trigger, state, style, transition, animate } from "@angular/animations";
-import { Component, OnInit, OnDestroy } from "@angular/core";
+import { Component, OnInit, OnDestroy, AfterViewInit } from "@angular/core";
 import { MatTableDataSource } from "@angular/material/table";
 import { MatDialog } from "@angular/material/dialog";
 import { AppTableDisplayedColumns, FeedbackDataSource } from "../../../shared/types";
@@ -10,6 +10,8 @@ import { ConfirmComponent } from "../../../shared/components/app-confirm/app-con
 import { FeedbackComponent } from "../feedback/feedback.component";
 import { getHowLongAgo } from "../../../shared/utils";
 import { Feedback } from "../feedback";
+import { FEEDBACK_CREATED } from "../../../shared/constants";
+import { AppUiSyncService } from "../../../shared/services/app-ui-sync.service";
 
 @Component({
     selector: 'app-feedbacks',
@@ -28,7 +30,7 @@ import { Feedback } from "../feedback";
         ]),
     ]
 })
-export class FeedbacksComponent implements OnInit, OnDestroy {
+export class FeedbacksComponent implements OnInit, AfterViewInit, OnDestroy {
     isLoading: boolean = true;
     userRole:string = 'admin'
     dataSource: MatTableDataSource<FeedbackDataSource> | null = null;
@@ -48,11 +50,12 @@ export class FeedbacksComponent implements OnInit, OnDestroy {
     countUnread:number = 0;
     length:number = 0;
 
-    private subscriptions: Subscription = new Subscription();
+    private subscription: Subscription = new Subscription();
     
     constructor(
         private graphQLService: AppGraphQLService,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private uiSyncService: AppUiSyncService,
     ){}
 
     async ngOnInit() {
@@ -61,6 +64,14 @@ export class FeedbacksComponent implements OnInit, OnDestroy {
             await this.loadData();
         }
         this.isLoading = false;
+    }
+    ngAfterViewInit(): void {
+        this.subscription.add(this.uiSyncService.sync(FEEDBACK_CREATED)
+            .pipe(
+                switchMap(async () => {await this.loadStatic(); await this.loadData()}))
+            .subscribe({
+                error: (err) => console.error('Sync failed:', err)
+            }))
     }
 
     async loadStatic() {
@@ -117,11 +128,7 @@ export class FeedbacksComponent implements OnInit, OnDestroy {
                 this.isLoading = false;
                 this.feedbacks = response.data.feedbacks.slice;
                 this.length = response.data.feedbacks.length;
-                this.formatDataSource()
-
-                if (this.feedbackDataSource) {
-                    this.dataSource = new MatTableDataSource<FeedbackDataSource>(this.feedbackDataSource);  
-                }
+                this.formatDataSource();
             }
         } catch (error) {
             this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading requests: "+error}})
@@ -140,14 +147,6 @@ export class FeedbacksComponent implements OnInit, OnDestroy {
                     disabled: isAllRead
                 }
             ]
-
-            this.displayedColumns = [ 
-                {header: 'checkbox', columnDef: 'checkbox', sort: false},
-                {header: 'Actions', columnDef: 'actions',  sort: false},
-                {header: 'Name', columnDef: 'name', sort:true},
-                {header: 'Email', columnDef: 'email', sort:true},
-                {header: 'Feedback created', columnDef: 'createdAt', sort:true},
-            ]
             return {
                 id: feedback.id,
                 name: feedback.name || 'Anonymous',
@@ -156,7 +155,15 @@ export class FeedbacksComponent implements OnInit, OnDestroy {
                 createdAt,
                 actions:this.actions
             }
-        })
+        });
+        this.displayedColumns = [ 
+                {header: 'checkbox', columnDef: 'checkbox', sort: false},
+                {header: 'Actions', columnDef: 'actions',  sort: false},
+                {header: 'Name', columnDef: 'name', sort:true},
+                {header: 'Email', columnDef: 'email', sort:true},
+                {header: 'Feedback created', columnDef: 'createdAt', sort:true},
+            ]
+        this.dataSource = new MatTableDataSource<FeedbackDataSource>(this.feedbackDataSource);  
     }
 
     async onPageChange(value: any){
@@ -273,6 +280,6 @@ export class FeedbacksComponent implements OnInit, OnDestroy {
         }
     }
     ngOnDestroy(): void {
-        this.subscriptions.unsubscribe();
+        this.subscription.unsubscribe();
     }
 }

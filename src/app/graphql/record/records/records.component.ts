@@ -1,16 +1,18 @@
 import { DateTime } from "luxon";
-import { Subscription } from "rxjs";
-import { Component, OnDestroy, OnInit, signal } from "@angular/core";
+import { Subscription, switchMap } from "rxjs";
+import { AfterViewInit, Component, OnDestroy, OnInit, signal } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { MatTableDataSource } from "@angular/material/table";
 import { MatDialog } from "@angular/material/dialog";
 import { trigger, state, style, transition, animate } from "@angular/animations";
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
+import { AppUiSyncService } from "../../../shared/services/app-ui-sync.service";
 import { RecordComponent } from "../record.component";
 import { AlertComponent } from "../../../shared/components/app-alert/app-alert.component";
 import { ConfirmComponent } from "../../../shared/components/app-confirm/app-confirm.component";
 import { AdvancedSearchInput, AppSearchInput, AppTableDisplayedColumns, RecordDataSource } from "../../../shared/types";
 import { Record } from "../record";
+import { RECORD_CREATED } from "../../../shared/constants";
 
 @Component({
     selector: 'app-records',
@@ -39,14 +41,13 @@ import { Record } from "../record";
           ])
     ]
 })
-export class RecordsComponent implements OnInit, OnDestroy {
+export class RecordsComponent implements OnInit, AfterViewInit, OnDestroy {
     selectedIndex!: number;
     dataSource: MatTableDataSource<RecordDataSource> | null = null;
     displayedColumns: AppTableDisplayedColumns[] = [];
     actions: any[] | null = null;
     readonly panelOpenState = signal(false);
-    private subscriptions: Subscription = new Subscription();
-    private uiSyncSubs: Subscription[] = [];
+    private subscriptions: Subscription[] = [];
     records: Record[] = [];
     drafts: Record[] = [];
     draftsLength: number = 0;
@@ -72,18 +73,30 @@ export class RecordsComponent implements OnInit, OnDestroy {
         private graphQLService: AppGraphQLService,
         private router: Router,
         private activatedRoute: ActivatedRoute,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private uiSyncService: AppUiSyncService
     ){}
     async ngOnInit() {  
         await this.loadMe();
         await this.loadStatic()
 
-        const sub = this.activatedRoute.queryParams.subscribe(async params => {
+        this.subscriptions.push(
+            this.activatedRoute.queryParams.subscribe(async params => {
             const tab = params['tab'];
             this.selectedIndex = tab ? +tab : 0;
             await this.loadData();
-        }); 
-        this.subscriptions.add(sub);
+        })); 
+    }
+
+    ngAfterViewInit(): void {
+        this.subscriptions.push(
+           this.uiSyncService.sync(RECORD_CREATED)
+            .pipe(
+                switchMap(async () => await this.loadRecords()))
+            .subscribe({
+                error: (err) => console.error('Sync failed:', err)
+            })
+        );
     }
 
     async loadStatic(){
@@ -313,11 +326,8 @@ export class RecordsComponent implements OnInit, OnDestroy {
             if (response.data) {
                 this.records = response.data.records.slice;
                 this.recordsLength = response.data.records.length;
+                this.countRecords = this.recordsLength;
                 this.formatDataSource("records");
-
-                if (this.recordDataSource && this.displayedColumns) {
-                    this.dataSource = new MatTableDataSource<RecordDataSource>(this.recordDataSource);
-                }
                 this.isLoading = false;
             }
         } catch (error) {
@@ -389,7 +399,7 @@ export class RecordsComponent implements OnInit, OnDestroy {
         const sub = dialogRef.componentInstance.reload.subscribe(async subscription => {
             if (subscription) await this.ngOnInit();
         });
-        this.subscriptions.add(sub);
+        this.subscriptions.push(sub);
     }
 
     formatDataSource(view: string) { 
@@ -444,6 +454,7 @@ export class RecordsComponent implements OnInit, OnDestroy {
                         actions: this.actions
                     } 
                 });
+                this.dataSource = new MatTableDataSource<RecordDataSource>(this.recordDataSource);
                 if (this.userRole === 'doctor') {
                     this.displayedColumns = [ 
                         {header: 'checkbox', columnDef: 'checkbox', sort: false},
@@ -521,9 +532,6 @@ export class RecordsComponent implements OnInit, OnDestroy {
                 break;
         }
     }
-    async onReload(){
-        await this.loadData();
-    }
 
     async onSearch(value: AppSearchInput) {
         this.filterInput = value.searchInput;   
@@ -541,7 +549,6 @@ export class RecordsComponent implements OnInit, OnDestroy {
         };
     }
     ngOnDestroy(): void {
-        this.subscriptions.unsubscribe();
-        this.uiSyncSubs.forEach(sub => sub.unsubscribe());
+        this.subscriptions.forEach(sub => sub.unsubscribe());
     }
 }
