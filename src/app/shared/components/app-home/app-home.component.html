@@ -79,11 +79,11 @@
                 calendar_clock
             </span>
 
-            <div *ngIf="isLoading" class="loading"  >
+            <div *ngIf="isLoading" class="loading">
                 <app-loading></app-loading>
             </div>
             <!-- ADMIN -->
-            <div *ngIf="userRole ==='admin' && clock" >
+            <!-- <div *ngIf="userRole ==='admin' && clock" >
                 <div class="block--bordered--home-page bg--white--cold">
                     <div [ngClass]="isDesktop ? 'flex-row': 'flex-column'">
                         <div class="flex-column">
@@ -146,7 +146,9 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
+
+            <app-dashboard [me]="me" *ngIf="me"></app-dashboard>
             <!-- DOCTOR -->
             <div *ngIf="userRole ==='doctor' && !isLoading">      
                 <div class="block--bordered--home-page bg--white--cold" *ngIf="nextId"  [ngStyle]="{height: !isDesktop && '50%'}">

@@ -18,6 +18,7 @@ import { AppointmentComponent } from "../../../graphql/appointment/appointment.c
 import { Appointment } from "../../../graphql/appointment/appointment";
 import { getTodayWeekdayTime, getNextAppointmentWeekdayStart, getLastLogOutStr } from "../../utils";
 import { User } from "../../../graphql/user/user";
+import { AppUserRoomService } from "../../services/socket/app-user-room.service";
 
 @Component({
     selector: 'app-home',
@@ -37,6 +38,7 @@ export class AppHomeComponent implements OnInit {
 
     isHomeRoute: boolean = true;
     isLoading: boolean = true;
+    isSocketConnected: boolean = false;
     userRole!: string;
     me: User | undefined;
     lastLogOut!: string;
@@ -64,6 +66,8 @@ export class AppHomeComponent implements OnInit {
     today: { weekday: string, time: string, date: string} | undefined;
     clock: string | undefined;
     recordIds: number[] = [];
+    doctors: User[] = [];
+    doctorsLength: number = 0;
     private subscriptions: Subscription = new Subscription();
 
     @ViewChild('sidenav', { read: ElementRef }) sidenavElement: ElementRef | undefined;
@@ -87,7 +91,8 @@ export class AppHomeComponent implements OnInit {
         private authService: AppAuthService,
         private tabsService: AppTabsService,
         private renderer: Renderer2,
-        private breakpointObserver: BreakpointObserver
+        private breakpointObserver: BreakpointObserver,
+        private roomService: AppUserRoomService
     ){}
 
     async ngOnInit() {
@@ -101,13 +106,12 @@ export class AppHomeComponent implements OnInit {
 
         await this.loadMe();
         if (this.me) {
-            
-            await this.loadData();
+            await this.loadStatic();
             this.dialog.closeAll();
             const sub = this.router.events.subscribe(async (event) => {
                 this.isHomeRoute = this.router.url === '/home' || (event as NavigationEnd).url === '/home';
                 if (this.isHomeRoute) {  
-                    await this.loadData();
+                    await this.loadStatic();
                 }
             });
 
@@ -125,6 +129,9 @@ export class AppHomeComponent implements OnInit {
                     this.clock = value;
                 });
                 this.subscriptions.add(sub); 
+                if (this.countDoctorRequests > 0) {
+                    await this.loadLatestDoctorRequests();
+                }
             }
             if (this.me && this.userRole === 'doctor') {
                 await this.appointmentService.pollNextAppointment();
@@ -180,6 +187,60 @@ export class AppHomeComponent implements OnInit {
         this.breakpointObserver.observe(['(min-width: 1024px)', '(max-width: 1431px)']).subscribe(result => {
             this.isDesktop = this.breakpointObserver.isMatched('(min-width: 1024px)');
         });
+        this.requestSocketStatus();
+
+    }
+
+    requestSocketStatus() {
+        this.roomService.requestUserStatus(this.me?.id  || 0);
+        
+    }
+
+    async loadLatestDoctorRequests() {
+        const query = `query (
+            $pageIndex: Int!, 
+            $pageLimit: Int!, 
+            $sortDirection: String, 
+            $sortActive: String,
+            $filterInput: String
+        ){ 
+            doctors (
+                pageIndex: $pageIndex, 
+                pageLimit: $pageLimit,
+                sortDirection: $sortDirection,
+                sortActive: $sortActive,
+                filterInput: $filterInput
+            ){
+                length
+                slice {
+                    ... on User {
+                        id
+                        email
+                        firstName
+                        lastName
+                        createdAt
+                    }
+                }
+            }
+        }`
+        const variables = {
+            pageIndex: 0,
+            pageLimit: 5,
+            sortActive: 'createdAt',
+            sortDirection: 'DESC',
+            filterInput: null
+        }
+        try {
+            const response = await this.graphQLService.send(query, variables);
+            if (response.data) {
+                this.doctors = response.data.doctors.slice;
+                this.doctorsLength = response.data.doctors.length;
+                //this.formatDataSource("doctors")
+                //this.isLoading = false;
+            }
+        } catch (error) {
+            this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading requests: "+error}})
+        }
     }
 
     ngAfterViewInit() {
@@ -189,7 +250,9 @@ export class AppHomeComponent implements OnInit {
           
         this.renderer.listen(this.sidenavElement?.nativeElement, 'mousedown', (event: MouseEvent) => this.onMouseDown(event));
         this.renderer.listen(document, 'mousemove', (event: MouseEvent) => this.onMouseMove(event));
-        this.renderer.listen(document, 'mouseup', () => this.onMouseUp());
+        this.renderer.listen(document, 'mouseup', () => this.onMouseUp());    
+
+       
     }
 
     onMouseDown(event: MouseEvent) {
@@ -231,7 +294,7 @@ export class AppHomeComponent implements OnInit {
         }    
     }
 
-    async loadData(){
+    async loadStatic(){
         if (this.authService.isAuth()) {
             switch (this.userRole) {
                 case 'admin':
@@ -255,6 +318,9 @@ export class AppHomeComponent implements OnInit {
                 userRole 
                 updatedAt
                 lastLogOutAt
+                firstName
+                lastName
+                email
             }
         }`
         const response = await this.graphQLService.send(query);

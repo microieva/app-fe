@@ -79,6 +79,9 @@ import { AppNoContentComponent } from './shared/components/app-no-content-compon
 import { AppUserRoomService } from './shared/services/socket/app-user-room.service';
 import { AppNotificationService } from './shared/services/socket/app-notification.service';
 import { AppUiSyncService } from './shared/services/app-ui-sync.service';
+import { AppDashboardComponent } from './shared/components/app-dashboard/app-dashboard.component';
+import { MatStepperModule } from '@angular/material/stepper'
+import { AppStepperComponent } from './shared/components/app-stepper-create-user/app-stepper.component';
 
 
 @NgModule({ 
@@ -113,7 +116,9 @@ import { AppUiSyncService } from './shared/services/app-ui-sync.service';
         ChatComponent,
         FeedbacksComponent,
         FeedbackComponent,
-        AppAiAssistantComponent
+        AppAiAssistantComponent,
+        AppDashboardComponent,
+        AppStepperComponent
     ],
     bootstrap: [AppComponent], 
     imports: [
@@ -155,7 +160,8 @@ import { AppUiSyncService } from './shared/services/app-ui-sync.service';
         MatTooltipModule,
         MatBadgeModule,
         MatCheckboxModule,
-        MatExpansionModule
+        MatExpansionModule,
+        MatStepperModule
     ], 
     providers: [
         AppAuthGuard,

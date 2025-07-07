@@ -1,0 +1,168 @@
+<div class="dashboard">
+                <div class="next-appointment flex-column bg--white--cold">
+                    <p *ngIf="me.userRole !=='admin'">this will have next patient / appointment info</p>
+                    <div *ngIf="me.userRole ==='admin'" class="clock flex-column flex-center">
+                        <h2 class="color--pink--cloudy--primary">{{clock}}</h2>
+                        <h3 class="color--main--primary">{{today.weekday}}</h3>
+                        <h5 class="color--main--primary">{{today.date}}</h5>
+                    </div>
+                </div>
+                <div class="title color--main--primary">
+                    <h5 *ngIf="me.userRole === 'admin'" class="flex-row">Today
+                        <span class="material-symbols-outlined">
+                        today
+                        </span>
+                    </h5>
+                    <h5 *ngIf="me.userRole !== 'admin'" class="flex-row">Next appointment
+                        <span class="material-symbols-outlined">
+                        calendar_clock
+                        </span>
+                    </h5>
+                </div>
+                <div class="greeting bg--pink--cloudy--primary color--white--warm flex-row" style="font-size:smaller;"> 
+                    <h4 style="text-indent:2rem;">Welcome, {{me.firstName}} {{me.lastName}} !</h4>
+                </div>
+                
+                <div 
+                    class="div1 flex-column bg--white--cold hover--shadow hover--bright" 
+                    style="justify-content: space-between;"
+                    [ngStyle]="{'visibility': countUnreadFeedback > 0 ? 'visible':'hidden'}"
+                > 
+                    <a [routerLink]="['/home','feedback']">
+                        <div *ngIf="me.userRole==='admin'" class="flex-row">
+                            <h5 class="color--gray--warm--primary" >Feedbacks</h5>
+                            <span class="material-symbols-outlined color--gray--warm--primary" matTooltip="Open feedbacks" style="cursor: pointer;">
+                                feedback
+                            </span>
+                        </div>
+                        <h1 class="color--main--primary" *ngIf="me.userRole==='admin'">
+                            {{countUnreadFeedback}} 
+                        </h1>
+                        <p><em>Unread</em></p>
+
+                    </a>
+                </div>
+                <div 
+                    class="div2 flex-column bg--green--secondary color--green--primary hover--shadow hover--bright" 
+                    style="justify-content: space-between;"
+                    [ngStyle]="{'visibility': countDoctorRequests > 0 ? 'visible':'hidden'}"> 
+                    <a [routerLink]="['/home','users']">
+                        <div *ngIf="me.userRole==='admin'" class="flex-row">
+                            <h5>Doctor requests</h5>
+                            <span class="material-symbols-outlined" matTooltip="Open feedbacks" (click)="onOpenFeedbacks()" style="cursor: pointer;">
+                                bookmark
+                            </span>
+                        </div>
+                        <h1 class="color--main--primary" *ngIf="me.userRole==='admin'">
+                            {{countDoctorRequests}}
+                        </h1>
+                        <p><em class="color--green--primary">New</em></p>
+                    </a>
+                </div>
+                <div 
+                    class="div3 flex-column color--pink--cloudy--primary hover--shadow hover--bright" 
+                    style="justify-content: space-around;"
+                    [ngStyle]="{'visibility': countMissedAppointments > 0 ? 'visible':'hidden'}"> 
+                    <a [routerLink]="['/home','calendar']">
+                        <div *ngIf="me.userRole==='admin'" class="flex-row">
+                            <h5>Missed appointments</h5>
+                            <span class="material-symbols-outlined" matTooltip="Open feedbacks">
+                                event
+                            </span>
+                        </div>
+                        <h1 class="color--main--primary" *ngIf="me.userRole==='admin'">
+                            {{countMissedAppointments}}
+                        </h1>
+                    <!-- <p><em class="color--pink--cloudy--primary"></em></p> -->
+                    </a>
+                </div>
+                <div 
+                    class="div4 flex-column bg--white--cold hover--shadow hover--bright" 
+                    style="justify-content: space-between;"
+                    [ngStyle]="{'visibility': countUnreadMessages > 0 ? 'visible':'hidden'}"
+                >
+                    <a [routerLink]="['/home','messages']">
+                        <div *ngIf="me.userRole==='admin'" class="flex-row">
+                            <h5 class="color--gray--warm--primary" >Messages</h5>
+                            <span class="material-symbols-outlined color--gray--warm--primary" matTooltip="Open feedbacks">
+                                forum
+                            </span>
+                        </div>
+                        <h1 class="color--main--primary" *ngIf="me.userRole==='admin'">
+                            {{countUnreadMessages}}
+                        </h1>
+                        <p><em>Unread</em></p>
+                    </a>
+                 </div>
+
+                <div class="account flex-column flex-center">
+                    <span class="material-symbols-outlined color--main--primary" style="font-size: 5rem;">
+                        account_circle
+                    </span>
+                    <div style="justify-items: start;">
+                        <p>Account email</p>
+                        <h5 class="color--main--primary" style="margin-bottom:0.5rem;">{{me.email}}</h5>
+                        <p>Last log out</p>
+                        <h5 class="color--main--primary">{{lastLogOut}}</h5>
+                    </div>
+                    <div *ngIf="isSocketConnected" style="justify-items: center;">
+                        <h5 class="color--main--primary flex-row flex-center" >Online <span 
+                                class="material-symbols-outlined color--green--primary" 
+                            >
+                                check_circle
+                        </span></h5>
+                        <p style="width:60%">Connection established and open for real time notifications</p>
+                    </div>
+                    <div *ngIf="!isSocketConnected" style="justify-items: center;">
+                        <h5 class="color--main--primary flex-row flex-center" >Offline <span 
+                                class="material-symbols-outlined color--gray--warm--primary"  
+                            >
+                                cancel
+                        </span></h5>
+                        <p>No connection</p>
+                    </div>
+                    
+                </div>
+                <div class="div9 bg--white--cold color--main--primary flex-column">
+                    <h5 class="color--gray--warm--primary flex-row">Latest doctor contracts
+                        <span class="material-symbols-outlined">
+                        contract
+                        </span>
+                    </h5>
+                    <div class="flex-column" style="width:100%;">
+                        <div 
+                            class="list flex-row" 
+                            *ngFor="let doctor of doctors; let i = index" 
+                            (click)="onListOpen(doctor.id)"
+                        >
+                            <span 
+                                    class="material-symbols-outlined color--gray--warm--primary"
+                                >
+                                    account_circle
+                            </span>
+                            <div>
+                                <h5>{{doctor.firstName}} {{doctor.lastName}}</h5>
+                                <p><em>created: {{doctor.createdAt}}</em></p>
+                            </div>
+    
+                        </div>
+                    </div>
+                    <p style="text-align: right;"><em>Total: {{doctorsLength}}</em></p>
+                </div>
+                <div class="div10 flex-column hover--shadow hover--scale hover--bright" >
+                    <div class="background">
+                        <img src="assets/dots.png" >
+                    </div>
+                    <div 
+                      class="flex-row flex-center hover-color color--pink--cloudy--primary"
+                      (click)="onCreateNewUser()"
+                    >
+                        <span 
+                            class="material-symbols-outlined"  
+                        >
+                            add_circle
+                        </span>
+                        <h4>Create new user</h4>
+                    </div>
+                </div>
+            </div>
