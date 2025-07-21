@@ -1,14 +1,15 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { AppAuthService } from "../../services/app-auth.service";
 import { ActivatedRoute, Router } from "@angular/router";
-import { catchError, filter, of, Subject, Subscription, switchMap, takeUntil, tap } from "rxjs";
+import { catchError, filter, merge, of, Subject, Subscription, switchMap, takeUntil, tap } from "rxjs";
 import { MatDialog } from "@angular/material/dialog";
 import { BreakpointObserver } from "@angular/cdk/layout";
 import { AppAppointmentService } from "../../services/app-appointment.service";
+import { AppAuthService } from "../../services/app-auth.service";
 import { AppGraphQLService } from "../../services/app-graphql.service";
 import { AppSnackbarService } from "../../services/app-snackbar.service";
 import { AppSocketService } from "../../services/socket/app-socket.service";
 import { AppNotificationService } from "../../services/socket/app-notification.service";
+import { AppUiSyncService } from "../../services/app-ui-sync.service";
 import { AppTabsService } from "../../services/app-tabs.service";
 import { AppTimerService } from "../../services/app-timer.service";
 import { AppUserRoomService } from "../../services/socket/app-user-room.service";
@@ -27,10 +28,11 @@ import {
     MESSAGE_CREATED, 
     DOCTOR_REQUEST_CREATED, 
     FEEDBACK_CREATED, 
-    USER_UPDATED
+    USER_UPDATED,
+    MESSAGE_READ
 } from "../../constants";
 import { AppNotificationEvent } from "../../types";
-import { AppUiSyncService } from "../../services/app-ui-sync.service";
+import { UserInput } from "../../../graphql/user/user.input";
 
 
 @Component({
@@ -53,6 +55,7 @@ export class AppHeader implements OnInit, OnDestroy {
     time: string | null = null;
     userRole: string | null = null;
     isUserUpdated: boolean = false;
+    tooltipText:string | undefined;
 
     snackbarMessage: string | undefined;
     snackbarAppointmentId: number | undefined;
@@ -64,35 +67,37 @@ export class AppHeader implements OnInit, OnDestroy {
     constructor(
         private dialog: MatDialog,
         private router: Router,
-        private activatedRoute: ActivatedRoute,
         private authService: AppAuthService,
         private graphQLService: AppGraphQLService,
         private timerService: AppTimerService,
-        private appointmentService: AppAppointmentService,
-        private tabsService: AppTabsService,
         private socketService: AppSocketService,
         private uiSyncService: AppUiSyncService,
         private notificationService: AppNotificationService,
         private roomService: AppUserRoomService,
         private snackbarService: AppSnackbarService,
         private breakpointObserver: BreakpointObserver
-    ){}
+    ){
+        
+    }
     async ngOnInit() {
         this.breakpointObserver.observe([`(min-width: 1024px)`]).subscribe(result => {
             this.isDesktop = result.matches;
-        });
-        this.me = null;
+        }),
+        this.router.events.subscribe(async () => {
+            this.tooltipText = !this.router.url.endsWith('/home') 
+                ? 'Go To Dashboard' 
+                : undefined;
+        }),
         this.time = null;
         this.authService.isLoggedIn$.subscribe(isLoggedIn => {
             if (isLoggedIn) {   
                 this.setupSubscriptions();
-            }
-            else {
+            } else {
                 this.me = null;
                 this.time = null;
                 this.ngOnDestroy();
             }
-        })  
+        })
     }
 
     setupSubscriptions() {
@@ -120,6 +125,7 @@ export class AppHeader implements OnInit, OnDestroy {
                         this.setupPatientNotifications()
                     } 
                     else if (this.me?.userRole === 'doctor') {
+                        //this.appointmentService.pollNextAppointment();
                         this.setupDoctorNotifications();
                     } 
                     else if (this.me?.userRole === 'admin') {
@@ -139,15 +145,19 @@ export class AppHeader implements OnInit, OnDestroy {
             .subscribe()   
     }
     setupUiSyncSubscriptions() {
-        const unreadMsgs =  this.uiSyncService.sync(MESSAGE_CREATED)
-            .pipe(
-                switchMap(async () => await this.countUnreadMessages()))
-            .subscribe({
-                error: (err) => console.error('Sync failed:', err)
-            });
+        const events$ = merge(
+            this.uiSyncService.sync(MESSAGE_CREATED),
+            this.uiSyncService.sync(MESSAGE_READ)
+        );
+        const unreadMsgs =  events$
+                .subscribe({
+                    next: async () => await this.countUnreadMessages(),
+                    error: (err) => console.error('Sync failed:', err)
+                })
+
         const userDetails =  this.uiSyncService.sync(USER_UPDATED)
             .pipe(
-                switchMap(async () => await this.loadMe()))
+                switchMap(async () => {await this.loadMe(); this.isUserUpdated = true;}))
             .subscribe({
                 error: (err) => console.error('Sync failed:', err)
             });
@@ -214,7 +224,9 @@ export class AppHeader implements OnInit, OnDestroy {
         ); 
     }
     showNotification(obj:AppNotificationEvent){
-        this.snackbarService.addSnackbar(obj);
+        if (obj.message) {
+            this.snackbarService.addSnackbar(obj);
+        }
     }
 
     async countMissedAppointments(isUpdated: boolean) {
@@ -275,13 +287,13 @@ export class AppHeader implements OnInit, OnDestroy {
                 }
             } else {
                 localStorage.clear();
-                this.router.navigate([''])
+                this.router.navigate(['']);
             }
         } catch (error) {
             localStorage.clear();
             const ref = this.dialog.open(AlertComponent, {data: {message: error}});
             ref.componentInstance.ok.subscribe(() => {
-                this.router.navigate(['/'])
+                this.router.navigate(['/']);
             })
         }
     }
@@ -303,8 +315,8 @@ export class AppHeader implements OnInit, OnDestroy {
         this.destroy$.next();
         this.destroy$.complete();
     }
-    onLogIn(){
-        this.dialog.open(LoginMenuComponent)
+    async onLogIn(){
+        this.dialog.open(LoginMenuComponent);           
     }
 
     async onLogOut() {   

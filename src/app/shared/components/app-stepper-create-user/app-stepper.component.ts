@@ -5,6 +5,8 @@ import { MatStepper } from '@angular/material/stepper';
 import { AppGraphQLService } from '../../services/app-graphql.service';
 import { AlertComponent } from '../app-alert/app-alert.component';
 import { User } from '../../../graphql/user/user';
+import { DOCTOR_ACCOUNT_CREATED } from '../../constants';
+import { AppUiSyncService } from '../../services/app-ui-sync.service';
 
 @Component({
     selector: 'app-stepper',
@@ -22,7 +24,8 @@ export class AppStepperComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private graphQLService: AppGraphQLService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private uiSyncService: AppUiSyncService
   ) {}
 
   ngOnInit() {
@@ -49,7 +52,7 @@ export class AppStepperComponent implements OnInit {
   }
   async onSave() {
     const mutation = `mutation ($userInput: UserInput!){
-      saveUser(userInput: $userInput) {
+      createUser(userInput: $userInput) {
         success
         message
         }
@@ -58,13 +61,14 @@ export class AppStepperComponent implements OnInit {
     try {          
         this.isLoading = true;
         const response = await this.graphQLService.mutate(mutation, { userInput: this.newUser });
-        if (response.data.saveUser.success) {
+        if (response.data.createUser.success) {
           this.isLoading = false;
           this.dialog.closeAll();
-          this.dialog.open(AlertComponent, { data: {message: "New user account created successfully!"}});
+          this.dialog.open(AlertComponent, { data: {message: "New user account created successfuly!"}});
+          this.uiSyncService.triggerSync(DOCTOR_ACCOUNT_CREATED);
         } else {
           this.isLoading = false;
-          this.dialog.open(AlertComponent, { data: {message:response.data.saveUser.message}});
+          this.dialog.open(AlertComponent, { data: {message:response.data.createUser.message}});
         }
     } catch (error) {
         this.isLoading = false;

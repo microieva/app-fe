@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -82,11 +82,13 @@ import { AppUiSyncService } from './shared/services/app-ui-sync.service';
 import { AppDashboardComponent } from './shared/components/app-dashboard/app-dashboard.component';
 import { MatStepperModule } from '@angular/material/stepper'
 import { AppStepperComponent } from './shared/components/app-stepper-create-user/app-stepper.component';
+import { AppAnimateTriggerPipe } from './shared/pipes/app-animate-trigger.pipe';
 
 
 @NgModule({ 
     declarations: [
         AppLineBreaksPipe,
+        AppAnimateTriggerPipe,
         AppComponent,
         AppHeader,
         AppNoContentComponent,
@@ -189,7 +191,8 @@ import { AppStepperComponent } from './shared/components/app-stepper-create-user
         { provide: MAT_DATE_LOCALE, useValue: 'fi-FI' }
     ],
     exports: [
-        AppLineBreaksPipe
+        AppLineBreaksPipe,
+        AppAnimateTriggerPipe
     ]
 })
 

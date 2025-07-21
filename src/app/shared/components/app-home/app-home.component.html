@@ -24,7 +24,7 @@
                     <h5 class="color--main--secondary">{{ 'Appointments' }}</h5>
                 </div>
             </a>
-            <a mat-list-item (click)="onClickNavLink(); $event.stopPropagation();" [routerLink]="['/home','records']" *ngIf="isUserUpdated && (userRole === 'patient' && countRecords>0 || userRole==='doctor')" routerLinkActive="activeLink">
+            <a mat-list-item (click)="onClickNavLink(); $event.stopPropagation();" [routerLink]="['/home','records']" *ngIf="isUserUpdated && userRole !== 'admin'" routerLinkActive="activeLink">
                 <div class="flex">
                     <span class="icon--main material-symbols-outlined" matTooltip="Medical Records">list_alt</span>
                     <h5 class="color--main--secondary">{{ 'Medical Records' }}</h5>
@@ -71,175 +71,14 @@
         </div>
         
         
-        <div class="page" *ngIf="isHomeRoute && !isLoading && isUserUpdated" @slideInOut>
-            <span *ngIf="!isLoading && userRole === 'admin' && clock" class="material-symbols-outlined" id="bg-icon">
-                event
-            </span>
-            <span *ngIf="!isLoading && userRole !== 'admin'" class="material-symbols-outlined" id="bg-icon" [ngStyle]="{'top': nextId ? '32%' : '0'}" >
+        <div class="page" *ngIf="isHomeRoute && !isLoading && isUserUpdated">
+            <span *ngIf="showIcon" class="material-symbols-outlined" id="bg-icon" style="top:34%;">
                 calendar_clock
             </span>
-
-            <div *ngIf="isLoading" class="loading">
-                <app-loading></app-loading>
-            </div>
-            <!-- ADMIN -->
-            <!-- <div *ngIf="userRole ==='admin' && clock" >
-                <div class="block--bordered--home-page bg--white--cold">
-                    <div [ngClass]="isDesktop ? 'flex-row': 'flex-column'">
-                        <div class="flex-column">
-                            <p class="title color--gray--cold--primary">Today is:</p>
-                            <div class="time-wrapper" >
-                                <h1 class="color--pink--cloudy--primary">{{today.weekday}},</h1>
-                                <h4><em class="color--gray--cold--primary">{{today.date}}</em></h4>
-                                <h1 class="color--pink--cloudy--primary">{{clock}}</h1>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex-column">
-                    <div class="flex-row">
-                        <div class="block--bordered--sm border-color-main">
-                            <p class="font">New feedback </p>
-                        </div>
-                        <div class="block--bordered--sm border-color-main">
-                            <p class="right"><span *ngIf="countUnreadFeedback>0">{{countUnreadFeedback}}</span><span *ngIf="countUnreadFeedback===0">{{' - '}}</span></p>
-                        </div>
-                    </div>
-                    <div class="flex-row">
-                        <div class="block--bordered--sm border-color-main">
-                            <p class="font">New doctor requests</p>
-                        </div>
-                        <div class="block--bordered--sm border-color-main">
-                            <p class="right"><span *ngIf="countDoctorRequests>0">{{countDoctorRequests}}</span><span *ngIf="countDoctorRequests===0">{{' - '}}</span></p>
-                        </div>
-                    </div>
-                    <div class="flex-row">
-                        <div class="block--bordered--sm border-color-main">
-                            <p class="font">Missed appointment requests</p>
-                        </div>
-                        <div class="block--bordered--sm border-color-main">
-                            <p class="right"><span>{{countMissedAppointments}}</span></p>
-                        </div>
-                    </div>
-                    <div class="flex-row">
-                        <div class="block--bordered--sm border-color-main">   
-                            <p class="font">Registered doctors</p>
-                        </div>
-                        <div class="block--bordered--sm border-color-main">
-                            <p class="right"><span>{{countDoctors}}</span></p>
-                        </div>
-                    </div>
-                    <div class="flex-row">
-                        <div class="block--bordered--sm border-color-main">   
-                            <p class="font">Registered patients</p>
-                        </div>
-                        <div class="block--bordered--sm border-color-main">
-                            <p class="right"><span>{{countPatients}}</span></p>
-                        </div>
-                    </div>
-                    <div class="flex-row">
-                        <div class="block--bordered--sm border-color-pink-deep">    
-                            <p class="font">Last log out:</p>
-                        </div>
-                        <div class="block--bordered--sm border-color-pink-deep">
-                            <p class="right">{{lastLogOut}}</p>    
-                        </div>
-                    </div>
-                </div>
-            </div> -->
-
-            <app-dashboard [me]="me" *ngIf="me"></app-dashboard>
-            <!-- DOCTOR -->
-            <div *ngIf="userRole ==='doctor' && !isLoading">      
-                <div class="block--bordered--home-page bg--white--cold" *ngIf="nextId"  [ngStyle]="{height: !isDesktop && '50%'}">
-                    <h4 class="font title color--main--secondary">Next appointment</h4>
-
-                    <div [ngClass]="isDesktop ? 'flex-row': 'flex-column'">
-                        <div class="flex-column">
-                            <p class="title color--gray--cold--primary">Appoinment time</p>
-                            <div class="time-wrapper">
-                                <h3 class="color--pink--cloudy--primary">{{nextStart.dayName}},</h3>
-                                <h1 class="color--main--secondary">{{nextStart.time}}</h1>
-                                <h4><em class="color--pink--cloudy--primary">{{nextStart.date}}</em></h4>
-                            </div>
-                        </div>
-                        <div class="flex-column" id="patient-details" [ngStyle]="{width: !isDesktop ? '100%':'52%'}">
-                            <p class="title color--gray--cold--primary">Patient's information</p>
-                            <div class="block">
-                                <div class="flex-row">
-                                    <div class="block--bordered--sm border-color-main">
-                                        <p class="font">Name</p>
-                                    </div>
-                                    <div class="block--bordered--sm border-color-main">
-                                        <p class="right">{{nextAppointmentName}}</p>
-                                    </div>
-                                </div>
-                                <div class="flex-row">
-                                    <div class="block--bordered--sm border-color-main">
-                                        <p class="font">Date of birth</p>
-                                    </div>
-                                    <div class="block--bordered--sm border-color-main">
-                                        <p class="right">{{nextAppointmentPatientDob}}</p>
-                                    </div>
-                                </div>
-                                <div class="flex-row">
-                                    <div class="block--bordered--sm border-color-main">
-                                        <p class="font">Previous visit</p>
-                                    </div>
-                                    <div class="block--bordered--sm border-color-main">
-                                        <p class="right">{{previousAppointmentDate}}</p>
-                                    </div>
-                                </div>
-                                <div class="flex-row" [ngClass]="recordIds.length> 0 && 'clickable'" (click)="recordIds.length> 0 && onOpenRecords()">
-                                    <div class="block--bordered--sm border-color-main">    
-                                        <p class="font">Medical records</p>
-                                    </div>
-                                    <div class="block--bordered--sm border-color-main">
-                                        <div class="right">
-                                            <span *ngIf="recordIds.length > 0" style="line-height: inherit;" class="material-symbols-outlined" matTooltip="Open patient's medical records">
-                                                open_in_new
-                                            </span>
-                                            <span *If="recordIds.length === 0">
-                                                -
-                                            </span>
-                                        </div> 
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex-column" [ngStyle]="{marginTop: !nextId ? '30%':'auto'}">
-                    <div class="flex-row">
-                        <div class="block--bordered--sm border-color-main"><p class="font">Appointments today</p></div>
-                        <div class="block--bordered--sm border-color-main"><p class="right"><span>{{countTodayAppointments}}</span></p></div>
-                    </div>
-                    <div class="flex-row">
-                        <div class="block--bordered--sm border-color-main"><p class="font">Total hours today</p></div>
-                        <div class="block--bordered--sm border-color-main"><p class="right"><span>{{countTotalHoursToday}}</span></p></div>
-                    </div>
-                    
-                    <div class="flex-row">
-                        <div class="block--bordered--sm border-color-main"><p class="font">Pending appointment requests</p></div>
-                        <div class="block--bordered--sm border-color-main"><p class="right"><span>{{countPendingAppointments}}</span></p></div>
-                    </div>
-                    <div class="flex-row">
-                        <div class="block--bordered--sm border-color-main"><p class="font">Accepted appointments</p></div>
-                        <div class="block--bordered--sm border-color-main"><p class="right"><span>{{countUpcomingAppointments}}</span></p></div>
-                    </div>  
-                    <div class="flex-row">
-                        <div class="block--bordered--sm border-color-main"><p class="font">Missed appointment requests</p></div>
-                        <div class="block--bordered--sm border-color-main"><p class="right"><span>{{countMissedAppointments}}</span></p></div>
-                    </div>
-                    <div class="flex-row">
-                        <div class="block--bordered--sm border-color-pink-deep"><p class="font">Last log out:</p></div>
-                        <div class="block--bordered--sm border-color-pink-deep"><p class="right">{{lastLogOut}}</p></div>
-                    </div>
-                </div>
-
-            </div>
+            <app-dashboard [me]="me" *ngIf="me" (isNextAppointment)="displayIcon($event)"></app-dashboard>
+            
             <!-- PATIENT -->
-            <div *ngIf="userRole ==='patient' && !isLoading" >
+            <!-- <div *ngIf="userRole ==='patient' && !isLoading" >
                 <div class="block--bordered--home-page bg--white--cold" *ngIf="nextId"  [ngStyle]="{height: !isDesktop && '50%'}">
                     <h4 class="font title color--main--secondary">Next appointment</h4>
 
@@ -313,7 +152,7 @@
                         <div class="block--bordered--sm border-color-pink-deep"><p class="right">{{lastLogOut}}</p></div>
                     </div>
                 </div>
-            </div>
+            </div> -->
         </div> 
         <div *ngIf="!isHomeRoute" >
             <router-outlet></router-outlet>

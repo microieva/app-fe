@@ -31,13 +31,16 @@ export class AppAuthService {
                     token
                     expiresAt
                 }
+                ... on LoginFailure {
+                    message
+                }
             }
         }`
 
-        try {
+        //try {
             const response = await this.graphQLService.mutate(mutation, {directLoginInput: input});
             
-            if (response.data) {
+            if (response.data.login.token) {
                 const token = response.data.login.token;
                 const tokenExpire = response.data.login.expiresAt;
 
@@ -46,15 +49,13 @@ export class AppAuthService {
                 this.router.navigate(['/home']);
                 this.loggedInSubject.next(true);
                 return token;
+            } else if (response.data.login.message) {
+                const ref = this.dialog.open(AlertComponent, {disableClose:true, data: {message: response.data.login.message}});
+                ref.componentInstance.ok.subscribe(() => {
+                    this.dialog.closeAll();
+                });
+                return;
             }
-        } catch (error) {
-            let message:string = "Unexpected connection issue, please try again!";
-            
-            const ref = this.dialog.open(AlertComponent, {disableClose:true, data: {message}});
-            ref.componentInstance.ok.subscribe(() => {
-                this.dialog.closeAll();
-            });
-        }
     }
 
     async loginWithGoogle(credential: string){

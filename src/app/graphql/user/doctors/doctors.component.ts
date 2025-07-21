@@ -339,20 +339,24 @@ export class DoctorsComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     async deleteUser(id: number){
-        const mutation = `mutation ($userId: Int!) {
+        const mutation = `mutation ($userId: Int) {
             deleteUser(userId: $userId) {
                 success
                 message
             }
         }`
+        const ref = this.dialog.open(LoadingComponent);
         try {
             const response = await this.graphQLService.mutate(mutation, { userId: id});
             if (response.data.deleteUser.success) {
                 this.dialog.closeAll();
                 await this.loadData();
+            } else {
+                ref.close();
+                this.dialog.open(AlertComponent, {data: {message: response.data.deleteUser.message}});
             }
-            this.dialog.open(AlertComponent, {data: {message: "User account deleted"}});
         } catch (error) {
+            ref.close();
             this.dialog.open(AlertComponent, { data: {message: "Error deleting user: "+ error}});
         }
     }

@@ -4,24 +4,22 @@
     height: 80vh;
     display: grid;
     grid-template-columns: repeat(6, 1fr);
-    grid-template-rows: 10% 25% 25% 40%; 
+    grid-template-rows: 10% 26% 26% 40%; 
     grid-column-gap: 10px;
     grid-row-gap: 10px;
     & p {font-size:x-small;}
     & >div {
         border-radius: 10px;
         &:not(.div10, .account) {
-
             padding: 0.5rem;
         }
-        &:not(.greeting, .title, .next-appointment, .div1, .div2, .div3, .div4, .div10, .account, .div9) {
-            border: 1px solid darkgray;
-        }
-
         h1 {
             text-align: center;
         }
-        .list em {
+        a {
+            display: contents;
+        }
+        .list em, .msg-wrapper--empty em, .list-wrapper--empty em {
             font-weight: 100;
         }
     }
@@ -31,10 +29,61 @@
     grid-area: 1 / 1 / 2 / 5; 
     margin-bottom:0.5rem;
 }
+
 .title { 
     grid-area: 1 / 5 / 2 / 7; 
     margin-bottom: 0;
     align-content: center;
+    &:hover {
+        background-color: $--color-white-cold;
+        cursor:pointer;
+    }
+    .material-symbols-outlined {
+        font-variation-settings:
+        'FILL' 1,
+        'wght' 900,
+        'GRAD' 0,
+        'opsz' 40
+    }
+}
+.bubble {
+    display: block;
+    border-radius: 5px;
+    padding-inline: 5px;
+    line-height: 0.7rem;
+    margin-bottom:5px;
+    width: max-content;
+}
+.next-appointment { 
+    grid-area: 2 / 5 / 5 / 7; 
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    .clock {
+        z-index: 2;
+        width:100%;
+        &:not(.flex-center) {
+            justify-content: space-between;
+        }
+        .title {
+            margin-bottom:1rem;
+        }
+        margin-top: 1rem;
+        overflow-y: auto;
+        .msg-wrapper {
+            height:3rem;
+            padding-inline:5px;
+            overflow: scroll;
+            margin-bottom: 5px;
+            &:not(.msg-wrapper--empty):hover {
+                cursor:ns-resize;
+            }
+            &--empty {
+                border: 0.5px dotted darkgray;
+                border-radius:5px;
+                text-align: center;
+                line-height: 3rem;
+            }
+        }
+    }
     .material-symbols-outlined {
     font-variation-settings:
     'FILL' 1,
@@ -42,12 +91,50 @@
     'GRAD' 0,
     'opsz' 40
     }
-}
-.next-appointment { 
-    grid-area: 2 / 5 / 5 / 7; 
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-    .clock {
-        z-index: 2;
+    .next-patient {
+        z-index:2;
+        position: relative;
+        width: 90%;
+        height:40%;
+        margin-inline: auto;
+        padding-block: 1rem;
+        .details {
+            position: absolute;
+            z-index: 4;
+            padding-block: 1rem;
+            border-radius:15px;
+            top:16px;
+            background-color: rgb(133,102,137);
+            opacity:1;
+            .details-wrapper {
+                justify-self: left; 
+                width: 70%;
+                padding-inline:5px;
+                .hover--bubble {
+                    line-height:5px;
+                    &:hover {
+                        background-color: $--color-gray-cold-primary;
+                    }
+                }
+            }
+        }
+        .bg {
+            &:not(.details) {background: rgba($--color-pink-cloudy-primary, 0.4);}
+            width: 100%;    
+            border-radius:15px;
+            &:nth-child(1) {
+                height: 12rem;
+                z-index:-1;
+                transform: translateY(0%) rotate(4deg);
+                
+            }
+
+            &:nth-child(2) {
+                height: 12rem;
+                z-index: -2;
+                transform: translateY(-100%) rotate(-4deg);
+            }
+        }
     }
 }
 .div1 { grid-area: 2 / 1 / 3 / 2; }
@@ -78,8 +165,23 @@
     'opsz' 40
     }
 }
-.div9 { 
+.list-wrapper { 
     grid-area: 4 / 1 / 5 / 3; 
+    &--empty {
+        border: 0.5px dotted darkgray;
+        border-radius:5px;
+    }
+    .scroll{
+        height: 160px;
+        overflow: scroll;
+        padding-bottom:0.5rem;
+        mask-image: linear-gradient(
+            to bottom,
+            black 0%,        
+            black 85%,      
+            transparent 100% 
+        );
+    }
     .list {
         justify-content: flex-start;
         gap:0.5rem;
@@ -104,6 +206,7 @@
     position:relative;
     padding:0;
     overflow: hidden;
+    &.list-wrapper {padding:0.5rem;}
     h4 {
         z-index: 1;
     }

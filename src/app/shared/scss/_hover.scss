@@ -20,4 +20,11 @@
       transition: filter 0.2s ease-in-out;
       cursor: pointer;
     }
+    &--bubble:hover {
+      border-radius:8px;
+      margin-inline:-5px;
+      padding-inline:5px;
+      transition: background-color 0.2s ease-in-out;
+      cursor: pointer;
+    }
   }

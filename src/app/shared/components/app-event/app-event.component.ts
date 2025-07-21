@@ -15,6 +15,7 @@ import { AppointmentComponent } from "../../../graphql/appointment/appointment.c
 import { LoadingComponent } from "../app-loading/loading.component";
 import { Appointment } from "../../../graphql/appointment/appointment";
 import { AppUiSyncService } from "../../services/app-ui-sync.service";
+import { APPOINTMENT_UPDATED } from "../../constants";
 
 
 @Component({
@@ -336,6 +337,8 @@ export class EventComponent implements OnInit, OnDestroy{
                     this.patientMessage = message;
                 }
                 this.isMessageSaved.emit(true);
+            } else {
+                this.dialog.open(AlertComponent, {data: {message:response.data.saveAppointmentMessage.message}})
             }
         } catch (error) {
             this.dialog.open(AlertComponent, { data: {message: "Error saving appointment message: "+ error}})
@@ -365,6 +368,7 @@ export class EventComponent implements OnInit, OnDestroy{
                 if (response.data.deleteAppointmentMessage.success) {
                     await this.loadAppointment(id);
                     this.isMessageDeleted.emit(true);
+                    this.uiSyncService.triggerSync(APPOINTMENT_UPDATED);
                 }
             } catch (error) {
                 this.dialog.open(AlertComponent, { data: {message: "Error removing appointment message: "+ error}})
@@ -454,6 +458,7 @@ export class EventComponent implements OnInit, OnDestroy{
                 this.isEditting = false;
                 this.isLoadingDetails = true;
                 await this.updateAppointment(appointmentInput);
+                // TO DO
                 //this.headerService.notifyMissingAptUpdate();
                 //this.uiSyncService.triggerSync(MISSED_APT_COUNT_UPDATE);
                 this.uiSyncService.notifyMissingAptUpdate();

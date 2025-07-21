@@ -307,7 +307,6 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
     }
     
     async loadPendingAppointments() {
-        console.log('Loading pending appointments...');
         const query = `query (
             $pageIndex: Int!, 
             $pageLimit: Int!, 
