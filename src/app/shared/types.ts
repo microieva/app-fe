@@ -39,7 +39,7 @@ export interface AppointmentDataSource {
     pastDate?: string
     title?: string
     buttons?: {text: string, disabled: boolean}[]
-    date: string
+    date?: string
     start: string
     end: string
     name?: string 
@@ -50,8 +50,8 @@ export interface AppointmentDataSource {
 export interface RecordDataSource {
     id: number
     title: string
-    createdAt: string
-    updatedAt: string
+    recCreatedAt: string
+    recUpdatedAt: string
     name: string
 }
 export interface UserDataSource {

@@ -84,10 +84,10 @@
             }
         }
     }
-    .material-symbols-outlined {
+    .material-symbols-outlined:not(.details .material-symbols-outlined) {
     font-variation-settings:
     'FILL' 1,
-    'wght' 400,
+    'wght' 900,
     'GRAD' 0,
     'opsz' 40
     }
@@ -101,7 +101,6 @@
         .details {
             position: absolute;
             z-index: 4;
-            padding-block: 1rem;
             border-radius:15px;
             top:16px;
             background-color: rgb(133,102,137);
@@ -119,18 +118,17 @@
             }
         }
         .bg {
+            height: 12rem;
             &:not(.details) {background: rgba($--color-pink-cloudy-primary, 0.4);}
             width: 100%;    
             border-radius:15px;
             &:nth-child(1) {
-                height: 12rem;
                 z-index:-1;
                 transform: translateY(0%) rotate(4deg);
                 
             }
 
             &:nth-child(2) {
-                height: 12rem;
                 z-index: -2;
                 transform: translateY(-100%) rotate(-4deg);
             }

@@ -129,14 +129,6 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
             const response = await this.graphQLService.send(query, {chatId: this.chatId});
             if (response.data) {
                 this.messages = response.data.messages;
-                this.messages = this.messages.map(msg => {
-                    const time = DateTime.fromISO(msg.createdAt).toFormat('HH:mm a, MMM dd')
-                    return {
-                        ...msg,
-                        createdAt: time
-                    }
-                })
-
                 this.isLoading = false;
             }
         } catch (error) {

@@ -1,7 +1,7 @@
 
 <div class="flex-row block--bordered--md info">
     <span class="icon material-symbols-outlined">info</span>
-    <p>Appointment time: {{startTime}}, <em>{{date}}</em></p>
+    <p>Appointment time: {{appointment.start | dateFormat:null:'HH:mm a'}}, <em>{{appointment.start | dateFormat:null:'MMM dd, yyyy'}}</em></p>
     <button mat-stroked-button (click)="closeTab()"><p>{{ 'Close' }}</p></button>
 </div>
 <div class="page">
@@ -15,7 +15,7 @@
                 </div>
                 <div class="flex-column">
                     <p>{{ 'Date of Birth' }}</p>
-                    <h5 class="font">{{ formattedDate }}</h5>
+                    <h5 class="font">{{ appointment.patient.dob | dateFormat:null:'MMM dd, yyyy'}}</h5>
                 </div>
             </div>
         </div>

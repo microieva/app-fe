@@ -71,8 +71,6 @@ export class RecordComponent implements OnInit {
         this.breakpointObserver.observe(['(max-width: 1024px)']).subscribe(result => {
             //this.isTablet = this.breakpointObserver.isMatched('(min-width: 768px) and (max-width: 1023px)');
             this.isMobile =  this.breakpointObserver.isMatched('(max-width: 430px)');
-            //this.isMobileSmall = this.breakpointObserver.isMatched('(max-width: 410px)');
-            //if (this.isMobile) this.width = '35rem';
         });
     }
 
@@ -206,7 +204,7 @@ export class RecordComponent implements OnInit {
         }`
         try {
             const response = await this.graphQLService.mutate(mutation, { recordInput });
-            if (response.data.saveRecord.success) { // TO DO: should return saved instead of loading!   
+            if (response.data.saveRecord.success) {   
                 await this.onReload();
             } else {
                 this.isLoading = false;

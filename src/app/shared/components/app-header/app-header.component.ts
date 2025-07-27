@@ -1,16 +1,14 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
+import { Router } from "@angular/router";
 import { catchError, filter, merge, of, Subject, Subscription, switchMap, takeUntil, tap } from "rxjs";
 import { MatDialog } from "@angular/material/dialog";
 import { BreakpointObserver } from "@angular/cdk/layout";
-import { AppAppointmentService } from "../../services/app-appointment.service";
 import { AppAuthService } from "../../services/app-auth.service";
 import { AppGraphQLService } from "../../services/app-graphql.service";
 import { AppSnackbarService } from "../../services/app-snackbar.service";
 import { AppSocketService } from "../../services/socket/app-socket.service";
 import { AppNotificationService } from "../../services/socket/app-notification.service";
 import { AppUiSyncService } from "../../services/app-ui-sync.service";
-import { AppTabsService } from "../../services/app-tabs.service";
 import { AppTimerService } from "../../services/app-timer.service";
 import { AppUserRoomService } from "../../services/socket/app-user-room.service";
 import { AlertComponent } from "../app-alert/app-alert.component";
@@ -125,7 +123,6 @@ export class AppHeader implements OnInit, OnDestroy {
                         this.setupPatientNotifications()
                     } 
                     else if (this.me?.userRole === 'doctor') {
-                        //this.appointmentService.pollNextAppointment();
                         this.setupDoctorNotifications();
                     } 
                     else if (this.me?.userRole === 'admin') {

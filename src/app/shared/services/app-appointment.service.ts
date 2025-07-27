@@ -32,6 +32,11 @@ export class AppAppointmentService {
                     lastName
                     dob
                 }
+                doctor {
+                    firstName
+                    lastName
+                    dob
+                }
                 patientMessage
                 doctorMessage
             }

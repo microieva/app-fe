@@ -83,12 +83,14 @@ import { AppDashboardComponent } from './shared/components/app-dashboard/app-das
 import { MatStepperModule } from '@angular/material/stepper'
 import { AppStepperComponent } from './shared/components/app-stepper-create-user/app-stepper.component';
 import { AppAnimateTriggerPipe } from './shared/pipes/app-animate-trigger.pipe';
+import { AppDateFormatPipe } from './shared/pipes/app-date-format.pipe';
 
 
 @NgModule({ 
     declarations: [
         AppLineBreaksPipe,
         AppAnimateTriggerPipe,
+        AppDateFormatPipe,
         AppComponent,
         AppHeader,
         AppNoContentComponent,
@@ -186,9 +188,8 @@ import { AppAnimateTriggerPipe } from './shared/pipes/app-animate-trigger.pipe';
         provideAnimationsAsync(),
         { 
             provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, 
-            useValue: { appearance: 'outline' }},
-        { provide: MAT_DATE_FORMATS, useValue: LUXON_DATE_FORMATS },
-        { provide: MAT_DATE_LOCALE, useValue: 'fi-FI' }
+            useValue: { appearance: 'outline' }
+        }    
     ],
     exports: [
         AppLineBreaksPipe,

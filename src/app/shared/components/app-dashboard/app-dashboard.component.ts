@@ -31,8 +31,10 @@ import {
     FEEDBACK_CREATED, 
     MESSAGE_CREATED, 
     RECORD_CREATED, 
-    USER_STATUS 
+    USER_STATUS, 
+    USER_UPDATED
 } from "../../constants";
+import { EventComponent } from "../app-event/app-event.component";
 
 @Component({
     selector: 'app-dashboard',
@@ -60,6 +62,7 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
 
     msgAnimationDuration:number | null = null;
     draftAnimationDuration:number | null = null;
+    recordsAnimationDuration:number | null = null;
     doctorsAnimationDuration:number | null = null;
     div1animationDuration:number | null = null;
     div2animationDuration:number | null = null;
@@ -70,6 +73,7 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
     nextAppointmentStartTime:string | null = null;
     nextStart: { dayName: string; time: string; date: string; } | null = null;
     nextAppointmentPatientName: string | null = null;
+    nextAppointmentDoctorName: string | null = null;
     nextAppointmentPatientAge: string | null = null;
     nextAppointmentPatientMsg:string | null = null;
     nextAppointmentDoctorMsg:string | null = null;
@@ -79,6 +83,8 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
     isSocketConnected:boolean = false;
     isLoading: boolean = true;
 
+    appointments: any[] = [];
+    appointmentsLength:number = 0;
     doctors: User[] = [];
     doctorsLength: number = 0;
     patients: Appointment[] = [];
@@ -86,6 +92,9 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
 
     drafts: Record[] = [];
     draftsLength: number = 0;
+
+    records: Record[] = [];
+    recordsLength: number = 0;
 
     today: { weekday: string, time: string, date: string} | undefined;
     clock: string | undefined;
@@ -127,30 +136,195 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
                         this.timerService.startClock(now!);
                     }
                     break;
-                // case 'patient':
-                //     this.initPatientDashboard();
-                //     break;
+                case 'patient':
+                    this.appointmentService.pollNextAppointment();
+                    this.initPatientDashboard();
+                    this.setupPatientSubscriptions();
+                    if (this.nextAppointment) {
+                        this.displayNextAppointment();
+                    } else {
+                        this.timerService.startClock(now!);
+                    }
+                    break;
             }
         }
     }
 
     displayNextAppointment(){
-        this.nextId = this.nextAppointment.nextId;
-        if (this.previousNextId !== this.nextId) {
-            this.previousNextId = this.nextId;
-        } 
-        const nextStart = this.nextAppointment.nextStart;
-        this.timerService.startAppointmentTimer(nextStart);
-        this.nextAppointmentStartTime = ''
-        this.nextStart = getNextAppointmentWeekdayStart(nextStart);
-        this.nextAppointmentPatientName = this.nextAppointment.patient.firstName+' '+this.nextAppointment.patient.lastName;
-        this.nextAppointmentPatientAge = getPatientAge(this.nextAppointment.patient.dob);
-        const str = DateTime.fromISO(this.nextAppointment.previousAppointmentDate).toFormat('MMM dd, yyyy'); 
-        this.previousAppointmentDate = str !== 'Invalid DateTime' ? str : '-';
-        this.recordIds = this.nextAppointment.recordIds;
-        this.nextAppointmentPatientMsg = this.nextAppointment.patientMessage;
-        this.nextAppointmentDoctorMsg = this.nextAppointment.doctorMessage;
-        this.isNextAppointment.emit(true);
+        if (this.nextAppointment) {
+
+            this.nextId = this.nextAppointment.nextId;
+            if (this.previousNextId !== this.nextId) {
+                this.previousNextId = this.nextId;
+            } 
+            const nextStart = this.nextAppointment.nextStart;
+            this.timerService.startAppointmentTimer(nextStart);
+            this.nextAppointmentStartTime = ''
+            this.nextStart = getNextAppointmentWeekdayStart(nextStart);
+            this.nextAppointmentPatientName = this.nextAppointment.patient.firstName+' '+this.nextAppointment.patient.lastName;
+            this.nextAppointmentDoctorName = this.nextAppointment.doctor.firstName+' '+this.nextAppointment.doctor.lastName;
+            this.nextAppointmentPatientAge = getPatientAge(this.nextAppointment.patient.dob);
+            const str = DateTime.fromISO(this.nextAppointment.previousAppointmentDate).toFormat('MMM dd, yyyy'); 
+            this.previousAppointmentDate = str !== 'Invalid DateTime' ? str : '-';
+            this.recordIds = this.nextAppointment.recordIds;
+            this.nextAppointmentPatientMsg = this.nextAppointment.patientMessage;
+            this.nextAppointmentDoctorMsg = this.nextAppointment.doctorMessage;
+            this.isNextAppointment.emit(true);
+        }
+    }
+    async initPatientDashboard(){
+        const query = `query (
+                    $pageIndex: Int!, 
+                    $pageLimit: Int!, 
+                    $sortDirection: String, 
+                    $sortDirectionAppointments: String,
+                    $sortActiveDrafts: String,  
+                    $sortActiveAppointments: String, 
+                    $filterInput: String
+                ){ 
+                    countPendingAppointments
+                    countMissedAppointments
+                    countUpcomingAppointments
+                    nextAppointment {
+                        nextId
+                        nextStart
+                        nextEnd
+                        previousAppointmentDate
+                        recordIds
+                        patient {
+                            firstName
+                            lastName
+                            dob
+                        }
+                        doctor {
+                            firstName
+                            lastName
+                            dob
+                        }
+                        patientMessage
+                        doctorMessage
+                    }
+                    records (
+                        pageIndex: $pageIndex, 
+                        pageLimit: $pageLimit,
+                        sortDirection: $sortDirection,
+                        sortActive: $sortActiveDrafts,
+                        filterInput: $filterInput
+                    ){
+                        length
+                        slice {
+                            ...RecordFields
+                        }
+                    }
+                    upcomingAppointments (
+                        pageIndex: $pageIndex,
+                        pageLimit: $pageLimit,
+                        sortDirection: $sortDirectionAppointments,
+                        sortActive: $sortActiveAppointments,
+                        filterInput: $filterInput
+                    ) {
+                        ...AppointmentFields
+                    }
+                    
+                    pastAppointments (
+                        pageIndex: $pageIndex,
+                        pageLimit: $pageLimit,
+                        sortDirection: $sortDirectionAppointments,
+                        sortActive: $sortActiveAppointments,
+                        filterInput: $filterInput
+                    ) {
+                        ...AppointmentFields
+                    }
+                }
+                fragment RecordFields on Record {
+                    id
+                    title
+                    createdAt
+                    updatedAt
+                    appointmentId
+                    patient {
+                        firstName
+                        lastName
+                        dob
+                        }
+                    doctor {
+                        firstName
+                        lastName
+                        }
+                }
+
+                fragment AppointmentFields on Paged {
+                    length
+                    slice {
+                        ... on Appointment {
+                            id
+                            start
+                            end
+                            doctor {
+                                id
+                                firstName
+                                lastName
+                            }
+                        }
+                    }    
+                }`
+                const variables = {
+                    pageIndex: 0,
+                    pageLimit: 5,
+                    sortActiveDrafts: 'createdAt',  
+                    sortActiveAppointments: 'start',
+                    sortDirection: 'DESC',
+                    sortDirectionAppointments: 'ASC',
+                    filterInput: null
+                }
+                try {
+                    const response = await this.graphQLService.send(query, variables);
+                    if (response.data) {
+                        this.records = (response.data.records.slice).map((record: Record) => {
+                            return {
+                                ...record,
+                                createdAt: DateTime.fromISO(record.updatedAt, {zone: 'Europe/Helsinki'}).toLocaleString(DateTime.DATETIME_MED)
+                            }
+                        });
+                        this.recordsLength = response.data.records.length;
+                        const upcomingAppointments: Appointment[] = response.data.upcomingAppointments.slice;
+                        const pastAppointments:Appointment[] = response.data.pastAppointments.slice;
+                        // if (upcomingAppointments.length>0) upcomingAppointments
+                        //     .sort((a:Appointment, b:Appointment) =>  DateTime.fromISO(b.start).toMillis() - DateTime.fromISO(a.start).toMillis())
+                        //     .slice(0, 5);
+                        // if (pastAppointments.length>0) pastAppointments
+                        //     .sort((a:Appointment, b:Appointment) => DateTime.fromISO(b.start).toMillis() - DateTime.fromISO(a.start).toMillis())
+                        //     .slice(0, 5)
+                        const data = [
+                            ...upcomingAppointments,
+                            ...pastAppointments
+                        ];
+                        this.appointmentsLength = response.data.upcomingAppointments.length + response.data.pastAppointments.length;
+                        const now = DateTime.now().toISO();
+
+                        this.appointments = data
+                            // .sort((a:Appointment, b:Appointment) => DateTime.fromISO(b.start).toMillis() - DateTime.fromISO(a.start).toMillis())
+                            // .slice(0, 5)
+                            .map((appointment:Appointment) => {
+                                const isPast:boolean = appointment.start < now && appointment.end < now;
+                                const isNext = appointment.id === response.data.nextAppointment.nextId;
+                                return {
+                                    ...appointment,
+                                    isPast,
+                                    isNext,
+                                    start: DateTime.fromISO(appointment.start, {zone: 'Europe/Helsinki'}).toLocaleString(DateTime.DATETIME_MED)
+                                }
+                            })
+
+                        this.countPendingAppointments = response.data.countPendingAppointments;
+                        this.countMissedAppointments = response.data.countMissedAppointments;
+                        this.countUpcomingAppointments = response.data.countUpcomingAppointments;
+                        this.nextAppointment = response.data.nextAppointment;
+                        
+                    }
+                } catch (error) {
+                    this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading patient dashboard data: "+error}})
+                }
     }
     async initDoctorDashboard(){
         const query = `query (
@@ -253,14 +427,16 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
                         this.drafts = (response.data.drafts.slice).map((draft: Record) => {
                             return {
                                 ...draft,
-                                createdAt: DateTime.fromISO(draft.createdAt, {zone: 'Europe/Helsinki'}).toLocaleString(DateTime.DATETIME_MED)
+                                //createdAt: DateTime.fromISO(draft.createdAt, {zone: 'Europe/Helsinki'}).toLocaleString(DateTime.DATETIME_MED)
                             }
                         });
                         this.draftsLength = response.data.drafts.length;
+                        const upcomingAppointments = response.data.upcomingAppointments.slice;
+                        const pastAppointments = response.data.pastAppointments.slice;
                         
                         const data = [
-                            ...response.data.upcomingAppointments.slice,
-                            ...response.data.pastAppointments.slice
+                            ...upcomingAppointments,
+                            ...pastAppointments
                         ];
                         this.patientsLength = new Set(data).size;
 
@@ -270,18 +446,19 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
                         data.forEach((appointment:Appointment) => {
                             const patientId:number = appointment.patient.id; 
                             if (!uniquePatientsMap.has(patientId)) {
-                                let isPast:boolean = appointment.start < now && appointment.end < now;
-                                
+                                const isPast:boolean = appointment.start < now && appointment.end < now;
+                                const isNext = appointment.id === response.data.nextAppointment.nextId;
                                 uniquePatientsMap.set(patientId, {
                                     ...appointment,
-                                    start: DateTime.fromISO(appointment.start, {zone: 'Europe/Helsinki'}).toLocaleString(DateTime.DATETIME_MED),
-                                    isPast
+                                    //start: DateTime.fromISO(appointment.start, {zone: 'Europe/Helsinki'}).toLocaleString(DateTime.DATETIME_MED),
+                                    isPast,
+                                    isNext
                                 });
                             }
                             });
 
                         this.patients = Array.from(uniquePatientsMap.values())
-                            .sort((a, b) => DateTime.fromISO(b.end).toMillis() - DateTime.fromISO(a.end).toMillis())
+                            //.sort((a, b) => DateTime.fromISO(b.end).toMillis() - DateTime.fromISO(a.end).toMillis())
                             .slice(0, 5);
 
                         this.countPendingAppointments = response.data.countPendingAppointments;
@@ -292,7 +469,7 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
                         
                     }
                 } catch (error) {
-                    this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading requests: "+error}})
+                    this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading doctor dashboard data: "+error}})
                 }
     }
 
@@ -353,6 +530,50 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
                     this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading requests: "+error}})
                 }
     }
+    setupPatientSubscriptions(){
+        this.roomService.requestUserStatus(this.me.id);
+        const dashboardEvents$ = merge(
+            this.uiSyncService.sync(APPOINTMENT_CREATED).pipe(tap(()=>this.div2animationDuration = 2000)),
+            this.uiSyncService.sync(APPOINTMENT_UPDATED),
+            this.uiSyncService.sync(APPOINTMENT_ACCEPTED).pipe(tap(()=>this.div1animationDuration = 2000)),
+            this.uiSyncService.sync(APPOINTMENT_CANCELLED),
+            this.uiSyncService.sync(APPOINTMENT_DELETED),
+            this.uiSyncService.sync(USER_STATUS),
+            this.uiSyncService.sync(USER_UPDATED),
+            this.uiSyncService.sync(RECORD_CREATED).pipe(tap(()=>this.recordsAnimationDuration = 2000))
+        );
+
+        const subscriptions = [
+            this.appointmentService.appointmentInfo$.subscribe(async (info:any) => {
+                if (info && info.nextAppointment) {
+                    this.clock = undefined;
+                    this.nextAppointment = info.nextAppointment;
+                    this.displayNextAppointment();
+                } 
+            }),
+            // this.roomService.onUserStatus().subscribe({
+            //     next: (status) => {
+            //         this.isSocketConnected = status.online;     
+            //     },
+            //     error: (err) => console.error('Status sync error:', err)
+            //     }
+            // ),
+            dashboardEvents$
+                .subscribe({
+                    next: async () => {await this.initPatientDashboard();},
+                    error: (err) => console.error('Sync failed:', err)
+                })
+        ]
+        if (!this.nextAppointment) {
+            subscriptions.push(
+                this.timerService.clock.subscribe(value=> {
+                    this.clock = value;
+                })
+            )
+        }
+        this.subscriptions.push(...subscriptions);
+        this.isLoading = false;
+    }
 
     setupAdminSubscriptions() {
         this.roomService.requestUserStatus(this.me.id);
@@ -361,6 +582,7 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
             this.uiSyncService.sync(FEEDBACK_CREATED).pipe(tap(()=>this.div1animationDuration = 2000)),
             this.uiSyncService.sync(DOCTOR_REQUEST_CREATED).pipe(tap(()=>this.div2animationDuration = 2000)),
             this.uiSyncService.sync(USER_STATUS),
+            this.uiSyncService.sync(USER_UPDATED),
             this.uiSyncService.sync(DOCTOR_ACCOUNT_CREATED)
         );
 
@@ -393,6 +615,7 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
             this.uiSyncService.sync(APPOINTMENT_CANCELLED),
             this.uiSyncService.sync(APPOINTMENT_DELETED),
             this.uiSyncService.sync(USER_STATUS),
+            this.uiSyncService.sync(USER_UPDATED), // TO DO
             this.uiSyncService.sync(RECORD_CREATED).pipe(tap(()=>this.draftAnimationDuration = 2000)),
         );
 
@@ -469,16 +692,29 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
         this.dialog.open(AppTableComponent, {data: {recordIds: this.recordIds, userRole: this.me.userRole}});
     }
     onOpenNextAppointment() {
-        const tabs = this.tabsService.getTabs();
-        const isCreated = tabs.some((tab: any) => tab.id === this.nextId);
-        if (!isCreated) {
-            this.tabsService.addTab('Appointment Workspace', AppointmentComponent, this.nextId!);
-        } 
-        this.router.navigate(['/home/appointments'], {
-            relativeTo: this.activatedRoute,
-            queryParams: { tab: 3, id: this.nextId },
-            queryParamsHandling: 'merge' 
-        });    
+        if (this.me.userRole === 'doctor') {
+
+            const tabs = this.tabsService.getTabs();
+            const isCreated = tabs.some((tab: any) => tab.id === this.nextId);
+            if (!isCreated) {
+                this.tabsService.addTab('Appointment Workspace', AppointmentComponent, this.nextId!);
+            } 
+            this.router.navigate(['/home/appointments'], {
+                relativeTo: this.activatedRoute,
+                queryParams: { tab: 3, id: this.nextId },
+                queryParamsHandling: 'merge' 
+            });    
+        } else if (this.me.userRole === 'patient') {
+             this.router.navigate(['/home/appointments'], {
+                relativeTo: this.activatedRoute,
+                queryParams: { tab: 1, id: this.nextId },
+                queryParamsHandling: 'merge' 
+            }); 
+        }
+    }
+    onAppointemntOpen(id:number){
+        const eventInfo = {id}
+        this.dialog.open(EventComponent, {data: { eventInfo }})
     }
     ngOnDestroy(): void {
         this.subscriptions.forEach(sub => sub.unsubscribe());

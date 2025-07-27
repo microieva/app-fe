@@ -9,7 +9,12 @@
             personal_injury
             </span>
         </h5>
-        <div *ngIf="clock" class="clock flex-column flex-center" style="margin-block:auto;">
+        <h5 *ngIf="me.userRole ==='patient' && nextAppointment" class="color--gray--warm--primary flex-row">Next doctor
+            <span class="material-symbols-outlined">
+            stethoscope
+            </span>
+        </h5>
+        <div *ngIf="clock && !nextAppointment" class="clock flex-column flex-center" style="margin-block:auto;">
             <h2 class="color--pink--cloudy--primary">{{clock}}</h2>
             <h3 class="color--main--primary">{{today.weekday}}</h3>
             <h5 class="color--main--primary">{{today.date}}</h5>
@@ -27,11 +32,13 @@
                     account_circle
                     </span>
                     <div class="details-wrapper">
-
-                        <div class="flex-row" style="margin-top:1rem; gap:0.5rem;">
+                        <div class="flex-row" style="margin-top:1rem; gap:0.5rem;" *ngIf="me.userRole==='patient'">
+                            <p>Name: </p><h5>{{nextAppointmentDoctorName}}</h5>
+                        </div>
+                        <div class="flex-row" style="margin-top:1rem; gap:0.5rem;" *ngIf="me.userRole==='doctor'">
                             <p>Name: </p><h5>{{nextAppointmentPatientName}}</h5>
                         </div>
-                        <div class="flex-row" style="gap:0.5rem;">
+                        <div class="flex-row" style="gap:0.5rem;" *ngIf="me.userRole==='doctor'">
                             <p>Age:</p><h5>{{nextAppointmentPatientAge}}</h5>
                         </div>
                         <div class="flex-row" style="gap:0.5rem;">
@@ -52,7 +59,7 @@
                 </div>
             </div>      
             <h5 
-                *ngIf="me.userRole ==='doctor' && nextAppointment" 
+                *ngIf="me.userRole !=='admin' && nextAppointment" 
                 class="color--gray--warm--primary flex-row"
             >Appointment details
                 <span class="material-symbols-outlined">
@@ -61,7 +68,7 @@
             </h5>
 
             <div>
-                <p class="title color--gray--cold--primary">Appoinment time</p>
+                <p class="title color--gray--cold--primary">Appointment time</p>
                 <div class="flex-row">
                     <div>
                         <h4 class="color--pink--cloudy--primary">{{nextStart.dayName}},</h4>
@@ -72,27 +79,41 @@
             </div>
             <div class="color--main--secondary">
                 <p class="title color--gray--cold--primary">Additional information</p>
-                <div class="flex-column">
+                <div class="flex-column" *ngIf="me.userRole==='doctor'">
                     <p class="bubble bg--pink--cloudy--primary color--gray--cold--secondary">patient</p>
                     <div [ngClass]="!nextAppointmentPatientMsg ? 'msg-wrapper msg-wrapper--empty':'msg-wrapper'">
                         <p *ngIf="nextAppointmentPatientMsg"><em>{{nextAppointmentPatientMsg}}</em></p>
                         <p *ngIf="!nextAppointmentPatientMsg"><em>no message</em></p>
                     </div>
                 </div>
-                <div class="flex-column">
+                 <div class="flex-column" *ngIf="me.userRole==='patient'">
+                    <p class="bubble bg--pink--cloudy--primary color--gray--cold--secondary">doctor</p>
+                    <div [ngClass]="!nextAppointmentDoctorMsg ? 'msg-wrapper msg-wrapper--empty':'msg-wrapper'">
+                        <p *ngIf="nextAppointmentDoctorMsg"><em>{{nextAppointmentDoctorMsg}}</em></p>
+                        <p *ngIf="!nextAppointmentDoctorMsg"><em>no message</em></p>
+                    </div>
+                </div>
+                <div class="flex-column" *ngIf="me.userRole==='doctor'">
                     <p class="bubble bg--gray--cold--primary color--gray--cold--seconday">me</p>
                     <div [ngClass]="!nextAppointmentDoctorMsg ? 'msg-wrapper msg-wrapper--empty':'msg-wrapper'">
                         <p *ngIf="nextAppointmentDoctorMsg"><em>{{nextAppointmentDoctorMsg}}</em></p>
                         <p *ngIf="!nextAppointmentDoctorMsg"><em>no message</em></p>
                     </div>
                 </div>
+                <div class="flex-column" *ngIf="me.userRole==='patient'">
+                    <p class="bubble bg--gray--cold--primary color--gray--cold--seconday">me</p>
+                    <div [ngClass]="!nextAppointmentPatientMsg ? 'msg-wrapper msg-wrapper--empty':'msg-wrapper'">
+                        <p *ngIf="nextAppointmentPatientMsg"><em>{{nextAppointmentPatientMsg}}</em></p>
+                        <p *ngIf="!nextAppointmentPatientMsg"><em>no message</em></p>
+                    </div>
+                </div>
             </div>
             
         </div>
     </div>
-
+    <!-- title -->
     <div class="title color--main--primary" (click)="onOpenNextAppointment()">
-        <h5 *ngIf="clock" class="flex-row">Today
+        <h5 *ngIf="clock && !nextAppointment" class="flex-row">Today
             <span class="material-symbols-outlined">
             today
             </span>
@@ -129,10 +150,10 @@
 
         </a>
 
-        <a [routerLink]="['/home','appointments']" *ngIf="me.userRole==='doctor'">
+        <a [routerLink]="['/home','appointments']" *ngIf="me.userRole ==='doctor'">
             <div  class="flex-row">
                 <h5 class="color--gray--warm--primary" >Accepted appointments</h5>
-                <span class="material-symbols-outlined color--gray--warm--primary" matTooltip="Open feedbacks" style="cursor: pointer;">
+                <span class="material-symbols-outlined color--gray--warm--primary" style="cursor: pointer;">
                     event
                 </span>
             </div>
@@ -140,6 +161,19 @@
                 {{countUpcomingAppointments}} 
             </h1>
             <p><em>Upcoming</em></p>
+
+        </a>
+        <a [routerLink]="['/home','appointments']" *ngIf="me.userRole ==='patient'">
+            <div  class="flex-row">
+                <h5 class="color--gray--warm--primary" >Upcoming appointments</h5>
+                <span class="material-symbols-outlined color--gray--warm--primary" style="cursor: pointer;">
+                    event
+                </span>
+            </div>
+            <h1 class="color--main--primary" >
+                {{countUpcomingAppointments}} 
+            </h1>
+            <p><em>Confirmed</em></p>
 
         </a>
     </div>
@@ -176,10 +210,21 @@
             </h1>
             <p><em class="color--green--primary">Pending confirmation</em></p>
         </a>
+        <a [routerLink]="['/home','appointments']" *ngIf="me.userRole==='patient'">
+            <div class="flex-row">
+                <h5>Appointment requests</h5>
+                <span class="material-symbols-outlined">
+                    bookmark
+                </span>
+            </div>
+            <h1 class="color--main--primary">
+                {{countPendingAppointments}}
+            </h1>
+            <p><em class="color--green--primary">Pending confirmation</em></p>
+        </a>
     </div>
     <!-- missed appointments -->
     <div 
-        *ngIf="me.userRole!=='patient'" 
         class="div3 flex-column color--pink--cloudy--primary hover--shadow hover--bright" 
         style="justify-content: space-around;"
         [ngStyle]="{'visibility': countMissedAppointments > 0 ? 'visible':'hidden'}"
@@ -211,7 +256,7 @@
         <a [routerLink]="['/home','messages']">
             <div class="flex-row">
                 <h5 class="color--gray--warm--primary" >Messages</h5>
-                <span class="material-symbols-outlined color--gray--warm--primary" matTooltip="Open feedbacks">
+                <span class="material-symbols-outlined color--gray--warm--primary">
                     forum
                 </span>
             </div>
@@ -234,28 +279,31 @@
                 <h5 class="color--main--primary">{{countdown}}</h5>
             </div>
         </div>
-        <div *ngIf="isSocketConnected" style="justify-items: center;">
-            <h5 class="color--main--primary flex-row flex-center" >Online <span 
-                    class="material-symbols-outlined color--green--primary" 
-                >
-                    check_circle
-            </span></h5>
-            <p style="width:60%; margin-inline:auto;">Connection established and open for real time notifications</p>
-        </div>
-        <div *ngIf="!isSocketConnected" style="justify-items: center;">
-            <h5 class="color--main--primary flex-row flex-center" >Offline <span 
-                    class="material-symbols-outlined color--gray--warm--primary"  
-                >
-                    cancel
-            </span></h5>
-            <p>No connection</p>
+        <div *ngIf="me.userRole !=='patient'">
+
+            <div *ngIf="isSocketConnected" style="justify-items: center;">
+                <h5 class="color--main--primary flex-row flex-center" >Online <span 
+                        class="material-symbols-outlined color--green--primary" 
+                    >
+                        check_circle
+                </span></h5>
+                <p style="width:60%; margin-inline:auto;">Connection established and open for real time notifications</p>
+            </div>
+            <div *ngIf="!isSocketConnected" style="justify-items: center;">
+                <h5 class="color--main--primary flex-row flex-center" >Offline <span 
+                        class="material-symbols-outlined color--gray--warm--primary"  
+                    >
+                        cancel
+                </span></h5>
+                <p>No connection</p>
+            </div>
         </div>
         
     </div>
     <!-- latest doctors / latest drafts-->
     <div 
         class="color--main--primary flex-column"
-        [ngClass]="draftsLength>0 || doctorsLength>0 ? 'list-wrapper bg--white--cold ':'list-wrapper list-wrapper--empty'"
+        [ngClass]="draftsLength>0 || doctorsLength>0 || recordsLength>0? 'list-wrapper bg--white--cold ':'list-wrapper list-wrapper--empty'"
     >
         <div *ngIf="me.userRole==='admin'">
 
@@ -308,7 +356,36 @@
                        <h5>{{draft.title}}</h5>
                        <div class="flex-row" >
                          <p>{{draft.patient.firstName}} {{draft.patient.lastName}}</p>
-                         <p><em>created: {{draft.createdAt}}</em></p>
+                         <p><em>created: {{draft.createdAt | dateFormat:'timezone'}}</em></p>
+                       </div>
+                   </div>
+   
+               </div>
+           </div>
+        </div>
+        <div *ngIf="me.userRole === 'patient'" >
+            <h5 class="color--gray--warm--primary flex-row" style="margin-bottom:1rem;">Latest records
+               <span class="material-symbols-outlined">
+               contract
+               </span>
+           </h5>
+
+           <div class="flex-column scroll" style="width:100%;" *ngIf="recordsLength>0">
+               <div 
+                    class="list flex-row" 
+                    *ngFor="let record of records; let i = index" 
+                    (click)="onDraftOpen(record.id)"
+                    [class.animate__animated]="(i === 0 && recordsLength) | animateTrigger:recordsAnimationDuration:300"
+                    [class.animate__bounceInUp]="(i === 0 && recordsLength) | animateTrigger:recordsAnimationDuration:300"
+               >
+                   <span class="material-symbols-outlined color--gray--warm--primary">
+                       draft
+                   </span>
+                   <div style="width:100%">
+                       <h5>{{record.title}}</h5>
+                       <div class="flex-row" >
+                         <p>{{record.doctor.firstName}} {{record.doctor.lastName}}</p>
+                         <p><em>created: {{record.createdAt}}</em></p>
                        </div>
                    </div>
    
@@ -316,8 +393,10 @@
            </div>
         </div>
 
+        <p *ngIf="me.userRole==='patient' && recordsLength === 0" style="text-align: center;"><em style="font-weight: 100;">no records</em></p>
         <p *ngIf="me.userRole==='doctor' && draftsLength === 0" style="text-align: center;"><em style="font-weight: 100;">no drafts</em></p>
         <p *ngIf="me.userRole==='admin' && doctorsLength === 0" style="text-align: center;"><em style="font-weight: 100;">no activated doctor accounts</em></p>
+        <p style="text-align: right;" *ngIf="me.userRole==='patient'"><em>Total: {{recordsLength}}</em></p>
         <p style="text-align: right;" *ngIf="me.userRole==='doctor'"><em>Total: {{draftsLength}}</em></p>
         <p style="text-align: right;" *ngIf="me.userRole==='admin'"><em>Total: {{doctorsLength}}</em></p>
     </div>
@@ -341,7 +420,7 @@
             <h4>Create new user</h4>
         </div>
     </div>
-    <!-- latest patients -->
+    <!-- latest patients / recent appointments -->
     <div 
       class="div10 color--main--primary flex-column" 
       *ngIf="me.userRole==='doctor'"
@@ -367,9 +446,13 @@
                     <div style="width:100%">
                         <h5>{{obj.patient.firstName}} {{obj.patient.lastName}}</h5>
                         <div class="flex-row">
-                            <p>appointment date: <em>{{obj.start}}</em></p>
-                            <p class="bubble bg--gray--cold--primary color--gray--cold--seconday" style="float:right;" *ngIf="obj.isPast">past</p>
-                            <p class="bubble bg--green--primary color--gray--cold--secondary" style="float:right;" *ngIf="!obj.isPast">upcoming</p>
+                            <p>appointment date: <em>{{obj.start | dateFormat}}</em></p> 
+                            <div class="flex-row" style="gap:5px;">
+
+                                <p class="bubble bg--gray--cold--primary color--gray--cold--seconday" *ngIf="obj.isPast">past</p>
+                                <p class="bubble bg--pink--cloudy--primary color--gray--cold--secondary" *ngIf="obj.isNext">next</p>
+                                <p class="bubble bg--green--primary color--gray--cold--secondary" *ngIf="!obj.isPast">upcoming</p>
+                            </div>
                         </div>
                     </div>
         
@@ -379,5 +462,48 @@
         </div>
         <p style="text-align: center;" *ngIf="patientsLength === 0"><em style="font-weight: 100;">no patients</em></p>
         <p style="text-align: right;"><em>Total: {{patientsLength}}</em></p>
+    </div>
+    <div 
+      class="div10 color--main--primary flex-column" 
+      *ngIf="me.userRole==='patient'"
+      [ngClass]="appointmentsLength>0 ? 'list-wrapper bg--white--cold ':'list-wrapper list-wrapper--empty'"
+    >
+        <div>
+            <h5 class="title color--gray--warm--primary flex-row" style="margin-bottom:1rem;">Latest appointments
+                <span class="material-symbols-outlined">
+                event
+                </span>
+            </h5>
+            <div class="scroll">
+                <div 
+                    class="list flex-row" 
+                    *ngFor="let obj of appointments; let i = index" 
+                    (click)="onAppointemntOpen(obj.id)"
+                >
+                    <span 
+                            class="material-symbols-outlined color--gray--warm--primary"
+                        >
+                            account_circle
+                    </span>
+                    <div style="width:100%">
+                        <h5>Dr {{obj.doctor.firstName}} {{obj.doctor.lastName}}</h5>
+                        <div class="flex-row">
+                            <p>appointment date: <em>{{obj.start}}</em></p>
+                            <div class="flex-row" style="gap:5px;">
+                                <p class="bubble bg--gray--cold--primary color--gray--cold--seconday" *ngIf="obj.isPast">past</p>
+                                <p class="bubble bg--pink--cloudy--primary color--gray--cold--secondary" *ngIf="obj.isNext">next</p>
+                                <p class="bubble bg--green--primary color--gray--cold--secondary" *ngIf="!obj.isPast">upcoming</p>
+                            </div>
+                        </div>
+                    </div>
+        
+                </div>
+
+            </div>
+        </div>
+        <p style="text-align: center;" *ngIf="me.userRole === 'patient' && appointmentsLength === 0"><em style="font-weight: 100;">no appointments</em></p>
+        <p style="text-align: center;" *ngIf="me.userRole === 'doctor' && patientsLength === 0"><em style="font-weight: 100;">no patients</em></p>
+        <p style="text-align: right;" *ngIf="me.userRole==='doctor'"><em>Total: {{patientsLength}}</em></p>
+        <p style="text-align: right;" *ngIf="me.userRole==='patient'"><em>Total: {{appointmentsLength}}</em></p>
     </div>
 </div>

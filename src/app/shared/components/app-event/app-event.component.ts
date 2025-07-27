@@ -336,6 +336,7 @@ export class EventComponent implements OnInit, OnDestroy{
                 } else {
                     this.patientMessage = message;
                 }
+                this.uiSyncService.triggerSync(APPOINTMENT_UPDATED);
                 this.isMessageSaved.emit(true);
             } else {
                 this.dialog.open(AlertComponent, {data: {message:response.data.saveAppointmentMessage.message}})
