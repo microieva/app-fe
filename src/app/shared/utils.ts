@@ -147,6 +147,19 @@ export const getHowLongAgo = (timestamp: string):string => {
     return howLongAgoStr;
 }
 
+export const getPatientAge = (dobISO: string): string  =>{
+  if (!dobISO) return 'N/A';
+  
+  try {
+    return Math.floor(
+      DateTime.now().diff(DateTime.fromISO(dobISO), 'years').years
+    ).toString();
+  } catch (e) {
+    console.error('Invalid date format', e);
+    return 'N/A';
+  }
+}
+
 
 
 

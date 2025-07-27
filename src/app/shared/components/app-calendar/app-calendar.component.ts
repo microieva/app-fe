@@ -343,9 +343,7 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
             }
         `  
         try {
-            //const ref = this.dialog.open(LoadingComponent);
-            const response = await this.graphQLService.mutate(mutation, {appointmentInput});
-            //ref.close();       
+            const response = await this.graphQLService.mutate(mutation, {appointmentInput});     
             if (response.data.saveAppointment.success) {
                 if (this.role === 'doctor') {
                     this.appointmentService.pollNextAppointment();
@@ -757,11 +755,8 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                 });
 
                 const subSubmit = dialogRef.componentInstance.isSubmitting.subscribe(() => {
-                    //if (value) {
-                        this.dialog.closeAll();
-                        calendarApi.addEvent(event);
-                        //calendarApi.changeView('dayGridMonth');
-                    //}
+                    this.dialog.closeAll();
+                    calendarApi.addEvent(event);
                 });
                 const subDelete = dialogRef.componentInstance.isDeleting.subscribe(async id => {
 

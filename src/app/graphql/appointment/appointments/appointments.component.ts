@@ -112,11 +112,6 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
             this.routedAppointmentId = id ? +id : undefined;
             this.selectedIndex = tab ? +tab : 0;
         });
-        
-        const subRouterParamsTab = this.activatedRoute.queryParams.subscribe(params => {
-            const tab = params['tab'];
-            this.selectedIndex = tab ? +tab : 0;
-        }); 
 
         const subNextAppointmentInfo = this.appointmentService.appointmentInfo$.subscribe((info) => {
             if (info && info.nextAppointment) {
@@ -125,7 +120,7 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                 if (this.previousNextId !== this.nextId) {
                     this.previousNextId = this.nextId;
                 }
-                this.nextAppointmentStartTime = DateTime.fromISO(info.nextAppointment.nextStart, {setZone:true}).toFormat('HH:mm a');
+                this.nextAppointmentStartTime = info.nextAppointment.nextStart;
             }
         });
 
@@ -150,7 +145,6 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
            
         this.subscriptions.push(
             subRouterParams, 
-            subRouterParamsTab, 
             subNextAppointmentInfo, 
             subNextAppointmentCountDown
         );
@@ -307,7 +301,6 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
     }
     
     async loadPendingAppointments() {
-        console.log('Loading pending appointments...');
         const query = `query (
             $pageIndex: Int!, 
             $pageLimit: Int!, 
@@ -834,16 +827,16 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
         let date: string;
         switch (view) {
             case "pending":
-                this.pendingDataSource = this.pendingAppointments.map(row => {
-                    const howLongAgoStr = row.createdAt;
-                    const startDate = DateTime.fromISO(row.start, { setZone: true });
+                this.pendingDataSource = this.pendingAppointments.map(appointment => {
+                    const howLongAgoStr = appointment.createdAt;
+                    const startDate = DateTime.fromISO(appointment.start, { setZone: true });
                     const today = DateTime.now().setZone(startDate.zone);
-                    const tomorrow = today.plus({ days: 1 });
+                    const tomorappointment = today.plus({ days: 1 });
 
                     if (startDate.hasSame(today, 'day')) {
                         date = 'Today';
-                    } else if (startDate.hasSame(tomorrow, 'day')) {
-                        date = 'Tomorrow';
+                    } else if (startDate.hasSame(tomorappointment, 'day')) {
+                        date = 'Tomorappointment';
                     } else {
                         date = startDate.toFormat('MMM dd, yyyy'); 
                     }
@@ -871,14 +864,13 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                     }
 
                     return {
-                        id: row.id,
+                        id: appointment.id,
                         howLongAgoStr,
                         title: this.userRole === 'patient' ? "Pending doctor confirmation" : "",
-                        date: DateTime.fromISO(row.start, {setZone: true}).toFormat('MMM dd, yyyy'),
-                        start: date+`, ${DateTime.fromISO(row.start, {zone: 'utc'}).setZone('utc').toFormat('HH:mm a')}`,
-                        end: DateTime.fromISO(row.end, {zone: 'utc'}).setZone('utc').toFormat('HH:mm a'),
-                        name: this.userRole==='doctor' ? `${row.patient.firstName} ${row.patient.lastName}` : undefined,
-                        message: this.userRole==='doctor' ? row.patientMessage : undefined,
+                        start: appointment.start,
+                        end: appointment.end,
+                        name: this.userRole==='doctor' ? `${appointment.patient.firstName} ${appointment.patient.lastName}` : undefined,
+                        message: this.userRole==='doctor' ? appointment.patientMessage : undefined,
                         actions:this.actions
                     } 
                 });
@@ -903,16 +895,16 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                 this.dataSource = new MatTableDataSource<AppointmentDataSource>(this.pendingDataSource);
                 break;
             case "upcoming":
-                this.upcomingDataSource = this.upcomingAppointments.map(row => {
-                    const howSoonStr = row.start;
-                    const startDate = DateTime.fromISO(row.start, { setZone: true });
+                this.upcomingDataSource = this.upcomingAppointments.map(appointment => {
+                    const howSoonStr = appointment.start;
+                    const startDate = DateTime.fromISO(appointment.start, { setZone: true });
                     const today = DateTime.now().setZone(startDate.zone);
-                    const tomorrow = today.plus({ days: 1 });
+                    const tomorappointment = today.plus({ days: 1 });
 
                     if (startDate.hasSame(today, 'day')) {
                         date = 'Today';
-                    } else if (startDate.hasSame(tomorrow, 'day')) {
-                        date = 'Tomorrow';
+                    } else if (startDate.hasSame(tomorappointment, 'day')) {
+                        date = 'Tomorappointment';
                     } else {
                         date = startDate.toFormat('MMM dd, yyyy');
                     }
@@ -947,16 +939,15 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                     }
   
                     return {
-                        id: row.id,
+                        id: appointment.id,
                         howSoonStr,
                         title: this.userRole === 'patient' ? "Confirmed appointment" : undefined,
-                        date: DateTime.fromISO(row.start, {setZone: true}).toFormat('MMM dd, yyyy'),
-                        start: date+`, ${DateTime.fromISO(row.start, {zone: 'utc'}).setZone('utc').toFormat('HH:mm a')}`,
-                        end: DateTime.fromISO(row.end, {zone: 'utc'}).setZone('utc').toFormat('HH:mm a'),
-                        name: this.userRole==='doctor' ? `${row.patient.firstName} ${row.patient.lastName}` : `${row.doctor?.firstName} ${row.doctor?.lastName}`,
-                        message: this.userRole==='doctor' ? row.patientMessage : row.doctorMessage,
-                        draft: this.userRole==='doctor' && row.record ? row.record.draft : undefined,
-                        record: this.userRole==='patient' && row.record && !row.record.draft ? true : undefined,
+                        start: appointment.start,
+                        end: appointment.end,
+                        name: this.userRole==='doctor' ? `${appointment.patient.firstName} ${appointment.patient.lastName}` : `${appointment.doctor?.firstName} ${appointment.doctor?.lastName}`,
+                        message: this.userRole==='doctor' ? appointment.patientMessage : appointment.doctorMessage,
+                        draft: this.userRole==='doctor' && appointment.record ? appointment.record.draft : undefined,
+                        record: this.userRole==='patient' && appointment.record && !appointment.record.draft ? true : undefined,
                         actions: this.actions
                     };
                 });
@@ -973,9 +964,9 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                 break;
             case "past":
                 const isAllBlocked = this.pastAppointments.every(appointment => !appointment.record)
-                this.pastDataSource = this.pastAppointments.map(row => {
-                    const howLongAgoStr = row.end;
-                    const startDate = DateTime.fromISO(row.start, { setZone: true });
+                this.pastDataSource = this.pastAppointments.map(appointment => {
+                    const howLongAgoStr = appointment.end;
+                    const startDate = DateTime.fromISO(appointment.start, { setZone: true });
                     const today = DateTime.now().setZone(startDate.zone);
                     const yesterday = today.minus({ days: 1 });
                     
@@ -995,16 +986,15 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                     ]
 
                     return {
-                        id: row.id,
+                        id: appointment.id,
                         pastDate: howLongAgoStr,
                         title: this.userRole === 'patient' ? "View details": undefined,
-                        date: DateTime.fromISO(row.start, {zone: 'utc'}).setZone('utc').toFormat('MMM dd, yyyy'),
-                        start: date+`, ${DateTime.fromISO(row.start, {zone: 'utc'}).setZone('utc').toFormat('HH:mm a')}`,
-                        end: DateTime.fromISO(row.end, {zone: 'utc'}).setZone('utc').toFormat('HH:mm a'),
-                        name: this.userRole==='doctor' ? `${row.patient.firstName} ${row.patient.lastName}` : `${row.doctor?.firstName} ${row.doctor?.lastName}`,
-                        message: this.userRole==='doctor' ? row.patientMessage : row.doctorMessage,
-                        draft: this.userRole==='doctor' && row.record ? row.record.draft : undefined,
-                        record: this.userRole==='patient' && row.record ? !row.record.draft : undefined,
+                        start: appointment.start,
+                        end: appointment.end,
+                        name: this.userRole==='doctor' ? `${appointment.patient.firstName} ${appointment.patient.lastName}` : `${appointment.doctor?.firstName} ${appointment.doctor?.lastName}`,
+                        message: this.userRole==='doctor' ? appointment.patientMessage : appointment.doctorMessage,
+                        draft: this.userRole==='doctor' && appointment.record ? appointment.record.draft : undefined,
+                        record: this.userRole==='patient' && appointment.record ? !appointment.record.draft : undefined,
                         actions: this.actions
                     };
                 });

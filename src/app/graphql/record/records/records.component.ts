@@ -446,9 +446,9 @@ export class RecordsComponent implements OnInit, AfterViewInit, OnDestroy {
 
                     return {
                         id: row.id,
-                        createdAt: createdAt+`, ${createdDate.toFormat('HH:mm a')}`,
+                        recCreatedAt: row.createdAt,
+                        recUpdatedAt: row.updatedAt,
                         title: row.title,
-                        updatedAt: updatedAt+`, ${updatedDate.toFormat('HH:mm a')}`,
                         name,
                         patientDob,
                         actions: this.actions
@@ -461,15 +461,15 @@ export class RecordsComponent implements OnInit, AfterViewInit, OnDestroy {
                         {header: 'Actions', columnDef: 'actions',  sort: false},
                         {header: 'Title', columnDef: 'title', sort:true},
                         {header: `Patient's name`, columnDef: 'name',  sort:true},
-                        {header: 'First created', columnDef: 'createdAt',  sort:true},
-                        {header: 'Final save', columnDef: 'updatedAt',  sort:true}
+                        {header: 'First created', columnDef: 'recCreatedAt',  sort:true},
+                        {header: 'Final save', columnDef: 'recUpdatedAt',  sort:true}
                     ]
 
                 } else {
                     this.displayedColumns = [ 
                         {header: 'Title', columnDef: 'title', sort:true},
                         {header: `Doctor's name`, columnDef: 'name', sort:true},
-                        {header: 'Date', columnDef: 'updatedAt', sort:true}
+                        {header: 'Date', columnDef: 'recUpdatedAt', sort:true}
                     ]
                 }
                 break;
@@ -511,9 +511,9 @@ export class RecordsComponent implements OnInit, AfterViewInit, OnDestroy {
 
                     return {
                         id: row.id,
-                        createdAt: createdAt+`, ${createdDate.toFormat('HH:mm a')}`,
+                        recCreatedAt: row.createdAt,
+                        recUpdatedAt: row.updatedAt,
                         title: row.title,
-                        updatedAt: updatedAt+`, ${updatedDate.toFormat('HH:mm a')}`,
                         name: row.patient.firstName+" "+row.patient.lastName,
                         patientDob,
                         actions:this.actions   
@@ -524,8 +524,8 @@ export class RecordsComponent implements OnInit, AfterViewInit, OnDestroy {
                     {header: 'Actions', columnDef: 'actions',  sort: false},
                     {header: 'Title', columnDef: 'title', sort:true},
                     {header: `Patient's name`, columnDef: 'name', sort:true},
-                    {header: 'First created', columnDef: 'createdAt', sort:true},
-                    {header: 'Last updated', columnDef: 'updatedAt', sort:true}
+                    {header: 'First created', columnDef: 'recCreatedAt', sort:true},
+                    {header: 'Last updated', columnDef: 'recUpdatedAt', sort:true}
                 ]
                 break;
             default:

@@ -12,7 +12,7 @@ import { AppUserRoomService } from "../../shared/services/socket/app-user-room.s
 import { AppCountUnreadMessagesService } from "../../shared/services/app-count-unread.service";
 import { AlertComponent } from "../../shared/components/app-alert/app-alert.component";
 import { ConfirmComponent } from "../../shared/components/app-confirm/app-confirm.component";
-import { MESSAGE_CREATED } from "../../shared/constants";
+import { MESSAGE_CREATED, MESSAGE_READ } from "../../shared/constants";
 
 @Component({
     selector: 'app-chat',
@@ -75,7 +75,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
         await this.loadMessages();
         if (this.messages.length > 0 && this.messages.some(msg => !msg.isRead)) {
             await this.setIsReadToTrue();
-            this.uiSyncService.triggerSync(MESSAGE_CREATED);
+            this.uiSyncService.triggerSync(MESSAGE_READ);
         }
     }
 
@@ -129,14 +129,6 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
             const response = await this.graphQLService.send(query, {chatId: this.chatId});
             if (response.data) {
                 this.messages = response.data.messages;
-                this.messages = this.messages.map(msg => {
-                    const time = DateTime.fromISO(msg.createdAt).toFormat('HH:mm a, MMM dd')
-                    return {
-                        ...msg,
-                        createdAt: time
-                    }
-                })
-
                 this.isLoading = false;
             }
         } catch (error) {

@@ -158,7 +158,7 @@
         </div>
     </div>
     <div *ngIf="userId">
-        <div *ngIf="isLoading" class="loading"  >
+        <div *ngIf="isLoading" class="loading">
             <app-loading></app-loading>
         </div>
         <div class="dialog" *ngIf="!isLoading">
@@ -232,7 +232,7 @@
                         <p>{{ 'Delete Account' }}</p>
                     </button>
                     <button 
-                        *ngIf="user?.userRole ==='patient'"
+                        *ngIf="user?.userRole ==='patient' && me.userRole==='admin'"
                         class="button--create"
                         mat-stroked-button 
                         (click)="openCalendar(user.id)"
@@ -241,6 +241,7 @@
                     </button>
                 </div>
             </div>
+
             <div *ngIf="id">
                 <form *ngIf="form" [formGroup]="form">
                     <div class="block--bordered--md">

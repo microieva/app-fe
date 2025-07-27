@@ -1,0 +1,509 @@
+<div *ngIf="isLoading" class="loading">
+    <app-loading></app-loading>
+</div>
+
+<div class="dashboard" *ngIf="!isLoading" @slideInOut>
+    <div class="next-appointment flex-column bg--white--cold">
+        <h5 *ngIf="me.userRole ==='doctor' && nextAppointment" class="color--gray--warm--primary flex-row">Next patient
+            <span class="material-symbols-outlined">
+            personal_injury
+            </span>
+        </h5>
+        <h5 *ngIf="me.userRole ==='patient' && nextAppointment" class="color--gray--warm--primary flex-row">Next doctor
+            <span class="material-symbols-outlined">
+            stethoscope
+            </span>
+        </h5>
+        <div *ngIf="clock && !nextAppointment" class="clock flex-column flex-center" style="margin-block:auto;">
+            <h2 class="color--pink--cloudy--primary">{{clock}}</h2>
+            <h3 class="color--main--primary">{{today.weekday}}</h3>
+            <h5 class="color--main--primary">{{today.date}}</h5>
+        </div>
+
+        <div *ngIf="nextAppointment" class="clock flex-column">     
+            <div class="next-patient">
+                <div class="bg"></div>
+                <div class="bg"></div>
+                <div class="bg details flex-column flex-center color--white--warm">
+                <span 
+                    style="font-size: 5rem;"
+                    class="material-symbols-outlined color--gray--warm--primary"
+                >
+                    account_circle
+                    </span>
+                    <div class="details-wrapper">
+                        <div class="flex-row" style="margin-top:1rem; gap:0.5rem;" *ngIf="me.userRole==='patient'">
+                            <p>Name: </p><h5>{{nextAppointmentDoctorName}}</h5>
+                        </div>
+                        <div class="flex-row" style="margin-top:1rem; gap:0.5rem;" *ngIf="me.userRole==='doctor'">
+                            <p>Name: </p><h5>{{nextAppointmentPatientName}}</h5>
+                        </div>
+                        <div class="flex-row" style="gap:0.5rem;" *ngIf="me.userRole==='doctor'">
+                            <p>Age:</p><h5>{{nextAppointmentPatientAge}}</h5>
+                        </div>
+                        <div class="flex-row" style="gap:0.5rem;">
+                            <p>Previous appointment:</p><h5>{{previousAppointmentDate}}</h5>
+                        </div>
+                        <div class="flex-row hover--bubble" tyle="gap:0.5rem;" *ngIf="recordIds.length>0" (click)="onOpenRecords()">
+                            <p>Med. records:</p>
+                            <p>
+                                <span 
+                                    style="font-size:small;"
+                                    class="material-symbols-outlined"
+                                >
+                                open_in_new
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>      
+            <h5 
+                *ngIf="me.userRole !=='admin' && nextAppointment" 
+                class="color--gray--warm--primary flex-row"
+            >Appointment details
+                <span class="material-symbols-outlined">
+                calendar_clock
+                </span>
+            </h5>
+
+            <div>
+                <p class="title color--gray--cold--primary">Appointment time</p>
+                <div class="flex-row">
+                    <div>
+                        <h4 class="color--pink--cloudy--primary">{{nextStart.dayName}},</h4>
+                        <h4><em class="color--pink--cloudy--primary">{{nextStart.date}}</em></h4>
+                    </div>
+                    <h2 class="color--main--secondary">{{nextStart.time}}</h2>
+                </div>
+            </div>
+            <div class="color--main--secondary">
+                <p class="title color--gray--cold--primary">Additional information</p>
+                <div class="flex-column" *ngIf="me.userRole==='doctor'">
+                    <p class="bubble bg--pink--cloudy--primary color--gray--cold--secondary">patient</p>
+                    <div [ngClass]="!nextAppointmentPatientMsg ? 'msg-wrapper msg-wrapper--empty':'msg-wrapper'">
+                        <p *ngIf="nextAppointmentPatientMsg"><em>{{nextAppointmentPatientMsg}}</em></p>
+                        <p *ngIf="!nextAppointmentPatientMsg"><em>no message</em></p>
+                    </div>
+                </div>
+                 <div class="flex-column" *ngIf="me.userRole==='patient'">
+                    <p class="bubble bg--pink--cloudy--primary color--gray--cold--secondary">doctor</p>
+                    <div [ngClass]="!nextAppointmentDoctorMsg ? 'msg-wrapper msg-wrapper--empty':'msg-wrapper'">
+                        <p *ngIf="nextAppointmentDoctorMsg"><em>{{nextAppointmentDoctorMsg}}</em></p>
+                        <p *ngIf="!nextAppointmentDoctorMsg"><em>no message</em></p>
+                    </div>
+                </div>
+                <div class="flex-column" *ngIf="me.userRole==='doctor'">
+                    <p class="bubble bg--gray--cold--primary color--gray--cold--seconday">me</p>
+                    <div [ngClass]="!nextAppointmentDoctorMsg ? 'msg-wrapper msg-wrapper--empty':'msg-wrapper'">
+                        <p *ngIf="nextAppointmentDoctorMsg"><em>{{nextAppointmentDoctorMsg}}</em></p>
+                        <p *ngIf="!nextAppointmentDoctorMsg"><em>no message</em></p>
+                    </div>
+                </div>
+                <div class="flex-column" *ngIf="me.userRole==='patient'">
+                    <p class="bubble bg--gray--cold--primary color--gray--cold--seconday">me</p>
+                    <div [ngClass]="!nextAppointmentPatientMsg ? 'msg-wrapper msg-wrapper--empty':'msg-wrapper'">
+                        <p *ngIf="nextAppointmentPatientMsg"><em>{{nextAppointmentPatientMsg}}</em></p>
+                        <p *ngIf="!nextAppointmentPatientMsg"><em>no message</em></p>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    <!-- title -->
+    <div class="title color--main--primary" (click)="onOpenNextAppointment()">
+        <h5 *ngIf="clock && !nextAppointment" class="flex-row">Today
+            <span class="material-symbols-outlined">
+            today
+            </span>
+        </h5>
+        <h5 *ngIf="nextAppointment" class="flex-row">Next appointment
+            <span class="material-symbols-outlined">
+                open_in_new
+            </span>
+        </h5>
+    </div>
+
+    <div class="greeting bg--pink--cloudy--primary color--white--warm flex-row" style="font-size:smaller;"> 
+        <h4 style="text-indent:2rem;">Welcome, {{me.firstName}} {{me.lastName}} !</h4>
+    </div>
+    <!-- feedbacks / accepted appointments -->
+    <div 
+        class="div1 flex-column bg--white--cold hover--shadow hover--bright" 
+        style="justify-content: space-between;"
+        [ngStyle]="{'visibility': (countUnreadFeedback > 0 || countUpcomingAppointments > 0) ? 'visible':'hidden'}"
+        [class.animate__animated]="(countUnreadFeedback || countUpcomingAppointments) | animateTrigger:div1animationDuration:300"
+        [class.animate__tada]="(countUnreadFeedback || countUpcomingAppointments) | animateTrigger:div1animationDuration:300"
+    > 
+        <a [routerLink]="['/home','feedback']" *ngIf="me.userRole==='admin'">
+            <div class="flex-row">
+                <h5 class="color--gray--warm--primary" >Feedbacks</h5>
+                <span class="material-symbols-outlined color--gray--warm--primary" matTooltip="Open feedbacks" style="cursor: pointer;">
+                    feedback
+                </span>
+            </div>
+            <h1 class="color--main--primary" >
+                {{countUnreadFeedback}} 
+            </h1>
+            <p><em>Unread</em></p>
+
+        </a>
+
+        <a [routerLink]="['/home','appointments']" *ngIf="me.userRole ==='doctor'">
+            <div  class="flex-row">
+                <h5 class="color--gray--warm--primary" >Accepted appointments</h5>
+                <span class="material-symbols-outlined color--gray--warm--primary" style="cursor: pointer;">
+                    event
+                </span>
+            </div>
+            <h1 class="color--main--primary" >
+                {{countUpcomingAppointments}} 
+            </h1>
+            <p><em>Upcoming</em></p>
+
+        </a>
+        <a [routerLink]="['/home','appointments']" *ngIf="me.userRole ==='patient'">
+            <div  class="flex-row">
+                <h5 class="color--gray--warm--primary" >Upcoming appointments</h5>
+                <span class="material-symbols-outlined color--gray--warm--primary" style="cursor: pointer;">
+                    event
+                </span>
+            </div>
+            <h1 class="color--main--primary" >
+                {{countUpcomingAppointments}} 
+            </h1>
+            <p><em>Confirmed</em></p>
+
+        </a>
+    </div>
+    <!-- doctor requests / appointment requests / pending appointments -->
+    <div  
+        class="div2 flex-column bg--green--secondary color--green--primary hover--shadow hover--bright" 
+        style="justify-content: space-between;"
+        [ngStyle]="{'visibility': (countDoctorRequests > 0 || countPendingAppointments>0) ? 'visible':'hidden'}"
+        [class.animate__animated]="(countDoctorRequests || countPendingAppointments) | animateTrigger:div2animationDuration:300"
+        [class.animate__tada]="(countDoctorRequests || countPendingAppointments) | animateTrigger:div2animationDuration:300"
+        > 
+        <a [routerLink]="['/home','users']" *ngIf="me.userRole==='admin'">
+            <div class="flex-row">
+                <h5>Doctor requests</h5>
+                <span class="material-symbols-outlined">
+                    bookmark
+                </span>
+            </div>
+            <h1 class="color--main--primary" *ngIf="me.userRole==='admin'">
+                {{countDoctorRequests}}
+            </h1>
+            <p><em class="color--green--primary">New</em></p>
+        </a>
+
+        <a [routerLink]="['/home','appointments']" *ngIf="me.userRole==='doctor'">
+            <div class="flex-row">
+                <h5>Appointment requests</h5>
+                <span class="material-symbols-outlined">
+                    bookmark
+                </span>
+            </div>
+            <h1 class="color--main--primary">
+                {{countPendingAppointments}}
+            </h1>
+            <p><em class="color--green--primary">Pending confirmation</em></p>
+        </a>
+        <a [routerLink]="['/home','appointments']" *ngIf="me.userRole==='patient'">
+            <div class="flex-row">
+                <h5>Appointment requests</h5>
+                <span class="material-symbols-outlined">
+                    bookmark
+                </span>
+            </div>
+            <h1 class="color--main--primary">
+                {{countPendingAppointments}}
+            </h1>
+            <p><em class="color--green--primary">Pending confirmation</em></p>
+        </a>
+    </div>
+    <!-- missed appointments -->
+    <div 
+        class="div3 flex-column color--pink--cloudy--primary hover--shadow hover--bright" 
+        style="justify-content: space-around;"
+        [ngStyle]="{'visibility': countMissedAppointments > 0 ? 'visible':'hidden'}"
+        [class.animate__animated]="countMissedAppointments | animateTrigger:animationDuration:300"
+        [class.animate__tada]="countMissedAppointments | animateTrigger:animationDuration:300"
+    > 
+        <a [routerLink]="['/home','calendar']">
+            <div class="flex-row">
+                <h5>Missed appointments</h5>
+                <span class="material-symbols-outlined" matTooltip="Open feedbacks">
+                    event
+                </span>
+            </div>
+            <h1 class="color--main--primary">
+                {{countMissedAppointments}}
+            </h1>
+        <!-- <p><em class="color--pink--cloudy--primary"></em></p> -->
+        </a>
+    </div>
+    <!-- unreadMessages -->
+    <div 
+        *ngIf="me.userRole !=='patient'" 
+        class="div4 flex-column bg--white--cold hover--shadow hover--bright" 
+        [class.animate__animated]="countUnreadMessages | animateTrigger:msgAnimationDuration:300"
+        [class.animate__tada]="countUnreadMessages | animateTrigger:msgAnimationDuration:300"
+        style="justify-content: space-between;"
+        [ngStyle]="{'visibility': countUnreadMessages > 0 ? 'visible':'hidden'}"
+    >
+        <a [routerLink]="['/home','messages']">
+            <div class="flex-row">
+                <h5 class="color--gray--warm--primary" >Messages</h5>
+                <span class="material-symbols-outlined color--gray--warm--primary">
+                    forum
+                </span>
+            </div>
+            <h1 class="color--main--primary">
+                {{countUnreadMessages}}
+            </h1>
+            <p><em>Unread</em></p>
+        </a>
+      </div>
+      <!-- last log out -->
+    <div class="account flex-column flex-center">
+        <span class="material-symbols-outlined color--main--primary" style="font-size: 5rem;">
+            account_circle
+        </span>
+        <div style="justify-items: start;">
+            <p>Account email</p>
+            <h5 class="color--main--primary" style="margin-bottom:0.5rem;">{{me.email}}</h5>
+            <p *ngIf="me.lastLogOutAt">Last log out</p>
+            <div *ngIf="timerService.startHowLongAgoCountdown(me.lastLogOutAt) | async as countdown">
+                <h5 class="color--main--primary">{{countdown}}</h5>
+            </div>
+        </div>
+        <div *ngIf="me.userRole !=='patient'">
+
+            <div *ngIf="isSocketConnected" style="justify-items: center;">
+                <h5 class="color--main--primary flex-row flex-center" >Online <span 
+                        class="material-symbols-outlined color--green--primary" 
+                    >
+                        check_circle
+                </span></h5>
+                <p style="width:60%; margin-inline:auto;">Connection established and open for real time notifications</p>
+            </div>
+            <div *ngIf="!isSocketConnected" style="justify-items: center;">
+                <h5 class="color--main--primary flex-row flex-center" >Offline <span 
+                        class="material-symbols-outlined color--gray--warm--primary"  
+                    >
+                        cancel
+                </span></h5>
+                <p>No connection</p>
+            </div>
+        </div>
+        
+    </div>
+    <!-- latest doctors / latest drafts-->
+    <div 
+        class="color--main--primary flex-column"
+        [ngClass]="draftsLength>0 || doctorsLength>0 || recordsLength>0? 'list-wrapper bg--white--cold ':'list-wrapper list-wrapper--empty'"
+    >
+        <div *ngIf="me.userRole==='admin'">
+
+            <h5 class="color--gray--warm--primary flex-row" style="margin-bottom:1rem;">Latest doctor contracts
+                <span class="material-symbols-outlined">
+                contract
+                </span>
+            </h5>
+           
+            <div class="flex-column scroll" style="width:100%;">
+                <div 
+                    class="list flex-row" 
+                    *ngFor="let doctor of doctors; let i = index" 
+                    (click)="onUserOpen(doctor.id)"
+                    [class.animate__animated]="i === 0 | animateTrigger:doctorsAnimationDuration:300"
+                    [class.animate__bounceInUp]="i === 0 | animateTrigger:doctorsAnimationDuration:300"
+                >
+                    <span 
+                            class="material-symbols-outlined color--gray--warm--primary"
+                        >
+                            account_circle
+                    </span>
+                    <div>
+                        <h5>{{doctor.firstName}} {{doctor.lastName}}</h5>
+                        <p><em>created: {{doctor.createdAt}}</em></p>
+                    </div>
+    
+                </div>
+            </div>
+        </div>
+        <div *ngIf="me.userRole === 'doctor'" >
+            <h5 class="color--gray--warm--primary flex-row" style="margin-bottom:1rem;">Latest record drafts
+               <span class="material-symbols-outlined">
+               contract
+               </span>
+           </h5>
+
+           <div class="flex-column scroll" style="width:100%;" *ngIf="draftsLength>0">
+               <div 
+                    class="list flex-row" 
+                    *ngFor="let draft of drafts; let i = index" 
+                    (click)="onDraftOpen(draft.id)"
+                    [class.animate__animated]="(i === 0 && draftsLength) | animateTrigger:draftAnimationDuration:300"
+                    [class.animate__bounceInUp]="(i === 0 && draftsLength) | animateTrigger:draftAnimationDuration:300"
+               >
+                   <span class="material-symbols-outlined color--gray--warm--primary">
+                       draft
+                   </span>
+                   <div style="width:100%">
+                       <h5>{{draft.title}}</h5>
+                       <div class="flex-row" >
+                         <p>{{draft.patient.firstName}} {{draft.patient.lastName}}</p>
+                         <p><em>created: {{draft.createdAt | dateFormat:'timezone'}}</em></p>
+                       </div>
+                   </div>
+   
+               </div>
+           </div>
+        </div>
+        <div *ngIf="me.userRole === 'patient'" >
+            <h5 class="color--gray--warm--primary flex-row" style="margin-bottom:1rem;">Latest records
+               <span class="material-symbols-outlined">
+               contract
+               </span>
+           </h5>
+
+           <div class="flex-column scroll" style="width:100%;" *ngIf="recordsLength>0">
+               <div 
+                    class="list flex-row" 
+                    *ngFor="let record of records; let i = index" 
+                    (click)="onDraftOpen(record.id)"
+                    [class.animate__animated]="(i === 0 && recordsLength) | animateTrigger:recordsAnimationDuration:300"
+                    [class.animate__bounceInUp]="(i === 0 && recordsLength) | animateTrigger:recordsAnimationDuration:300"
+               >
+                   <span class="material-symbols-outlined color--gray--warm--primary">
+                       draft
+                   </span>
+                   <div style="width:100%">
+                       <h5>{{record.title}}</h5>
+                       <div class="flex-row" >
+                         <p>{{record.doctor.firstName}} {{record.doctor.lastName}}</p>
+                         <p><em>created: {{record.createdAt}}</em></p>
+                       </div>
+                   </div>
+   
+               </div>
+           </div>
+        </div>
+
+        <p *ngIf="me.userRole==='patient' && recordsLength === 0" style="text-align: center;"><em style="font-weight: 100;">no records</em></p>
+        <p *ngIf="me.userRole==='doctor' && draftsLength === 0" style="text-align: center;"><em style="font-weight: 100;">no drafts</em></p>
+        <p *ngIf="me.userRole==='admin' && doctorsLength === 0" style="text-align: center;"><em style="font-weight: 100;">no activated doctor accounts</em></p>
+        <p style="text-align: right;" *ngIf="me.userRole==='patient'"><em>Total: {{recordsLength}}</em></p>
+        <p style="text-align: right;" *ngIf="me.userRole==='doctor'"><em>Total: {{draftsLength}}</em></p>
+        <p style="text-align: right;" *ngIf="me.userRole==='admin'"><em>Total: {{doctorsLength}}</em></p>
+    </div>
+    <!-- create new user -->
+    <div 
+      class="div10 flex-column hover--shadow hover--scale hover--bright" 
+      *ngIf="me.userRole==='admin'"
+    >
+        <div class="background">
+            <img src="assets/dots.png" >
+        </div>
+        <div 
+          class="flex-row flex-center hover-color color--pink--cloudy--primary"
+          (click)="onCreateNewUser()"
+        >
+            <span 
+                class="material-symbols-outlined"  
+            >
+                add_circle
+            </span>
+            <h4>Create new user</h4>
+        </div>
+    </div>
+    <!-- latest patients / recent appointments -->
+    <div 
+      class="div10 color--main--primary flex-column" 
+      *ngIf="me.userRole==='doctor'"
+      [ngClass]="patientsLength>0 ? 'list-wrapper bg--white--cold ':'list-wrapper list-wrapper--empty'"
+    >
+        <div>
+            <h5 class="title color--gray--warm--primary flex-row" style="margin-bottom:1rem;">Latest patients
+                <span class="material-symbols-outlined">
+                personal_injury
+                </span>
+            </h5>
+            <div class="scroll">
+                <div 
+                    class="list flex-row" 
+                    *ngFor="let obj of patients; let i = index" 
+                    (click)="onUserOpen(obj.patient.id)"
+                >
+                    <span 
+                            class="material-symbols-outlined color--gray--warm--primary"
+                        >
+                            account_circle
+                    </span>
+                    <div style="width:100%">
+                        <h5>{{obj.patient.firstName}} {{obj.patient.lastName}}</h5>
+                        <div class="flex-row">
+                            <p>appointment date: <em>{{obj.start | dateFormat}}</em></p> 
+                            <div class="flex-row" style="gap:5px;">
+
+                                <p class="bubble bg--gray--cold--primary color--gray--cold--seconday" *ngIf="obj.isPast">past</p>
+                                <p class="bubble bg--pink--cloudy--primary color--gray--cold--secondary" *ngIf="obj.isNext">next</p>
+                                <p class="bubble bg--green--primary color--gray--cold--secondary" *ngIf="!obj.isPast">upcoming</p>
+                            </div>
+                        </div>
+                    </div>
+        
+                </div>
+
+            </div>
+        </div>
+        <p style="text-align: center;" *ngIf="patientsLength === 0"><em style="font-weight: 100;">no patients</em></p>
+        <p style="text-align: right;"><em>Total: {{patientsLength}}</em></p>
+    </div>
+    <div 
+      class="div10 color--main--primary flex-column" 
+      *ngIf="me.userRole==='patient'"
+      [ngClass]="appointmentsLength>0 ? 'list-wrapper bg--white--cold ':'list-wrapper list-wrapper--empty'"
+    >
+        <div>
+            <h5 class="title color--gray--warm--primary flex-row" style="margin-bottom:1rem;">Latest appointments
+                <span class="material-symbols-outlined">
+                event
+                </span>
+            </h5>
+            <div class="scroll">
+                <div 
+                    class="list flex-row" 
+                    *ngFor="let obj of appointments; let i = index" 
+                    (click)="onAppointemntOpen(obj.id)"
+                >
+                    <span 
+                            class="material-symbols-outlined color--gray--warm--primary"
+                        >
+                            account_circle
+                    </span>
+                    <div style="width:100%">
+                        <h5>Dr {{obj.doctor.firstName}} {{obj.doctor.lastName}}</h5>
+                        <div class="flex-row">
+                            <p>appointment date: <em>{{obj.start}}</em></p>
+                            <div class="flex-row" style="gap:5px;">
+                                <p class="bubble bg--gray--cold--primary color--gray--cold--seconday" *ngIf="obj.isPast">past</p>
+                                <p class="bubble bg--pink--cloudy--primary color--gray--cold--secondary" *ngIf="obj.isNext">next</p>
+                                <p class="bubble bg--green--primary color--gray--cold--secondary" *ngIf="!obj.isPast">upcoming</p>
+                            </div>
+                        </div>
+                    </div>
+        
+                </div>
+
+            </div>
+        </div>
+        <p style="text-align: center;" *ngIf="me.userRole === 'patient' && appointmentsLength === 0"><em style="font-weight: 100;">no appointments</em></p>
+        <p style="text-align: center;" *ngIf="me.userRole === 'doctor' && patientsLength === 0"><em style="font-weight: 100;">no patients</em></p>
+        <p style="text-align: right;" *ngIf="me.userRole==='doctor'"><em>Total: {{patientsLength}}</em></p>
+        <p style="text-align: right;" *ngIf="me.userRole==='patient'"><em>Total: {{appointmentsLength}}</em></p>
+    </div>
+</div>

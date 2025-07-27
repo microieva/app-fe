@@ -70,11 +70,15 @@ export class UserComponent implements OnInit, OnDestroy {
     }
 
     async ngOnInit() {
+        await this.loadMe();
         if (this.userId) {
             this.isLoading = true;
-            await this.loadStatic();
+            await this.loadUser();
+            if (this.me?.userRole === 'admin') {
+                await this.loadRequest();
+            }
+            this.isLoading = false;
         }
-        await this.loadMe();
 
         const sub = this.activatedRoute.paramMap.subscribe(async (params)=> {
             this.id = Number(params.get('id')); 
@@ -90,7 +94,7 @@ export class UserComponent implements OnInit, OnDestroy {
         this.subscriptions.unsubscribe();
     }
 
-    async loadStatic(){
+    async loadUser(){
         const query = `query ($userId: Int!){
             user (userId: $userId){
                 id
@@ -105,6 +109,18 @@ export class UserComponent implements OnInit, OnDestroy {
                 postCode
                 updatedAt
             }
+        }`
+        try {
+            const response = await this.graphQLService.send(query, {userId: this.userId});
+            this.formattedDate = DateTime.fromISO(response.data.user?.dob).toFormat('MMM dd, yyyy') 
+            this.user = response.data.user || null;
+        } catch (error){
+            this.isLoading = false;
+            this.dialog.open(AlertComponent, {data: {message: error}});
+        }
+    }
+     async loadRequest(){
+        const query = `query ($userId: Int!){
             request (userId: $userId){
                 id
                 firstName
@@ -115,14 +131,9 @@ export class UserComponent implements OnInit, OnDestroy {
         }`
         try {
             const response = await this.graphQLService.send(query, {userId: this.userId});
-            if (response.data) {
-                this.formattedDate = DateTime.fromISO(response.data.user?.dob).toFormat('MMM dd, yyyy') 
-                this.user = response.data.user || null;
-                this.request = response.data.request || null;
-                this.isLoading = false;
-            }
+            this.request = response.data.request || null;
         } catch (error){
-            this.router.navigate(['/']);
+            this.isLoading = false;
             this.dialog.open(AlertComponent, {data: {message: error}});
         }
     }
@@ -181,15 +192,20 @@ export class UserComponent implements OnInit, OnDestroy {
                 }`
 
                 const ref = this.dialog.open(LoadingComponent);
-                const response = await this.graphQLService.mutate(mutation, { userId: this.me.id});
-                if (response.data.deleteUser.success) {
-                    this.timerService.cancelTokenTimer();
-                    await this.authService.logOut();
-                    this.router.navigate(['']);
-                    this.dialog.closeAll();
-                } else {
-                    ref.close();
-                    this.dialog.open(AlertComponent, { data: {message: "Error deleting user: "+ response.error}})
+                try {
+                    const response = await this.graphQLService.mutate(mutation, { userId: this.me.id});
+                    if (response.data.deleteUser.success) {
+                        this.timerService.cancelTokenTimer();
+                        await this.authService.logOut();
+                        this.router.navigate(['']);
+                        this.dialog.closeAll();
+                    } else {
+                        ref.close();
+                        this.dialog.open(AlertComponent, { data: {message: "Error deleting user: "+ response.data.deleteUser.message}});
+                    }
+
+                } catch (error) {
+                    this.dialog.open(AlertComponent, { data: {message: "Error deleting user: "+ error}});
                 }
             }
         });
@@ -230,7 +246,7 @@ export class UserComponent implements OnInit, OnDestroy {
                 message
             }
         }`
-
+        const ref = this.dialog.open(LoadingComponent);
         try {
             const response = await this.graphQLService.mutate(mutation, { userInput: input });
 
@@ -243,9 +259,14 @@ export class UserComponent implements OnInit, OnDestroy {
                 await this.loadMe(options);
                 this.cacheService.updateCachedMe({...this.me as User});
                 this.uiSyncService.triggerSync(USER_UPDATED);
-                this.router.navigate(['/home/user']);
+                this.router.navigate(['/home/user']); 
+                ref.close();
+            } else {
+                ref.close();
+                this.dialog.open(AlertComponent, { data: {message: response.data.saveUser.message}})
             }
         } catch (error) {
+            ref.close();
             this.dialog.open(AlertComponent, { data: {message: "Error saving user details: "+ error}})
         }
     }

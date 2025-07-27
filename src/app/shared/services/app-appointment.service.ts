@@ -1,7 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Apollo, gql } from "apollo-angular";
-import { MatDialog } from "@angular/material/dialog";
-import { BehaviorSubject, Subscription } from "rxjs";
+import { BehaviorSubject, distinctUntilChanged, Subscription } from "rxjs";
 import { AppGraphQLService } from "./app-graphql.service";
 
 @Injectable({
@@ -20,7 +19,7 @@ export class AppAppointmentService {
         private graphQLService: AppGraphQLService
     ) {}
 
-    async pollNextAppointment() {
+    pollNextAppointment() {
         const query = gql`query { 
             nextAppointment {
                 nextId
@@ -33,27 +32,43 @@ export class AppAppointmentService {
                     lastName
                     dob
                 }
+                doctor {
+                    firstName
+                    lastName
+                    dob
+                }
+                patientMessage
+                doctorMessage
             }
-        }`
-        this.pollingSubscription = this.apollo
-            .watchQuery({
+        }`;
+
+        this.pollingSubscription = this.apollo.watchQuery({
                 query,
                 fetchPolicy: 'network-only',
-                pollInterval: 20 * 60 * 1000  
-            })
-            .valueChanges.subscribe(result => {
+                pollInterval: 1200000,  
+                notifyOnNetworkStatusChange: false
+            }).valueChanges.pipe(
+            distinctUntilChanged((prev, current) => 
+                JSON.stringify(prev.data) === JSON.stringify(current.data)
+            )
+            ).subscribe({
+            next: (result) => {
                 if (result.data) {
-                    this.appointmentSubject.next(result.data);
-                } else {
-                    this.stopPolling();
+                this.appointmentSubject.next(result.data);
                 }
-            });
+            },
+            error: (err) => {
+                console.error('Polling error:', err);
+                this.stopPolling();
+            }
+        });
     }
+
     stopPolling() {
         this.appointmentSubject.next(null);
         if (this.pollingSubscription) {
-          this.pollingSubscription.unsubscribe();
-          this.pollingSubscription = null; 
+            this.pollingSubscription.unsubscribe();
+            this.pollingSubscription = null;
         }
     }
 

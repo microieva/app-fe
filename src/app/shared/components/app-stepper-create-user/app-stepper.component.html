@@ -1,0 +1,103 @@
+<mat-stepper [linear]="isLinear" #stepper class="stepper">
+  <mat-step>
+    <ng-template matStepLabel>Select account type</ng-template>
+    <div class="menu">
+      <div class="menu-item">
+            <div type="button" (click)="onSelect(3)" class="font item" matStepperNext>
+                <h5>Patient</h5>
+                <div>
+                    <span class="material-symbols-outlined">
+                        personal_injury
+                    </span>
+                </div>  
+            </div>
+            <p>Create account with user role as <em>patient</em></p>
+        </div>
+        <div class="menu-item">
+            <div (click)="onSelect(2)" class="font item" matStepperNext>
+                <h5>Doctor</h5>
+                <div>
+                    <span class="material-symbols-outlined">
+                        clinical_notes
+                    </span>
+
+                </div>
+            </div>
+            <p>Create account with user role as <em>doctor</em></p>
+        </div>
+        <div class="menu-item">
+            <div (click)="onSelect(1)" class="font item" matStepperNext>
+                <h5>Administrator</h5>
+                <div>
+                    <span class="material-symbols-outlined">
+                        manage_accounts
+                    </span>
+                </div>
+            </div>
+            <p>Create account with user role as <em>admin</em></p>
+        </div>
+    </div>
+  </mat-step>
+  <mat-step [stepControl]="form">
+    <ng-template matStepLabel>User details</ng-template>
+    <form [formGroup]="form" class="flex-column">
+      <mat-form-field>
+        <mat-label>First name</mat-label>
+        <input matInput formControlName="firstName" required>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Last name</mat-label>
+        <input matInput formControlName="lastName" required>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>{{ 'Date of Birth' }}</mat-label>
+        <input matInput [matDatepicker]="picker" placeholder="YYYY-MM-DD" formControlName="dob" required>
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email" required>
+      </mat-form-field>
+      <div class="flex-row" style="gap:0.5rem;">
+        <button mat-stroked-button matStepperPrevious (click)="stepper.reset()">Back</button>
+        <button mat-stroked-button matStepperNext (click)="onNext()">Next</button>
+      </div>
+    </form>
+  </mat-step>
+  <mat-step>
+    <ng-template matStepLabel>Done</ng-template>
+    <div [ngClass]="isLoading ? 'loading--dim': null">
+      <p>Account type: <strong>{{ userRoleId }}</strong></p>
+      <p>First name: <strong>{{ form?.value.firstName }}</strong></p>
+      <p>Last name: <strong>{{ form?.value.lastName }}</strong></p>
+      <p>Date of Birth: <strong>{{ form?.value.dob | date: 'yyyy-MM-dd' }}</strong></p>
+      <p>Email: <strong>{{ form?.value.email }}</strong></p>
+      <p>User role ID: <strong>{{ userRoleId }}</strong></p>
+      <h4 class="title">New user object:</h4>
+      <pre>{{ newUser | json }}</pre>
+    </div>
+    <h5 *ngIf="isLoading">Saving in progress..</h5>
+    <div class="flex-row">
+      <div class="flex-row" style="gap:0.5rem;">
+        <button mat-stroked-button matStepperPrevious [disabled]="isLoading">Back</button>
+        <button mat-stroked-button (click)="stepper.reset()" [disabled]="isLoading">Reset</button>
+      </div>
+        <button 
+          mat-stroked-button 
+          (click)="onSave()"
+          
+        >
+          <div class="flex-row" style="gap:10px;">
+            Save
+            <div 
+              class="loading--sm"
+              *ngIf="isLoading">
+              <app-loading></app-loading>
+            </div>
+
+          </div>
+        </button>
+    </div>
+  </mat-step>
+</mat-stepper>

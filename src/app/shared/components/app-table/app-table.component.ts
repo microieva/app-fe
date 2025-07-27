@@ -98,13 +98,7 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.dataSource && this.displayedColumns) {
            this.columnNames = this.displayedColumns.map(column => column.columnDef);
         }
-        // this.subscription = this.socketService.receiveNotification().subscribe((subscription: any)=> {
-        //     if (subscription && subscription.chatId) {
-        //         if (!this.senders.find(sender => sender === subscription.sender)) {
-        //             this.senders.push(subscription.sender);
-        //         }
-        //     }
-        // });
+
         this.breakpointObserver.observe(['(max-width: 767px)',]).subscribe(result => {
             this.isMobile = result.matches;
         });
@@ -249,9 +243,9 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
             return {
                 id: record.id,
-                createdAt: createdAt+`, ${createdDate.toFormat('HH:mm a')}`,
+                recCreatedAt: record.createdAt,
                 title: record.title,
-                updatedAt: updatedAt+`, ${updatedDate.toFormat('HH:mm a')}`,
+                recUpdatedAt: record.updatedAt,
                 name: record.appointment.doctor?.firstName+" "+record.appointment.doctor?.lastName,
                 patientDob
             } 
@@ -261,8 +255,8 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
             this.displayedColumns = [ 
                 {header: 'Title', columnDef: 'title', sort:true},
                 {header: `Doctor's name`, columnDef: 'name', sort:true},
-                {header: 'First created', columnDef: 'createdAt', sort:true},
-                {header: 'Final save', columnDef: 'updatedAt', sort:true}
+                {header: 'First created', columnDef: 'recCreatedAt', sort:true},
+                {header: 'Final save', columnDef: 'recUpdatedAt', sort:true}
             ]
 
         } else {

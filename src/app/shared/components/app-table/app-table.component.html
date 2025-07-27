@@ -140,7 +140,10 @@
                         column.columnDef !== 'actions'&&
                         column.columnDef !== 'howSoonStr' &&
                         column.columnDef !== 'howLongAgoStr' &&
-                        column.columnDef !== 'pastDate'"
+                        column.columnDef !== 'pastDate' &&
+                        column.columnDef !== 'start' &&
+                        column.columnDef !== 'recCreatedAt' &&
+                        column.columnDef !== 'recUpdatedAt'"
                     >
                     <ng-container *ngIf="element[column.columnDef] === null || element[column.columnDef] === '' || element[column.columnDef] === 'Invalid DateTime'; else value">
                         <span>-</span>
@@ -160,6 +163,19 @@
 
                     </div>
                 </ng-container> 
+                <ng-container *ngIf="column.columnDef === 'start'">
+                    <div class="flex-row" style="justify-content: flex-start;">
+                        <div><p>{{element[column.columnDef] | dateFormat}}</p></div>
+                    </div>
+                </ng-container> 
+                 <ng-container *ngIf="
+                    column.columnDef === 'recCreatedAt' || 
+                    column.columnDef === 'recUpdatedAt'"
+                >
+                    <div class="flex-row" style="justify-content: flex-start;">
+                        <div><p>{{element[column.columnDef] | dateFormat:'timezone'}}</p></div>
+                    </div>
+                </ng-container> 
             </td>
         </ng-container>        
         
@@ -169,7 +185,7 @@
             *matRowDef="let row; columns: columnNames"
             (click)="onRowClick(row.id, row.title || undefined)"
             class="table-row"
-            [ngStyle]="{backgroundColor: (markAppointmentId && markAppointmentId === row.id) ? 'aqua': '' }"
+            [ngStyle]="{'background-color': (markAppointmentId && markAppointmentId === row.id) ? 'aqua': '' }"
             [ngClass]="{'blinking': isNewSender(row), 'bold-row': isUnreadChat(row)|| row.isRead === false} "
         >
         </tr>

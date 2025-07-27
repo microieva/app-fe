@@ -90,13 +90,25 @@ export class MessagesComponent implements OnInit, OnDestroy, AfterViewInit {
             this.roomService.requestDoctorsRoom();   
         } else { 
             this.isLoading = true;
-            this.receiverId = Number(environment.adminId);
+            //this.receiverId = Number(environment.adminId);
+            await this.loadReceiverId()
             this.chatId = await this.loadChatId();
         }   
     }
 
     ngAfterViewInit(): void {
         this.setupSubscriptions();
+    }
+
+    async loadReceiverId() {
+        const query = `query { loadReceiverId }`
+
+        try {
+            const response = await this.graphQLService.send(query);
+            this.receiverId = response.data.loadReceiverId;
+        } catch (error) {
+            this.dialog.open(AlertComponent, {data: {message: error}});
+        }
     }
 
     setupSubscriptions(){

@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -79,11 +79,18 @@ import { AppNoContentComponent } from './shared/components/app-no-content-compon
 import { AppUserRoomService } from './shared/services/socket/app-user-room.service';
 import { AppNotificationService } from './shared/services/socket/app-notification.service';
 import { AppUiSyncService } from './shared/services/app-ui-sync.service';
+import { AppDashboardComponent } from './shared/components/app-dashboard/app-dashboard.component';
+import { MatStepperModule } from '@angular/material/stepper'
+import { AppStepperComponent } from './shared/components/app-stepper-create-user/app-stepper.component';
+import { AppAnimateTriggerPipe } from './shared/pipes/app-animate-trigger.pipe';
+import { AppDateFormatPipe } from './shared/pipes/app-date-format.pipe';
 
 
 @NgModule({ 
     declarations: [
         AppLineBreaksPipe,
+        AppAnimateTriggerPipe,
+        AppDateFormatPipe,
         AppComponent,
         AppHeader,
         AppNoContentComponent,
@@ -113,7 +120,9 @@ import { AppUiSyncService } from './shared/services/app-ui-sync.service';
         ChatComponent,
         FeedbacksComponent,
         FeedbackComponent,
-        AppAiAssistantComponent
+        AppAiAssistantComponent,
+        AppDashboardComponent,
+        AppStepperComponent
     ],
     bootstrap: [AppComponent], 
     imports: [
@@ -155,7 +164,8 @@ import { AppUiSyncService } from './shared/services/app-ui-sync.service';
         MatTooltipModule,
         MatBadgeModule,
         MatCheckboxModule,
-        MatExpansionModule
+        MatExpansionModule,
+        MatStepperModule
     ], 
     providers: [
         AppAuthGuard,
@@ -178,12 +188,12 @@ import { AppUiSyncService } from './shared/services/app-ui-sync.service';
         provideAnimationsAsync(),
         { 
             provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, 
-            useValue: { appearance: 'outline' }},
-        { provide: MAT_DATE_FORMATS, useValue: LUXON_DATE_FORMATS },
-        { provide: MAT_DATE_LOCALE, useValue: 'fi-FI' }
+            useValue: { appearance: 'outline' }
+        }    
     ],
     exports: [
-        AppLineBreaksPipe
+        AppLineBreaksPipe,
+        AppAnimateTriggerPipe
     ]
 })
 

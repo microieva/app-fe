@@ -63,7 +63,6 @@
                                 <h4 class="font title color--main--secondary">Appointment requests</h4>
                                 <span class="title--count">{{countPendingAppointments}}</span>
                             </div>
-                            <!-- <h4 class="font title color--main--secondary">Appointment requests ({{countPendingAppointments}}):</h4> -->
                             <p>Currently there are {{countPendingAppointments}} appointment requests waiting for confirmation. Please prioritize soonest requests.</p>
                         </div>
                     </div>   
@@ -104,7 +103,7 @@
             <div class="flex-row block--bordered--md info">
                 <span class="icon material-symbols-outlined">info</span>
                 <p *ngIf="countUpcomingAppointments !== 0">Your appointments 
-                    <em *ngIf="userRole === 'doctor'">(next starts at {{nextAppointmentStartTime}})</em>
+                    <em *ngIf="userRole === 'doctor'">(next starts at {{nextAppointmentStartTime | dateFormat:null:'HH:mm, dd MMM'}})</em>
                 </p>
                 <p *ngIf="userRole === 'doctor' && countUpcomingAppointments === 0">You have no future appointments at the moment</p>   
                 <p *ngIf="userRole === 'patient' && countUpcomingAppointments === 0">Here will be displayed your upcoming appointments after doctor's confirmation</p>
@@ -119,7 +118,6 @@
                             <h4 class="font title color--main--secondary">Confirmed appointments</h4>
                             <span class="title--count">{{countUpcomingAppointments}}</span>
                         </div>
-                        <!-- <h4 class="font title color--main--secondary">Confirmed appointments:</h4> -->
                         <p *ngIf="countUpcomingAppointments===1">Currently you have {{countUpcomingAppointments}} upcoming appointment.</p>
                         <p *ngIf="countUpcomingAppointments>1">Currently you have {{countUpcomingAppointments}} upcoming appointments.</p>
                     </div>

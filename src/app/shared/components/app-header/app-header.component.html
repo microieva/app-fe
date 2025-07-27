@@ -7,7 +7,7 @@
         </span> 
     </div>
     <h2 class="header-toolbar__title color-main">
-        <a class="header-toolbar__link" [routerLink]="['/home']">Health Center</a>
+        <a class="header-toolbar__link" [routerLink]="['/home']" matTooltip={{tooltipText}}>Health Center</a>
     </h2>
     <ng-container *ngIf="isDesktop">
         <p *ngIf="me" class="header-toolbar__status"><em>logged in as:</em></p>
