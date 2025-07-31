@@ -1,10 +1,10 @@
 @import '../../scss/variables';
 
 .dashboard {
-    height: 80vh;
+    height: 85vh;
     display: grid;
     grid-template-columns: repeat(6, 1fr);
-    grid-template-rows: 10% 26% 26% 40%; 
+    grid-template-rows: 10% 26% 26% 36%; 
     grid-column-gap: 10px;
     grid-row-gap: 10px;
     & p {font-size:x-small;}
@@ -22,6 +22,7 @@
         .list em, .msg-wrapper--empty em, .list-wrapper--empty em {
             font-weight: 100;
         }
+        
     }
 }
 
@@ -30,7 +31,7 @@
     margin-bottom:0.5rem;
 }
 
-.title { 
+.link { 
     grid-area: 1 / 5 / 2 / 7; 
     margin-bottom: 0;
     align-content: center;
@@ -170,9 +171,10 @@
         border-radius:5px;
     }
     .scroll{
-        height: 160px;
+        height: 128px;
         overflow: scroll;
         padding-bottom:0.5rem;
+        margin-bottom:0.5rem;
         mask-image: linear-gradient(
             to bottom,
             black 0%,        
