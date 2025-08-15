@@ -432,7 +432,7 @@
                 personal_injury
                 </span>
             </h5>
-            <div class="scroll">
+            <div class="flex-column scroll" style="width:100%;" *ngIf="patientsLength>0">
                 <div 
                     class="list flex-row" 
                     *ngFor="let obj of patients; let i = index" 
@@ -474,7 +474,7 @@
                 event
                 </span>
             </h5>
-            <div class="scroll">
+            <div class="flex-column scroll" style="width:100%;" *ngIf="appointmentsLength>0">
                 <div 
                     class="list flex-row" 
                     *ngFor="let obj of appointments; let i = index" 

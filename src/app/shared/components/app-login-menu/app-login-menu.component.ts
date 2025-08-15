@@ -11,6 +11,7 @@ import { environment } from "../../../../environments/environment";
 })
 export class LoginMenuComponent implements OnInit, OnDestroy {
     sub: Subscription = new Subscription();
+    showBorder: boolean = false;
 
     constructor(
         private dialog: MatDialog
