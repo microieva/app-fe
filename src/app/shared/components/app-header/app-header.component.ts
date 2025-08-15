@@ -27,10 +27,12 @@ import {
     DOCTOR_REQUEST_CREATED, 
     FEEDBACK_CREATED, 
     USER_UPDATED,
-    MESSAGE_READ
+    MESSAGE_READ,
+    POPUP_CREDENTIALS
 } from "../../constants";
 import { AppNotificationEvent } from "../../types";
 import { UserInput } from "../../../graphql/user/user.input";
+import { CustomPopupComponent } from "../app-custom-popup/app-custom-popup.component";
 
 
 @Component({
@@ -313,7 +315,19 @@ export class AppHeader implements OnInit, OnDestroy {
         this.destroy$.complete();
     }
     async onLogIn(){
-        this.dialog.open(LoginMenuComponent);           
+        this.dialog.open(LoginMenuComponent);  
+        this.dialog.open(CustomPopupComponent, {
+            hasBackdrop: false, 
+            data: {
+                text: POPUP_CREDENTIALS,
+                position: {
+                    top: '50%',
+                    left: '75%',
+                    right: 'auto',
+                    bottom: 'auto'          
+                }
+            }
+        });         
     }
 
     async onLogOut() {   

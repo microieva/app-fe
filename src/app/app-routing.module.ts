@@ -7,8 +7,8 @@ import { CalendarComponent } from './graphql/appointment/calendar/calendar.compo
 import { RecordsComponent } from './graphql/record/records/records.component';
 import { DoctorsComponent } from './graphql/user/doctors/doctors.component';
 import { PatientsComponent } from './graphql/user/patients/patients.component';
-import { AppLandingComponent } from './shared/components/app-landing/app-landing.component';
-import { AppHomeComponent } from './shared/components/app-home/app-home.component';
+import { AppLandingComponent } from './shared/pages/app-landing/app-landing.component';
+import { AppHomeComponent } from './shared/pages/app-home/app-home.component';
 import { MessagesComponent } from './graphql/chat/messages/messages.component';
 import { FeedbacksComponent } from './graphql/feedback/feedbacks/feedbacks.component';
 

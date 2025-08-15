@@ -6,7 +6,7 @@ import { animate, state, style, transition, trigger } from "@angular/animations"
 import { BreakpointObserver } from "@angular/cdk/layout";
 import { AppGraphQLService } from "../../services/app-graphql.service";
 import { AppUiSyncService } from "../../services/app-ui-sync.service";
-import { AlertComponent } from "../app-alert/app-alert.component";
+import { AlertComponent } from "../../components/app-alert/app-alert.component";
 import { User } from "../../../graphql/user/user";
 import { USER_UPDATED } from "../../constants";
 

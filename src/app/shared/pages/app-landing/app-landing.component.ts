@@ -7,9 +7,11 @@ import { MatDialog } from "@angular/material/dialog";
 import { BreakpointObserver } from "@angular/cdk/layout";
 import { AppGraphQLService } from "../../services/app-graphql.service";
 import { AppErrorStateMatcher } from "../../errorStateMatcher";
-import { LoginMenuComponent } from "../app-login-menu/app-login-menu.component";
-import { AlertComponent } from "../app-alert/app-alert.component";
+import { LoginMenuComponent } from "../../components/app-login-menu/app-login-menu.component";
+import { AlertComponent } from "../../components/app-alert/app-alert.component";
 import { FeedbackInput } from "../../../graphql/feedback/feedback.input";
+import { CustomPopupComponent } from "../../components/app-custom-popup/app-custom-popup.component";
+import { POPUP_CREDENTIALS } from "../../constants";
 
 @Component({
     selector: 'app-landing',
@@ -205,6 +207,17 @@ export class AppLandingComponent implements OnInit, OnDestroy, AfterViewInit{
 
     onLogIn(){
         this.dialog.open(LoginMenuComponent);
+        this.dialog.open(CustomPopupComponent, {
+            hasBackdrop: false, 
+            data: {
+                text: POPUP_CREDENTIALS,
+                position: {
+                    top: '50%',
+                    left: '75%',
+                    right: 'auto',
+                    bottom: 'auto'          
+                }
+            }});
     }
     onCancelSubscribe(panel: MatExpansionPanel){
         panel.close();

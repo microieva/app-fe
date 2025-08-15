@@ -63,3 +63,24 @@ export const USER_UPDATED = 'USER_UPDATED';
 export const DOCTOR_ROOM_UPDATE = 'DOCTOR_ROOM_UPDATE';
 export const USER_STATUS = 'USER_STATUS';
 export const DOCTOR_ACCOUNT_CREATED = 'DOCTOR_ACCOUNT_CREATED';
+
+
+export const POPUP_CREDENTIALS= `
+  <h4>Welcome !</h4>
+  <p>Choose Administrator path to log in with demo credentials</p>
+  <div>
+  <p><em class="color--white--warm">ADMIN: </em></p>
+  <p><strong>Email:</strong> <span class="text--primary"> admin@email.com </span></p>
+  <p><strong>Password:</strong> <span class="text--primary"> demo </span></p> 
+  </div>
+  <div>
+  <p><em class="color--white--warm">DOCTOR: </em></p>
+  <p><strong>Email:</strong> <span class="text--primary"> doctor@email.com </span></p>
+  <p><strong>Password:</strong> <span class="text--primary"> demo </span></p> 
+  </div>
+  <div>
+  <p><em class="color--white--warm">PATIENT: </em></p>
+  <p><strong>Email:</strong> <span class="text--primary"> user@email.com </span></p>
+  <p><strong>Password:</strong> <span class="text--primary"> demo </span></p> 
+  </div>
+  `

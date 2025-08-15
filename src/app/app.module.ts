@@ -22,7 +22,7 @@ import {MatTableModule} from '@angular/material/table';
 import {MatAccordion, MatExpansionModule} from '@angular/material/expansion';
 import {MatRadioModule} from '@angular/material/radio';
 import { MAT_DATE_FORMATS, MAT_DATE_LOCALE, MatCommonModule, provideNativeDateAdapter } from '@angular/material/core';
-import { AppLandingComponent } from './shared/components/app-landing/app-landing.component';
+import { AppLandingComponent } from './shared/pages/app-landing/app-landing.component';
 import { MatDialogContent, MatDialogModule } from '@angular/material/dialog';
 import { UserComponent } from './graphql/user/user.component';
 import { LUXON_DATE_FORMATS } from './shared/constants';
@@ -49,7 +49,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { DoctorsComponent } from './graphql/user/doctors/doctors.component';
 import { PatientsComponent } from './graphql/user/patients/patients.component';
-import { AppHomeComponent } from './shared/components/app-home/app-home.component';
+import { AppHomeComponent } from './shared/pages/app-home/app-home.component';
 import { LoginMenuComponent } from './shared/components/app-login-menu/app-login-menu.component';
 import { AppSocketService } from './shared/services/socket/app-socket.service';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -84,6 +84,7 @@ import { MatStepperModule } from '@angular/material/stepper'
 import { AppStepperComponent } from './shared/components/app-stepper-create-user/app-stepper.component';
 import { AppAnimateTriggerPipe } from './shared/pipes/app-animate-trigger.pipe';
 import { AppDateFormatPipe } from './shared/pipes/app-date-format.pipe';
+import { CustomPopupComponent } from './shared/components/app-custom-popup/app-custom-popup.component';
 
 
 @NgModule({ 
@@ -115,6 +116,7 @@ import { AppDateFormatPipe } from './shared/pipes/app-date-format.pipe';
         AlertComponent,
         LoginComponent,
         EventComponent,
+        CustomPopupComponent,
         AppointmentMessageComponent,
         LoginMenuComponent,
         ChatComponent,
