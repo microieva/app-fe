@@ -1,3 +1,5 @@
+import { User } from "../graphql/user/user"
+
 export interface MutationResponse {
     success: boolean
     message?: string
@@ -103,6 +105,18 @@ export interface AppNotificationEvent {
     event: string
     message: string
     data: any
+}
+
+export type NextAppointmentData = {
+    nextStart: string,
+    nextEnd: string,
+    nextId: number
+    previousAppointmentDate: string,
+    recordIds: number[],
+    patient: User,
+    doctor: User,
+    patientMessage: string,
+    doctorMessage: string
 }
 
 export type AppSnackbar = AppNotificationEvent & { id: number };

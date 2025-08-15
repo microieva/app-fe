@@ -209,13 +209,13 @@ export class AppHomeComponent implements OnInit, AfterViewInit, OnDestroy {
         try {
 
             const response = await this.graphQLService.send(query);
-            if (response.data.me) {
+            //if (response.data) {
                 this.me = response.data.me;
                 this.userRole = response.data.me.userRole;
                 this.isUserUpdated = response.data.me.updatedAt;
-            } 
+            //} 
         } catch (error) {
-            this.dialog.open(AlertComponent, {data:{message:error}})
+            this.dialog.open(AlertComponent, {data:{message:"Unexpected error "+error}})
         }
     }
     onClickNavLink(){

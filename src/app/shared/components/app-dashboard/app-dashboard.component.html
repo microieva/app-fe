@@ -112,7 +112,10 @@
         </div>
     </div>
     <!-- title -->
-    <div class="title link color--main--primary" (click)="onOpenNextAppointment()">
+    <div class="title link color--main--primary" 
+        [ngClass]="nextAppointment && 'link--hover'" 
+        (click)="nextAppointment && onOpenNextAppointment()"
+        >
         <h5 *ngIf="clock && !nextAppointment" class="flex-row">Today
             <span class="material-symbols-outlined">
             today
@@ -384,8 +387,8 @@
                    <div style="width:100%">
                        <h5>{{record.title}}</h5>
                        <div class="flex-row" >
-                         <p>{{record.doctor.firstName}} {{record.doctor.lastName}}</p>
-                         <p><em>created: {{record.createdAt}}</em></p>
+                         <p>{{record.doctor?.firstName}} {{record.doctor?.lastName}}</p>
+                         <p><em>created: {{record.createdAt | dateFormat}}</em></p>
                        </div>
                    </div>
    
@@ -488,7 +491,7 @@
                     <div style="width:100%">
                         <h5>Dr {{obj.doctor.firstName}} {{obj.doctor.lastName}}</h5>
                         <div class="flex-row">
-                            <p>appointment date: <em>{{obj.start}}</em></p>
+                            <p>appointment date: <em>{{obj.start | dateFormat}}</em></p>
                             <div class="flex-row" style="gap:5px;">
                                 <p class="bubble bg--gray--cold--primary color--gray--cold--seconday" *ngIf="obj.isPast">past</p>
                                 <p class="bubble bg--pink--cloudy--primary color--gray--cold--secondary" *ngIf="obj.isNext">next</p>

@@ -290,7 +290,7 @@ export class AppHeader implements OnInit, OnDestroy {
             }
         } catch (error) {
             localStorage.clear();
-            const ref = this.dialog.open(AlertComponent, {data: {message: error}});
+            const ref = this.dialog.open(AlertComponent, {data: {message: "Fatal error: "+error}});
             ref.componentInstance.ok.subscribe(() => {
                 this.router.navigate(['/']);
             })
