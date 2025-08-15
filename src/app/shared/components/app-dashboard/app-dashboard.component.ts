@@ -35,6 +35,7 @@ import {
     USER_UPDATED
 } from "../../constants";
 import { EventComponent } from "../app-event/app-event.component";
+import { NextAppointmentData } from "../../types";
 
 @Component({
     selector: 'app-dashboard',
@@ -67,7 +68,7 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
     div1animationDuration:number | null = null;
     div2animationDuration:number | null = null;
 
-    nextAppointment: any;
+    nextAppointment: NextAppointmentData | null = null;
     nextId: number | null = null;
     previousNextId: number | null = null;
     nextAppointmentStartTime:string | null = null;
@@ -118,7 +119,7 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
     async ngOnInit() {
         if (this.me) {
             this.today = getTodayWeekdayTime();
-            const now = DateTime.now().setZone('Europe/Helsinki').toISO();
+            const now = DateTime.now().toISO();
             
             switch (this.me.userRole) {
                 case 'admin':
@@ -127,7 +128,6 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
                     this.timerService.startClock(now!);
                     break;
                 case 'doctor':
-                    this.appointmentService.pollNextAppointment();
                     await this.initDoctorDashboard();
                     this.setupDoctorSubscriptions();
                     if (this.nextAppointment) {
@@ -137,13 +137,12 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
                     }
                     break;
                 case 'patient':
-                    this.appointmentService.pollNextAppointment();
                     this.initPatientDashboard();
                     this.setupPatientSubscriptions();
                     if (this.nextAppointment) {
                         this.displayNextAppointment();
                     } else {
-                        this.timerService.startClock(now!);
+                        this.timerService.startClock(now);
                     }
                     break;
             }
@@ -151,26 +150,25 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
     }
 
     displayNextAppointment(){
-        if (this.nextAppointment) {
+        if (!this.nextAppointment) return;
 
-            this.nextId = this.nextAppointment.nextId;
-            if (this.previousNextId !== this.nextId) {
-                this.previousNextId = this.nextId;
-            } 
-            const nextStart = this.nextAppointment.nextStart;
-            this.timerService.startAppointmentTimer(nextStart);
-            this.nextAppointmentStartTime = ''
-            this.nextStart = getNextAppointmentWeekdayStart(nextStart);
-            this.nextAppointmentPatientName = this.nextAppointment.patient.firstName+' '+this.nextAppointment.patient.lastName;
-            this.nextAppointmentDoctorName = this.nextAppointment.doctor.firstName+' '+this.nextAppointment.doctor.lastName;
-            this.nextAppointmentPatientAge = getPatientAge(this.nextAppointment.patient.dob);
-            const str = DateTime.fromISO(this.nextAppointment.previousAppointmentDate).toFormat('MMM dd, yyyy'); 
-            this.previousAppointmentDate = str !== 'Invalid DateTime' ? str : '-';
-            this.recordIds = this.nextAppointment.recordIds;
-            this.nextAppointmentPatientMsg = this.nextAppointment.patientMessage;
-            this.nextAppointmentDoctorMsg = this.nextAppointment.doctorMessage;
-            this.isNextAppointment.emit(true);
-        }
+        this.nextId = this.nextAppointment.nextId;
+        if (this.previousNextId !== this.nextId) {
+            this.previousNextId = this.nextId;
+        } 
+        const nextStart = this.nextAppointment.nextStart;
+        this.timerService.startAppointmentTimer(nextStart);
+        this.nextAppointmentStartTime = ''
+        this.nextStart = getNextAppointmentWeekdayStart(nextStart);
+        this.nextAppointmentPatientName = this.nextAppointment.patient.firstName+' '+this.nextAppointment.patient.lastName;
+        this.nextAppointmentDoctorName = this.nextAppointment.doctor.firstName+' '+this.nextAppointment.doctor.lastName;
+        this.nextAppointmentPatientAge = getPatientAge(this.nextAppointment.patient.dob);
+        const str = DateTime.fromISO(this.nextAppointment.previousAppointmentDate).toFormat('MMM dd, yyyy'); 
+        this.previousAppointmentDate = str !== 'Invalid DateTime' ? str : '-';
+        this.recordIds = this.nextAppointment.recordIds;
+        this.nextAppointmentPatientMsg = this.nextAppointment.patientMessage;
+        this.nextAppointmentDoctorMsg = this.nextAppointment.doctorMessage;
+        this.isNextAppointment.emit(true);
     }
     async initPatientDashboard(){
         const query = `query (
@@ -178,7 +176,7 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
                     $pageLimit: Int!, 
                     $sortDirection: String, 
                     $sortDirectionAppointments: String,
-                    $sortActiveDrafts: String,  
+                    $sortActiveRecords: String,  
                     $sortActiveAppointments: String, 
                     $filterInput: String
                 ){ 
@@ -208,7 +206,7 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
                         pageIndex: $pageIndex, 
                         pageLimit: $pageLimit,
                         sortDirection: $sortDirection,
-                        sortActive: $sortActiveDrafts,
+                        sortActive: $sortActiveRecords,
                         filterInput: $filterInput
                     ){
                         length
@@ -242,15 +240,12 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
                     createdAt
                     updatedAt
                     appointmentId
-                    patient {
-                        firstName
-                        lastName
-                        dob
-                        }
+
                     doctor {
+                        id
                         firstName
                         lastName
-                        }
+                    }
                 }
 
                 fragment AppointmentFields on Paged {
@@ -270,8 +265,8 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
                 }`
                 const variables = {
                     pageIndex: 0,
-                    pageLimit: 5,
-                    sortActiveDrafts: 'createdAt',  
+                    pageLimit: 5, 
+                    sortActiveRecords: 'createdAt',
                     sortActiveAppointments: 'start',
                     sortDirection: 'DESC',
                     sortDirectionAppointments: 'ASC',
@@ -280,21 +275,10 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
                 try {
                     const response = await this.graphQLService.send(query, variables);
                     if (response.data) {
-                        this.records = (response.data.records.slice).map((record: Record) => {
-                            return {
-                                ...record,
-                                createdAt: DateTime.fromISO(record.updatedAt, {zone: 'Europe/Helsinki'}).toLocaleString(DateTime.DATETIME_MED)
-                            }
-                        });
+                        this.records = response.data.records.slice;
                         this.recordsLength = response.data.records.length;
                         const upcomingAppointments: Appointment[] = response.data.upcomingAppointments.slice;
                         const pastAppointments:Appointment[] = response.data.pastAppointments.slice;
-                        // if (upcomingAppointments.length>0) upcomingAppointments
-                        //     .sort((a:Appointment, b:Appointment) =>  DateTime.fromISO(b.start).toMillis() - DateTime.fromISO(a.start).toMillis())
-                        //     .slice(0, 5);
-                        // if (pastAppointments.length>0) pastAppointments
-                        //     .sort((a:Appointment, b:Appointment) => DateTime.fromISO(b.start).toMillis() - DateTime.fromISO(a.start).toMillis())
-                        //     .slice(0, 5)
                         const data = [
                             ...upcomingAppointments,
                             ...pastAppointments
@@ -303,16 +287,13 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
                         const now = DateTime.now().toISO();
 
                         this.appointments = data
-                            // .sort((a:Appointment, b:Appointment) => DateTime.fromISO(b.start).toMillis() - DateTime.fromISO(a.start).toMillis())
-                            // .slice(0, 5)
                             .map((appointment:Appointment) => {
                                 const isPast:boolean = appointment.start < now && appointment.end < now;
-                                const isNext = appointment.id === response.data.nextAppointment.nextId;
+                                const isNext = appointment.id === response.data.nextAppointment?.nextId;
                                 return {
                                     ...appointment,
                                     isPast,
-                                    isNext,
-                                    start: DateTime.fromISO(appointment.start, {zone: 'Europe/Helsinki'}).toLocaleString(DateTime.DATETIME_MED)
+                                    isNext
                                 }
                             })
 
@@ -424,12 +405,7 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
                 try {
                     const response = await this.graphQLService.send(query, variables);
                     if (response.data) {
-                        this.drafts = (response.data.drafts.slice).map((draft: Record) => {
-                            return {
-                                ...draft,
-                                //createdAt: DateTime.fromISO(draft.createdAt, {zone: 'Europe/Helsinki'}).toLocaleString(DateTime.DATETIME_MED)
-                            }
-                        });
+                        this.drafts = response.data.drafts.slice;
                         this.draftsLength = response.data.drafts.length;
                         const upcomingAppointments = response.data.upcomingAppointments.slice;
                         const pastAppointments = response.data.pastAppointments.slice;
@@ -438,19 +414,17 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
                             ...upcomingAppointments,
                             ...pastAppointments
                         ];
-                        this.patientsLength = new Set(data).size;
 
                         const uniquePatientsMap = new Map<number, any>();
                         const now = DateTime.now().toISO();
 
                         data.forEach((appointment:Appointment) => {
-                            const patientId:number = appointment.patient.id; 
+                            const patientId:number = appointment.patientId; 
                             if (!uniquePatientsMap.has(patientId)) {
                                 const isPast:boolean = appointment.start < now && appointment.end < now;
-                                const isNext = appointment.id === response.data.nextAppointment.nextId;
+                                const isNext = appointment.id === response.data.nextAppointment?.nextId;
                                 uniquePatientsMap.set(patientId, {
                                     ...appointment,
-                                    //start: DateTime.fromISO(appointment.start, {zone: 'Europe/Helsinki'}).toLocaleString(DateTime.DATETIME_MED),
                                     isPast,
                                     isNext
                                 });
@@ -458,14 +432,13 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
                             });
 
                         this.patients = Array.from(uniquePatientsMap.values())
-                            //.sort((a, b) => DateTime.fromISO(b.end).toMillis() - DateTime.fromISO(a.end).toMillis())
                             .slice(0, 5);
-
+                        this.patientsLength = this.patients.length;
                         this.countPendingAppointments = response.data.countPendingAppointments;
                         this.countUnreadMessages = response.data.countUnreadMessages;
                         this.countMissedAppointments = response.data.countMissedAppointments;
                         this.countUpcomingAppointments = response.data.countUpcomingAppointments;
-                        this.nextAppointment = response.data.nextAppointment;
+                        this.nextAppointment = response.data.nextAppointment as NextAppointmentData;
                         
                     }
                 } catch (error) {
@@ -514,12 +487,13 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
                 try {
                     const response = await this.graphQLService.send(query, variables);
                     if (response.data) {
-                        this.doctors = (response.data.doctors.slice).map((doctor: User) => {
-                            return {
-                                ...doctor,
-                                createdAt: DateTime.fromISO(doctor.createdAt, {zone: 'Europe/Helsinki'}).toLocaleString(DateTime.DATETIME_MED)
-                            }
-                        });
+                        // this.doctors = (response.data.doctors.slice).map((doctor: User) => {
+                        //     return {
+                        //         ...doctor,
+                        //         createdAt: DateTime.fromISO(doctor.createdAt, {zone: 'Europe/Helsinki'}).toLocaleString(DateTime.DATETIME_MED)
+                        //     }
+                        // });
+                        this.doctors = response.data.doctors.slice;
                         this.doctorsLength = response.data.doctors.length;
                         this.countDoctorRequests = response.data.countDoctorRequests;
                         this.countMissedAppointments = response.data.countMissedAppointments;
@@ -527,11 +501,10 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
                         this.countUnreadMessages = response.data.countUnreadMessages;
                     }
                 } catch (error) {
-                    this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading requests: "+error}})
+                    this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading admin dashboard data: "+error}})
                 }
     }
     setupPatientSubscriptions(){
-        this.roomService.requestUserStatus(this.me.id);
         const dashboardEvents$ = merge(
             this.uiSyncService.sync(APPOINTMENT_CREATED).pipe(tap(()=>this.div2animationDuration = 2000)),
             this.uiSyncService.sync(APPOINTMENT_UPDATED),
@@ -543,6 +516,7 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
             this.uiSyncService.sync(RECORD_CREATED).pipe(tap(()=>this.recordsAnimationDuration = 2000))
         );
 
+        this.appointmentService.pollNextAppointment();
         const subscriptions = [
             this.appointmentService.appointmentInfo$.subscribe(async (info:any) => {
                 if (info && info.nextAppointment) {
@@ -551,13 +525,7 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
                     this.displayNextAppointment();
                 } 
             }),
-            // this.roomService.onUserStatus().subscribe({
-            //     next: (status) => {
-            //         this.isSocketConnected = status.online;     
-            //     },
-            //     error: (err) => console.error('Status sync error:', err)
-            //     }
-            // ),
+
             dashboardEvents$
                 .subscribe({
                     next: async () => {await this.initPatientDashboard();},
@@ -618,6 +586,8 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
             this.uiSyncService.sync(USER_UPDATED), // TO DO
             this.uiSyncService.sync(RECORD_CREATED).pipe(tap(()=>this.draftAnimationDuration = 2000)),
         );
+
+        this.appointmentService.pollNextAppointment();
 
         const subscriptions = [
             this.appointmentService.appointmentInfo$.subscribe(async (info:any) => {
