@@ -132,15 +132,15 @@
         <h4 style="text-indent:2rem;">Welcome, {{me.firstName}} {{me.lastName}} !</h4>
     </div>
     <div 
-        class="div1 create-appointment animate__animated animate__bounceInUp bg--pink--secondary color--main--primary hover--shadow hover--bright"
+        class="div1 create-appointment animate__animated animate__bounceInUp bg--white--cold color--main--primary hover--shadow hover--bright"
         *ngIf="showCreateAppointment"
     >
         <a [routerLink]="['/home','calendar']">
-            <div class="flex-column flex-center" style="height:100%; gap:1rem;">
-                <span class="material-symbols-outlined" style="font-size: 2rem;">
+            <div class="flex-column flex-center" style="height:100%; gap:2rem;">
+                <span class="material-symbols-outlined" style="font-size: 3rem;">
                     calendar_add_on
                 </span>
-                <h4>Create Appointment</h4>
+                <h4>Create appointment</h4>
             </div>
         </a>
 
