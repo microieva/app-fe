@@ -7,14 +7,14 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { overTimeValidator, timeRangeValidator, weekendValidator } from "../../validators";
 import { AppGraphQLService } from "../../services/app-graphql.service";
-import { AlertComponent } from "../app-alert/app-alert.component";
-import { ConfirmComponent } from "../app-confirm/app-confirm.component";
-import { AppointmentInput } from "../../../graphql/appointment/appointment.input";
-import { AppTabsService } from "../../services/app-tabs.service";
-import { AppointmentComponent } from "../../../graphql/appointment/appointment.component";
-import { LoadingComponent } from "../app-loading/loading.component";
-import { Appointment } from "../../../graphql/appointment/appointment";
 import { AppUiSyncService } from "../../services/app-ui-sync.service";
+import { AppTabsService } from "../../services/app-tabs.service";
+import { AlertComponent } from "../app-alert/app-alert.component";
+import { LoadingComponent } from "../app-loading/loading.component";
+import { ConfirmComponent } from "../app-confirm/app-confirm.component";
+import { AppointmentComponent } from "../../../graphql/appointment/appointment.component";
+import { AppointmentInput } from "../../../graphql/appointment/appointment.input";
+import { Appointment } from "../../../graphql/appointment/appointment";
 import { APPOINTMENT_UPDATED } from "../../constants";
 
 
@@ -123,20 +123,19 @@ export class EventComponent implements OnInit, OnDestroy{
             if (this.appointmentId) {
                 await this.loadAppointment(this.appointmentId);
             } else {
-                //await this.saveAppointment();
                 this.title = "New Appointment"
-                this.eventDate = DateTime.fromISO(this.appointmentInput.start).toFormat('MMM dd, yyyy');
-                this.eventStartTime = DateTime.fromISO(this.appointmentInput.start, {setZone:true}).toFormat('HH:mm a');
-                this.eventEndTime = DateTime.fromISO(this.appointmentInput.end, {setZone:true}).toFormat('HH:mm a');
+                this.eventDate = this.appointmentInput.start;
+                this.eventStartTime = this.appointmentInput.start;
+                this.eventEndTime = this.appointmentInput.end;
             
             }
 
             this.isLoading = false;
             if (this.justCreatedAppointment) {
                 this.justCreatedId = this.justCreatedAppointment.id;
-                this.eventDate = DateTime.fromISO(this.justCreatedAppointment.start).toFormat('MMM dd, yyyy');
-                this.eventStartTime = DateTime.fromISO(this.justCreatedAppointment.start, {setZone:true}).toFormat('HH:mm a');
-                this.eventEndTime = DateTime.fromISO(this.justCreatedAppointment.end, {setZone:true}).toFormat('HH:mm a');
+                this.eventDate = this.justCreatedAppointment.start;
+                this.eventStartTime = this.justCreatedAppointment.start;
+                this.eventEndTime = this.justCreatedAppointment.end;
             }
         }
 
@@ -198,7 +197,7 @@ export class EventComponent implements OnInit, OnDestroy{
         }
     }
 
-    async loadAppointment(id: any) {
+    async loadAppointment(id: number) {
         const query = `query ($appointmentId: Int!){ 
             appointment (appointmentId: $appointmentId){ 
                 id
@@ -231,9 +230,9 @@ export class EventComponent implements OnInit, OnDestroy{
                 this.patientName = appointment.patient?.firstName+" "+appointment.patient?.lastName;
                 this.patientDob = appointment.patient?.dob && DateTime.fromISO(appointment.patient.dob).toFormat('MMM dd, yyyy'); 
                 this.doctorName = appointment.doctor ? appointment.doctor.firstName+" "+appointment.doctor.lastName : null;
-                this.eventDate = DateTime.fromISO(appointment.start, {zone: 'utc'}).setZone('utc').toFormat('MMM dd, yyyy');
-                this.eventStartTime =  DateTime.fromISO(appointment.start, {zone: 'utc'}).setZone('utc').toFormat('HH:mm a');
-                this.eventEndTime = DateTime.fromISO(appointment.end, {zone: 'utc'}).setZone('utc').toFormat('HH:mm a');
+                this.eventDate = appointment.start;
+                this.eventStartTime =  appointment.start;
+                this.eventEndTime = appointment.end;
                 this.doctorMessage = appointment.doctorMessage;
                 this.patientMessage = appointment.patientMessage;
                 this.appointmentId = appointment.id;
@@ -367,7 +366,7 @@ export class EventComponent implements OnInit, OnDestroy{
                 );
                 ref.close();
                 if (response.data.deleteAppointmentMessage.success) {
-                    await this.loadAppointment(id);
+                    await this.loadAppointment(id!);
                     this.isMessageDeleted.emit(true);
                     this.uiSyncService.triggerSync(APPOINTMENT_UPDATED);
                 }
@@ -379,10 +378,11 @@ export class EventComponent implements OnInit, OnDestroy{
     }
     onCancelAppointment() {
         this.isUnaccepting.emit(this.appointmentId);
+        this.uiSyncService.triggerSync(APPOINTMENT_UPDATED);
     }
     async onAcceptAppointment(){
         await this.acceptAppointment();
-        //this.isAccepting.emit(this.appointmentId);
+        this.uiSyncService.triggerSync(APPOINTMENT_UPDATED);
     }
     onOpenAppointmentTab(appointmentId: number){
         const tabs = this.tabsService.getTabs();
@@ -482,10 +482,10 @@ export class EventComponent implements OnInit, OnDestroy{
         try {
             const response = await this.graphQLService.mutate(mutation, {appointmentInput});
             if (response.data.saveAppointment.success) {
-                await this.loadAppointment(this.appointmentId);
+                await this.loadAppointment(this.appointmentId!);
             } else {
                 this.dialog.open(AlertComponent, {data: {message: response.data.saveAppointment.message}});
-                await this.loadAppointment(this.appointmentId);
+                await this.loadAppointment(this.appointmentId!);
             }
             this.isLoadingDetails = false;
             //this.socketService.requestCountMissedAppointments();

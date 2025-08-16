@@ -312,7 +312,7 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
         const newEnd = arg.event.end;
         
         const event: any = {
-            id: arg.event.extendedProps.dbId,
+            id: arg.event.extendedProps.appointmentId,
             start: newStart,
             end: newEnd,
             allDay: false,
@@ -433,7 +433,7 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                         start,
                         end,
                         extendedProps: {
-                            dbId: appointment.id,
+                            appointmentId: appointment.id,
                             doctorId: appointment.doctorId,
                             patientId: appointment.patientId
                         }
@@ -496,7 +496,7 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                         start,
                         end,
                         extendedProps: {
-                            dbId: appointment.id,
+                            appointmentId: appointment.id,
                             patientId: appointment.patientId
                         }
                     }
@@ -558,7 +558,7 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                         start,
                         end,
                         extendedProps: {
-                            dbId: appointment.id,
+                            appointmentId: appointment.id,
                             doctorId: appointment.doctorId
                         }
                     }
@@ -621,7 +621,7 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                         start,
                         end,
                         extendedProps: {
-                            dbId: appointment.id,
+                            appointmentId: appointment.id,
                             doctorId: appointment.doctorId
                         }
 
@@ -685,7 +685,7 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                         start,
                         end,
                         extendedProps: {
-                            dbId: appointment.id,
+                            appointmentId: appointment.id,
                             title: 'Past'
                         }
 
@@ -697,9 +697,9 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
         }
     }
 
-    async handleAddEvent(arg: any){
+    async handleAddEvent(arg: DateSelectArg){
         if (this.role === 'admin' && !this.patientId) {
-            arg.unselect();
+            (arg as any).unselect();
             return;
         }
         if (arg.view.type === 'timeGridWeek' || arg.view.type === 'timeGridDay') {
@@ -737,14 +737,9 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                 });
                 this.subscriptions.add(sub);
             } else {
-                const eventInfo = {
-                    start: DateTime.fromISO(arg.startStr).toFormat('HH:mm a'),
-                    end: DateTime.fromISO(arg.endStr).toFormat('HH:mm a'),
-                    date: DateTime.fromJSDate(new Date(arg.start)).toFormat('MMM dd, yyyy')
-                }
                 const input = {
-                    start,
-                    end,
+                    start: arg.start,
+                    end: arg.end,
                     allDay: arg.allDay,
                     patientId: this.patientId || undefined
                 }
@@ -863,7 +858,7 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
         }).length
     }
 
-    handleMonthView(arg: any) {
+    handleMonthView(arg: DateSelectArg) {
         const target = document.querySelector(`.fc-daygrid-day[data-date="${arg.startStr}"]`);
 
         if (
@@ -883,7 +878,7 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
         }
     }
 
-    handleWeekView(arg: any){
+    handleWeekView(arg: DateSelectArg){
         const isFuture = this.isFuture(arg);
 
         if (arg.allDay && isFuture) {
@@ -967,9 +962,9 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
     handleEventClick(clickInfo: EventClickArg) {
         const eventInfo = {
             title: clickInfo.event.title,
-            id: clickInfo.event.extendedProps['dbId']
+            id: clickInfo.event.extendedProps['appointmentId']
         }
-        const event = this.events.find((event: any)=> event.extendedProps.dbId === eventInfo.id)
+        const event = this.events.find((event: any)=> event.extendedProps.appointmentId === eventInfo.id)
         const samePatient:boolean = !this.patientId ? true : event.extendedProps.patientId === this.patientId;
         const dialogRef = this.dialog.open(EventComponent, {data: {eventInfo, samePatient}});
 

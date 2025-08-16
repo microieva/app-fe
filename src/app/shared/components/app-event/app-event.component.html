@@ -66,15 +66,15 @@
             <div class="details flex-row" *ngIf="!isEditting && !isLoadingDetails">
                 <div class="flex-column block">
                     <p class="event-label">{{ 'Date' }}</p>
-                    <h5>{{ eventDate }}</h5>
+                    <h5>{{ eventDate | dateFormat:null:'MMM dd, yyyy'}}</h5>
                 </div>
                 <div class="flex-column block">
                     <p class="event-label">{{ 'Start Time' }}</p>
-                    <h5>{{ eventStartTime }}</h5>
+                    <h5>{{ eventStartTime | dateFormat:null:'HH:mm'}}</h5>
                 </div>
                 <div class="flex-column block">
                     <p class="event-label">{{ 'End Time' }}</p>
-                    <h5>{{ eventEndTime }}</h5>
+                    <h5>{{ eventEndTime | dateFormat:null:'HH:mm'}}</h5>
                 </div>
             </div>
             
