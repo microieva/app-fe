@@ -213,7 +213,7 @@ export class AppLandingComponent implements OnInit, OnDestroy, AfterViewInit{
                 text: POPUP_CREDENTIALS,
                 position: {
                     top: '50%',
-                    left: '75%',
+                    left: '72%',
                     right: 'auto',
                     bottom: 'auto'          
                 }

@@ -18,17 +18,7 @@ export const ME_QUERY = ` query {
                 }
             }`
 
-export const LUXON_DATE_FORMATS: MatDateFormats = {
-  parse: {
-    dateInput: 'yyyy-MM-dd',
-  },
-  display: {
-    dateInput: 'yyyy-MM-dd',
-    monthYearLabel: 'MMM yyyy',
-    dateA11yLabel: 'yyyy-MM-dd',
-    monthYearA11yLabel: 'MMMM yyyy',
-  }
-};
+
 
 let eventGuid = 0;
 const TODAY_STR = new Date().toISOString().replace(/T.*$/, ''); // YYYY-MM-DD of today
@@ -66,7 +56,10 @@ export const DOCTOR_ACCOUNT_CREATED = 'DOCTOR_ACCOUNT_CREATED';
 
 
 export const POPUP_CREDENTIALS= `
+  <div class="flex-row">
   <h4>Welcome !</h4>
+  <div class="hover--scale" style="float:right;" (click)="dialogRef.close()"> <span class="material-symbols-outlined">close</span></div>
+  </div>
   <p>Choose Administrator path to log in with demo credentials</p>
   <div>
   <p><em class="color--white--warm">ADMIN: </em></p>
@@ -84,3 +77,10 @@ export const POPUP_CREDENTIALS= `
   <p><strong>Password:</strong> <span class="text--primary"> demo </span></p> 
   </div>
   `
+
+// export const POPUP_CREATE_APPOINTMENT = `
+// <div class="flex-column" style="justify-self: center;">
+// <a [routerLink]="['home/calendar']">
+//   Book Appointment
+//   </a>
+// </div>`

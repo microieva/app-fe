@@ -1,4 +1,4 @@
-import { APP_INITIALIZER, NgModule } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -21,11 +21,10 @@ import {MatTabsModule} from '@angular/material/tabs';
 import {MatTableModule} from '@angular/material/table';
 import {MatAccordion, MatExpansionModule} from '@angular/material/expansion';
 import {MatRadioModule} from '@angular/material/radio';
-import { MAT_DATE_FORMATS, MAT_DATE_LOCALE, MatCommonModule, provideNativeDateAdapter } from '@angular/material/core';
+import { MatCommonModule, provideNativeDateAdapter } from '@angular/material/core';
 import { AppLandingComponent } from './shared/pages/app-landing/app-landing.component';
 import { MatDialogContent, MatDialogModule } from '@angular/material/dialog';
 import { UserComponent } from './graphql/user/user.component';
-import { LUXON_DATE_FORMATS } from './shared/constants';
 import { AppTimerService } from './shared/services/app-timer.service';
 import { AppointmentsComponent } from './graphql/appointment/appointments/appointments.component';
 import { CalendarComponent } from './graphql/appointment/calendar/calendar.component';

@@ -83,6 +83,7 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
 
     isSocketConnected:boolean = false;
     isLoading: boolean = true;
+    showCreateAppointment: boolean = false;
 
     appointments: any[] = [];
     appointmentsLength:number = 0;
@@ -301,6 +302,11 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
                         this.countMissedAppointments = response.data.countMissedAppointments;
                         this.countUpcomingAppointments = response.data.countUpcomingAppointments;
                         this.nextAppointment = response.data.nextAppointment;
+
+                        if (!this.nextAppointment && this.appointmentsLength === 0) {
+                            this.showCreateAppointment = true;
+                            this.div1animationDuration = null; 
+                        }
                         
                     }
                 } catch (error) {
