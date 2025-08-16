@@ -303,9 +303,11 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
                         this.countUpcomingAppointments = response.data.countUpcomingAppointments;
                         this.nextAppointment = response.data.nextAppointment;
 
-                        if (!this.nextAppointment && this.appointmentsLength === 0) {
+                        if (!this.nextAppointment && 
+                            this.countUpcomingAppointments === 0 &&
+                            this.countPendingAppointments === 0 &&
+                            this.countMissedAppointments === 0) {
                             this.showCreateAppointment = true;
-                            this.div1animationDuration = null; 
                         }
                         
                     }
