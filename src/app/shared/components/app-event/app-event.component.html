@@ -174,7 +174,7 @@
             </div>
         </div>
         <div *ngIf="!isPast">
-            <div *ngIf="(!doctorMessage && doctorId && userRole === 'doctor') || (!patientMessage && userRole === 'patient') || (!patientMessage && userRole === 'admin' && samePatient)">
+            <div *ngIf="(!doctorMessage && doctorId && userRole === 'doctor') || (!patientMessage && userRole === 'patient') || (!patientMessage && userRole === 'admin')">
                 <div 
                     *ngIf="!showInput"
                     type="button" 
@@ -217,7 +217,7 @@
             <h5 style="text-indent:0.5rem;">Open appointment workspace</h5>
         </div> 
         <mat-dialog-actions align="end">
-            <div *ngIf="userRole === 'patient'" class="flex" style="gap:0.5rem;">
+            <div *ngIf="userRole !== 'doctor'" class="flex" style="gap:0.5rem;">
                 <button 
                     *ngIf="title === 'New Appointment'" 
                     class="button--confirm" 
@@ -231,6 +231,7 @@
                 </button>
 
                 <button 
+                    *ngIf="title === 'New Appointment' || userRole !== 'admin'"
                     class="button--cancel" 
                     [ngClass]="isPast ? 'button--delete':'button--cancel'"
                     mat-stroked-button 

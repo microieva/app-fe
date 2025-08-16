@@ -752,6 +752,7 @@ export class AppCalendarComponent implements OnInit, OnDestroy {
                 const subSubmit = dialogRef.componentInstance.isSubmitting.subscribe(() => {
                     this.dialog.closeAll();
                     calendarApi.addEvent(event);
+                    calendarApi.changeView('dayGridMonth', arg.start);
                 });
                 const subDelete = dialogRef.componentInstance.isDeleting.subscribe(async id => {
 

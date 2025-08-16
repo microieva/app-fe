@@ -350,6 +350,7 @@ export class EventComponent implements OnInit, OnDestroy{
         el.style.height =`${el.scrollHeight}px`;
     }
     async onDeleteMessage(){
+        if (this.userRole ==='admin'){this.patientMessage = undefined; return;}
         const dialogRef = this.dialog.open(ConfirmComponent, {data: {message: "Remove message"}});
         const sub = dialogRef.componentInstance.isConfirming.subscribe(async () => {
             const mutation = `mutation ($appointmentId: Int!) {
