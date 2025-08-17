@@ -1,13 +1,12 @@
 ### Introduction
 
-This repository contains Angular front end for a professional portfolio project "Health Center" with AI assistant. 
+This repository contains Angular front end client codebase for a professional portfolio project "Health Center". 
 
-"Health Center" application supports three user roles with different features for each scope: patient access provides features centuring around maintaining appointments and accessing medical records; for doctors, besides handling appointment bookings and creating medical records, the application provides calendar notifications about upcoming appointments as well as real-time notifications on incoming messages in the chat with admin or, patients creating new appointment request, or, patients canceling confirmed appointment; admin user role besides the chat, provides functionalities related to managing appointments on patient's behalf and activating doctors accounts.
-Currently, the AI chat bot is trained to create and delete appointments, and is available for patient user role. The feature is using gpt-35-turbo model deployment via Azure OpenAI service.
+"Health Center" application supports three user roles with different features for each user role: patient access provides features centuring around maintaining appointments and accessing medical records; for doctors, besides handling appointment bookings and creating medical records, the application provides calendar notifications about upcoming appointments as well as real-time notifications on incoming messages in the chat with admin or, patients creating new appointment request, or, patients canceling confirmed appointment; admin user role besides the chat, provides functionalities related to managing appointments on patient's behalf and activating doctors accounts.
 
-This repository is deployed via Azure Static Web Apps.
+This repository is deployed via [Vercel](www.vercel.com).
 [See user login credentials](#user-roles).
-[Visit Health Center](https://wonderful-dune-0e4733c03.5.azurestaticapps.net/)
+[Visit Health Center](https://health-center-ten.vercel.app/)
 
 
 ![](./src/assets/1.png)
