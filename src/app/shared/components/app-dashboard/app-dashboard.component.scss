@@ -9,7 +9,7 @@
     grid-row-gap: 10px;
     & p {font-size:x-small;}
     & >div {
-        border-radius: 10px;
+        border-radius: 5px;
         &:not(.div10, .account) {
             padding: 0.5rem;
         }
@@ -45,6 +45,16 @@
         'wght' 900,
         'GRAD' 0,
         'opsz' 40
+    }
+    &.create-appointment {
+        padding-inline:1rem;
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 1,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 40
+        }
     }
 }
 .bubble {
