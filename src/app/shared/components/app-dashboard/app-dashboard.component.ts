@@ -692,7 +692,34 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
     }
     onAppointemntOpen(id:number){
         const eventInfo = {id}
-        this.dialog.open(EventComponent, {data: { eventInfo }})
+        const ref = this.dialog.open(EventComponent, {data: { eventInfo }});
+
+        ref.componentInstance.isDeleting.subscribe(async (appointmentId: number) => {
+            if (appointmentId) {
+                const mutation = `mutation ($appointmentId: Int!) {
+                    deleteAppointment(appointmentId: $appointmentId) {
+                        success
+                        data {
+                            start
+                            doctorId
+                        }
+                    }
+                }`
+                try {
+                    const response = await this.graphQLService.mutate(mutation, { appointmentId });
+                    if (response.data.deleteAppointment.success) {
+                        this.dialog.closeAll();
+                        this.uiSyncService.triggerSync(APPOINTMENT_DELETED);
+                        this.appointmentService.pollNextAppointment();
+                        this.dialog.open(AlertComponent, {data: {message: "Appointment deleted"}});
+                    } else {
+                        this.dialog.open(AlertComponent, {data: {message: response.data.deleteAppointment.message}});
+                    }
+                } catch (error) {
+                    this.dialog.open(AlertComponent, {data: {message: "Error deleting appointment: "+ error}});
+                }
+            }
+        });
     }
     ngOnDestroy(): void {
         this.subscriptions.forEach(sub => sub.unsubscribe());

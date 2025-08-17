@@ -1037,16 +1037,11 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
                     }`
                     const response = await this.graphQLService.mutate(mutation, {appointmentId: id});
                     if (response.data.deleteAppointment.success) {
-                        const start = response.data.deleteAppointment.data.start;
-                        const doctorId = response.data.deleteAppointment.data.doctorId;
                         this.dialog.closeAll();
 
                         if (this.userRole === 'doctor') {
                             this.appointmentService.pollNextAppointment();
-                        } else {
-                            const timeStr = DateTime.fromISO(start).setZone('Europe/Helsinki').toFormat('HH:mm a, MMM dd');
-            
-                        }
+                        } 
                         await this.ngOnInit();
                     }
                 } catch (error) {
