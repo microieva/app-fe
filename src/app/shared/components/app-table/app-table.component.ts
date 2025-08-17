@@ -325,7 +325,7 @@ export class AppTableComponent implements OnInit, AfterViewInit, OnDestroy {
     onPageChange(event: any) {
         this.pageIndex = event.pageIndex;
         this.pageLimit = event.pageSize;
-        const pageEvent = {pageIndex: event.pageIndex, pageLimit: event.pageSize}
+        const pageEvent = {pageIndex: this.pageIndex, pageLimit: this.pageLimit}
         this.pageChange.emit(pageEvent);
     }
 

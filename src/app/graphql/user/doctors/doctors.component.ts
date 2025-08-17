@@ -8,11 +8,11 @@ import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../../shared/services/app-graphql.service";
 import { AppUiSyncService } from "../../../shared/services/app-ui-sync.service";
 import { AlertComponent } from "../../../shared/components/app-alert/app-alert.component";
+import { LoadingComponent } from "../../../shared/components/app-loading/loading.component";
 import { ConfirmComponent } from "../../../shared/components/app-confirm/app-confirm.component";
 import { UserComponent } from "../user.component";
 import { AppTableDisplayedColumns, UserDataSource } from "../../../shared/types";
 import { User } from "../user";
-import { LoadingComponent } from "../../../shared/components/app-loading/loading.component";
 import { DOCTOR_REQUEST_CREATED } from "../../../shared/constants";
 
 @Component({
@@ -66,6 +66,7 @@ export class DoctorsComponent implements OnInit, AfterViewInit, OnDestroy {
     ){}
 
     async ngOnInit() {
+        await this.loadStatic();
         await this.loadData();
         const sub = this.activatedRoute.queryParams.subscribe(async params => {
             const tab = params['tab'];
@@ -99,17 +100,15 @@ export class DoctorsComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     async loadData() {
-        this.isLoading = true;
-        await this.loadStatic();
         switch (this.selectedIndex) {
             case 0:
                 await this.loadRequests();
-                break;
+                return;
             case 1:
                 await this.loadDoctors();
-                break;
+                return;
             default:
-                break;
+                return;
         }
     }
 
@@ -204,11 +203,11 @@ export class DoctorsComponent implements OnInit, AfterViewInit, OnDestroy {
             if (response.data) {
                 this.doctors = response.data.doctors.slice;
                 this.doctorsLength = response.data.doctors.length;
-                this.formatDataSource("doctors")
+                this.formatDataSource("doctors");
                 this.isLoading = false;
             }
         } catch (error) {
-            this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading requests: "+error}})
+            this.dialog.open(AlertComponent, {data: {message: "Unexpected error loading doctors: "+error}})
         }
     }
 
