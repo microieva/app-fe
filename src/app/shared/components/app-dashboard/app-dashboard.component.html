@@ -116,7 +116,7 @@
         [ngClass]="nextAppointment && 'link--hover'" 
         (click)="nextAppointment && onOpenNextAppointment()"
         >
-        <h5 *ngIf="clock && !nextAppointment" class="flex-row">Today
+        <h5 *ngIf="me.userRole === 'admin'" class="flex-row">Today
             <span class="material-symbols-outlined">
             today
             </span>
@@ -127,7 +127,21 @@
             </span>
         </h5>
     </div>
+    <div 
+        class="title link create-appointment animate__animated animate__bounceInUp bg--white--cold color--main--primary hover--shadow hover--bright"
+        *ngIf="!showCreateAppointment && me.userRole==='patient'"
+    >
+        <a [routerLink]="['/home','calendar']">
+            <div class="flex-row" style="height:100%; margin-inline:1vw;">
+                <span class="material-symbols-outlined" style="font-size: 2rem;">
+                    calendar_add_on
+                </span>
+                <h4>Create appointment</h4>
+            </div>
+        </a>
 
+    </div>
+    <!-- greeting -->
     <div class="greeting bg--pink--cloudy--primary color--white--warm flex-row" style="font-size:smaller;"> 
         <h4 style="text-indent:2rem;">Welcome, {{me.firstName}} {{me.lastName}} !</h4>
     </div>
