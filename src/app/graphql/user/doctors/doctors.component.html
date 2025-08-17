@@ -19,7 +19,7 @@
             <div *ngIf="isLoading" class="loading">
                 <app-loading></app-loading>
             </div>
-            <div class="page" #scrollView @slideInOut *ngIf="countRequests && !isLoading">
+            <div class="page" #scrollView @slideInOut *ngIf="!isLoading">
                 <app-no-content *ngIf="countRequests===0" message="No requests"></app-no-content>
                 <div *ngIf="countRequests>0">
                     <div class="page--text-block">
