@@ -280,7 +280,11 @@ export class EventComponent implements OnInit, OnDestroy{
     }
     onDeleteAppointment(){
         if (this.appointmentId) {
-            this.isDeleting.emit(this.appointmentId);
+            const ref = this.dialog.open(ConfirmComponent, {data:{message: "Delete this appointment?"}});
+            ref.componentInstance.isConfirming.subscribe(async ()=> {
+                this.dialog.closeAll();
+                this.isDeleting.emit(this.appointmentId);
+            });
         }
         if (!this.justCreatedId && !this.appointmentId) {
             const ref = this.dialog.open(ConfirmComponent, {data:{message: "Cancel booking this appointment?"}});
