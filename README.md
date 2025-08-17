@@ -9,7 +9,7 @@ This repository is deployed via [Vercel](www.vercel.com).
 [Visit Health Center](https://health-center-ten.vercel.app/)
 
 
-![](./src/assets/1.png)
+![](./src/assets/landing-page.png)
 ___
 
 
