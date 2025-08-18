@@ -15,21 +15,31 @@
         <div *ngIf="isLoading" class="loading"  >
             <app-loading></app-loading>
         </div>
-        <div class="messages-wrapper flex-column" *ngIf="!isLoading">
-            <div *ngFor="let message of messages">
-                <div class="message-wrapper">
-                    <div class="flex-row" [ngClass]="senderId !== message.sender.id ? 'reversed' : 'justified'">
-                        <div 
-                            class="message" 
-                            [ngClass]="senderId !== message.sender.id ? 'incoming bg--pink--secondary' : 'outgoing bg--white--cold'" 
-                            [ngStyle]="senderId !== message.sender.id && !message.isRead && {'font-weight': '900'}"
-                            [innerHTML]="message.content | lineBreaks"
-                        >
-                            <p>{{message.content}}</p>
+        <div #messagesContainer class="messages-wrapper flex-column" *ngIf="!isLoading">
+            <div class="flex-column scroll-container">
+
+                <div *ngFor="let message of messages let i=index" >
+                    <div class="message-wrapper">
+                        <div class="flex-row" [ngClass]="senderId !== message.sender.id ? 'reversed' : 'justified'">
+                            <div 
+                                class="message" 
+                                [ngClass]="senderId !== message.sender.id ? 'incoming bg--pink--secondary' : 'outgoing bg--white--cold'" 
+                                [ngStyle]="senderId !== message.sender.id && !message.isRead && {'font-weight': '900'}"
+                                [innerHTML]="message.content | lineBreaks"
+                            >
+                                <p>{{message.content}}</p>
+                                
+                            </div>
+                            <div class="timestamp"><p style="font-size: x-small;">{{message.createdAt | dateFormat:'utc'}}</p></div>
                         </div>
-                        <div class="timestamp"><p style="font-size: x-small;">{{message.createdAt | dateFormat:'utc'}}</p></div>
                     </div>
+                </div>   
+            </div>
+            <div class="flex-row message incoming" style="gap:1rem;" [ngStyle]="{'visibility': isSending ? 'visible' : 'hidden'}">
+                <div class="flex-row loading--sm">
+                    <app-loading></app-loading>
                 </div>
+                <p class="color--gray--warm--primary">Sending ..</p>
             </div>
         </div>
         <form class="flex-column" [formGroup]="form" (ngSubmit)="onSendMessage()">

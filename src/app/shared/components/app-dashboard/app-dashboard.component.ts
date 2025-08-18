@@ -495,12 +495,6 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
                 try {
                     const response = await this.graphQLService.send(query, variables);
                     if (response.data) {
-                        // this.doctors = (response.data.doctors.slice).map((doctor: User) => {
-                        //     return {
-                        //         ...doctor,
-                        //         createdAt: DateTime.fromISO(doctor.createdAt, {zone: 'Europe/Helsinki'}).toLocaleString(DateTime.DATETIME_MED)
-                        //     }
-                        // });
                         this.doctors = response.data.doctors.slice;
                         this.doctorsLength = response.data.doctors.length;
                         this.countDoctorRequests = response.data.countDoctorRequests;
