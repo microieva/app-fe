@@ -1,5 +1,6 @@
 @import '../../shared/scss/breakpoints';
 @import '../../shared/scss/variables';
+@import '../../shared/scss/mixins';
 
 mat-form-field {
     margin: 0;
@@ -7,10 +8,28 @@ mat-form-field {
 }
 
 .messages-wrapper {
-    margin: 2rem 0.5rem;
+    margin: 0 0.5rem;
     overflow: scroll;
-    flex-direction: column-reverse;
-    height: 20rem;
+    .scroll-container {
+        flex-direction: column-reverse; 
+        height:22rem; 
+        overflow: scroll;
+    }
+}
+.messages-wrapper::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 20px; 
+  background: linear-gradient(
+    to bottom, 
+    $--color-white-cold 0%, 
+    rgba(255, 255, 255, 0) 100%
+  );
+  pointer-events: none; 
+  z-index: 2;
 }
 
 .message-wrapper {
@@ -50,7 +69,11 @@ mat-form-field {
     border: 1px solid $--color-gray-cold-primary;
     float: inline-end;
 }
-
+.loading {
+    &--sm {
+        @include spinner-size(1.5rem);
+    }
+}
 .material-icons:hover {
     cursor: pointer;
 }

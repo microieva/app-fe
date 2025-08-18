@@ -1,10 +1,9 @@
 import { Subscription, switchMap } from "rxjs";
 import { trigger, state, style, transition, animate } from "@angular/animations";
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from "@angular/core";
+import { AfterViewChecked, AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { MatDialog } from "@angular/material/dialog";
 import { ActivatedRoute, Router } from "@angular/router";
-import { DateTime } from "luxon";
 import { AppGraphQLService } from "../../shared/services/app-graphql.service";
 import { AppTabsService } from "../../shared/services/app-tabs.service";
 import { AppUiSyncService } from "../../shared/services/app-ui-sync.service";
@@ -31,7 +30,7 @@ import { MESSAGE_CREATED, MESSAGE_READ } from "../../shared/constants";
         ]),
     ]
 })
-export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
+export class ChatComponent implements OnInit, AfterViewInit, OnDestroy, AfterViewChecked {
 
     @Input() chatId!: number;
     @Input() senderId!: number;
@@ -39,6 +38,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     @Input() userRole: 'admin' | undefined;
     @Output() close = new EventEmitter<number>();
     @ViewChild('textarea') textarea: ElementRef | undefined;
+    @ViewChild('messagesContainer') messagesContainer: ElementRef | undefined;
 
     form = new FormGroup({
         message: new FormControl<string>('')
@@ -50,6 +50,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     messages: any[] = [];
     online: boolean = false;
     isLoading: boolean = true;
+    isSending: boolean = false;
     private subscriptions: Subscription[] = [];
 
     constructor(
@@ -79,8 +80,22 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
         }
     }
 
-    async ngAfterViewInit(): Promise<void> { 
+    async ngAfterViewInit(): Promise<void> {    
         this.setupSubscriptions();
+    }
+
+    ngAfterViewChecked() {
+        if (this.messagesContainer) this.scrollToBottom();
+        return;
+    }
+
+    scrollToBottom(): void {
+        try {
+            this.messagesContainer!.nativeElement.scrollTop = 
+                this.messagesContainer!.nativeElement.scrollHeight;
+        } catch(err) { 
+            console.error(err); 
+        }
     }
 
     setupSubscriptions() {
@@ -111,24 +126,49 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     async loadMessages(){
-        const query = `query ($chatId: Int!) {
-            messages (chatId: $chatId) {
-                id
-                content
-                createdAt
-                isRead
-                sender {
-                    id
-                    firstName
-                    lastName
-                    userRole
+        const query = `query (
+            $chatId: Int!,
+            $pageIndex: Int!, 
+            $pageLimit: Int!, 
+            $sortDirection: String, 
+            $sortActive: String
+        ) {
+            messages (
+                chatId: $chatId,
+                pageIndex: $pageIndex, 
+                pageLimit: $pageLimit,
+                sortDirection: $sortDirection,
+                sortActive: $sortActive
+            ) {
+                length
+                slice {
+                    ... on Message {
+                        id
+                        content
+                        createdAt
+                        isRead
+                        sender {
+                            id
+                            firstName
+                            lastName
+                            userRole
+                        }
+                    }
                 }
+                
             }
         }`
+        const variables = {
+            chatId: this.chatId,
+            pageIndex: 0, 
+            pageLimit: 100, 
+            sortDirection: 'DESC', 
+            sortActive: 'createdAt'
+        }
         try {
-            const response = await this.graphQLService.send(query, {chatId: this.chatId});
+            const response = await this.graphQLService.send(query, variables);
             if (response.data) {
-                this.messages = response.data.messages;
+                this.messages = response.data.messages.slice;
                 this.isLoading = false;
             }
         } catch (error) {
@@ -153,8 +193,10 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
     async onSendMessage() {
         const message = this.form.value.message;
-
-        if (message) {
+        this.isSending = true;
+            setTimeout(async () => {
+            if (message) {
+            
             const mutation = `mutation (
                 $chatId: Int!,
                 $content: String!
@@ -187,8 +229,14 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.dialog.open(AlertComponent, {data: {message: error}});
             }
         }
-
+        
+            
+            this.isSending = false;
+        }, 3000); 
+       
+        
         this.form.get('message')?.reset(); 
+        this.uiSyncService.triggerSync(MESSAGE_CREATED);
         this.countService.countUnreadMessages();
     }
     onDeleteMessage(){
