@@ -194,9 +194,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy, AfterVie
     async onSendMessage() {
         const message = this.form.value.message;
         this.isSending = true;
-            setTimeout(async () => {
-            if (message) {
-            
+        if (message) {   
             const mutation = `mutation (
                 $chatId: Int!,
                 $content: String!
@@ -229,12 +227,9 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy, AfterVie
                 this.dialog.open(AlertComponent, {data: {message: error}});
             }
         }
-        
-            
-            this.isSending = false;
-        }, 3000); 
+    
+        this.isSending = false;
        
-        
         this.form.get('message')?.reset(); 
         this.uiSyncService.triggerSync(MESSAGE_CREATED);
         this.countService.countUnreadMessages();
