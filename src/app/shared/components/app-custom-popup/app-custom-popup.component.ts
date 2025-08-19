@@ -1,4 +1,4 @@
-import { Component, HostListener, Inject, Input, OnDestroy } from '@angular/core';
+import { Component, EventEmitter, HostListener, Inject, Input, OnDestroy } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
@@ -7,7 +7,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
   styleUrls: ['app-custom-popup.component.scss']
 })
 export class CustomPopupComponent implements OnDestroy{
-  text: string = '';
+  innerHTML: string = '';
   width: string | undefined;
   height: string | undefined;
   @Input() topPosition?: string;
@@ -26,8 +26,8 @@ export class CustomPopupComponent implements OnDestroy{
     public dialogRef: MatDialogRef<CustomPopupComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
-    if (data.text) {
-      this.text = data.text;
+    if (data.innerHTML) {
+      this.innerHTML = data.innerHTML;
       this.topPosition = data.position.top;
       this.leftPosition = data.position.left;
       this.rightPosition = data.position.right;

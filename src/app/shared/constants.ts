@@ -58,7 +58,7 @@ export const DOCTOR_ACCOUNT_CREATED = 'DOCTOR_ACCOUNT_CREATED';
 export const POPUP_CREDENTIALS= `
   <div class="flex-row">
   <h4>Welcome !</h4>
-  <div class="hover--scale" style="float:right;" (click)="dialogRef.close()"> <span class="material-symbols-outlined">close</span></div>
+  
   </div>
   <p>Choose Administrator path to log in with demo credentials</p>
   <div>

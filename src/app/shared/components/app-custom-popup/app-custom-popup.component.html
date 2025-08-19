@@ -9,6 +9,7 @@
       'height': height,
     }"
 >
-  <div [innerHTML]="text" class="popup-content flex-column" style="gap:0.5rem;">
+  <div class="hover--scale" style="float:right;" (click)="close()"> <span class="material-symbols-outlined">close</span></div>
+  <div [innerHTML]="innerHTML" class="popup-content flex-column" style="gap:0.5rem;">
   </div>
 </div>
