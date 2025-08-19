@@ -303,8 +303,14 @@
             account_circle
         </span>
         <div style="justify-items: start;">
-            <p>Account email</p>
-            <h5 class="color--main--primary" style="margin-bottom:0.5rem;">{{me.email}}</h5>
+            <div *ngIf="!me.email.includes('insertedonbankingsignup')">
+                <p>Account email</p>
+                <h5 class="color--main--primary" style="margin-bottom:0.5rem;">{{me.email}}</h5>
+            </div>
+            <div *ngIf="me.email.includes('insertedonbankingsignup')">
+                <p>Authentication</p>
+                <h5 class="color--main--primary" style="margin-bottom:0.5rem;">Successful</h5>
+            </div>
             <p *ngIf="me.lastLogOutAt">Last log out</p>
             <div *ngIf="timerService.startHowLongAgoCountdown(me.lastLogOutAt) | async as countdown">
                 <h5 class="color--main--primary">{{countdown}}</h5>

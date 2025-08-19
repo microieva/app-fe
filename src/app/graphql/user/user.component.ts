@@ -213,12 +213,13 @@ export class UserComponent implements OnInit, OnDestroy {
     }
 
     buildForm() {
+        const usersEmail = this.me?.email && !this.me?.email.includes('insertedonbankingsignup') ? this.me.email : '';
         if (this.me) {
             this.form = this.formBuilder.group({
                 firstName: this.formBuilder.control<string>(this.me.firstName || '', [Validators.required, Validators.minLength(2)]),
                 lastName: this.formBuilder.control<string>(this.me.lastName || '', [Validators.required, Validators.minLength(2)]),
                 dob: this.formBuilder.control<string>(this.me.dob || '', [Validators.required]),
-                email: this.formBuilder.control<string>(this.me.email || '', [Validators.required, Validators.email]),
+                email: this.formBuilder.control<string>(usersEmail, [Validators.required, Validators.email]),
                 phone: this.formBuilder.control<string>(this.me.phone || '', [Validators.required, Validators.maxLength(10), Validators.pattern(/^[0-9.]+$/)]),
                 streetAddress: this.formBuilder.control<string>(this.me?.streetAddress || '', [Validators.required]),
                 city: this.formBuilder.control<string>(this.me.city || '', [Validators.required]),
