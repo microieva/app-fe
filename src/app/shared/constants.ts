@@ -77,10 +77,3 @@ export const POPUP_CREDENTIALS= `
   <p><strong>Password:</strong> <span class="text--primary"> demo </span></p> 
   </div>
   `
-
-// export const POPUP_CREATE_APPOINTMENT = `
-// <div class="flex-column" style="justify-self: center;">
-// <a [routerLink]="['home/calendar']">
-//   Book Appointment
-//   </a>
-// </div>`

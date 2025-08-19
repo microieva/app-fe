@@ -14,6 +14,7 @@ import { AppUserRoomService } from "../../services/socket/app-user-room.service"
 import { AlertComponent } from "../app-alert/app-alert.component";
 import { LoadingComponent } from "../app-loading/loading.component";
 import { LoginMenuComponent } from "../app-login-menu/app-login-menu.component";
+import { CustomPopupComponent } from "../app-custom-popup/app-custom-popup.component";
 import { User } from "../../../graphql/user/user";
 import { Appointment } from "../../../graphql/appointment/appointment";
 import { 
@@ -31,8 +32,6 @@ import {
     POPUP_CREDENTIALS
 } from "../../constants";
 import { AppNotificationEvent } from "../../types";
-import { UserInput } from "../../../graphql/user/user.input";
-import { CustomPopupComponent } from "../app-custom-popup/app-custom-popup.component";
 
 
 @Component({
@@ -242,7 +241,6 @@ export class AppHeader implements OnInit, OnDestroy {
     }
     async countUnreadMessages() {
         const query = `query { countUnreadMessages }`;
-
         await this.graphQLService.send(query)
             .then((response: any) => {
                 this.unreadMessages = response.data.countUnreadMessages;

@@ -34,7 +34,6 @@ export class CustomPopupComponent implements OnDestroy{
       this.bottomPosition = data.position.bottom;
     }
     if (data.size) {
-      //this.dialogRef.updateSize(data.size.width, data.size.height);
       this.width = data.size.width;
       this.height = data.size.height;
     }
@@ -44,7 +43,6 @@ export class CustomPopupComponent implements OnDestroy{
     this.dialogRef.close();
   }
   ngOnDestroy() {
-    // Cleanup if necessary
     this.width = undefined;
     this.height = undefined;
     this.topPosition = undefined;

@@ -143,11 +143,11 @@ export class PatientsComponent implements OnInit {
             const createdAt = DateTime.fromISO(row.createdAt,  {setZone: true}).toFormat('MMM dd, yyyy');
             const updatedAt = DateTime.fromISO(row.updatedAt,  {setZone: true}).toFormat('MMM dd, yyyy');
             const dob = DateTime.fromISO(row.dob).toFormat('MMM dd, yyyy');
-
+            const email = row.email && row.email.includes('insertedonbankingsignup') ? '' : row.email;
             return {
                 id: row.id,
                 createdAt,
-                email: row.email,
+                email,
                 name: row.firstName+' '+row.lastName,
                 dob,
                 updatedAt: updatedAt.includes('1970') ? '-' : updatedAt    

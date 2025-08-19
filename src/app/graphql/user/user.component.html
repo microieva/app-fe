@@ -47,8 +47,8 @@
                             </div>
                             <div class="flex-column">
                                 <p>{{ 'Email' }}</p>
-                                <h5  *ngIf="me.email" class="font">{{ me.email }}</h5 >
-                                <h5><em *ngIf="!me.email" class="font color--gray--cold--primary">{{ 'Missing information' }}</em></h5>
+                                <h5  *ngIf="me.email && !me.email.includes('insertedonbankingsignup')" class="font">{{ me.email }}</h5 >
+                                <h5><em *ngIf="!me.email || me.email.includes('insertedonbankingsignup')" class="font color--gray--cold--primary">{{ 'Missing information' }}</em></h5>
                             </div>
                         </div>
                     </div>
@@ -188,8 +188,8 @@
                             </div>
                             <div class="flex-column">
                                 <p>{{ 'Email' }}</p>
-                                <h5  *ngIf="user.email" class="font">{{ user.email }}</h5  >
-                                <h5><em *ngIf="!user.email" class="font color--gray--cold--primary">{{ 'Missing information' }}</em></h5>
+                                <h5  *ngIf="user.email && !user.email.includes('insertedonbankingsignup')" class="font">{{ user.email }}</h5>
+                                <h5><em *ngIf="!user.email || user.email.includes('insertedonbankingsignup')" class="font color--gray--cold--primary">{{ 'Missing information' }}</em></h5>
                             </div>
                         </div>
                     </div>

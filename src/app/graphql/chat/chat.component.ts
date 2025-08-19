@@ -185,7 +185,10 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy, AfterVie
             }
         }`
         try {
-            await this.graphQLService.mutate(mutation, {chatId: this.chatId});
+            const response = await this.graphQLService.mutate(mutation, {chatId: this.chatId});
+            if (response.data.success) {
+                this.uiSyncService.triggerSync(MESSAGE_READ);
+            }
         } catch (error) {
             console.error(error)
         }
@@ -234,7 +237,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy, AfterVie
         this.uiSyncService.triggerSync(MESSAGE_CREATED);
         this.countService.countUnreadMessages();
     }
-    onDeleteMessage(){
+    async onDeleteMessage(){
         this.form.get('message')?.reset(); 
         this.textareaHeight = this.minRows * this.lineHeight; 
     }
@@ -269,6 +272,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy, AfterVie
     onChatDelete(){
         const ref = this.dialog.open(ConfirmComponent, {data: {message: "Deleting all messages"}});
         ref.componentInstance.isConfirming.subscribe(async () => {
+            await this.setIsReadToTrue();
             await this.deleteChatForParticipant();
         })
     }
