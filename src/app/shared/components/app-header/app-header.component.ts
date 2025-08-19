@@ -317,7 +317,7 @@ export class AppHeader implements OnInit, OnDestroy {
         this.dialog.open(CustomPopupComponent, {
             hasBackdrop: false, 
             data: {
-                text: POPUP_CREDENTIALS,
+                innerHTML: POPUP_CREDENTIALS,
                 position: {
                     top: '50%',
                     left: '75%',
