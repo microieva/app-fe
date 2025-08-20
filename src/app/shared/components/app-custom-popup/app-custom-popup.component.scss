@@ -1,7 +1,23 @@
+@import '../../scss/variables';
+
 .custom-popup {
   position: fixed;
   padding: 20px;
   border-radius: 40px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   z-index: 1000;
+  img {
+    width: 17.5vw;
+    height: auto;
+  }
+}
+.custom-popup--before::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  border-top: 10px dotted $--color-pink-secondary;
+  pointer-events: none; 
+  z-index: 2;
 }

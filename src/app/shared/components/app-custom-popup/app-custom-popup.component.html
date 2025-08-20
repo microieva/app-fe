@@ -1,5 +1,6 @@
 <div 
   class="custom-popup animate__animated animate__bounceIn bg--pink--secondary" 
+  [class.custom-popup--before.top] = "topBefore"
   [ngStyle]="{
       'top': topPosition,
       'left': leftPosition,
@@ -9,7 +10,7 @@
       'height': height,
     }"
 >
-  <div class="hover--scale" style="float:right;" (click)="close()"> <span class="material-symbols-outlined">close</span></div>
+  <div class="hover--scale" style="width: 100%;text-align: end;" (click)="close()"> <span class="material-symbols-outlined">close</span></div>
   <div [innerHTML]="innerHTML" class="popup-content flex-column" style="gap:0.5rem;">
   </div>
 </div>

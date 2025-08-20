@@ -1,4 +1,8 @@
+import { MatDialog } from "@angular/material/dialog";
 import { DateTime } from "luxon";
+import { CustomPopupComponent } from "./components/app-custom-popup/app-custom-popup.component";
+import { SIGNICAT_CREDENTIALS, GOOGLE_CREDENTIALS, DEMO_CREDENTIALS } from "./constants";
+import { CustomPopupComponentData } from "./types";
 
 export const getNextAppointmentTodayTomorrowStartStr = (nextStart: any): string => {
     const startDate = DateTime.fromISO(nextStart, { setZone: true });
@@ -160,6 +164,49 @@ export const getPatientAge = (dobISO: string): string  =>{
   }
 }
 
-
+export const showLoginCredentialPopups = (dialog:MatDialog) => {
+    dialog.open(CustomPopupComponent, {
+                hasBackdrop: false, 
+                data: {      
+                        innerHTML: SIGNICAT_CREDENTIALS,
+                        position: {
+                            top: '4%',
+                            left: '3%',
+                            right: 'auto',
+                            bottom: 'auto'          
+                        },
+                        size:{ width: '30vw', height: 'auto'}     
+                    } as CustomPopupComponentData
+                } 
+            );
+            setTimeout(() => {
+                dialog.open(CustomPopupComponent, {
+                    hasBackdrop: false, 
+                    data: {
+                        innerHTML: GOOGLE_CREDENTIALS,
+                        position: {
+                            top: '44%',
+                            left: '6%',
+                            right: 'auto',
+                            bottom: 'auto' 
+                        },
+                        size:{ width: '16vw', height: 'auto'}
+                    } as CustomPopupComponentData})
+            }, 1000);
+            setTimeout(() => {
+                dialog.open(CustomPopupComponent, {
+                    hasBackdrop: false, 
+                    data: {
+                        innerHTML: DEMO_CREDENTIALS,
+                        position: {
+                            top: '60%',
+                            left: '72%',
+                            right: 'auto',
+                            bottom: 'auto' 
+                        },
+                        size:{ width: '22vw', height: 'auto'}
+                    } as CustomPopupComponentData})
+            }, 2000);
+}
 
 
