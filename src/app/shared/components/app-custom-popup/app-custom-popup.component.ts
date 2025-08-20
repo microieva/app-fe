@@ -15,6 +15,12 @@ export class CustomPopupComponent implements OnDestroy{
   @Input() rightPosition?: string;
   @Input() bottomPosition?: string;
 
+  topBefore?: string;
+  leftBefore?: string;
+  rightBefore?: string;
+  bottomBefore?: string;
+  beforeElementWidth: string = '50px';
+
   @HostListener('document:click', ['$event.target'])
     public onClick(target: any) {
       if (target.classList.contains('cdk-overlay-backdrop') ) {
@@ -36,6 +42,13 @@ export class CustomPopupComponent implements OnDestroy{
     if (data.size) {
       this.width = data.size.width;
       this.height = data.size.height;
+    }
+    if (data.beforeElement) {
+      this.topBefore = data.beforeElement.top;
+      this.leftBefore = data.beforeElement.left;
+      this.rightBefore = data.beforeElement.right;
+      this.bottomBefore = data.beforeElement.bottom;
+      this.beforeElementWidth = data.beforeElement.width;
     }
   }
 

@@ -11,7 +11,8 @@ import { LoginMenuComponent } from "../../components/app-login-menu/app-login-me
 import { AlertComponent } from "../../components/app-alert/app-alert.component";
 import { FeedbackInput } from "../../../graphql/feedback/feedback.input";
 import { CustomPopupComponent } from "../../components/app-custom-popup/app-custom-popup.component";
-import { POPUP_CREDENTIALS } from "../../constants";
+import { DEMO_CREDENTIALS, GOOGLE_CREDENTIALS, SIGNICAT_CREDENTIALS } from "../../constants";
+import { showLoginCredentialPopups } from "../../utils";
 
 @Component({
     selector: 'app-landing',
@@ -207,17 +208,7 @@ export class AppLandingComponent implements OnInit, OnDestroy, AfterViewInit{
 
     onLogIn(){
         this.dialog.open(LoginMenuComponent);
-        this.dialog.open(CustomPopupComponent, {
-            hasBackdrop: false, 
-            data: {
-                innerHTML: POPUP_CREDENTIALS,
-                position: {
-                    top: '50%',
-                    left: '72%',
-                    right: 'auto',
-                    bottom: 'auto'          
-                }
-            }});
+        showLoginCredentialPopups(this.dialog);
     }
     onCancelSubscribe(panel: MatExpansionPanel){
         panel.close();

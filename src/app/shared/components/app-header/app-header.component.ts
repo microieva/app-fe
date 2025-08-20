@@ -29,9 +29,10 @@ import {
     FEEDBACK_CREATED, 
     USER_UPDATED,
     MESSAGE_READ,
-    POPUP_CREDENTIALS
+    DEMO_CREDENTIALS
 } from "../../constants";
 import { AppNotificationEvent } from "../../types";
+import { showLoginCredentialPopups } from "../../utils";
 
 
 @Component({
@@ -314,18 +315,7 @@ export class AppHeader implements OnInit, OnDestroy {
     }
     async onLogIn(){
         this.dialog.open(LoginMenuComponent);  
-        this.dialog.open(CustomPopupComponent, {
-            hasBackdrop: false, 
-            data: {
-                innerHTML: POPUP_CREDENTIALS,
-                position: {
-                    top: '50%',
-                    left: '75%',
-                    right: 'auto',
-                    bottom: 'auto'          
-                }
-            }
-        });         
+        showLoginCredentialPopups(this.dialog);        
     }
 
     async onLogOut() {   

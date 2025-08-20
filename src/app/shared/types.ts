@@ -120,3 +120,24 @@ export type NextAppointmentData = {
 }
 
 export type AppSnackbar = AppNotificationEvent & { id: number };
+
+export type CustomPopupComponentData = {
+    innerHTML: string
+    position: {
+        top: string
+        left: string
+        right: string
+        bottom: string
+    }
+    size?: {
+        width: string
+        height: string
+    }
+    beforeElement?: {
+        top: string
+        left: string
+        right: string
+        bottom: string
+        width: string
+    }
+}
