@@ -163,45 +163,24 @@ h2 {
 
 footer {
     background-color: $--color-white-warm;
-    height: 20rem;
     position: absolute;
     bottom: 0;
     width: 100%;
-    @include respond-to(tablet) {
-        height:20rem;
-    }
-    @include respond-to(mobile) {
-        height:18rem;
-    }
-    @include respond-to(mobile-x) {
-        height:18rem;
-    }
-    @include respond-to(mobile-6x) {
-        height:15rem;
-    }
 }
 .footer {
-    padding-top: 2rem;
+    padding-block: 2rem;
     width: 65%;
     margin: 0 auto;
     height: 100%;
-    @include respond-to(desktop-5x) {
-        width: 78%;
-    }
-    @include respond-to(mobile-and-tablet) {
-        width: 78%;
-        padding-top:2rem;
-    }
-    @include respond-to(mobile-6x) {
-        width: 88%;
-        padding-top:1rem;
-    }
-}
-.footer-bottom {
-    margin: 4rem 0 2rem 0;
-    @include respond-to(mobile-and-tablet) {
-        margin: 2rem 0;
-    }
+        .material-symbols-outlined {
+        color: $--color-gray-warm-primary;
+        font-size: 1rem;
+        font-variation-settings:
+        'FILL' 1,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 40
+        }
 }
 
 .accordion-wrapper {
@@ -337,6 +316,7 @@ img {
 textarea{
     overflow: hidden;
     resize: none;
+    font-size: 1.2rem;;
 }
 
 .icons {
@@ -355,9 +335,9 @@ textarea{
         font-size: 3rem;
         font-variation-settings:
             'FILL' 1,
-            'wght' 400,
+            'wght' 900,
             'GRAD' 0,
-            'opsz' 24
+            'opsz' 40
     }
     &.right{
         margin-top:2rem;
