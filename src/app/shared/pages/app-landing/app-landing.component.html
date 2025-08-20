@@ -14,9 +14,7 @@
             (window:resize)="onWindowResize()"  
             [ngStyle]="{'transform': 'translateY(' + parallaxOffset + 'px)'}"
         >
-            <div class="slide slide__top flex-column" style="position:relative;">
-                <!-- <img id="stamp" src="assets/stamp.png" alt="Decorative watermark stamp" /> -->
-                
+            <div class="slide slide__top flex-column" style="position:relative;">                
                 <h1 class="title bg">Empathic health care center for all</h1>
                 <h3 class="sm">You are in safe hands!</h3>
 
@@ -218,7 +216,7 @@
                             <app-loading></app-loading>
                         </div>
                         <div *ngIf="feedback && !isSendingFeedback" class="feedback">
-                            <h3 style="color:white; line-height:6rem;">{{feedback}}</h3>
+                            <h5 style="color:white; line-height:6rem;">{{feedback}}</h5>
                         </div>
                         <div class="flex-column" [formGroup]="feedbackForm" *ngIf="!isSendingFeedback && !feedback">
 
@@ -247,7 +245,7 @@
                                       (change)="toggleChangeAnonymous($event)"
                                       [checked]="isAnonymous"
                                     >
-                                    <p>Anonymous</p>
+                                    Anonymous
                                     </mat-checkbox>
                                 </div>
                                   
@@ -258,7 +256,7 @@
                                         [disabled]="isAnonymous"
                                         [checked]="requireContact"
                                     >
-                                    <p>Contact me</p>
+                                    Contact me
                                     </mat-checkbox>
                                 </div>
                             </div>
@@ -329,7 +327,7 @@
 
                         </div>
                         <div *ngIf="isSent" class="center">
-                            <h3>Thank you for subscribing!</h3>
+                            <h5 style="color:white;">Thank you for subscribing!</h5>
                         </div>
                     </div>
                 </mat-expansion-panel>
@@ -341,29 +339,82 @@
             <div class="flex-row">
                 <div class="flex-column">
                     <em>Helsinki</em>
-                    <span>Mon-Fri: 8:00 - 18:00</span>
-                    <span>0 40 50 6001</span>
-                    <span>Josefatinkatu 12</span>
+                    <div class="flex-column">
+                        <div class="flex-row" style="gap:1rem; justify-content: flex-start;">
+                            <span class="material-symbols-outlined">
+                                schedule
+                            </span>
+                            <h5>Mon-Fri: 8:00 - 18:00</h5>
+                        </div>
+                        <div class="flex-row" style="gap:1rem; justify-content: flex-start;">
+                            <span class="material-symbols-outlined">
+                                phone_enabled
+                            </span>
+                            <h5>0 40 50 6001</h5>
+                        </div>
+                        <div class="flex-row" style="gap:1rem; justify-content: flex-start;">
+                             <span class="material-symbols-outlined">
+                                location_on
+                            </span>
+                            <h5>Työpajankatu 14 A, 00580</h5>
+                        </div>
+                    </div>
                 </div>
                 <div class="flex-column">
-                    <em>Espoo </em>
-                    <span>Mon-Fri: 8:00 - 18:00</span>
-                    <span>0 40 50 6002</span>
-                    <span>Johansenkatu 10</span>
+                    <em>Espoo</em>
+                    <div class="flex-column">
+                        <div class="flex-row" style="gap:1rem; justify-content: flex-start;">
+                            <span class="material-symbols-outlined">
+                                schedule
+                            </span>
+                            <h5>Mon-Fri: 8:00 - 18:00</h5>
+                        </div>
+                        <div class="flex-row" style="gap:1rem; justify-content: flex-start;">
+                            <span class="material-symbols-outlined">
+                                phone_enabled
+                            </span>
+                            <h5>0 40 50 6002</h5>
+                        </div>
+                        <div class="flex-row" style="gap:1rem; justify-content: flex-start;">
+                             <span class="material-symbols-outlined">
+                                location_on
+                            </span>
+                            <h5>Konstaapelinkatu 2, 02650</h5>
+                        </div>
+                    </div>
                 </div>
-                <div class="flex-column">
+                 <div class="flex-column">
                     <em>Tampere</em>
-                    <span>Mon-Fri: 8:00 - 18:00</span>
-                    <span>0 40 50 6003</span>
-                    <span>Tampereen valtatie 35</span>
+                    <div class="flex-column">
+                        <div class="flex-row" style="gap:1rem; justify-content: flex-start;">
+                            <span class="material-symbols-outlined">
+                                schedule
+                            </span>
+                            <h5>Mon-Fri: 8:00 - 18:00</h5>
+                        </div>
+                        <div class="flex-row" style="gap:1rem; justify-content: flex-start;">
+                            <span class="material-symbols-outlined">
+                                phone_enabled
+                            </span>
+                            <h5>0 40 50 6003</h5>
+                        </div>
+                        <div class="flex-row" style="gap:1rem; justify-content: flex-start;">
+                             <span class="material-symbols-outlined">
+                                location_on
+                            </span>
+                            <h5>Kirviälänkatu 2, 33580</h5>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="footer-bottom">
+            <br>
+            <div>
                 <p>Lorem ipsum odor amet, consectetuer adipiscing elit. Quam maecenas tortor integer commodo posuere commodo, blandit consequat. Metus inceptos viverra taci ti mag ti tellus. </p>
-                <br>
+                
                 <p>Lorem ipsum odor amet, consectetuer adipiscing elit. Quam maecenas tortor integer commodo posuere commodo, blandit consequat. Metus inceptos viverra taciti magna justo mattis tellus. </p>
             </div>
-            <div style="float:right;">by Ieva Vyliaudaite, Helsinki 2024</div>
+            <br>
+            <p style="float:right;">by Ieva Vyliaudaite, Helsinki 2024-2025</p>
         </div>
     </footer>
 </div>
