@@ -13,12 +13,19 @@ const pool = mysql.createPool({
 export default async function handler(req, res) {
   try {
     const connection = await pool.getConnection();
-    await connection.query('SELECT 1');
+    
+    const [rows] = await connection.query(`
+      SELECT COUNT(*) as user_count 
+      FROM user
+    `);
+    
     connection.release();
-
-    res.status(200).json({ status: 'Database pinged successfully' });
-  } catch (error) {
-    console.error('Keep-alive failed:', error);
+    
+    res.status(200).json({ 
+      status: 'Database active',
+      user_count: rows[0].user_count 
+    });
+  } catch (error) {  
     res.status(500).json({ error: 'Database ping failed' });
   }
 }
