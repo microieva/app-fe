@@ -187,6 +187,12 @@
     'opsz' 40
     }
 }
+ .profile-img {
+        object-fit:cover; 
+        height:100%; 
+        width:70%; 
+        border-radius: 4rem;
+    }
 .list-wrapper { 
     grid-area: 4 / 1 / 5 / 3; 
     &--empty {

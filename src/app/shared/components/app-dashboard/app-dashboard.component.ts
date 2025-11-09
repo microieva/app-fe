@@ -194,11 +194,13 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
                             firstName
                             lastName
                             dob
+                            profilePictureUrl
                         }
                         doctor {
                             firstName
                             lastName
                             dob
+                            profilePictureUrl
                         }
                         patientMessage
                         doctorMessage
@@ -260,6 +262,7 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
                                 id
                                 firstName
                                 lastName
+                                profilePictureUrl
                             }
                         }
                     }    
@@ -339,6 +342,7 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
                             firstName
                             lastName
                             dob
+                            profilePictureUrl
                         }
                         patientMessage
                         doctorMessage
@@ -382,6 +386,7 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
                         id
                         firstName
                         lastName
+                        profilePictureUrl
                     }
                     createdAt
                 }
@@ -397,6 +402,7 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
                                 id
                                 firstName
                                 lastName
+                                profilePictureUrl
                             }
                         }
                     }    
@@ -477,6 +483,7 @@ export class AppDashboardComponent implements OnInit, OnDestroy{
                                 firstName
                                 lastName
                                 createdAt
+                                profilePictureUrl
                             }
                         }
                     }

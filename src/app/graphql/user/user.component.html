@@ -23,17 +23,36 @@
                     id_card
                 </span>
                 <div class="flex-column">
-                    <div class="flex-column block--bordered--md">
-                        <p class="title color--gray--cold--primary">{{ 'Basic Information' }}</p>
-                        <div class="flex-row">
-                            <div class="flex-column">
-                                <p>{{ 'Name' }}</p>
-                                <h5  class="font">{{ me.firstName }} {{ me.lastName }}</h5 >
+                    <div class="flex-row img-data-wrapper">
+                        <div class="flex-column profile-picture-hover" style="padding:1rem;">
+                            <div *ngIf="url" style="height: 12rem; position:relative">
+                                <div class="img-wrapper" style="height:12rem;width:12rem;">
+                                    <img [src]="url" />
+                                </div>   
                             </div>
-                            <div class="flex-column">
-                                <p>{{ 'Date of Birth' }}</p>
-                                <h5  *ngIf="me.dob" class="font">{{ formattedDate }}</h5 >
-                                <h5><em *ngIf="!me.dob" class="font color--gray--cold--primary">{{ 'Missing information' }}</em></h5>
+                            <div *ngIf="!url" class="block--bordered--md">
+                                upload picture
+                            </div>
+                            <div class="upload" matTooltip="Change picture">
+                                <input #fileInput type="file" (change)="handleFileInput($event)" style="display: none;" />
+                                <div class="hover--scale" (click)="fileInput.click()">
+                                    <span class="icon material-symbols-outlined">upload</span>
+                                </div>
+                            </div> 
+                        </div>
+
+                        <div class="flex-column block--bordered--md" style="align-self: flex-end;">
+                            <p class="title color--gray--cold--primary">{{ 'Basic Information' }}</p>
+                            <div class="flex-row">
+                                <div class="flex-column">
+                                    <p>{{ 'Name' }}</p>
+                                    <h5  class="font">{{ me.firstName }} {{ me.lastName }}</h5 >
+                                </div>
+                                <div class="flex-column">
+                                    <p>{{ 'Date of Birth' }}</p>
+                                    <h5  *ngIf="me.dob" class="font">{{ formattedDate }}</h5 >
+                                    <h5><em *ngIf="!me.dob" class="font color--gray--cold--primary">{{ 'Missing information' }}</em></h5>
+                                </div>
                             </div>
                         </div>
                     </div>

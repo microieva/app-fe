@@ -299,9 +299,12 @@
       </div>
       <!-- last log out -->
     <div class="account flex-column flex-center">
-        <span class="material-symbols-outlined color--main--primary" style="font-size: 5rem;">
+        <span *ngIf="!me.profilePictureUrl" class="material-symbols-outlined color--main--primary" style="font-size: 5rem;">
             account_circle
         </span>
+        <div *ngIf="me.profilePictureUrl" style="height:5rem; width:auto">
+            <img [src]="me.profilePictureUrl" class="profile-img"/>
+        </div>
         <div style="justify-items: start;">
             <div *ngIf="!me.email.includes('insertedonbankingsignup')">
                 <p>Account email</p>
@@ -352,17 +355,22 @@
            
             <div class="flex-column scroll" style="width:100%;">
                 <div 
-                    class="list flex-row" 
                     *ngFor="let doctor of doctors; let i = index" 
+                    class="list flex-row" 
+                    [ngStyle]="{'gap': doctor.profilePictureUrl ? '0':'0.5rem'}"
                     (click)="onUserOpen(doctor.id)"
                     [class.animate__animated]="i === 0 | animateTrigger:doctorsAnimationDuration:300"
                     [class.animate__bounceInUp]="i === 0 | animateTrigger:doctorsAnimationDuration:300"
                 >
-                    <span 
-                            class="material-symbols-outlined color--gray--warm--primary"
+                    <span   
+                        *ngIf="!doctor.profilePictureUrl"
+                        class="material-symbols-outlined color--gray--warm--primary"
                         >
                             account_circle
                     </span>
+                    <div *ngIf="doctor.profilePictureUrl" style="height:1.4rem; width:auto; padding-left:2px;">
+                        <img [src]="doctor.profilePictureUrl" class="profile-img"/>
+                    </div>
                     <div>
                         <h5>{{doctor.firstName}} {{doctor.lastName}}</h5>
                         <p><em>created: {{doctor.createdAt | dateFormat:'utc'}}</em></p>

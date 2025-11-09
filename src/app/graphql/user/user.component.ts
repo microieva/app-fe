@@ -1,5 +1,5 @@
 import { Subscription } from "rxjs";
-import { Component, EventEmitter, Inject, OnDestroy, OnInit, Optional, Output } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, EventEmitter, Inject, OnDestroy, OnInit, Optional, Output, ViewChild } from "@angular/core";
 import { FormGroup, FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { trigger, state, style, transition, animate } from "@angular/animations";
@@ -17,6 +17,8 @@ import { User } from "./user";
 import { AppCacheService } from "../../shared/services/app-cache.service";
 import { USER_UPDATED } from "../../shared/constants";
 import { AppUiSyncService } from "../../shared/services/app-ui-sync.service";
+import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
+import { AppUploadService } from "../../shared/services/app-file-upload.service";
 
 @Component({
     selector: 'app-user',
@@ -35,7 +37,7 @@ import { AppUiSyncService } from "../../shared/services/app-ui-sync.service";
           ]),
     ]
 })
-export class UserComponent implements OnInit, OnDestroy {
+export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
     me: User | undefined;
     user: User | null = null;
     request: DoctorRequest | null = null;
@@ -46,9 +48,17 @@ export class UserComponent implements OnInit, OnDestroy {
     formattedDate: string | undefined;
     scrollOffset: number = 0;
     isLoading: boolean = false;
+    imageForm: FormGroup = this.formBuilder.group({
+      imageFile: [null]
+    });
+    previewUrl: SafeUrl | null = null;
+    isUploading:boolean = false;
+    uploadProgress:number = 0;
+    url: string | null = null;
 
     @Output() isDeletingUser = new EventEmitter<boolean>();
     private subscriptions: Subscription = new Subscription();
+    @ViewChild('fileInput') fileInput!: ElementRef;
 
     constructor(
         private graphQLService: AppGraphQLService,
@@ -60,6 +70,8 @@ export class UserComponent implements OnInit, OnDestroy {
         private authService: AppAuthService,
         private cacheService: AppCacheService,
         private uiSyncService: AppUiSyncService,
+        private sanitizer: DomSanitizer,
+        private uploadService: AppUploadService,
 
         @Optional() public dialogRef: MatDialogRef<UserComponent>,
         @Optional() @Inject(MAT_DIALOG_DATA) public data: any
@@ -75,11 +87,11 @@ export class UserComponent implements OnInit, OnDestroy {
             this.isLoading = true;
             await this.loadUser();
             if (this.me?.userRole === 'admin') {
-                await this.loadRequest();
+                await this.loadRequestedUser();
             }
             this.isLoading = false;
         }
-
+        
         const sub = this.activatedRoute.paramMap.subscribe(async (params)=> {
             this.id = Number(params.get('id')); 
             
@@ -93,7 +105,10 @@ export class UserComponent implements OnInit, OnDestroy {
     ngOnDestroy(): void {
         this.subscriptions.unsubscribe();
     }
-
+    ngAfterViewInit(): void {
+        console.log('after INIT url: ', this.url)
+        //this.url='https://pub-47d114dd1f484b288223e868b177d37e.r2.dev/1064/profile-images/web-app-manifest-512x512.png'
+    }
     async loadUser(){
         const query = `query ($userId: Int!){
             user (userId: $userId){
@@ -108,18 +123,20 @@ export class UserComponent implements OnInit, OnDestroy {
                 city
                 postCode
                 updatedAt
+                profilePictureUrl
             }
         }`
         try {
             const response = await this.graphQLService.send(query, {userId: this.userId});
             this.formattedDate = DateTime.fromISO(response.data.user?.dob).toFormat('MMM dd, yyyy') 
             this.user = response.data.user || null;
+            this.url = response.data.user.profileProfileUrl;
         } catch (error){
             this.isLoading = false;
             this.dialog.open(AlertComponent, {data: {message: error}});
         }
     }
-     async loadRequest(){
+     async loadRequestedUser(){
         const query = `query ($userId: Int!){
             request (userId: $userId){
                 id
@@ -152,6 +169,7 @@ export class UserComponent implements OnInit, OnDestroy {
                 city
                 postCode
                 updatedAt
+                profilePictureUrl
             }
         }`
 
@@ -161,7 +179,7 @@ export class UserComponent implements OnInit, OnDestroy {
                 this.formattedDate = DateTime.fromISO(response.data.me.dob).toFormat('MMM dd, yyyy') 
                 this.me = response.data.me;
                 this.isUpdated = response.data.me.updatedAt;
-
+                this.url = response.data.me.profilePictureUrl;
                 this.buildForm();
             }
         } catch (error){
@@ -279,5 +297,66 @@ export class UserComponent implements OnInit, OnDestroy {
     openCalendar(userId: number){
         this.router.navigate(['/home/appointments/calendar'], { queryParams: { id: userId } });
         this.dialog.closeAll();
+    }
+
+    onFileSelected(input: FileList): void {
+        const file = input.item(0);
+        
+        if (file) {
+            // Validate file type
+            if (!file.type.match('image/(jpeg|png|jpg)')) {
+                this.imageForm.get('imageFile')?.setErrors({ invalidType: true });
+                this.previewUrl = null;
+                return;
+            }
+
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                this.imageForm.get('imageFile')?.setErrors({ maxSize: true });
+                this.previewUrl = null;
+                return;
+            }
+
+            // Set form value
+            this.imageForm.patchValue({ imageFile: file });
+            this.imageForm.get('imageFile')?.updateValueAndValidity();
+
+            // Create preview
+            this.createPreview(file);
+        }
+    }
+    private createPreview(file: File): void {
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+        this.previewUrl = this.sanitizer.bypassSecurityTrustUrl(e.target.result);
+        };
+        reader.readAsDataURL(file);
+    }
+
+    triggerFileInput(): void {
+        const fileInput = document.getElementById('fileInput') as HTMLElement;
+        fileInput.click();
+    }
+
+    removeImage(): void {
+        this.imageForm.patchValue({ imageFile: null });
+        this.previewUrl = null;
+        this.imageForm.get('imageFile')?.setErrors(null);
+    }
+
+    getFileName(): string {
+        const file = this.imageForm.get('imageFile')?.value;
+        return file ? file.name : 'No file chosen';
+    }   
+    
+    async handleFileInput(event: any) {
+        const file = event.target.files[0];     
+        if (file instanceof File) {
+            this.uploadService.uploadImage(file)
+                .then((res)=> this.url = res)
+            console.log('URL: ', this.url)
+        } else {
+            this.dialog.open(AlertComponent, {data: "Invalid file type"});
+        }
     }
 }

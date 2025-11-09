@@ -3,4 +3,29 @@
     width: clamp(25rem, 30vw, 40rem);
     height:min-content;
 }
+.img-wrapper img{
+    object-fit: cover; 
+    width: 100%;
+    height: 100%;
+}
+.img-data-wrapper {
+    & > div:nth-child(2) {
+        width: 75%; 
+    }
+    & >div:first-child {
+        &>div:nth-child(2) {
+            position: absolute;
+            top: 100px;
+            left: 100px;
+            z-index: 2;
+        }
+    }
+}
+.upload {
+    color: transparent;
+}
+.profile-picture-hover:hover{
+    color: white!important;
+}
+
 

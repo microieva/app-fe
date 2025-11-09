@@ -84,6 +84,7 @@ import { AppStepperComponent } from './shared/components/app-stepper-create-user
 import { AppAnimateTriggerPipe } from './shared/pipes/app-animate-trigger.pipe';
 import { AppDateFormatPipe } from './shared/pipes/app-date-format.pipe';
 import { CustomPopupComponent } from './shared/components/app-custom-popup/app-custom-popup.component';
+import { AppUploadService } from './shared/services/app-file-upload.service';
 
 
 @NgModule({ 
@@ -184,6 +185,7 @@ import { CustomPopupComponent } from './shared/components/app-custom-popup/app-c
         AppAiService,
         AppDbWakeUpService,
         AppCacheService,
+        AppUploadService,
         provideNativeDateAdapter(),
         provideHttpClient(withInterceptorsFromDi()), 
         provideAnimationsAsync(),

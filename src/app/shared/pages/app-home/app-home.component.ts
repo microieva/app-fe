@@ -204,16 +204,15 @@ export class AppHomeComponent implements OnInit, AfterViewInit, OnDestroy {
                 firstName
                 lastName
                 email
+                profilePictureUrl
             }
         }`
         try {
 
             const response = await this.graphQLService.send(query);
-            //if (response.data) {
-                this.me = response.data.me;
-                this.userRole = response.data.me.userRole;
-                this.isUserUpdated = response.data.me.updatedAt;
-            //} 
+            this.me = response.data.me;
+            this.userRole = response.data.me.userRole;
+            this.isUserUpdated = response.data.me.updatedAt;
         } catch (error) {
             this.dialog.open(AlertComponent, {data:{message:"Unexpected error "+error}})
         }

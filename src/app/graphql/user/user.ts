@@ -1,5 +1,3 @@
-
-
 export interface User {
     id: number
     firstName: string
@@ -14,4 +12,5 @@ export interface User {
     updatedAt: string
     createdAt: string
     lastLogOutAt: string
+    profilePictureUrl: string
 }
